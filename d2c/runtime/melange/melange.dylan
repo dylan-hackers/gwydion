@@ -3,7 +3,7 @@ module: melange-support
 //======================================================================
 //
 // Copyright (c) 1994  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -32,20 +32,20 @@ module: melange-support
 // produced by Melange rather than being explicitly referenced by users.
 //
 
-// Usage: c-variable-ref(int: "&variable") { := expression }
+// Usage: c-variable(int: "&variable") { := expression }
 //
-define macro c-variable-ref
-  { c-variable (?result-type:expression, ?:expression) }
+define macro c-variable
+  { c-variable(?result-type:expression, ?:expression) }
     => { pointer-deref(?result-type, c-expr(ptr: ?expression), 0) }
-  { c-variable (?result-type:token ?:expression) }
+  { c-variable(?result-type:token ?:expression) }
     => { pointer-deref(?result-type, c-expr(ptr: ?expression), 0) }
 end;
 
-define macro c-variable-ref-setter
-  { c-variable (?value:expression, ?result-type:expression, ?:expression) }
+define macro c-variable-setter
+  { c-variable-setter(?value:expression, ?result-type:expression, ?:expression) }
     => { pointer-deref-setter(?value, ?result-type,
 			      c-expr(ptr: ?expression), 0) }
-  { c-variable (?value:expression, ?result-type:token ?:expression) }
+  { c-variable-setter(?value:expression, ?result-type:token ?:expression) }
     => { pointer-deref-setter(?value, ?result-type,
 			      c-expr(ptr: ?expression), 0) }
 end;
@@ -146,9 +146,11 @@ define sealed method as
   obj.raw-value;
 end method as;
 
-define constant null-pointer :: <statically-typed-pointer>
+
+define constant (null-pointer :: <statically-typed-pointer>)
   = as(<statically-typed-pointer>, 0);
 
+// export-rename??? ###
 define constant $null-pointer :: <statically-typed-pointer> = null-pointer;
 
 define sealed inline method signed-byte-at
@@ -229,6 +231,7 @@ define sealed inline method unsigned-long-at-setter
   pointer-deref(long:, ptr.raw-value, offset) := new;
 end method unsigned-long-at-setter;
 
+/*
 define sealed inline method longlong-at
     (ptr :: <statically-typed-pointer>, #key offset :: <integer> = 0)
  => (result :: <double-integer>);
@@ -254,6 +257,7 @@ define sealed inline method unsigned-longlong-at-setter
  => (result :: <double-integer>);
   pointer-deref(long-long:, ptr.raw-value, offset) := new;
 end method unsigned-longlong-at-setter;
+*/
 
 define sealed inline method float-at
     (ptr :: <statically-typed-pointer>, #key offset :: <integer> = 0)
@@ -365,7 +369,8 @@ define open generic pointer-value-setter
 //
 define open generic content-size
 //    (cls :: limited(<class>, subclass-of: <statically-typed-pointer>))
-    (cls :: <class>)
+//    (cls :: <class>)
+    (cls :: subclass(<statically-typed-pointer>))
  => (result :: <integer>);
 
 define constant structure-size = content-size;

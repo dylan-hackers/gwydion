@@ -43,7 +43,7 @@ define module melange-support
   use machine-words;
 
   export
-    c-variable-ref, c-variable-ref-setter,
+    c-variable, c-variable-setter,
     <statically-typed-pointer>, raw-value, null-pointer,
     signed-byte-at, signed-byte-at-setter,
     unsigned-byte-at, unsigned-byte-at-setter, signed-short-at,
