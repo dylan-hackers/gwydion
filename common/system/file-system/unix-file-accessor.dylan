@@ -38,6 +38,7 @@ define method accessor-open
        file-size: initial-file-size = #f, // :: false-or(<integer>)?
      #all-keys) => ()
   block (return)
+    let locator = expand-pathname(locator);
     let pathstring = as(<byte-string>, locator);
     let (stat-err?, st) = %stat(pathstring);
     let exists = ~stat-err?;
