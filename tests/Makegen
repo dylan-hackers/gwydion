@@ -54,9 +54,6 @@ do emit_library_rule(
 do emit_library_rule(
     'format-out-test', '$(BUILDROOT)/force.timestamp ' . $deps, '', 'compile'
 );
-#do emit_library_rule(
-#    'itime-test', '$(BUILDROOT)/force.timestamp ' . $deps, '', 'compile'
-#);
 do emit_library_rule(
     'getopt-test', '$(BUILDROOT)/force.timestamp ' . $deps, '', 'compile'
 );
@@ -92,8 +89,7 @@ sub emit_run_tests_rule {
     push(@compile_dependencies, "run_tests");
 }
 
-do emit_run_tests_rule('dylan-test', 'regexp-test', # 'stream-test', 
+do emit_run_tests_rule('dylan-test', 'regexp-test',
 		       'table-ext-test', 'random-test', 'matrix-test', 
 		       'coll-ext-test', 'print-test', 'format-test', 
 		       'format-out-test');
-# time-test removed because it is broken.
