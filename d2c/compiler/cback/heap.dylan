@@ -1175,13 +1175,13 @@ define method spew-object
     (name :: <byte-string>,
      object :: <override-info>, state :: <file-state>) => ();
   spew-instance(name, specifier-type(#"<override-descriptor>"), state,
-		override-init-value:
-		  if (instance?(object.override-init-value, <ct-value>))
-		    object.override-init-value;
+		slot-init-value:
+		  if (instance?(object.slot-init-value, <ct-value>))
+		    object.slot-init-value;
 		  end,
-		override-init-function:
-		  if (instance?(object.override-init-function, <ct-value>))
-		    object.override-init-function;
+		slot-init-function:
+		  if (instance?(object.slot-init-function, <ct-value>))
+		    object.slot-init-function;
 		  end);
 end method spew-object;
 
@@ -1740,15 +1740,15 @@ define method find-init-value
     // class.  If not, we use the default value supplied in the initial slot
     // defintion.
     for (override in slot.slot-overrides)
-      let intro = override.override-introduced-by;
+      let intro = override.slot-introduced-by;
       if (intro == object-type | csubtype?(class, intro))
-	if (override.override-init-value == #t
-	      | override.override-init-function)
+	if (override.slot-init-value == #t
+	      | override.slot-init-function)
 	  compiler-warning("Init value for %s in %= not set up.",
 			   slot-name, class);
 	  return(#f);
 	end;
-	return(override.override-init-value);
+	return(override.slot-init-value);
       end;
     end;
 

@@ -285,10 +285,10 @@ define method initialize
       slot.slot-introduced-by := class;
     end;
     for (override in overrides)
-      override.override-introduced-by := class;
+      override.slot-introduced-by := class;
     end;
     for (keyword in keywords)
-      keyword.keyword-introduced-by := class;
+      keyword.slot-introduced-by := class;
     end;
   end;
 end;
@@ -312,12 +312,25 @@ end;
 define sealed domain make (singleton(<meta-cclass>));
 define sealed domain initialize (<meta-cclass>);
 
-define abstract class <slot-info> (<eql-ct-value>, <identity-preserving-mixin>)
+define abstract class <abstract-slot-info> (<eql-ct-value>, <identity-preserving-mixin>)
   //
   // The cclass that introduces this slot.  Not required, because we have to
   // make the regular slots before we can make the cclass that defines them.
   slot slot-introduced-by :: <cclass>,
     init-keyword: introduced-by:;
+  //
+  // The initial value.  A <ct-value> if we can figure one out, #t if there is
+  // one but we can't tell what it is, and #f if there isn't one.
+  slot slot-init-value :: type-union(<ct-value>, <boolean>),
+    init-value: #f, init-keyword: init-value:;
+  //
+  // The init-function.  A <ct-value> if we can figure one out, #t if there is
+  // one but we can't tell what it is, and #f if there isn't one.
+  slot slot-init-function :: type-union(<ct-value>, <boolean>),
+    init-value: #f, init-keyword: init-function:;
+end class <abstract-slot-info>;
+
+define abstract class <slot-info> (<abstract-slot-info>)
   //
   // The type we've decided to use for this slot.  Either the declared type,
   // or <object> if we can't figure out what the declared type is at
@@ -333,16 +346,6 @@ define abstract class <slot-info> (<eql-ct-value>, <identity-preserving-mixin>)
   // True if the slot is read-only (i.e. no setter), False otherwise.
   slot slot-read-only? :: <boolean>,
     init-value: #f, init-keyword: read-only:;
-  //
-  // The initial value.  A <ct-value> if we can figure one out, #t if there is
-  // one but we can't tell what it is, and #f if there isn't one.
-  slot slot-init-value :: type-union(<ct-value>, <boolean>),
-    init-value: #f, init-keyword: init-value:;
-  //
-  // The init-function.  A <ct-value> if we can figure one out, #t if there is
-  // one but we can't tell what it is, and #f if there isn't one.
-  slot slot-init-function :: type-union(<ct-value>, <boolean>),
-    init-value: #f, init-keyword: init-function:;
   //
   // The init-keyword, or #f if there isn't one.
   slot slot-init-keyword :: false-or(<symbol>),
@@ -460,12 +463,7 @@ define sealed domain make (singleton(<meta-slot-info>));
 define sealed domain initialize (<meta-slot-info>);
 
 
-define class <override-info> (<eql-ct-value>, <identity-preserving-mixin>)
-  //
-  // The cclass that introduces this override.  Filled in when the cclass that
-  // introduces this override is initialized.
-  slot override-introduced-by :: <cclass>,
-    init-keyword: introduced-by:;
+define class <override-info> (<abstract-slot-info>)
   //
   // The getter generic function definition.  Used for slot identity.
   slot override-getter :: <variable>,
@@ -474,38 +472,13 @@ define class <override-info> (<eql-ct-value>, <identity-preserving-mixin>)
   // The slot-info this override is overriding.  Filled in when overrides are
   // inherited.
   slot override-slot :: <slot-info>;
-  //
-  // The initial value.  A <ct-value> if we can figure one out, #t if there is
-  // one but we can't tell what it is, and #f if there isn't one.
-  slot override-init-value :: type-union(<ct-value>, <boolean>),
-    init-value: #f, init-keyword: init-value:;
-  //
-  // The init-function.  A <ct-value> if we can figure one out, #t if there is
-  // one but we can't tell what it is, and #f if there isn't one.
-  slot override-init-function :: type-union(<ct-value>, <boolean>),
-    init-value: #f, init-keyword: init-function:;
 end;
 
-define class <keyword-info> (<eql-ct-value>, <identity-preserving-mixin>)
-  //
-  // The cclass that introduces this override.  Filled in when the cclass that
-  // introduces this override is initialized.
-  slot keyword-introduced-by :: <cclass>,
-    init-keyword: introduced-by:;
+define class <keyword-info> (<abstract-slot-info>)
   //
   // The symbol of this keyword
   slot keyword-symbol :: <symbol>,
     required-init-keyword: symbol:;
-  //
-  // The initial value.  A <ct-value> if we can figure one out, #t if there is
-  // one but we can't tell what it is, and #f if there isn't one.
-  slot keyword-init-value :: type-union(<ct-value>, <boolean>),
-    init-value: #f, init-keyword: init-value:;
-  //
-  // The init-function.  A <ct-value> if we can figure one out, #t if there is
-  // one but we can't tell what it is, and #f if there isn't one.
-  slot keyword-init-function :: type-union(<ct-value>, <boolean>),
-    init-value: #f, init-keyword: init-function:;
   //
   // Is this keyword required?
   slot keyword-required? :: <boolean>, 
@@ -522,7 +495,7 @@ define sealed domain initialize (<override-info>);
 define method keyword-needs-supplied?-var
     (info :: <keyword-info>)
  => (res :: <boolean>);
-  if (info.keyword-init-value)
+  if (info.slot-init-value)
     #f;
   else
     let rep = pick-representation(info.keyword-type, #"speed");
@@ -534,7 +507,7 @@ define method print-message
     (override :: <override-info>, stream :: <stream>) => ();
   format(stream, "{<override-descriptor> for %s at %s}",
 	 override.override-getter.variable-name,
-	 override.override-introduced-by);
+	 override.slot-introduced-by);
 end method print-message;
 
 
@@ -1055,17 +1028,17 @@ define method inherit-overrides ()
     for (slot in cclass.all-slot-infos)
       let active-overrides = #();
       for (override in slot.slot-overrides)
-	if (csubtype?(cclass, override.override-introduced-by))
+	if (csubtype?(cclass, override.slot-introduced-by))
 	  unless (any?(method (other)
-			 csubtype?(other.override-introduced-by,
-				   override.override-introduced-by);
+			 csubtype?(other.slot-introduced-by,
+				   override.slot-introduced-by);
 		       end,
 		       active-overrides))
 	    active-overrides
 	      := pair(override,
 		      choose(method (other)
-			       ~csubtype?(override.override-introduced-by,
-					  other.override-introduced-by);
+			       ~csubtype?(override.slot-introduced-by,
+					  other.slot-introduced-by);
 			     end,
 			     active-overrides));
 	  end;
@@ -1075,7 +1048,7 @@ define method inherit-overrides ()
 		 "the conflict in inheriting overrides from each "
 		 "of %=",
 	       cclass, slot.slot-getter.variable-name,
-	       map(override-introduced-by, active-overrides));
+	       map(slot-introduced-by, active-overrides));
 	  end;
 	end;
       end;
@@ -1096,15 +1069,15 @@ define method all-keyword-infos (class :: <cclass>) => (result :: <sequence>);
           ("The type in the initialization argument specification for "
              "keyword %s: in class %s must be a subtype of the corresponding "
              "type specification in class %s",
-           info.keyword-symbol, class, from.keyword-introduced-by);
+           info.keyword-symbol, class, from.slot-introduced-by);
       end;
       unless(info.keyword-required?
-               | info.keyword-init-value
-               | info.keyword-init-function)
-        if(from.keyword-init-value)
-          info.keyword-init-value := from.keyword-init-value;
-        elseif(from.keyword-init-function)
-          info.keyword-init-function := from.keyword-init-function;
+               | info.slot-init-value
+               | info.slot-init-function)
+        if(from.slot-init-value)
+          info.slot-init-value := from.slot-init-value;
+        elseif(from.slot-init-function)
+          info.slot-init-function := from.slot-init-function;
         elseif(from.keyword-required?)
           info.keyword-required? := #t;
         end if;
@@ -1846,7 +1819,7 @@ define method slot-guaranteed-initialized?
   else
     csubtype?(instance-type,
 	      reduce1(ctype-union,
-		      map(override-introduced-by,
+		      map(slot-introduced-by,
 			  slot.slot-overrides)));
   end;
 end;

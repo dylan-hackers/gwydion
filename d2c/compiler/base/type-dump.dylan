@@ -255,19 +255,19 @@ add-make-dumper(#"virtual-slot-info", *compiler-dispatcher*,
 
 add-make-dumper(#"override-info", *compiler-dispatcher*,
   <override-info>,
-  list(override-introduced-by, introduced-by:, override-introduced-by-setter,
+  list(slot-introduced-by, introduced-by:, slot-introduced-by-setter,
        override-getter, getter:, #f,
-       override-init-value, init-value:, override-init-value-setter,
-       override-init-function, init-function:, override-init-function-setter),
+       slot-init-value, init-value:, slot-init-value-setter,
+       slot-init-function, init-function:, slot-init-function-setter),
   load-external: #t
 );
 
 add-make-dumper(#"keyword-info", *compiler-dispatcher*,
   <keyword-info>,
-  list(keyword-introduced-by, introduced-by:, keyword-introduced-by-setter,
+  list(slot-introduced-by, introduced-by:, slot-introduced-by-setter,
        keyword-symbol, symbol:, #f,
-       keyword-init-value, init-value:, keyword-init-value-setter,
-       keyword-init-function, init-function:, keyword-init-function-setter,
+       slot-init-value, init-value:, slot-init-value-setter,
+       slot-init-function, init-function:, slot-init-function-setter,
        keyword-required?, required?:, keyword-required?-setter,
        keyword-type, type:, keyword-type-setter),
   load-external: #t

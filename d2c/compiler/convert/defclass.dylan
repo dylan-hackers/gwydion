@@ -228,117 +228,88 @@ define class <local-class-definition> (<real-class-definition>)
     required-init-keyword: keywords:;
 end;  
 
-define /* exported */ class <slot-defn> (<source-location-mixin>)
+define abstract class <abstract-slot-definition> (<source-location-mixin>)
   //
-  // The class that introduces this slot.
-  slot slot-defn-class :: <real-class-definition>;
+  // The introducing class
+  slot slot-definition-class :: <real-class-definition>;
+  //
+  // The init-value expression, or #f if none.
+  constant slot slot-definition-init-value :: false-or(<expression-parse>),
+    init-value: #f, init-keyword: init-value:;
+  //
+  // The init-function expression, or #f if none.
+  constant slot slot-definition-init-function :: false-or(<expression-parse>),
+    init-value: #f, init-keyword: init-function:;
+  //
+  // The <abstract-slot-info> for this definition, or #f if we haven't computed it
+  // or don't know enough about the class to compute it at all.
+  slot slot-definition-info :: false-or(<abstract-slot-info>),
+    init-value: #f;
+end class <abstract-slot-definition>;
+
+define /* exported */ class <slot-definition> (<abstract-slot-definition>)
+  //
+  // The name of the getter.
+  constant slot slot-definition-getter-name :: <name>,
+    required-init-keyword: getter-name:;
   //
   // #t if this slot is sealed, #f if not.  This really means that the getter
   // generic function is sealed on this class and the setter (if any) is sealed
   // on object and this class.
-  constant slot slot-defn-sealed? :: <boolean>,
+  constant slot slot-definition-sealed? :: <boolean>,
     required-init-keyword: sealed:;
   //
   // The allocation of this slot.
-  constant slot slot-defn-allocation :: <slot-allocation>,
+  constant slot slot-definition-allocation :: <slot-allocation>,
     required-init-keyword: allocation:;
   //
   // The expression to compute the type.
-  constant slot slot-defn-type :: false-or(<expression-parse>),
+  constant slot slot-definition-type :: false-or(<expression-parse>),
     required-init-keyword: type:;
   //
-  // The name of the getter generic function.
-  constant slot slot-defn-getter-name :: <name>,
-    required-init-keyword: getter-name:;
-  //
   // The getter method.  Filled in when computed.
-  slot slot-defn-getter :: <getter-method-definition>;
+  slot slot-definition-getter :: <getter-method-definition>;
   //
   // The name of the setter generic function, or #f if there is no setter.
-  constant slot slot-defn-setter-name :: false-or(<name>),
+  constant slot slot-definition-setter-name :: false-or(<name>),
     required-init-keyword: setter-name:;
   //
   // The setter method.  Filled in when computed.
-  slot slot-defn-setter :: false-or(<setter-method-definition>);
-  //
-  // The init-value expression, or #f if one wasn't supplied.
-  constant slot slot-defn-init-value :: false-or(<expression-parse>),
-    init-value: #f, init-keyword: init-value:;
-  //
-  // The init-function, or #f if there isn't one.
-  constant slot slot-defn-init-function :: false-or(<expression-parse>),
-    init-value: #f, init-keyword: init-function:;
+  slot slot-definition-setter :: false-or(<setter-method-definition>);
   //
   // The init-keyword, or #f if there isn't one.
-  constant slot slot-defn-init-keyword :: false-or(<symbol>),
+  constant slot slot-definition-init-keyword :: false-or(<symbol>),
     init-value: #f, init-keyword: init-keyword:;
   //
   // #t if the init-keyword is required, #f if not.
-  constant slot slot-defn-init-keyword-required? :: <boolean>,
+  constant slot slot-definition-init-keyword-required? :: <boolean>,
     init-value: #f, init-keyword: init-keyword-required:;
   //
   // The sizer slot defn.
-  constant slot slot-defn-sizer-defn :: false-or(<slot-defn>),
-    init-value: #f, init-keyword: sizer-defn:;
-
-  // The slot-info for this slot, or #f if we haven't computed it or don't know
-  // enough about the class to compute it at all.
-  slot slot-defn-info :: false-or(<slot-info>),
-    init-value: #f;
+  constant slot slot-definition-sizer-definition :: false-or(<slot-definition>),
+        init-value: #f, init-keyword: sizer-defn:;
 end;
 
-define class <override-defn> (<object>)
-  //
-  // The class that introduces this override.
-  slot override-defn-class :: <real-class-definition>;
+define class <override-definition> (<abstract-slot-definition>)
   //
   // The name of the getter.
-  constant slot override-defn-getter-name :: <name>,
+  constant slot override-definition-getter-name :: <name>,
     required-init-keyword: getter-name:;
-  //
-  // The init-value expression, or #f if none.
-  constant slot override-defn-init-value :: false-or(<expression-parse>),
-    init-value: #f, init-keyword: init-value:;
-  //
-  // The init-function expression, or #f if none.
-  constant slot override-defn-init-function :: false-or(<expression-parse>),
-    init-value: #f, init-keyword: init-function:;
-  //
-  // The <override-info> for this override, or #f if we haven't computed it
-  // or don't know enough about the class to compute it at all.
-  slot override-defn-info :: false-or(<override-info>),
-    init-value: #f;
 end;
 
-define class <keyword-defn> (<object>)
-  //
-  // The class that introduces this keyword.
-  slot keyword-defn-class :: <real-class-definition>;
+define class <keyword-definition> (<abstract-slot-definition>)
   //
   // The keyword
-  constant slot keyword-defn-symbol :: <symbol>,
+  constant slot keyword-definition-symbol :: <symbol>,
     required-init-keyword: symbol:;
   //
-  // The init-value expression, or #f if none.
-  constant slot keyword-defn-init-value :: false-or(<expression-parse>),
-    init-value: #f, init-keyword: init-value:;
-  //
-  // The init-function expression, or #f if none.
-  constant slot keyword-defn-init-function :: false-or(<expression-parse>),
-    init-value: #f, init-keyword: init-function:;
-  //
   // Is this keyword required?
-  constant slot keyword-defn-required? :: <boolean>, 
+  constant slot keyword-definition-required? :: <boolean>, 
     init-value: #f, init-keyword: required?:;
   // 
   // The type restriction for this keyword, if any.
-  constant slot keyword-defn-type :: false-or(<expression-parse>),
+  constant slot keyword-definition-type :: false-or(<expression-parse>),
     init-value: #f, init-keyword: type:;
-  //
-  // The <keyword-info> for this keyword, or #f if we haven't computed it
-  // or don't know enough about the class to compute it at all.
-  slot keyword-defn-info :: false-or(<keyword-info>),
-    init-value: #f;
 end;
 
 
@@ -357,8 +328,8 @@ end class <init-function-definition>;
 // Top level form processing.
 
 // During top level form processing, we parse the define class form
-// and build the necessary <local-class-definition>, <slot-defn>, and
-// <override-defn> objects.  We only check for syntactic errors and
+// and build the necessary <local-class-definition>, <slot-definition>, and
+// <override-definition> objects.  We only check for syntactic errors and
 // local semantic errors.  By local semantic errors, I mean errors
 // that can be detected by looking at nothing more than this class
 // itself.
@@ -388,7 +359,7 @@ define method process-top-level-form (form :: <define-class-parse>) => ();
   let keywords = make(<stretchy-vector>);
   unless (class-abstract? | empty?(form.defclass-superclass-exprs))
     add!(overrides,
-         make(<override-defn>,
+         make(<override-definition>,
               getter-name: make(<basic-name>, symbol: #"%object-class",
                                 module: $Dylan-Module),
               init-value: make(<varref-parse>, id: form.defclass-name)));
@@ -418,30 +389,30 @@ define method process-top-level-form (form :: <define-class-parse>) => ();
                   overrides: overrides,
                   keywords: keywords);
   for (slot in slots)
-    slot.slot-defn-class := defn;
+    slot.slot-definition-class := defn;
     //
     // Implicity define the accessor generics.
-    if (slot.slot-defn-sizer-defn)
+    if (slot.slot-definition-sizer-definition)
       implicitly-define-generic
-        (library, slot.slot-defn-getter-name, 2, #f, #f);
-      if (slot.slot-defn-setter-name)
+        (library, slot.slot-definition-getter-name, 2, #f, #f);
+      if (slot.slot-definition-setter-name)
         implicitly-define-generic
-          (library, slot.slot-defn-setter-name, 3, #f, #f);
+          (library, slot.slot-definition-setter-name, 3, #f, #f);
       end;
     else
       implicitly-define-generic
-        (library, slot.slot-defn-getter-name, 1, #f, #f);
-      if (slot.slot-defn-setter-name)
+        (library, slot.slot-definition-getter-name, 1, #f, #f);
+      if (slot.slot-definition-setter-name)
         implicitly-define-generic
-          (library, slot.slot-defn-setter-name, 2, #f, #f);
+          (library, slot.slot-definition-setter-name, 2, #f, #f);
       end;
     end;
   end;
   for (override in overrides)
-    override.override-defn-class := defn;
+    override.slot-definition-class := defn;
   end for;
   for (keyword in keywords)
-    keyword.keyword-defn-class := defn;
+    keyword.slot-definition-class := defn;
   end for;
   note-variable-definition(defn);
   let tlf = make(<define-class-tlf>, defn: defn);
@@ -606,7 +577,7 @@ define method process-slot
                "required-size-init-keyword:");
         end;
         
-        let slot = make(<slot-defn>,
+        let slot = make(<slot-definition>,
                         sealed: sealed?,
                         allocation: #"instance",
                         type:
@@ -658,7 +629,7 @@ define method process-slot
         #f;
       end;
   
-  let slot = make(<slot-defn>,
+  let slot = make(<slot-definition>,
                   sealed: sealed? & #t,
                   allocation: allocation,
                   type: type,
@@ -717,7 +688,7 @@ define method process-slot
 
   let module = slot.inherited-slot-parse-name.token-module;
   add!(overrides,
-       make(<override-defn>,
+       make(<override-definition>,
             getter-name:
               make(<basic-name>,
                    symbol: slot.inherited-slot-parse-name.token-symbol,
@@ -789,7 +760,7 @@ define method process-slot
   end;
 
   add!(keywords,
-       make(<keyword-defn>,
+       make(<keyword-definition>,
             symbol: slot.init-arg-parse-keyword,
             required?: required?,
             type: type,
@@ -1102,65 +1073,65 @@ define method compute-cclass (defn :: <real-class-definition>)
   end if;
 end method compute-cclass;
 
-define method compute-slot (slot :: <slot-defn>) => info :: <slot-info>;
-  let getter-name = slot.slot-defn-getter-name;
+define method compute-slot (slot :: <slot-definition>) => info :: <slot-info>;
+  let getter-name = slot.slot-definition-getter-name;
   //
   // Note: we don't pass in anything for the type, init-value, or
   // init-function, because we need to compile-time-eval those, which we
   // can't do until tlf-finalization time.
   let info
-    = if (slot.slot-defn-sizer-defn)
+    = if (slot.slot-definition-sizer-definition)
         make(<vector-slot-info>,
              getter: find-variable(getter-name, create: #t),
-             read-only: slot.slot-defn-setter-name == #f,
-             init-value: slot.slot-defn-init-value & #t,
-             init-function: slot.slot-defn-init-function & #t,
-             init-keyword: slot.slot-defn-init-keyword,
+             read-only: slot.slot-definition-setter-name == #f,
+             init-value: slot.slot-definition-init-value & #t,
+             init-function: slot.slot-definition-init-function & #t,
+             init-keyword: slot.slot-definition-init-keyword,
              init-keyword-required:
-               slot.slot-defn-init-keyword-required?,
-             size-slot: slot.slot-defn-sizer-defn.slot-defn-info);
+               slot.slot-definition-init-keyword-required?,
+             size-slot: slot.slot-definition-sizer-definition.slot-definition-info);
       else
         make(<slot-info>,
-             allocation: slot.slot-defn-allocation,
+             allocation: slot.slot-definition-allocation,
              getter: find-variable(getter-name, create: #t),
-             read-only: slot.slot-defn-setter-name == #f,
-             init-value: slot.slot-defn-init-value & #t,
-             init-function: slot.slot-defn-init-function & #t,
-             init-keyword: slot.slot-defn-init-keyword,
+             read-only: slot.slot-definition-setter-name == #f,
+             init-value: slot.slot-definition-init-value & #t,
+             init-function: slot.slot-definition-init-function & #t,
+             init-keyword: slot.slot-definition-init-keyword,
              init-keyword-required:
-               slot.slot-defn-init-keyword-required?);
+               slot.slot-definition-init-keyword-required?);
       end;
-  slot.slot-defn-info := info;
+  slot.slot-definition-info := info;
   info;
 end;
 
 define method compute-override
-    (override :: <override-defn>) => info :: <override-info>;
-  let getter-name = override.override-defn-getter-name;
+    (override :: <override-definition>) => info :: <override-info>;
+  let getter-name = override.override-definition-getter-name;
   //
   // Note: we don't pass in anything for the init-value or init-function,
   // because we need to compile-time-eval those, which we can't do until
   // tlf-finalization time.
   let info = make(<override-info>,
                   getter: find-variable(getter-name, create: #t),
-                  init-value: override.override-defn-init-value & #t,
-                  init-function: override.override-defn-init-function & #t);
-  override.override-defn-info := info;
+                  init-value: override.slot-definition-init-value & #t,
+                  init-function: override.slot-definition-init-function & #t);
+  override.slot-definition-info := info;
   info;
 end;
 
 define method compute-keyword
-    (keyword :: <keyword-defn>) => info :: <keyword-info>;
+    (keyword :: <keyword-definition>) => info :: <keyword-info>;
   //
   // Note: we don't pass in anything for the type, init-value, or
   // init-function, because we need to compile-time-eval those, which we
   // can't do until tlf-finalization time.
   let info = make(<keyword-info>,
-                  symbol: keyword.keyword-defn-symbol,
-                  required?: keyword.keyword-defn-required?,
-                  init-value: keyword.keyword-defn-init-value & #t,
-                  init-function: keyword.keyword-defn-init-function & #t);
-  keyword.keyword-defn-info := info;
+                  symbol: keyword.keyword-definition-symbol,
+                  required?: keyword.keyword-definition-required?,
+                  init-value: keyword.slot-definition-init-value & #t,
+                  init-function: keyword.slot-definition-init-function & #t);
+  keyword.slot-definition-info := info;
   info;
 end;
 
@@ -1204,25 +1175,25 @@ define method finalize-top-level-form (tlf :: <define-class-tlf>) => ();
   // Finalize the overrides.
   for (override in defn.class-defn-overrides)
     // Fill in the <override-info> with the init value.
-    let info = override.override-defn-info;
+    let info = override.slot-definition-info;
     if (info)
-      if (override.override-defn-init-function)
+      if (override.slot-definition-init-function)
         let (ctv, change-to-init-value?)
-          = maybe-define-init-function(override.override-defn-init-function, 
-                                       override.override-defn-getter-name,
+          = maybe-define-init-function(override.slot-definition-init-function, 
+                                       override.override-definition-getter-name,
                                        tlf);
         if (ctv)
           if (change-to-init-value?)
-            info.override-init-function := #f;
-            info.override-init-value := ctv;
+            info.slot-init-function := #f;
+            info.slot-init-value := ctv;
           else
-            info.override-init-function := ctv;
+            info.slot-init-function := ctv;
           end if;
         end if;
-      elseif (override.override-defn-init-value)
-        let init-val = ct-eval(override.override-defn-init-value, #f);
+      elseif (override.slot-definition-init-value)
+        let init-val = ct-eval(override.slot-definition-init-value, #f);
         if (init-val)
-          info.override-init-value := init-val;
+          info.slot-init-value := init-val;
         end;
       end;
     end;
@@ -1231,11 +1202,11 @@ define method finalize-top-level-form (tlf :: <define-class-tlf>) => ();
  // Finalize the initialization argument keywords too.
   for (keyword in defn.class-defn-keywords)
     // Fill in the <keyword-info> with the init value.
-    let info = keyword.keyword-defn-info;
+    let info = keyword.slot-definition-info;
     if (info)
       let keyword-type
-        = if (keyword.keyword-defn-type)
-            let type = ct-eval(keyword.keyword-defn-type, #f);
+        = if (keyword.keyword-definition-type)
+            let type = ct-eval(keyword.keyword-definition-type, #f);
             if (instance?(type, <ctype>))
               type;
             else
@@ -1246,23 +1217,23 @@ define method finalize-top-level-form (tlf :: <define-class-tlf>) => ();
           end;
       info.keyword-type := keyword-type;
 
-      if (keyword.keyword-defn-init-function)
+      if (keyword.slot-definition-init-function)
         let (ctv, change-to-init-value?)
-          = maybe-define-init-function(keyword.keyword-defn-init-function, 
+          = maybe-define-init-function(keyword.slot-definition-init-function, 
                                        #f,
                                        tlf);
         if (ctv)
           if (change-to-init-value?)
-            info.keyword-init-function := #f;
-            info.keyword-init-value := ctv;
+            info.slot-init-function := #f;
+            info.slot-init-value := ctv;
           else
-            info.keyword-init-function := ctv;
+            info.slot-init-function := ctv;
           end if;
         end if;
-      elseif (keyword.keyword-defn-init-value)
-        let init-val = ct-eval(keyword.keyword-defn-init-value, #f);
+      elseif (keyword.slot-definition-init-value)
+        let init-val = ct-eval(keyword.slot-definition-init-value, #f);
         if (init-val)
-          info.keyword-init-value := init-val;
+          info.slot-init-value := init-val;
         end;
       end;
     end;
@@ -1270,14 +1241,14 @@ define method finalize-top-level-form (tlf :: <define-class-tlf>) => ();
 end;
 
 define method finalize-slot
-    (slot :: <slot-defn>, cclass :: false-or(<cclass>), class-type :: <ctype>,
+    (slot :: <slot-definition>, cclass :: false-or(<cclass>), class-type :: <ctype>,
      tlf :: <define-class-tlf>)
     => ();
   //
   // Compute the type of the slot.
   let slot-type
-    = if (slot.slot-defn-type)
-        let type = ct-eval(slot.slot-defn-type, #f);
+    = if (slot.slot-definition-type)
+        let type = ct-eval(slot.slot-definition-type, #f);
         if (instance?(type, <ctype>))
           type;
         else
@@ -1288,21 +1259,21 @@ define method finalize-slot
       end;
 
   let specializers
-    = if (slot.slot-defn-sizer-defn)
+    = if (slot.slot-definition-sizer-definition)
         list(class-type, specifier-type(#"<integer>"));
       else
         list(class-type);
       end;
 
   // Fill in the <slot-info> with the type, init value, and init-function.
-  let info = slot.slot-defn-info;
+  let info = slot.slot-definition-info;
   if (info)
     info.slot-type := slot-type;
 
-    if (slot.slot-defn-init-function)
+    if (slot.slot-definition-init-function)
       let (ctv, change-to-init-value?)
-        = maybe-define-init-function(slot.slot-defn-init-function,
-                                     slot.slot-defn-getter-name,
+        = maybe-define-init-function(slot.slot-definition-init-function,
+                                     slot.slot-definition-getter-name,
                                      tlf);
       if (ctv)
         if (change-to-init-value?)
@@ -1312,8 +1283,8 @@ define method finalize-slot
           info.slot-init-function := ctv;
         end if;
       end if;
-    elseif (slot.slot-defn-init-value)
-      let init-val = ct-eval(slot.slot-defn-init-value, #f);
+    elseif (slot.slot-definition-init-value)
+      let init-val = ct-eval(slot.slot-definition-init-value, #f);
       if (init-val)
         info.slot-init-value := init-val;
       end if;
@@ -1334,7 +1305,7 @@ define method finalize-slot
   end if;
 
   // Define the accessor methods.
-  unless (slot.slot-defn-allocation == #"virtual")
+  unless (slot.slot-definition-allocation == #"virtual")
     //
     // Extract the library from the class definition.
     let library = tlf.tlf-defn.defn-library;
@@ -1342,9 +1313,9 @@ define method finalize-slot
     // Are the accessor methods hairy?
     let hairy? = ~cclass | instance?(slot-type, <unknown-ctype>);
     //
-    slot.slot-defn-getter
+    slot.slot-definition-getter
       := make(<getter-method-definition>,
-              base-name: slot.slot-defn-getter-name,
+              base-name: slot.slot-definition-getter-name,
               library: library,
               signature: make(<signature>,
                               specializers: specializers,
@@ -1352,23 +1323,23 @@ define method finalize-slot
               hairy: hairy?,
               slot: info,
               source-location: slot.source-location);
-    let gf = slot.slot-defn-getter.method-defn-of;
+    let gf = slot.slot-definition-getter.method-defn-of;
     if (gf)
-      ct-add-method(gf, slot.slot-defn-getter);
+      ct-add-method(gf, slot.slot-definition-getter);
     end;
-    if (slot.slot-defn-sealed?)
+    if (slot.slot-definition-sealed?)
       if (gf)
         add-seal(gf, library, specializers, tlf);
       else
         compiler-error
           ("%s doesn't name a generic function, so can't be sealed.",
-           slot.slot-defn-getter-name);
+           slot.slot-definition-getter-name);
       end;
     end;
-    slot.slot-defn-setter
-      := if (slot.slot-defn-setter-name)
+    slot.slot-definition-setter
+      := if (slot.slot-definition-setter-name)
            let defn = make(<setter-method-definition>,
-                           base-name: slot.slot-defn-setter-name,
+                           base-name: slot.slot-definition-setter-name,
                            library: library,
                            signature: make(<signature>,
                                            specializers:
@@ -1381,13 +1352,13 @@ define method finalize-slot
            if (gf)
              ct-add-method(gf, defn);
            end;
-           if (slot.slot-defn-sealed?)
+           if (slot.slot-definition-sealed?)
              if (gf)
                add-seal(gf, library, pair(slot-type, specializers), tlf);
              else
                compiler-error
                  ("%s doesn't name a generic function, so can't be sealed.",
-                  slot.slot-defn-setter-name);
+                  slot.slot-definition-setter-name);
              end;
            end;
            defn;
@@ -1502,7 +1473,7 @@ define method class-defn-deferred-evaluations-function
                // If any of our slots require some deferred evaluations,
                // then we need a deferred evaluations function.
                for (slot-defn in defn.class-defn-slots)
-                 let info = slot-defn.slot-defn-info;
+                 let info = slot-defn.slot-definition-info;
                  if (instance?(info.slot-type, <unknown-ctype>)
                        | info.slot-init-value == #t
                        | info.slot-init-function == #t)
@@ -1511,17 +1482,17 @@ define method class-defn-deferred-evaluations-function
                end;
                // Same for the overrides.
                for (override-defn in defn.class-defn-overrides)
-                 let info = override-defn.override-defn-info;
-                 if (info.override-init-value == #t
-                       | info.override-init-function == #t)
+                 let info = override-defn.slot-definition-info;
+                 if (info.slot-init-value == #t
+                       | info.slot-init-function == #t)
                    return(#t);
                  end;
                end;
                // And for initialization argument keywords
                for (keyword-defn in defn.class-defn-keywords)
-                 let info = keyword-defn.keyword-defn-info;
-                 if (info.keyword-init-value == #t
-                       | info.keyword-init-function == #t)
+                 let info = keyword-defn.slot-definition-info;
+                 if (info.slot-init-value == #t
+                       | info.slot-init-function == #t)
                    return(#t);
                  end;
                end;
@@ -1529,10 +1500,10 @@ define method class-defn-deferred-evaluations-function
                // values impose the existence of the deferred-evaluations
                // function. (covered also below) SO THIS IS REDUNDANT??? TODO
                for (override-defn in defn.class-defn-overrides)
-                 let info = override-defn.override-defn-info;
+                 let info = override-defn.slot-definition-info;
                  if (instance?(info.override-slot, <each-subclass-slot-info>))
-                   if (info.override-init-value /* == #t TODO (same as above?) */
-                        | info.override-init-function)
+                   if (info.slot-init-value /* == #t TODO (same as above?) */
+                        | info.slot-init-function)
                      return(#t);
                    end;
                  end;
@@ -1556,7 +1527,7 @@ define method class-defn-deferred-evaluations-function
                // Also indirect slots with non-ctv init-values/functions
                // imply a deferred-evaluations function.
                for (slot-defn in defn.class-defn-slots)
-                 let info = slot-defn.slot-defn-info;
+                 let info = slot-defn.slot-definition-info;
                  if (instance?(info, <indirect-slot-info>))
                    if (info.slot-init-value /* == #t FIXME TODO */
                         | info.slot-init-function)
@@ -1641,9 +1612,9 @@ define function find-override
   => override :: false-or(<override-info>);
   block (found)
     for (override in slot.slot-overrides)
-      if ((override.override-init-value
-           | override.override-init-function)
-          & csubtype?(cclass, override.override-introduced-by))
+      if ((override.slot-init-value
+           | override.slot-init-function)
+          & csubtype?(cclass, override.slot-introduced-by))
         found(override);
       end;
     finally
@@ -1689,7 +1660,7 @@ define method class-defn-maker-function
                // give up.
                let init-function
                  = if (override)
-                     override.override-init-function;
+                     override.slot-init-function;
                    else
                      slot.slot-init-function;
                    end if;
@@ -1700,7 +1671,7 @@ define method class-defn-maker-function
                // If there is an init-value, and it isn't a constant, give up.
                let init-value
                  = if (override)
-                     override.override-init-value;
+                     override.slot-init-value;
                    else
                      slot.slot-init-value;
                    end;
@@ -1809,7 +1780,7 @@ define function call-init-function
     unless (init-function-leaf)
       let (getter-name, instance)
         = if (override)
-            values(#"override-init-function", override);
+            values(#"slot-init-function", override);
           else
             values(#"slot-init-function", slot);
           end;
@@ -1908,7 +1879,7 @@ define method build-home-store
   let meta-instance
     = class-instance & class-instance.class-metaclass
       | if (override-info)
-          override-info.override-introduced-by.class-metaclass;
+          override-info.slot-introduced-by.class-metaclass;
         else
           meta-slot.slot-introduced-by;
         end;
@@ -1989,7 +1960,7 @@ define method convert-top-level-form
                  (evals-builder,
                   ref-dylan-defn(evals-builder, policy, source,
                                  if (override-info)
-                                   #"override-init-value"
+                                   #"slot-init-value"
                                  else
                                    #"slot-init-value"
                                  end),
@@ -2020,14 +1991,14 @@ define method convert-top-level-form
 
       for (slot-defn in defn.class-defn-slots,
            index from 0)
-        let slot-info = slot-defn.slot-defn-info;
+        let slot-info = slot-defn.slot-definition-info;
         let getter = slot-info.slot-getter;
         let slot-name = slot-info.slot-getter.variable-name;
 
         let slot-type = slot-info.slot-type;
         let (type, type-var)
           = if (instance?(slot-type, <unknown-ctype>))
-              let type-expr = slot-defn.slot-defn-type;
+              let type-expr = slot-defn.slot-definition-type;
               let var
                 = make-local-var(evals-builder,
                                  symcat(slot-name, "-type"),
@@ -2059,7 +2030,7 @@ define method convert-top-level-form
         let (init-value-var, init-function-leaf) =
           if (init-value == #t)
             let var = make-init-value-var();
-            fer-convert(evals-builder, slot-defn.slot-defn-init-value,
+            fer-convert(evals-builder, slot-defn.slot-definition-init-value,
                         lexenv, #"assignment", var);
             build-assignment
               (evals-builder, policy, source, #(),
@@ -2072,7 +2043,7 @@ define method convert-top-level-form
             var;
           elseif (init-function == #t)
             let leaf = convert-init-function(evals-builder, slot-info.slot-getter,
-                                             slot-defn.slot-defn-init-function,
+                                             slot-defn.slot-definition-init-function,
                                              type, tlf);
             build-assignment
               (evals-builder, policy, source, #(),
@@ -2093,7 +2064,7 @@ define method convert-top-level-form
                                init-value-var, make-init-value-var, init-function-leaf, type-var);
         end if;
 
-        unless (#"virtual" == slot-defn.slot-defn-allocation)
+        unless (#"virtual" == slot-defn.slot-definition-allocation)
           if (type-var)
             local
               method build-call (name, #rest args)
@@ -2142,22 +2113,22 @@ define method convert-top-level-form
               let getter-specializers = build-call(#"list", cclass-leaf);
               let meth = build-call(#"%make-method", getter-specializers,
                                     results, false-leaf, getter);
-              build-add-method(slot-defn.slot-defn-getter-name,
-                               slot-defn.slot-defn-getter, meth);
+              build-add-method(slot-defn.slot-definition-getter-name,
+                               slot-defn.slot-definition-getter, meth);
             end;
-            if (slot-defn.slot-defn-setter)
+            if (slot-defn.slot-definition-setter)
               let setter
                 = build-setter(evals-builder, #f, slot-defn, slot-info, tlf);
               let setter-specializers = build-call(#"list", type-var,
                                                    cclass-leaf);
               let meth = build-call(#"%make-method", setter-specializers,
                                     results, false-leaf, setter);
-              build-add-method(slot-defn.slot-defn-setter-name,
-                               slot-defn.slot-defn-setter, meth);
+              build-add-method(slot-defn.slot-definition-setter-name,
+                               slot-defn.slot-definition-setter, meth);
             end;
           else
             begin
-              let getter = slot-defn.slot-defn-getter.ct-value;
+              let getter = slot-defn.slot-definition-getter.ct-value;
               let getter-standin = slot-accessor-standin(slot-info, #"getter");
               if (getter-standin)
                 getter.ct-accessor-standin := getter-standin;
@@ -2165,8 +2136,8 @@ define method convert-top-level-form
                 build-getter(tl-builder, getter, slot-defn, slot-info, tlf);
               end if;
             end;
-            if (slot-defn.slot-defn-setter)
-              let setter = slot-defn.slot-defn-setter.ct-value;
+            if (slot-defn.slot-definition-setter)
+              let setter = slot-defn.slot-definition-setter.ct-value;
               let setter-standin = slot-accessor-standin(slot-info, #"setter");
               if (setter-standin)
                 setter.ct-accessor-standin := setter-standin;
@@ -2182,7 +2153,7 @@ define method convert-top-level-form
        => override :: false-or(<override-info>);
         block (return)
           if (start)
-            if (start.override-init-value | start.override-init-function)
+            if (start.slot-init-value | start.slot-init-function)
               return(start);
             end;
           else
@@ -2195,7 +2166,7 @@ define method convert-top-level-form
           for (super in cclass.precedence-list.tail)
             for (override in super.override-infos)
               if (override.override-slot == slot-info
-                  & (override.override-init-value | override.override-init-function))
+                  & (override.slot-init-value | override.slot-init-function))
                 return(override);
               end;
             end for;
@@ -2205,11 +2176,11 @@ define method convert-top-level-form
       
       for (override-defn in defn.class-defn-overrides,
            index from 0)
-        let override-info = override-defn.override-defn-info;
+        let override-info = override-defn.slot-definition-info;
         let getter = override-info.override-getter;
         let slot-name = getter.variable-name;
-        let init-value = override-info.override-init-value;
-        let init-function = override-info.override-init-function;
+        let init-value = override-info.slot-init-value;
+        let init-function = override-info.slot-init-function;
         let type = object-ctype(); /// FIXME as above!!!
 
 
@@ -2222,27 +2193,27 @@ define method convert-top-level-form
         let (init-value-var, init-function-leaf) =
           if (init-value == #t)
             let var = make-init-value-var();
-            fer-convert(evals-builder, override-defn.override-defn-init-value,
+            fer-convert(evals-builder, override-defn.slot-definition-init-value,
                         lexenv, #"assignment", var);
             build-assignment
               (evals-builder, policy, source, #(),
                make-unknown-call
                  (evals-builder,
                   ref-dylan-defn(evals-builder, policy, source,
-                                 #"override-init-value-setter"),
+                                 #"slot-init-value-setter"),
                   #f,
                   list(var, make-literal-constant(evals-builder, override-info))));
             var;
           elseif (init-function == #t)
             let leaf = convert-init-function(evals-builder, getter,
-                                             override-defn.override-defn-init-function,
+                                             override-defn.slot-definition-init-function,
                                              type, tlf);
             build-assignment
               (evals-builder, policy, source, #(),
                make-unknown-call
                  (evals-builder,
                   ref-dylan-defn(evals-builder, policy, source,
-                                 #"override-init-function-setter"),
+                                 #"slot-init-function-setter"),
                   #f,
                   list(leaf, make-literal-constant(evals-builder, override-info))));
             values(#f, leaf);
@@ -2255,9 +2226,9 @@ define method convert-top-level-form
 
           let override-info = effective-override(slot-info, start: start);
           values(override-info,
-                 override-info & override-info.override-init-value
+                 override-info & override-info.slot-init-value
                   | slot-info.slot-init-value,
-                 override-info & override-info.override-init-function
+                 override-info & override-info.slot-init-function
                   | slot-info.slot-init-function)
         end method effective-inits;
 
@@ -2286,9 +2257,9 @@ define method convert-top-level-form
           let override-info = slot-info.effective-override; // FIXME reuse find-override !!!
           // since all deferred evaluations are performed at this point,
           // we can assume that slot and override descriptors are properly set up.
-          let init-value = override-info & override-info.override-init-value
+          let init-value = override-info & override-info.slot-init-value
                            | slot-info.slot-init-value;
-          let init-function = override-info & override-info.override-init-function
+          let init-function = override-info & override-info.slot-init-function
                               | slot-info.slot-init-function;
           let type = object-ctype(); /// FIXME as above!!!
           let slot-name = slot-info.slot-getter.variable-name;
@@ -2441,9 +2412,9 @@ define method build-key-defaulter-function-body
       let key = info.keyword-symbol;
       let type = info.keyword-type;
       let var = make-local-var(builder, key, type);
-      let default = info.keyword-init-value;
+      let default = info.slot-init-value;
       let default-bogus?
-        = default & ~cinstance?(info.keyword-init-value, type);
+        = default & ~cinstance?(info.slot-init-value, type);
       let needs-supplied?-var? = info.keyword-needs-supplied?-var;
       let supplied?-var
         = if (default-bogus? | needs-supplied?-var?)
@@ -2468,8 +2439,8 @@ define method build-key-defaulter-function-body
     end method;
   let initkey-infos = map(make-initkey-info,
                           choose(method(info :: <keyword-info>)
-                                   info.keyword-init-value
-                                     | info.keyword-init-function
+                                   info.slot-init-value
+                                     | info.slot-init-function
                                      | info.keyword-required?
                                  end,
                                  keyword-infos));
@@ -2596,7 +2567,7 @@ define method build-key-defaulter-function-body
   for(info in initkey-infos)
     let keyword-info = info.initkey-keyword-info;
 
-    if(keyword-info.keyword-required? | keyword-info.keyword-init-function)
+    if(keyword-info.keyword-required? | keyword-info.slot-init-function)
       if(info.initkey-supplied?-var)
         build-if-body(builder, policy, source, info.initkey-supplied?-var);
       else
@@ -2611,9 +2582,9 @@ define method build-key-defaulter-function-body
       end if;
       build-else(builder, policy, source);
 
-      if(keyword-info.keyword-init-function)
+      if(keyword-info.slot-init-function)
         let init-func-leaf
-          = make-literal-constant(builder, keyword-info.keyword-init-function);
+          = make-literal-constant(builder, keyword-info.slot-init-function);
         build-assignment
           (builder, policy, source, info.initkey-var,
            make-unknown-call(builder, init-func-leaf, #f, #()));
@@ -2718,8 +2689,8 @@ define method build-maker-function-body
       // active override.
       let (init-value, init-function)
         = if (override)
-            values(override.override-init-value,
-                   override.override-init-function);
+            values(override.slot-init-value,
+                   override.slot-init-function);
           else
             values(slot.slot-init-value, slot.slot-init-function);
           end;
@@ -2733,7 +2704,7 @@ define method build-maker-function-body
                      make-unknown-call
                        (maker-builder,
                         ref-dylan-defn(maker-builder, policy, source,
-                                       #"override-init-value"),
+                                       #"slot-init-value"),
                         #f,
                         list(make-literal-constant(maker-builder, override))));
                 else
@@ -3205,18 +3176,18 @@ end method might-be-in-data-word?;
 
 define generic build-getter
     (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
-     defn :: <slot-defn>, slot :: <slot-info>,
+     defn :: <slot-definition>, slot :: <slot-info>,
      tlf :: <top-level-form>)
     => res :: <method-literal>;
 
 define method build-getter
     (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
-     defn :: <slot-defn>, slot :: <each-subclass-slot-info>,
+     defn :: <slot-definition>, slot :: <each-subclass-slot-info>,
      tlf :: <top-level-form>)
     => res :: <method-literal>;
   let getter-name
       = make(<derived-name>, how: #"getter",
-             base: defn.slot-defn-getter.defn-name);
+             base: defn.slot-definition-getter.defn-name);
   let lexenv = make(<lexenv>, method-name: getter-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
   let source = defn.source-location;
@@ -3357,12 +3328,12 @@ end;
 
 define method build-getter
     (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
-     defn :: <slot-defn>, slot :: <class-slot-info>,
+     defn :: <slot-definition>, slot :: <class-slot-info>,
      tlf :: <top-level-form>)
     => res :: <method-literal>;
   let getter-name
       = make(<derived-name>, how: #"getter",
-             base: defn.slot-defn-getter.defn-name);
+             base: defn.slot-definition-getter.defn-name);
   let lexenv = make(<lexenv>, method-name: getter-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
   let source = defn.source-location;
@@ -3486,22 +3457,22 @@ end;
 
 define method build-getter
     (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
-     defn :: <slot-defn>, slot :: <instance-slot-info>,
+     defn :: <slot-definition>, slot :: <instance-slot-info>,
      tlf :: <top-level-form>)
     => res :: <method-literal>;
 
-defn.slot-defn-getter.defn-name == defn.slot-defn-getter-name
+defn.slot-definition-getter.defn-name == defn.slot-definition-getter-name
 |
-(instance?(defn.slot-defn-getter.defn-name, <method-name>)
-   & defn.slot-defn-getter.defn-name.method-name-generic-function == defn.slot-defn-getter-name)
+(instance?(defn.slot-definition-getter.defn-name, <method-name>)
+   & defn.slot-definition-getter.defn-name.method-name-generic-function == defn.slot-definition-getter-name)
     | begin
-        compiler-warning("defn.slot-defn-getter.defn-name %=", defn.slot-defn-getter.defn-name);
-        compiler-warning("defn.slot-defn-getter-name %=", defn.slot-defn-getter-name);
+        compiler-warning("defn.slot-definition-getter.defn-name %=", defn.slot-definition-getter.defn-name);
+        compiler-warning("defn.slot-definition-getter-name %=", defn.slot-definition-getter-name);
       end;
 
   let getter-name
       = make(<derived-name>, how: #"getter",
-             base: defn.slot-defn-getter.defn-name);
+             base: defn.slot-definition-getter.defn-name);
   let lexenv = make(<lexenv>, method-name: getter-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
   let source = defn.source-location;
@@ -3611,7 +3582,7 @@ end;
 
 define method build-getter
     (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
-     defn :: <slot-defn>, slot :: <slot-info>,
+     defn :: <slot-definition>, slot :: <slot-info>,
      tlf :: <top-level-form>)
     => res :: <method-literal>;
   error("Unsupported slot type: %=", object-class(slot));
@@ -3619,13 +3590,13 @@ end;
 
 define generic build-setter
     (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
-     defn :: <slot-defn>, slot :: <slot-info>,
+     defn :: <slot-definition>, slot :: <slot-info>,
      tlf :: <top-level-form>)
     => res :: <method-literal>;
 
 define method build-setter
     (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
-     defn :: <slot-defn>, slot :: <slot-info>,
+     defn :: <slot-definition>, slot :: <slot-info>,
      tlf :: <top-level-form>)
     => res :: <method-literal>;
   error("Unsupported slot type: %=", object-class(slot));
@@ -3633,12 +3604,12 @@ end;
 
 define method build-setter
     (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
-     defn :: <slot-defn>, slot :: <each-subclass-slot-info>,
+     defn :: <slot-definition>, slot :: <each-subclass-slot-info>,
      tlf :: <top-level-form>)
     => res :: <method-literal>;
   let setter-name
     = make(<derived-name>, how: #"setter",
-           base: defn.slot-defn-setter.defn-name);
+           base: defn.slot-definition-setter.defn-name);
   let lexenv = make(<lexenv>, method-name: setter-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
   let source = defn.source-location;
@@ -3713,12 +3684,12 @@ end;
 
 define method build-setter
     (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
-     defn :: <slot-defn>, slot :: <class-slot-info>,
+     defn :: <slot-definition>, slot :: <class-slot-info>,
      tlf :: <top-level-form>)
     => res :: <method-literal>;
   let setter-name
     = make(<derived-name>, how: #"setter",
-           base: defn.slot-defn-setter.defn-name);
+           base: defn.slot-definition-setter.defn-name);
   let lexenv = make(<lexenv>, method-name: setter-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
   let source = defn.source-location;
@@ -3788,12 +3759,12 @@ end;
 
 define method build-setter
     (builder :: <fer-builder>, ctv :: false-or(<ct-method>),
-     defn :: <slot-defn>, slot :: <instance-slot-info>,
+     defn :: <slot-definition>, slot :: <instance-slot-info>,
      tlf :: <top-level-form>)
     => res :: <method-literal>;
   let setter-name
     = make(<derived-name>, how: #"setter",
-           base: defn.slot-defn-setter.defn-name);
+           base: defn.slot-definition-setter.defn-name);
   let init?-slot = slot.slot-initialized?-slot;
   let lexenv = make(<lexenv>, method-name: setter-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
@@ -4182,12 +4153,12 @@ define method dump-od (tlf :: <define-class-tlf>, state :: <dump-state>) => ();
   let defn = tlf.tlf-defn;
   dump-simple-object(#"define-binding-tlf", state, defn, #f);
   for (slot in defn.class-defn-slots)
-    unless (slot.slot-defn-allocation == #"virtual")
-      let sealed? = slot.slot-defn-sealed?;
-      let getter = slot.slot-defn-getter;
+    unless (slot.slot-definition-allocation == #"virtual")
+      let sealed? = slot.slot-definition-sealed?;
+      let getter = slot.slot-definition-getter;
       if (getter.method-defn-of
             & name-inherited-or-exported?(getter.defn-name))
-        dump-od(slot.slot-defn-getter, state);
+        dump-od(slot.slot-definition-getter, state);
         if (sealed? & getter.method-defn-of.defn-library ~== defn.defn-library)
           dump-simple-object(#"sealed-domain", state,
                              getter.method-defn-of,
@@ -4195,7 +4166,7 @@ define method dump-od (tlf :: <define-class-tlf>, state :: <dump-state>) => ();
                              getter.function-defn-signature.specializers);
         end if;
       end;
-      let setter = slot.slot-defn-setter;
+      let setter = slot.slot-definition-setter;
       if (setter & setter.method-defn-of
             & name-inherited-or-exported?(setter.defn-name))
         dump-od(setter, state);
@@ -4350,12 +4321,12 @@ define sealed domain make(singleton(<real-class-definition>));
 define sealed domain initialize(<real-class-definition>);
 // <local-class-definition> -- subclass of <real-class-definition>
 define sealed domain make(singleton(<local-class-definition>));
-// <slot-defn> -- subclass of <object>
-define sealed domain make(singleton(<slot-defn>));
-define sealed domain initialize(<slot-defn>);
-// <override-defn> -- subclass of <object>
-define sealed domain make(singleton(<override-defn>));
-define sealed domain initialize(<override-defn>);
+// <slot-definition> -- subclass of <object>
+define sealed domain make(singleton(<slot-definition>));
+define sealed domain initialize(<slot-definition>);
+// <override-definition> -- subclass of <object>
+define sealed domain make(singleton(<override-definition>));
+define sealed domain initialize(<override-definition>);
 // <init-function-definition> -- subclass of <abstract-method-definition>
 define sealed domain make(singleton(<init-function-definition>));
 define sealed domain initialize(<init-function-definition>);

@@ -200,7 +200,7 @@ define method process-top-level-form
   let struct-slots = make(<stretchy-vector>);
   unless (class-abstract? | empty?(form.defclass-superclass-exprs))
     add!(overrides,
-	 make(<override-defn>,
+	 make(<override-definition>,
 	      getter-name: make(<basic-name>, symbol: #"%object-class",
 				module: $Dylan-Module),
 	      init-value: make(<varref-parse>, id: form.defclass-name)));
@@ -243,30 +243,30 @@ define method process-top-level-form
 		  pointer-value-getter: class-pointer-value-getter,
 		  pointer-value-setter: class-pointer-value-getter);
   for (slot in slots)
-    slot.slot-defn-class := defn;
+    slot.slot-definition-class := defn;
     //
     // Implicitly define the accessor generics.
-    if (slot.slot-defn-sizer-defn)
+    if (slot.slot-definition-sizer-definition)
       implicitly-define-generic
-	(library, slot.slot-defn-getter-name, 2, #f, #f);
-      if (slot.slot-defn-setter-name)
+	(library, slot.slot-definition-getter-name, 2, #f, #f);
+      if (slot.slot-definition-setter-name)
 	implicitly-define-generic
-	  (library, slot.slot-defn-setter-name, 3, #f, #f);
+	  (library, slot.slot-definition-setter-name, 3, #f, #f);
       end;
     else
       implicitly-define-generic
-	(library, slot.slot-defn-getter-name, 1, #f, #f);
-      if (slot.slot-defn-setter-name)
+	(library, slot.slot-definition-getter-name, 1, #f, #f);
+      if (slot.slot-definition-setter-name)
 	implicitly-define-generic
-	  (library, slot.slot-defn-setter-name, 2, #f, #f);
+	  (library, slot.slot-definition-setter-name, 2, #f, #f);
       end;
     end;
   end;
   for (override in overrides)
-    override.override-defn-class := defn;
+    override.slot-definition-class := defn;
   end for;
   for (keyword in keywords)
-    keyword.keyword-defn-class := defn;
+    keyword.slot-definition-class := defn;
   end for;
   note-variable-definition(defn);
   add!(*Top-Level-Forms*, make(<define-class-tlf>, defn: defn));
@@ -301,7 +301,7 @@ end;
 define class <struct-slot-defn> (<object>)
   //
   // The designator-class that introduces this struct-slot
-  slot struct-slot-defn-class :: <real-class-definition>;
+  slot struct-slot-definition-class :: <real-class-definition>;
   //
   // The expression to compute the declared type
   slot struct-slot-defn-c-type :: <real-class-definition>,
@@ -310,30 +310,30 @@ define class <struct-slot-defn> (<object>)
   // #t if this slot is sealed, #f if not.  This really means that the getter
   // generic function is sealed on this class, the setter (if any) is sealed
   // on object and this class, and the address-getter (if any) is sealed on XXX
-  slot struct-slot-defn-sealed? :: <boolean>,
+  slot struct-slot-definition-sealed? :: <boolean>,
     required-init-keyword: sealed:;
   //
   // The expression to compute the type.
-  slot struct-slot-defn-type :: false-or(<expression-parse>),
+  slot struct-slot-definition-type :: false-or(<expression-parse>),
     required-init-keyword: type:;
   //
   // The name of the getter generic function.
-  slot struct-slot-defn-getter-name :: <name>,
+  slot struct-slot-definition-getter-name :: <name>,
     required-init-keyword: getter-name:;
   //
   // The getter method.  Filled in when computed.
-  slot struct-slot-defn-getter-method :: <getter-method-definition>;
+  slot struct-slot-definition-getter-method :: <getter-method-definition>;
   //
   // The name of the setter generic function, or #f if there is no setter.
-  slot struct-slot-defn-setter-name :: false-or(<name>),
+  slot struct-slot-definition-setter-name :: false-or(<name>),
     required-init-keyword: setter-name:;
   //
   // The setter method.  Filled in when computed.
-  slot struct-slot-defn-setter-method :: false-or(<setter-method-definition>);
+  slot struct-slot-definition-setter-method :: false-or(<setter-method-definition>);
   //
   // The slot-info for this slot, or #f if we haven't computed it or don't know
   // enough about the class to compute it at all.
-  slot struct-slot-defn-info :: false-or(<struct-slot-info>),
+  slot struct-slot-definition-info :: false-or(<struct-slot-info>),
     init-value: #f;
 end class;
 

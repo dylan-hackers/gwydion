@@ -1352,14 +1352,14 @@ define method make-transformer
           compiler-error-location
             (call.dependents.dependent,
              "Required keyword %s missing in make of %s", key, cclass);
-        elseif(info.keyword-init-value)
+        elseif(info.slot-init-value)
           init-leaves[key]
-            := make-literal-constant(builder, info.keyword-init-value);
-        elseif(info.keyword-init-function)
+            := make-literal-constant(builder, info.slot-init-value);
+        elseif(info.slot-init-function)
           let init-func-temp
             = make-local-var(builder, info.keyword-symbol, info.keyword-type);
           let init-func-leaf
-            = make-literal-constant(builder, info.keyword-init-function);
+            = make-literal-constant(builder, info.slot-init-function);
           build-assignment
             (builder, policy, source, init-func-temp,
              make-unknown-call(builder, init-func-leaf, #f, #()));

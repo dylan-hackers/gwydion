@@ -331,12 +331,12 @@ define module define-classes
   export
     class-defn-overrides, class-defn-slots,
 
-    override-defn-info,
+    slot-definition-info,
 
-    slot-defn-info, slot-defn-allocation, slot-defn-getter, slot-defn-setter,
+    slot-definition-info, slot-definition-allocation, slot-definition-getter, slot-definition-setter,
     
     // for browser support:
-    <slot-defn>, slot-defn-getter-name,
+    <slot-definition>, slot-definition-getter-name,
     class-defn-cclass,
     <local-class-definition>;
 end;

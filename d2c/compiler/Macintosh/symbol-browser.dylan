@@ -305,14 +305,14 @@ define function stuff-location-only(loc, info :: <browse-offset-mixin>) => ();
 	end if
 end function stuff-location-only;
 
-define generic member-info-aux(slot :: <slot-defn>, allocation :: <slot-allocation>, enclosing-loc :: <integer>) => info :: <browse-class-member>.false-or;
+define generic member-info-aux(slot :: <slot-definition>, allocation :: <slot-allocation>, enclosing-loc :: <integer>) => info :: <browse-class-member>.false-or;
 
 
-define method member-info-aux(slot :: <slot-defn>, allocation :: <slot-allocation>, enclosing-loc :: <integer>) => info :: <browse-class-member>.false-or;
-	make(<browse-class-data-member>, name: slot.slot-defn-getter-name.get-symbol-names)
+define method member-info-aux(slot :: <slot-definition>, allocation :: <slot-allocation>, enclosing-loc :: <integer>) => info :: <browse-class-member>.false-or;
+	make(<browse-class-data-member>, name: slot.slot-definition-getter-name.get-symbol-names)
 end;
 
-define method member-info-aux(slot :: <slot-defn>,
+define method member-info-aux(slot :: <slot-definition>,
 		allocation :: one-of(#"class", #"each-subclass"),
 		enclosing-loc :: <integer>,
 		#next next-method)
@@ -329,14 +329,14 @@ define constant $seen-virtual-slots = <table>.make;
 // organized thus:
 //	$seen-virtual-slots[<cclass>] == list(pair(<variable>, meth-index))
 
-define method member-info-aux(slot :: <slot-defn>, allocation == #"virtual", enclosing-loc :: <integer>) => info :: <browse-class-member>.false-or;
-	let slot-info = slot.slot-defn-info;
+define method member-info-aux(slot :: <slot-definition>, allocation == #"virtual", enclosing-loc :: <integer>) => info :: <browse-class-member>.false-or;
+	let slot-info = slot.slot-definition-info;
 	let slot-var = slot-info.slot-getter;
 	if (slot-var)
 		let introducer = slot-info.slot-introduced-by;
 		let sofar :: <list> = element($seen-virtual-slots, introducer, default: #());
 		make(<browse-class-member-function>,
-				name: slot.slot-defn-getter-name.get-symbol-names,
+				name: slot.slot-definition-getter-name.get-symbol-names,
 				id: size($seen-virtual-slots[introducer] := pair(slot-var.variable-definition.ct-value, sofar)))
 	end if;
 	
@@ -346,8 +346,8 @@ end;
 
 
 
-define method member-info(slot :: <slot-defn>, enclosing-loc :: <integer>) => info :: <browse-class-member>;
-	let info = member-info-aux(slot, slot.slot-defn-allocation, enclosing-loc);
+define method member-info(slot :: <slot-definition>, enclosing-loc :: <integer>) => info :: <browse-class-member>;
+	let info = member-info-aux(slot, slot.slot-definition-allocation, enclosing-loc);
 	stuff-location-only(slot, info);
 	info.start-offset := info.start-offset - enclosing-loc;
 	info.end-offset := info.end-offset - enclosing-loc;

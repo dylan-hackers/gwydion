@@ -79,6 +79,7 @@ end method;
 // Define platform-specific constant values in the Bootstrap module.
 //
 define method define-platform-constants(platform :: <platform>) => ();
+  // FIXME: should be platform-long-length
   add-bootstrap-constant(#"$platform-fixed-integer-bits",
                          platform.platform-integer-length);
 

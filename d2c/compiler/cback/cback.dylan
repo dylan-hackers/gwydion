@@ -1780,25 +1780,25 @@ define method emit-tlf-gunk (backend == c:, tlf :: <define-class-tlf>, file :: <
   // There may be function hidden in various overrides for this class.
   // Generate xeps for all such.
   for (elem in defn.class-defn-overrides)
-    let info = elem.override-defn-info;
+    let info = elem.slot-definition-info;
     if (info)
-      maybe-emit-entries(info.override-init-value, file);
-      maybe-emit-entries(info.override-init-function, file);
+      maybe-emit-entries(info.slot-init-value, file);
+      maybe-emit-entries(info.slot-init-function, file);
     end if;
   end for;
   // As above, except for slot info.  In addition, look at each of the
   // accessor methods and figure out whether we should eagerly emit
   // xeps.
   for (elem in defn.class-defn-slots)
-    let info = elem.slot-defn-info;
+    let info = elem.slot-definition-info;
     if (info)
       maybe-emit-entries(info.slot-init-value, file);
       maybe-emit-entries(info.slot-init-function, file);
     end if;
-    unless (elem.slot-defn-allocation == #"virtual")
-      let getter = elem.slot-defn-getter;
+    unless (elem.slot-definition-allocation == #"virtual")
+      let getter = elem.slot-definition-getter;
       check-generic-method-xep(getter, file);
-      let setter = elem.slot-defn-setter;
+      let setter = elem.slot-definition-setter;
       if (setter) check-generic-method-xep(setter, file) end if;
     end unless;
   end for;
