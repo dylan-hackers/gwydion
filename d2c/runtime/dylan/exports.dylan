@@ -4,7 +4,7 @@ module: dylan-viscera
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -30,7 +30,7 @@ module: dylan-viscera
 
 define library Dylan
   export
-    Dylan, Extensions, Cheap-IO, System, Machine-words,
+    Dylan, Extensions, Cheap-IO, System, Runtime-Threads, Machine-words,
     Introspection, Magic, %Hash-Tables;
 end;
 
@@ -247,6 +247,14 @@ define module System
 	     copy-bytes, buffer-address},
     export: all;
 end;
+
+define module Runtime-Threads
+  use Dylan-Viscera,
+    import: {<thread>, thread-name, current-thread, join-thread, thread-yield,
+             $low-priority, $background-priority,
+             $normal-priority, $interactive-priority, $high-priority},
+    export: all;
+end module;
 
 define module Machine-Words
   use Dylan-Viscera,

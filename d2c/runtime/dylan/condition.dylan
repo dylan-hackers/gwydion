@@ -288,7 +288,7 @@ define method signal (cond :: <condition>, #rest noise)
 	default-handler(cond);
       end if;
     end method search;
-  search(this-thread().cur-handler);
+  search(current-thread().thread-current-handler);
 end method signal;
 
 // signal(<string>) -- exported gf method.

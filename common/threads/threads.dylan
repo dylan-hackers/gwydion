@@ -74,21 +74,6 @@ define macro with-lock
 end macro with-lock;
 
 
-// <thread>
-
-define class <thread> ( <object> )
-  constant slot thread-name :: <string> = "dummy thread";
-end class;
-
-
-// current-thread
-
-define method current-thread()
-=> ( result :: <thread> )
-    make( <thread> );
-end method current-thread;
-
-
 // atomic-increment!
 // increments without worrying about atomicity
 // Since we don't need to worry about atomicity, we just increment
@@ -116,10 +101,3 @@ define method release-all
  => ()
     values();
 end method release-all;
-
-// join-thread
-define method join-thread
-    (thread :: <thread>)
- => ();
-  error("attempt to call join-thread()");
-end method;

@@ -1,11 +1,10 @@
 copyright: see below
 module: dylan-viscera
 
-
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -73,13 +72,13 @@ define function push-handler
     (type :: <type>, function :: <function>,
      #key test :: false-or(<function>), init-arguments :: <sequence> = #())
     => ();
-  let thread = this-thread();
-  thread.cur-handler := make(<handler>,
+  let thread = current-thread();
+  thread.thread-current-handler := make(<handler>,
 			     type: type,
 			     function: function,
 			     test: test,
 			     init-arguments: init-arguments,
-			     prev: thread.cur-handler);
+			     prev: thread.thread-current-handler);
 end;
 
 // pop-handler -- internal.
@@ -89,8 +88,8 @@ end;
 // block for each ``let handler'' local declaration.
 //
 define function pop-handler () => ();
-  let thread = this-thread();
-  thread.cur-handler := thread.cur-handler.handler-prev;
+  let thread = current-thread();
+  thread.thread-current-handler := thread.thread-current-handler.handler-prev;
 end;
 
 
@@ -100,7 +99,7 @@ end;
 // details of each one.
 //
 define function do-handlers (function :: <function>)
-  for (h :: false-or(<handler>) = this-thread().cur-handler
+  for (h :: false-or(<handler>) = current-thread().thread-current-handler
 	 then h.handler-prev,
        while: h)
     function(h.handler-type,

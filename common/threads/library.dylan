@@ -7,12 +7,17 @@ end library threads;
 
 define module threads
   use dylan;
+  use runtime-threads,
+    import: {<thread>, thread-name, current-thread, join-thread, thread-yield,
+             $low-priority, $background-priority,
+             $normal-priority, $interactive-priority, $high-priority},
+    export: all;
   
   export dynamic-bind,
     <synchronization>, <exclusive-lock>,
     <semaphore>, <recursive-lock>,
     <read-write-lock>,
     <lock>, <simple-lock>, with-lock,
-    <thread>, atomic-increment!, current-thread, thread-name, join-thread,
+    atomic-increment!,
     <notification>, wait-for, release-all;
 end module threads;

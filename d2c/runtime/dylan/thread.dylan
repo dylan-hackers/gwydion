@@ -4,7 +4,7 @@ module: dylan-viscera
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -28,16 +28,63 @@ module: dylan-viscera
 //
 //======================================================================
 
+// This is a dummy implementation of the FD threading interface,
+// to be renamed to something like thread-dummy.dylan in SVN. -prom
+
+// some dummy priority values
+define constant $low-priority         = -2;
+define constant $background-priority  = -1;
+define constant $normal-priority      =  0;
+define constant $interactive-priority = +1;
+define constant $high-priority        = +2;
+
 define class <thread> (<object>)
-  slot cur-uwp :: false-or(<unwind-protect>), init-value: #f;
-  slot cur-handler :: false-or(<handler>), init-value: #f;
+  constant slot thread-function :: <function>,
+    required-init-keyword: function:;
+  constant slot thread-name :: false-or(<string>) = #f,
+    init-keyword: name:;
+  constant slot thread-priority :: <integer> = $normal-priority,
+    init-keyword: priority:;
+  slot thread-current-uwp :: false-or(<unwind-protect>) = #f;
+  slot thread-current-handler :: false-or(<handler>) = #f;
 end;
+
+define variable *thread-created?* :: <boolean> = #f;
+
+define method make(cls == <thread>, #key, #all-keys)
+ => (thread :: <thread>);
+  if(*thread-created?*)
+    error("Cannot create a second thread in a single-threaded dylan.");
+  else
+    /* Ordering doesnt really matter, this is for style. */
+    let thread = next-method();
+    *thread-created?* := #t;
+    thread;
+  end;
+end method;
+
+define constant $the-thread
+  = make(<thread>,
+         name: "The Only Thread",
+         function: method ()
+                     error("Somebody called the thread dummy function.");
+                   end,
+         priority: $normal-priority);
+
+define inline function current-thread()
+ => (res :: <thread>);
+  $the-thread;
+end function;
+
+define function join-thread(thread :: <thread>, #rest more-threads)
+ => (thread-joined :: <thread>, #rest results);
+  error("Cannot join threads in a single-threaded dylan.");
+end function;
+
+define function thread-yield()
+ => ();
+  /* should call libc:sched_yield() */
+end function;
 
 define sealed domain make (singleton(<thread>));
 define sealed domain initialize (<thread>);
-
-define constant $the-one-and-only-thread :: <thread> = make(<thread>);
-
-define inline function this-thread () => res :: <thread>;
-  $the-one-and-only-thread;
-end;

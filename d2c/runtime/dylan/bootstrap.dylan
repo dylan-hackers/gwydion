@@ -4,7 +4,7 @@ module: bootstrap
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -228,6 +228,11 @@ define module dylan-viscera
     system, import-string, export-string, getenv, 
     exit, on-exit, no-core-dumps, get-time-of-day,
 
+    // Runtime Threads stuff
+    <thread>, thread-name, current-thread, join-thread, thread-yield,
+    $low-priority, $background-priority,
+    $normal-priority, $interactive-priority, $high-priority,
+
     // Machine-word stuff
     <machine-word>, $machine-word-size, $machine-word-zero,
     $maximum-signed-machine-word, $minimum-signed-machine-word,
@@ -255,7 +260,7 @@ define module dylan-viscera
     <byte-character-type>,
     size-of, alignment-of, referenced-type,		 
 
-    // %Hash-Tables Stuff (Ultimately exported from Table-Extensions
+    // %Hash-Tables Stuff (Ultimately exported from Table-Extensions)
     remove-all-keys!, uppercase?,
     <hash-state>, collection-hash,
     <equal-table>, equal-hash,
