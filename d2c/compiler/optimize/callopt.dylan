@@ -4,7 +4,7 @@ copyright: see below
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2005  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -1672,11 +1672,8 @@ define method optimize-slot-ref
       = build-slot-home(getter-name,
 			make-literal-constant(builder, class-slot.slot-introduced-by),
 			builder, policy, source);
-    let guaranteed-initialized?	// remove this altogether???
+    let guaranteed-initialized?
       = slot-guaranteed-initialized?(meta-slot, meta-instance /* instance.derived-type */);
-
-///    guaranteed-initialized?
-///      & error("A class slot that is guaranteed initialized?");
 
     if (init?-slot & ~guaranteed-initialized?)
       let init?-offset = find-slot-offset(init?-slot, meta-instance /* instance.derived-type */);
@@ -1723,6 +1720,7 @@ define method optimize-slot-ref
 	    derived-type: meta-slot.slot-type.ctype-extent,
 	    slot-info: meta-slot);
        end);
+
     unless (init?-slot | guaranteed-initialized?)
       let temp = make-local-var(builder, #"slot-initialized?", specifier-type(#"<boolean>") /* object-ctype() #elsewhere too!!!##*/);
       build-assignment(builder, policy, source, temp,
@@ -1775,6 +1773,7 @@ define method optimize-slot-ref
     let init?-slot = slot.slot-initialized?-slot;
     let guaranteed-initialized?
       = slot-guaranteed-initialized?(slot, instance.derived-type);
+
     if (init?-slot & ~guaranteed-initialized?)
       let init?-offset = find-slot-offset(init?-slot, instance.derived-type);
       unless (init?-offset)
@@ -1821,6 +1820,7 @@ define method optimize-slot-ref
 	    derived-type: slot.slot-type.ctype-extent,
 	    slot-info: slot);
        end);
+
     unless (init?-slot | guaranteed-initialized?)
       let temp = make-local-var(builder, #"slot-initialized?", object-ctype());
       build-assignment(builder, policy, source, temp,

@@ -7,7 +7,7 @@ encoding: utf-8
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998 - 2003  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2005  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -782,7 +782,7 @@ define method ct-value (defn :: <real-class-definition>)
     #"not-computed-yet" =>
       defn.class-defn-cclass := #"computing";
       let (class, init-args) = compute-cclass(defn);
-      if(class)
+      if (class)
         defn.class-defn-cclass := apply(make, class, init-args);
       end if;
     #"computing" =>
@@ -922,7 +922,7 @@ define method compute-cclass (defn :: <real-class-definition>)
     end if;
   end if;
 
-  if(bogus?)
+  if (bogus?)
     values(#f, #());
   else
     //
@@ -1159,7 +1159,7 @@ define method finalize-top-level-form (tlf :: <define-class-tlf>) => ();
     = if (defn.class-defn-cclass == #"not-computed-yet")
         defn.class-defn-cclass := #"computing";
         let (class, init-args) = compute-cclass(defn);
-        if(class)
+        if (class)
           defn.class-defn-cclass := apply(make, class, init-args);
         end if;
       else
@@ -1240,7 +1240,7 @@ define method finalize-top-level-form (tlf :: <define-class-tlf>) => ();
   end;
 end;
 
-define method finalize-slot
+define function finalize-slot
     (slot :: <slot-definition>, cclass :: false-or(<cclass>), class-type :: <ctype>,
      tlf :: <define-class-tlf>)
     => ();
@@ -1353,10 +1353,10 @@ define method finalize-slot
            #f;
          end;
   end unless;
-end method finalize-slot;
+end function finalize-slot;
 
 
-define method maybe-define-init-function
+define function maybe-define-init-function
     (expr :: <expression-parse>, getter-name :: false-or(<basic-name>),
      tlf :: <define-class-tlf>)
     => (ctv :: type-union(<ct-value>, singleton(#t)), change-to-init-value? :: <boolean>);
@@ -1409,7 +1409,7 @@ define method maybe-define-init-function
                   new-signature);
           end if;
           let name
-            = if(getter-name)
+            = if (getter-name)
                 make(<derived-name>, how: #"init-function", base: getter-name);
               else
                 make(<anonymous-name>, location: source-location(tlf));
@@ -1427,7 +1427,7 @@ define method maybe-define-init-function
       #t;
     end if;
   end if;
-end method maybe-define-init-function;
+end function maybe-define-init-function;
 
 
 // class-defn-mumble-function accessors.
@@ -1947,7 +1947,7 @@ define method convert-top-level-form
                  (evals-builder,
                   ref-dylan-defn(evals-builder, policy, source,
                                  if (override-info)
-                                   #"slot-init-value"
+                                   #"slot-init-value" // FIXME: this is fishy
                                  else
                                    #"slot-init-value"
                                  end),
@@ -2265,7 +2265,7 @@ define method convert-top-level-form
     end begin;
 
     unless (cclass.abstract?)
-      if(~empty?(cclass.keyword-infos)
+      if (~empty?(cclass.keyword-infos)
            | any?(method(super)
                       super.class-defn.class-defn-key-defaulter-function
                   end, cclass.direct-superclasses))
@@ -2275,7 +2275,7 @@ define method convert-top-level-form
           = build-key-defaulter-function-body(tl-builder, defn);
         
         let ctv = defn.class-defn-key-defaulter-function;
-        if(ctv)
+        if (ctv)
           make-function-literal(tl-builder, ctv, #"function", #"global",
                                 defaulter-signature, defaulter-region);
         else
@@ -2512,7 +2512,7 @@ define method build-key-defaulter-function-body
     build-if-body(builder, policy, source, cond);
 
     build-assignment(builder, policy, source, info.initkey-var, val-var);
-    if(info.initkey-supplied?-var)
+    if (info.initkey-supplied?-var)
       build-assignment(builder, policy, source,
                        info.initkey-supplied?-var,
                        make-literal-constant(builder, #t));
@@ -2554,8 +2554,8 @@ define method build-key-defaulter-function-body
   for(info in initkey-infos)
     let keyword-info = info.initkey-keyword-info;
 
-    if(keyword-info.keyword-required? | keyword-info.slot-init-function)
-      if(info.initkey-supplied?-var)
+    if (keyword-info.keyword-required? | keyword-info.slot-init-function)
+      if (info.initkey-supplied?-var)
         build-if-body(builder, policy, source, info.initkey-supplied?-var);
       else
         let supplied?-var
@@ -2569,7 +2569,7 @@ define method build-key-defaulter-function-body
       end if;
       build-else(builder, policy, source);
 
-      if(keyword-info.slot-init-function)
+      if (keyword-info.slot-init-function)
         let init-func-leaf
           = make-literal-constant(builder, keyword-info.slot-init-function);
         build-assignment

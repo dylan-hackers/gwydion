@@ -4,7 +4,7 @@ copyright: see below
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001, 2002  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2005  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -1738,14 +1738,13 @@ define method find-init-value
     // searching the list of "overrides" to determine whether any "inherited
     // slot" specification provided new default values for this slot in this
     // class.  If not, we use the default value supplied in the initial slot
-    // defintion.
+    // definition.
     for (override in slot.slot-overrides)
       let intro = override.slot-introduced-by;
       if (intro == object-type | csubtype?(class, intro))
 	if (override.slot-init-value == #t
-	      | override.slot-init-function)
-	  compiler-warning("Init value for %s in %= not set up.",
-			   slot-name, class);
+              | override.slot-init-function)
+	  // the value will be filled in at runtime
 	  return(#f);
 	end;
 	return(override.slot-init-value);
@@ -1753,9 +1752,10 @@ define method find-init-value
     end;
 
     if (slot.slot-init-value == #t | slot.slot-init-function)
-      compiler-warning("Init value for %s in %= not set up.",
-		       slot-name, class);
+      // the value will be filled in at runtime
+      return(#f);
     end;
+
     slot.slot-init-value;
   end;
 end;
