@@ -234,7 +234,7 @@ define module dylan-viscera
     <synchronization>, wait-for, release,
     <lock>, with-lock, <exclusive-lock>, owned?,
     <semaphore>, <simple-lock>, <recursive-lock>, <read-write-lock>,
-    <notification>, release-all,
+    <notification>, associated-lock, release-all,
     <count-exceeded-error>, <timeout-exceeded>, <not-owned-error>,
 
     // Machine-word stuff
