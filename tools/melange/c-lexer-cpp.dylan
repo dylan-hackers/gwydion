@@ -582,13 +582,13 @@ end method cpp-define;
 #if (~mindy)
 define multistring-checker preprocessor-match
   ("define", "undef", "include", "include_next", "ifdef", "ifndef", "if",
-   "else", "elif", "line", "endif", "error", "pragma");
+   "else", "elif", "line", "endif", "error", "warning", "pragma");
 define multistring-positioner do-skip-matcher("#", "/*");
 #else
 define constant preprocessor-match
   = make-multistring-checker("define", "undef", "include", "include_next",
 			     "ifdef", "ifndef", "if", "else", "elif", "line",
-			     "endif", "error", "pragma");
+			     "endif", "error", "warning", "pragma");
 define constant do-skip-matcher
   = make-multistring-positioner("#", "/*");
 #endif
@@ -752,12 +752,15 @@ define method try-cpp
 	    parse-error(state, "Encountered #error directive.");
 	  end if;
         "warning" =>
-          // ignore warning, and kill to end of line
-	  for (i from state.position below contents.size,
-	       until: contents[i] == '\n')
-	  finally
-	    state.position := i;
-	  end for;
+          if (empty?(state.cpp-stack) | head(state.cpp-stack) == #"accept")
+            for (i from pos below contents.size, until: contents[i] == '\n')
+            finally
+              parse-warning(state,
+                            "Warning: %s\n", 
+                            copy-sequence(contents, start: pos, end: i - 1));
+              state.position := i;
+            end for;
+          end if;
 	"line", "pragma" =>
 	  // Kill to end of line
 	  for (i from pos below contents.size, until: contents[i] == '\n')
