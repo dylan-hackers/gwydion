@@ -755,3 +755,10 @@ define macro callback-method
     { callback-method (?:parameter-list) => ( ); ?:body end }
       => make-callback-method({ ?parameter-list }, { }, { ?body })
 end;
+
+define macro callback-method-definer
+  { define callback-method ?:name (?:parameter-list) => ( ?result:variable ); ?:body end }
+    => { define constant ?name = callback-method (?parameter-list) => ( ?result ); ?body end; }
+  { define callback-method ?:name (?:parameter-list) => ( ); ?:body end }
+    => { define constant ?name = callback-method (?parameter-list) => ( ); ?body end; }
+end;
