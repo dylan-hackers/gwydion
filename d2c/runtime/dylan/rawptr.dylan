@@ -37,6 +37,8 @@ define sealed method make (class == <raw-pointer>, #key)
   error("Can't make instances of <raw-pointer>, they just are.");
 end;
 
+define constant $raw-null-pointer = as(<raw-pointer>, 0);
+
 define sealed inline method as
     (class == <raw-pointer>, address :: <integer>)
     => res :: <raw-pointer>;
@@ -83,7 +85,6 @@ define sealed inline method \- (ptr1 :: <raw-pointer>, ptr2 :: <raw-pointer>)
     => res :: <integer>;
   %%primitive(pointer--, ptr1, ptr2);
 end;
-
 
 define macro pointer-deref
     { pointer-deref (?kind:expression, ?ptr:expression, ?offset:expression) }
