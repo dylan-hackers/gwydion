@@ -1,5 +1,5 @@
 library: debugger
-linker-options: -Wl,-E
+linker-options: -export-dynamic
 files: exports
        introspection
        dlfcn
