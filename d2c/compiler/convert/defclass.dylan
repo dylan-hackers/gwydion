@@ -1,5 +1,6 @@
 module: define-classes
 copyright: see below
+encoding: utf-8
 
 
 
@@ -46,30 +47,30 @@ end class <define-class-parse>;
 define-procedural-expander
   (#"make-define-class",
    method (generator :: <expansion-generator>, name-frag :: <fragment>,
-	   supers-frag :: <fragment>, slots-frag :: <fragment>,
-	   options-frag :: <fragment>)
+           supers-frag :: <fragment>, slots-frag :: <fragment>,
+           options-frag :: <fragment>)
        => ();
      generate-fragment
        (generator,
-	make-parsed-fragment
-	  (make(<define-class-parse>,
-		name: extract-name(name-frag),
-		source-location: generator.generator-call.source-location,
-		superclass-exprs: map(expression-from-fragment,
-				      split-fragment-at-commas(supers-frag)),
-		slots: map(extract-slot, split-fragment-at-commas(slots-frag)),
-		options: parse-property-list(make(<fragment-tokenizer>,
-						  fragment: options-frag))),
-	   source-location: generate-token-source-location(generator)));
+        make-parsed-fragment
+          (make(<define-class-parse>,
+                name: extract-name(name-frag),
+                source-location: generator.generator-call.source-location,
+                superclass-exprs: map(expression-from-fragment,
+                                      split-fragment-at-commas(supers-frag)),
+                slots: map(extract-slot, split-fragment-at-commas(slots-frag)),
+                options: parse-property-list(make(<fragment-tokenizer>,
+                                                  fragment: options-frag))),
+           source-location: generate-token-source-location(generator)));
    end method);
 
 define method extract-slot (frag :: <fragment>)
     => res :: <abstract-slot-parse>;
   if (instance?(frag, <token-fragment>)
-	& frag.fragment-token.token-kind == $error-token
-	& instance?(frag.fragment-token, <pre-parsed-token>)
-	& instance?(frag.fragment-token.token-parse-tree,
-		    <abstract-slot-parse>))
+        & frag.fragment-token.token-kind == $error-token
+        & instance?(frag.fragment-token, <pre-parsed-token>)
+        & instance?(frag.fragment-token.token-parse-tree,
+                    <abstract-slot-parse>))
     frag.fragment-token.token-parse-tree;
   else
     error("bug in define class macro: %= isn't a slot parse", frag);
@@ -90,17 +91,17 @@ end class <slot-parse>;
 define-procedural-expander
   (#"make-slot",
    method (generator :: <expansion-generator>, name-frag :: <token-fragment>,
-	   options-frag :: <fragment>)
+           options-frag :: <fragment>)
        => ();
      generate-fragment
        (generator,
-	make-magic-fragment
-	  (make(<slot-parse>,
-		name: extract-name(name-frag),
-		source-location: name-frag.fragment-token.source-location,
-		options: parse-property-list(make(<fragment-tokenizer>,
-						  fragment: options-frag))),
-	   source-location: generate-token-source-location(generator)))
+        make-magic-fragment
+          (make(<slot-parse>,
+                name: extract-name(name-frag),
+                source-location: name-frag.fragment-token.source-location,
+                options: parse-property-list(make(<fragment-tokenizer>,
+                                                  fragment: options-frag))),
+           source-location: generate-token-source-location(generator)))
    end method);
 
 define class <inherited-slot-parse> (<abstract-slot-parse>)
@@ -113,16 +114,16 @@ end class <inherited-slot-parse>;
 define-procedural-expander
   (#"make-inherited-slot",
    method (generator :: <expansion-generator>, name-frag :: <fragment>,
-	   options-frag :: <fragment>)
+           options-frag :: <fragment>)
        => ();
      generate-fragment
        (generator,
-	make-magic-fragment
-	  (make(<inherited-slot-parse>,
-		name: extract-name(name-frag),
-		options: parse-property-list(make(<fragment-tokenizer>,
-						  fragment: options-frag))),
-	   source-location: generate-token-source-location(generator)))
+        make-magic-fragment
+          (make(<inherited-slot-parse>,
+                name: extract-name(name-frag),
+                options: parse-property-list(make(<fragment-tokenizer>,
+                                                  fragment: options-frag))),
+           source-location: generate-token-source-location(generator)))
    end method);
 
 define class <init-arg-parse> (<abstract-slot-parse>)
@@ -135,7 +136,7 @@ end class <init-arg-parse>;
 define-procedural-expander
   (#"make-init-arg",
    method (generator :: <expansion-generator>, keyword-frag :: <fragment>,
-	   options-frag :: <fragment>)
+           options-frag :: <fragment>)
        => ();
      let keyword
        = if (instance?(keyword-frag, <token-fragment>)
@@ -148,18 +149,18 @@ define-procedural-expander
          end;
      generate-fragment
        (generator,
-	make-magic-fragment
-	  (make(<init-arg-parse>,
-		keyword: keyword,
-		options: parse-property-list(make(<fragment-tokenizer>,
-						  fragment: options-frag))),
-	   source-location: generate-token-source-location(generator)))
+        make-magic-fragment
+          (make(<init-arg-parse>,
+                keyword: keyword,
+                options: parse-property-list(make(<fragment-tokenizer>,
+                                                  fragment: options-frag))),
+           source-location: generate-token-source-location(generator)))
    end method);
 
 define method extract-keyword (frag :: <fragment>)
     => keyword :: <symbol>;
   if (instance?(frag, <token-fragment>)
-	& frag.fragment-token.token-kind == $symbol-token)
+        & frag.fragment-token.token-kind == $symbol-token)
     frag.fragment-token.token-literal.literal-value;
   else
     error("Bug in define class macro: %= isn't a keyword.", frag);
@@ -373,7 +374,7 @@ define method process-top-level-form (form :: <define-class-parse>) => ();
   let (class-functional?-frag, class-sealed?-frag, class-primary?-frag,
        class-abstract?-frag)
     = extract-properties(form.defclass-options, #"functional", #"sealed",
-			 #"primary", #"abstract");
+                         #"primary", #"abstract");
   let class-functional?
     = class-functional?-frag & extract-boolean(class-functional?-frag);
   let class-sealed?
@@ -387,10 +388,10 @@ define method process-top-level-form (form :: <define-class-parse>) => ();
   let keywords = make(<stretchy-vector>);
   unless (class-abstract? | empty?(form.defclass-superclass-exprs))
     add!(overrides,
-	 make(<override-defn>,
-	      getter-name: make(<basic-name>, symbol: #"%object-class",
-				module: $Dylan-Module),
-	      init-value: make(<varref-parse>, id: form.defclass-name)));
+         make(<override-defn>,
+              getter-name: make(<basic-name>, symbol: #"%object-class",
+                                module: $Dylan-Module),
+              init-value: make(<varref-parse>, id: form.defclass-name)));
   end;
   for (option in form.defclass-slots)
     block ()
@@ -403,36 +404,36 @@ define method process-top-level-form (form :: <define-class-parse>) => ();
   let overrides = as(<simple-object-vector>, overrides);
   let keywords = as(<simple-object-vector>, keywords);
   let defn = make(<local-class-definition>,
-		  name: make(<basic-name>,
-			     symbol: name,
-			     module: module),
-		  source-location: form.source-location,
-		  library: library,
-		  supers: form.defclass-superclass-exprs,
-		  functional: class-functional?,
-		  sealed: class-sealed?,
-		  primary: class-primary?,
-		  abstract: class-abstract?,
-		  slots: slots,
-		  overrides: overrides,
-		  keywords: keywords);
+                  name: make(<basic-name>,
+                             symbol: name,
+                             module: module),
+                  source-location: form.source-location,
+                  library: library,
+                  supers: form.defclass-superclass-exprs,
+                  functional: class-functional?,
+                  sealed: class-sealed?,
+                  primary: class-primary?,
+                  abstract: class-abstract?,
+                  slots: slots,
+                  overrides: overrides,
+                  keywords: keywords);
   for (slot in slots)
     slot.slot-defn-class := defn;
     //
     // Implicity define the accessor generics.
     if (slot.slot-defn-sizer-defn)
       implicitly-define-generic
-	(library, slot.slot-defn-getter-name, 2, #f, #f);
+        (library, slot.slot-defn-getter-name, 2, #f, #f);
       if (slot.slot-defn-setter-name)
-	implicitly-define-generic
-	  (library, slot.slot-defn-setter-name, 3, #f, #f);
+        implicitly-define-generic
+          (library, slot.slot-defn-setter-name, 3, #f, #f);
       end;
     else
       implicitly-define-generic
-	(library, slot.slot-defn-getter-name, 1, #f, #f);
+        (library, slot.slot-defn-getter-name, 1, #f, #f);
       if (slot.slot-defn-setter-name)
-	implicitly-define-generic
-	  (library, slot.slot-defn-setter-name, 2, #f, #f);
+        implicitly-define-generic
+          (library, slot.slot-defn-setter-name, 2, #f, #f);
       end;
     end;
   end;
@@ -466,36 +467,36 @@ define method process-slot
        size-init-keyword-frag, req-size-init-keyword-frag,
        size-init-value-frag, size-init-function-frag)
     = extract-properties(slot.slot-parse-options,
-			 sealed:, allocation:, type:, setter:,
-			 init-keyword:, required-init-keyword:,
-			 init-value:, init-expr:, init-function:,
-			 sizer:, size-init-keyword:,
-			 required-size-init-keyword:,
-			 size-init-value:, size-init-function:);
+                         sealed:, allocation:, type:, setter:,
+                         init-keyword:, required-init-keyword:,
+                         init-value:, init-expr:, init-function:,
+                         sizer:, size-init-keyword:,
+                         required-size-init-keyword:,
+                         size-init-value:, size-init-function:);
   let getter = slot.slot-parse-name.token-symbol;
   let sealed? = sealed?-frag & extract-boolean(sealed?-frag);
   let allocation = if (allocation-frag)
-		     extract-identifier(allocation-frag).token-symbol;
-		   else
-		     #"instance";
-		   end;
+                     extract-identifier(allocation-frag).token-symbol;
+                   else
+                     #"instance";
+                   end;
   let type = type-frag & expression-from-fragment(type-frag);
   let setter = if (class-functional? & allocation == #"instance")
-		 let id
-		   = setter-frag & extract-identifier-or-false(setter-frag);
-		 if (id)
-		   compiler-warning-location
-		     (id,
-		      "Instance allocation slots in functional classes can't"
-			" have a setter.");
-		 end;
-		 #f;
-	       elseif (setter-frag)
-		 let id = extract-identifier-or-false(setter-frag);
-		 id & id.token-symbol;
-	       else
-		 symcat(getter, "-setter");
-	       end;
+                 let id
+                   = setter-frag & extract-identifier-or-false(setter-frag);
+                 if (id)
+                   compiler-warning-location
+                     (id,
+                      "Instance allocation slots in functional classes can't"
+                        " have a setter.");
+                 end;
+                 #f;
+               elseif (setter-frag)
+                 let id = extract-identifier-or-false(setter-frag);
+                 id & id.token-symbol;
+               else
+                 symcat(getter, "-setter");
+               end;
   let init-keyword = init-keyword-frag & extract-keyword(init-keyword-frag);
   let req-init-keyword
     = req-init-keyword-frag & extract-keyword(req-init-keyword-frag);
@@ -509,55 +510,55 @@ define method process-slot
     = size-init-keyword-frag & extract-keyword(size-init-keyword-frag);
   let req-size-init-keyword
     = (req-size-init-keyword-frag
-	 & extract-keyword(req-size-init-keyword-frag));
+         & extract-keyword(req-size-init-keyword-frag));
   let size-init-value
     = size-init-value-frag & expression-from-fragment(size-init-value-frag);
   let size-init-function
     = (size-init-function-frag
-	 & expression-from-fragment(size-init-function-frag));
+         & expression-from-fragment(size-init-function-frag));
 
   if (init-value)
     if (init-expr)
       compiler-fatal-error-location
-	(init-value,
-	 "Can't supply both an init-value: and an init-expression.");
+        (init-value,
+         "Can't supply both an init-value: and an init-expression.");
     end if;
     if (init-function)
       compiler-fatal-error-location
-	(init-value,
-	 "Can't supply both an init-value: and an init-function:.");
+        (init-value,
+         "Can't supply both an init-value: and an init-function:.");
     end;
     if (req-init-keyword)
       compiler-fatal-error-location
-	(init-value,
-	 "Can't supply both an init-value: and a required-init-keyword:.");
+        (init-value,
+         "Can't supply both an init-value: and a required-init-keyword:.");
     end;
   elseif (init-expr)
     if (init-function)
       compiler-fatal-error-location
-	(init-expr,
-	 "Can't supply both an init-function: and an init-expression.");
+        (init-expr,
+         "Can't supply both an init-function: and an init-expression.");
     end if;
     if (req-init-keyword)
       compiler-fatal-error-location
-	(init-expr,
-	 "Can't supply both an init-value: and a required-init-keyword:.");
+        (init-expr,
+         "Can't supply both an init-value: and a required-init-keyword:.");
     end;
     if (instance?(init-expr, <literal-ref-parse>))
       init-value := init-expr;
     else
       init-function
-	:= make(<method-ref-parse>,
-		method: make(<method-parse>,
-			     parameters: make(<parameter-list>, fixed: #[]),
-			     body: init-expr));
+        := make(<method-ref-parse>,
+                method: make(<method-parse>,
+                             parameters: make(<parameter-list>, fixed: #[]),
+                             body: init-expr));
     end if;
   elseif (init-function)
     if (req-init-keyword)
       compiler-fatal-error-location
-	(init-function,
-	 "Can't supply both an init-function: and a "
-	   "required-init-keyword:.");
+        (init-function,
+         "Can't supply both an init-function: and a "
+           "required-init-keyword:.");
     end;
   end;
   if (init-keyword & req-init-keyword)
@@ -568,107 +569,107 @@ define method process-slot
 
   let module = slot.slot-parse-name.token-module;
   let getter-name = make(<basic-name>, symbol: getter,
-			 module: module);
+                         module: module);
   let setter-name = setter & make(<basic-name>, symbol: setter,
-				  module: module);
+                                  module: module);
 
   let size-defn
     = if (sizer)
-	let sizer-name
-	  = make(<basic-name>, symbol: sizer, module: module);
-	
-	unless (allocation == #"instance")
-	  compiler-fatal-error-location
-	    (simplify-source-location(sizer-frag.source-location),
-	     "Only instance allocation slots can be variable length, but "
-	       "%s has %s allocation",
-	     getter, allocation);
-	end;
-	
-	if (size-init-value)
-	  if (size-init-function)
-	    compiler-fatal-error-location
-	      (size-init-value,
-	       "Can't have both a size-init-value: and size-init-function:");
-	  end;
-	elseif (~(size-init-function | req-size-init-keyword))
-	  compiler-fatal-error
-	    ("The Initial size for vector slot %s must be supplied somehow.",
-	     getter);
-	end;
-	
-	if (size-init-keyword & req-size-init-keyword)
-	  compiler-fatal-error-location
-	    (simplify-source-location
-	       (size-init-keyword-frag.source-location),
-	     "Can't have both a size-init-keyword: and a "
-	       "required-size-init-keyword:");
-	end;
-	
-	let slot = make(<slot-defn>,
-			sealed: sealed?,
-			allocation: #"instance",
-			type:
-			  make(<varref-parse>,
-			       id: make(<identifier-token>,
-					kind: $raw-ordinary-word-token,
-					symbol: #"<integer>",
-					module: $Dylan-Module,
-					uniquifier: make(<uniquifier>))),
-			getter-name: sizer-name,
-			setter-name: #f,
-			source-location: slot.source-location,
-			init-value: size-init-value,
-			init-function: size-init-function,
-			init-keyword:
-			  size-init-keyword | req-size-init-keyword,
-			init-keyword-required:
-			  req-size-init-keyword & #t);
-	add!(slots, slot);
-	slot;
+        let sizer-name
+          = make(<basic-name>, symbol: sizer, module: module);
+        
+        unless (allocation == #"instance")
+          compiler-fatal-error-location
+            (simplify-source-location(sizer-frag.source-location),
+             "Only instance allocation slots can be variable length, but "
+               "%s has %s allocation",
+             getter, allocation);
+        end;
+        
+        if (size-init-value)
+          if (size-init-function)
+            compiler-fatal-error-location
+              (size-init-value,
+               "Can't have both a size-init-value: and size-init-function:");
+          end;
+        elseif (~(size-init-function | req-size-init-keyword))
+          compiler-fatal-error
+            ("The Initial size for vector slot %s must be supplied somehow.",
+             getter);
+        end;
+        
+        if (size-init-keyword & req-size-init-keyword)
+          compiler-fatal-error-location
+            (simplify-source-location
+               (size-init-keyword-frag.source-location),
+             "Can't have both a size-init-keyword: and a "
+               "required-size-init-keyword:");
+        end;
+        
+        let slot = make(<slot-defn>,
+                        sealed: sealed?,
+                        allocation: #"instance",
+                        type:
+                          make(<varref-parse>,
+                               id: make(<identifier-token>,
+                                        kind: $raw-ordinary-word-token,
+                                        symbol: #"<integer>",
+                                        module: $Dylan-Module,
+                                        uniquifier: make(<uniquifier>))),
+                        getter-name: sizer-name,
+                        setter-name: #f,
+                        source-location: slot.source-location,
+                        init-value: size-init-value,
+                        init-function: size-init-function,
+                        init-keyword:
+                          size-init-keyword | req-size-init-keyword,
+                        init-keyword-required:
+                          req-size-init-keyword & #t);
+        add!(slots, slot);
+        slot;
       else
-	if (size-init-value)
-	  compiler-fatal-error-location
-	    (size-init-value,
-	     "Can't supply a size-init-value: without a sizer: generic "
-	       "function");
-	end;
-	if (size-init-function)
-	  compiler-fatal-error-location
-	    (size-init-function,
-	     "Can't supply a size-init-function: without a "
-	       "sizer: generic function");
-	end;
-	if (size-init-keyword)
-	  compiler-fatal-error-location
-	    (simplify-source-location
-	       (size-init-keyword-frag.source-location),
-	     "Can't supply a size-init-keyword: without a "
-	       "sizer: generic function");
-	end;
-	if (req-size-init-keyword)
-	  compiler-fatal-error-location
-	    (simplify-source-location
-	       (req-size-init-keyword-frag.source-location),
-	     "Can't supply a required-size-init-keyword: "
-	       "without a sizer: generic function");
-	end;
+        if (size-init-value)
+          compiler-fatal-error-location
+            (size-init-value,
+             "Can't supply a size-init-value: without a sizer: generic "
+               "function");
+        end;
+        if (size-init-function)
+          compiler-fatal-error-location
+            (size-init-function,
+             "Can't supply a size-init-function: without a "
+               "sizer: generic function");
+        end;
+        if (size-init-keyword)
+          compiler-fatal-error-location
+            (simplify-source-location
+               (size-init-keyword-frag.source-location),
+             "Can't supply a size-init-keyword: without a "
+               "sizer: generic function");
+        end;
+        if (req-size-init-keyword)
+          compiler-fatal-error-location
+            (simplify-source-location
+               (req-size-init-keyword-frag.source-location),
+             "Can't supply a required-size-init-keyword: "
+               "without a sizer: generic function");
+        end;
 
-	#f;
+        #f;
       end;
   
   let slot = make(<slot-defn>,
-		  sealed: sealed? & #t,
-		  allocation: allocation,
-		  type: type,
-		  getter-name: getter-name,
-		  setter-name: setter-name,
-		  source-location: slot.source-location,
-		  init-value: init-value,
-		  init-function: init-function,
-		  init-keyword: init-keyword | req-init-keyword,
-		  sizer-defn: size-defn,
-		  init-keyword-required: req-init-keyword & #t);
+                  sealed: sealed? & #t,
+                  allocation: allocation,
+                  type: type,
+                  getter-name: getter-name,
+                  setter-name: setter-name,
+                  source-location: slot.source-location,
+                  init-value: init-value,
+                  init-function: init-function,
+                  init-keyword: init-keyword | req-init-keyword,
+                  sizer-defn: size-defn,
+                  init-keyword-required: req-init-keyword & #t);
   add!(slots, slot);
 end method process-slot;
 
@@ -679,7 +680,7 @@ define method process-slot
     => ();
   let (init-value-frag, init-expr-frag, init-function-frag)
     = extract-properties(slot.inherited-slot-parse-options,
-			 init-value:, init-expr:, init-function:);
+                         init-value:, init-expr:, init-function:);
 
   let init-value = init-value-frag & expression-from-fragment(init-value-frag);
   let init-expr = init-expr-frag & expression-from-fragment(init-expr-frag);
@@ -689,40 +690,40 @@ define method process-slot
   if (init-value)
     if (init-expr)
       compiler-fatal-error-location
-	(init-expr,
-	 "Can't supply both an init-value: and an init-expression.");
+        (init-expr,
+         "Can't supply both an init-value: and an init-expression.");
     end if;
     if (init-function)
       compiler-fatal-error-location
-	(init-function,
-	 "Can't supply both an init-value: and an init-function:.");
+        (init-function,
+         "Can't supply both an init-value: and an init-function:.");
     end;
   elseif (init-expr)
     if (init-function)
       compiler-fatal-error-location
-	(init-function,
-	 "Can't supply both an init-function: and an init-expression.");
+        (init-function,
+         "Can't supply both an init-function: and an init-expression.");
     end if;
     if (instance?(init-expr, <literal-ref-parse>))
       init-value := init-expr;
     else
       init-function
-	:= make(<method-ref-parse>,
-		method: make(<method-parse>,
-			     parameters: make(<parameter-list>, fixed: #[]),
-			     body: init-expr));
+        := make(<method-ref-parse>,
+                method: make(<method-parse>,
+                             parameters: make(<parameter-list>, fixed: #[]),
+                             body: init-expr));
     end if;
   end;
 
   let module = slot.inherited-slot-parse-name.token-module;
   add!(overrides,
        make(<override-defn>,
-	    getter-name:
-	      make(<basic-name>,
-		   symbol: slot.inherited-slot-parse-name.token-symbol,
-		   module: module),
-	    init-value: init-value,
-	    init-function: init-function));
+            getter-name:
+              make(<basic-name>,
+                   symbol: slot.inherited-slot-parse-name.token-symbol,
+                   module: module),
+            init-value: init-value,
+            init-function: init-function));
 end method process-slot;
 
 define method process-slot
@@ -732,7 +733,7 @@ define method process-slot
  => ();
   let (required?-frag, type-frag, init-value-frag, init-function-frag, init-expr-frag)
     = extract-properties(slot.init-arg-parse-options,
-			 required:, type:, init-value:, init-function:, init-expr:);
+                         required:, type:, init-value:, init-function:, init-expr:);
   
   let required? = required?-frag & extract-boolean(required?-frag);
   let type = type-frag & expression-from-fragment(type-frag);
@@ -745,55 +746,55 @@ define method process-slot
   if (init-value)
     if (init-expr)
       compiler-fatal-error-location
-	(init-value,
-	 "Can't supply both an init-value: and an init-expression.");
+        (init-value,
+         "Can't supply both an init-value: and an init-expression.");
     end if;
     if (init-function)
       compiler-fatal-error-location
-	(init-value,
-	 "Can't supply both an init-value: and an init-function:.");
+        (init-value,
+         "Can't supply both an init-value: and an init-function:.");
     end;
     if (required?)
       compiler-fatal-error-location
-	(init-value,
-	 "Can't supply both an init-value: and a required-init-keyword:.");
+        (init-value,
+         "Can't supply both an init-value: and a required-init-keyword:.");
     end;
   elseif (init-expr)
     if (init-function)
       compiler-fatal-error-location
-	(init-expr,
-	 "Can't supply both an init-function: and an init-expression.");
+        (init-expr,
+         "Can't supply both an init-function: and an init-expression.");
     end if;
     if (required?)
       compiler-fatal-error-location
-	(init-expr,
-	 "Can't supply both an init-value: and a required-init-keyword:.");
+        (init-expr,
+         "Can't supply both an init-value: and a required-init-keyword:.");
     end;
     if (instance?(init-expr, <literal-ref-parse>))
       init-value := init-expr;
     else
       init-function
-	:= make(<method-ref-parse>,
-		method: make(<method-parse>,
-			     parameters: make(<parameter-list>, fixed: #[]),
-			     body: init-expr));
+        := make(<method-ref-parse>,
+                method: make(<method-parse>,
+                             parameters: make(<parameter-list>, fixed: #[]),
+                             body: init-expr));
     end if;
   elseif (init-function)
     if (required?)
       compiler-fatal-error-location
-	(init-function,
-	 "Can't supply both an init-function: and a "
-	   "required-init-keyword:.");
+        (init-function,
+         "Can't supply both an init-function: and a "
+           "required-init-keyword:.");
     end;
   end;
 
   add!(keywords,
        make(<keyword-defn>,
-	    symbol: slot.init-arg-parse-keyword,
-	    required?: required?,
-	    type: type,
-	    init-value: init-value,
-	    init-function: init-function));
+            symbol: slot.init-arg-parse-keyword,
+            required?: required?,
+            type: type,
+            init-value: init-value,
+            init-function: init-function));
 end method process-slot;
 
 
@@ -815,9 +816,9 @@ define method ct-value (defn :: <real-class-definition>)
       end if;
     #"computing" =>
       compiler-error-location
-	(defn,
-	 "class %s circularly defined.",
-	 defn.defn-name.name-symbol);
+        (defn,
+         "class %s circularly defined.",
+         defn.defn-name.name-symbol);
       #f;
     otherwise =>
       defn.class-defn-cclass;
@@ -844,93 +845,93 @@ define method compute-cclass (defn :: <real-class-definition>)
       //
       // Make sure we aren't trying to inherit from a sealed class.
       if (super.sealed? & super.loaded?)
-	compiler-error-location
-	  (super-expr.source-location,
-	   "%s can't inherit from %s because %s is sealed.",
-	   defn.defn-name, super, super);
-	bogus? := #t;
+        compiler-error-location
+          (super-expr.source-location,
+           "%s can't inherit from %s because %s is sealed.",
+           defn.defn-name, super, super);
+        bogus? := #t;
       end if;
       //
       // Check that everything is okay with the abstract adjective.
       if (defn.class-defn-abstract? & ~super.abstract?)
-	compiler-warning-location
-	  (super-expr.source-location,
-	   "abstract class %s can't inherit from %s because "
-	     "%s is concrete -- ignoring abstract abjective.",
-	   defn.defn-name, super, super);
-	defn.class-defn-abstract? := #f;
+        compiler-warning-location
+          (super-expr.source-location,
+           "abstract class %s can't inherit from %s because "
+             "%s is concrete -- ignoring abstract abjective.",
+           defn.defn-name, super, super);
+        defn.class-defn-abstract? := #f;
       end if;
       //
       // Check that everything is okay with the functional adjective.
       if (defn.class-defn-functional?)
-	//
-	// Make sure we aren't trying to inherit from anything we can't.
-	if (super.not-functional?)
-	  compiler-error-location
-	    (super-expr.source-location,
-	     "functional class %s can't inherit from %s "
-	       "because %s %s and is not functional.",
-	     defn.defn-name, super, super,
-	     if (super.abstract?)
-	       "has instance slots";
-	     else
-	       "is concrete";
-	     end if);
-	  bogus? := #t;
-	end if;
+        //
+        // Make sure we aren't trying to inherit from anything we can't.
+        if (super.not-functional?)
+          compiler-error-location
+            (super-expr.source-location,
+             "functional class %s can't inherit from %s "
+               "because %s %s and is not functional.",
+             defn.defn-name, super, super,
+             if (super.abstract?)
+               "has instance slots";
+             else
+               "is concrete";
+             end if);
+          bogus? := #t;
+        end if;
       else
-	//
-	// It isn't a functional class, so make sure we aren't trying to
-	// inherit from a functional class.
-	if (super.functional?)
-	  compiler-error-location
-	    (super-expr.source-location,
-	     "class %s can't inherit from %s because %s is functional.",
-	     defn.defn-name, super, super);
-	  bogus? := #t;
-	end if;
+        //
+        // It isn't a functional class, so make sure we aren't trying to
+        // inherit from a functional class.
+        if (super.functional?)
+          compiler-error-location
+            (super-expr.source-location,
+             "class %s can't inherit from %s because %s is functional.",
+             defn.defn-name, super, super);
+          bogus? := #t;
+        end if;
       end if;
       //
       // Check to see if this superclass's closest-primary-superclass
       // is closer than any of the others so far.
       let other-primary = super.closest-primary-superclass;
       if (~closest-primary | csubtype?(other-primary, closest-primary))
-	closest-super := super;
-	closest-primary := other-primary;
+        closest-super := super;
+        closest-primary := other-primary;
       elseif (~csubtype?(closest-primary, other-primary))
-	local method describe (primary, super)
-		if (primary == super)
-		  as(<string>, primary.cclass-name.name-symbol);
-		else
-		  format-to-string("%s (inherited via %s)",
-				   primary.cclass-name.name-symbol,
-				   super.cclass-name.name-symbol);
-		end;
-	      end;
-	compiler-error-location
-	  (super-expr.source-location,
-	   "%s can't inherit from %s and %s because they are both primary "
-	     "and neither is a subclass of the other.",
-	   defn.defn-name,
-	   describe(closest-primary, closest-super),
-	   describe(other-primary, super));
-	bogus? := #t;
+        local method describe (primary, super)
+                if (primary == super)
+                  as(<string>, primary.cclass-name.name-symbol);
+                else
+                  format-to-string("%s (inherited via %s)",
+                                   primary.cclass-name.name-symbol,
+                                   super.cclass-name.name-symbol);
+                end;
+              end;
+        compiler-error-location
+          (super-expr.source-location,
+           "%s can't inherit from %s and %s because they are both primary "
+             "and neither is a subclass of the other.",
+           defn.defn-name,
+           describe(closest-primary, closest-super),
+           describe(other-primary, super));
+        bogus? := #t;
       end if;
     else
       //
       // The superclass isn't a <class>.  So complain.
       if (super)
-	compiler-error-location
-	  (super-expr.source-location,
-	   "%s superclass of %s is not a class: %s.",
-	   integer-to-english(index + 1, as: #"ordinal"),
-	   defn.defn-name, super);
+        compiler-error-location
+          (super-expr.source-location,
+           "%s superclass of %s is not a class: %s.",
+           integer-to-english(index + 1, as: #"ordinal"),
+           defn.defn-name, super);
       else
-	compiler-warning-location
-	  (super-expr.source-location,
-	   "%s superclass of %s is not obviously a constant.",
-	   integer-to-english(index + 1, as: #"ordinal"),
-	   defn.defn-name);
+        compiler-warning-location
+          (super-expr.source-location,
+           "%s superclass of %s is not obviously a constant.",
+           integer-to-english(index + 1, as: #"ordinal"),
+           defn.defn-name);
       end if;
       bogus? := #t;
     end if;
@@ -943,7 +944,7 @@ define method compute-cclass (defn :: <real-class-definition>)
   else
     if (nsupers.zero?)
       compiler-error-location
-	(defn, "%s has no superclasses.", defn.defn-name);
+        (defn, "%s has no superclasses.", defn.defn-name);
       bogus? := #t;
     elseif (closest-primary == #f & ~bogus?)
       error("<object> isn't being inherited or isn't primary?");
@@ -970,24 +971,24 @@ define method compute-cclass (defn :: <real-class-definition>)
     // Superclasses that have indirect slots
     let superclasses-with-meta = choose(class-metaclass, supers);
     local method each-subclass-slots? (super :: <defined-cclass>)
-	   => each-subclass-slots? :: <boolean>;
-	    any?(each-subclass-slot?, super.new-slot-infos)
-	      | any?(each-subclass-slots?, super.direct-superclasses)
-	  end;
+           => each-subclass-slots? :: <boolean>;
+            any?(each-subclass-slot?, super.new-slot-infos)
+              | any?(each-subclass-slots?, super.direct-superclasses)
+          end;
     // Superclasses that have each-subclass slots
     let superclasses-with-esc-meta = choose(each-subclass-slots?,
-					    superclasses-with-meta);
+                                            superclasses-with-meta);
     let superclasses-with-esc-meta = superclasses-with-esc-meta.remove-duplicates!;
     local method extract-esc-metas(super-with-esc :: <defined-cclass>)
-	      => esc-metas :: <list>;
-	    let meta = super-with-esc.class-metaclass;
-	    if (any?(class-slot?, super-with-esc.new-slot-infos))
-	      // Peel off metaclass contributing the class slots only
-	      meta.direct-superclasses
-	    else
-	      meta.list
-	    end;
-	  end;
+              => esc-metas :: <list>;
+            let meta = super-with-esc.class-metaclass;
+            if (any?(class-slot?, super-with-esc.new-slot-infos))
+              // Peel off metaclass contributing the class slots only
+              meta.direct-superclasses
+            else
+              meta.list
+            end;
+          end;
     // Gather all metaclasses that contribute esc-slots
     let esc-metas = reduce(concatenate, #(), map(extract-esc-metas, superclasses-with-esc-meta));
     let esc-metas = esc-metas.remove-duplicates!;
@@ -995,83 +996,83 @@ define method compute-cclass (defn :: <real-class-definition>)
     
     let metaclass
       = unless (class-slot-infos.empty?
-		  & each-subclass-slot-infos.empty?
-		  & esc-metas.empty?)
+                  & each-subclass-slot-infos.empty?
+                  & esc-metas.empty?)
 
-	// now that we got here, we have to handle 7 cases.
-	// these are detailed in the following table and illustrate
-	// how the CPL for the metaclass should look like (i.e.
-	// how the contributing metaclasses should nest)
-	
-	// class-slots	esc-slots  inherited-esc-slots => CPL
-	// 1.	NO	NO		YES		esc(inh)	// where "esc" won't contribute
-	// 1a.	NO	NO		YES (1 meta)	inh1		// we could reuse it! (not yet implemented)
-	// 2.	NO	YES		NO		esc(<class>)
-	// 3.	NO	YES		YES		esc(inh)
-	// 4.	YES	NO		NO		cls(<class>)
-	// 5.	YES	NO		YES		cls(inh)
-	// 6.	YES	YES		NO		cls(esc(<class>))
-	// 7.	YES	YES		YES		cls(esc(inh))
+        // now that we got here, we have to handle 7 cases.
+        // these are detailed in the following table and illustrate
+        // how the CPL for the metaclass should look like (i.e.
+        // how the contributing metaclasses should nest)
+        
+        // class-slots  esc-slots  inherited-esc-slots => CPL
+        // 1.   NO      NO              YES             esc(inh)        // where "esc" won't contribute
+        // 1a.  NO      NO              YES (1 meta)    inh1            // we could reuse it! (not yet implemented)
+        // 2.   NO      YES             NO              esc(<class>)
+        // 3.   NO      YES             YES             esc(inh)
+        // 4.   YES     NO              NO              cls(<class>)
+        // 5.   YES     NO              YES             cls(inh)
+        // 6.   YES     YES             NO              cls(esc(<class>))
+        // 7.   YES     YES             YES             cls(esc(inh))
 
-	  local method associate(info :: <indirect-slot-info>)
-		 => associated :: <meta-slot-info>;
-		  info.associated-meta-slot
-		    := make(<meta-slot-info>,
-			    referred: info,
-			    getter: #f,
-			    read-only: info.slot-read-only?,
-			    init-keyword: info.slot-init-keyword,
-			    init-keyword-required: info.slot-init-keyword-required?);
-		end method;
+          local method associate(info :: <indirect-slot-info>)
+                 => associated :: <meta-slot-info>;
+                  info.associated-meta-slot
+                    := make(<meta-slot-info>,
+                            referred: info,
+                            getter: #f,
+                            read-only: info.slot-read-only?,
+                            init-keyword: info.slot-init-keyword,
+                            init-keyword-required: info.slot-init-keyword-required?);
+                end method;
 
-	  let associated-infos = map-as(<simple-object-vector>, associate, class-slot-infos);
-	  let associated-esc-infos = map-as(<simple-object-vector>, associate, each-subclass-slot-infos);
+          let associated-infos = map-as(<simple-object-vector>, associate, class-slot-infos);
+          let associated-esc-infos = map-as(<simple-object-vector>, associate, each-subclass-slot-infos);
 
-	  let super-metas = if (esc-metas.empty?) class-ctype().list else esc-metas end;
+          let super-metas = if (esc-metas.empty?) class-ctype().list else esc-metas end;
 
-	  let meta-supers :: <list>
-	    = if (~class-slot-infos.empty?
-		    & each-subclass-slot-infos.empty?)
-		// class-meta will be a wrapper below...
-		// cases 4. and 5.
-		super-metas
-	      else
-		// we have introduced each-subclass slots
-		list(make(<meta-cclass>,
-			  loading: #f,
-			  name: make(<derived-name>,
-				     how: #"each-subclass-meta",
-				     base: defn.defn-name),
-			  direct-superclasses: super-metas,
-			  not-functional: #t,
-			  functional: #f,
-			  sealed: #t,
-			  abstract: #t,
-			  primary: #f,
-			  slots: associated-esc-infos,
-			  metaclass: #f))
-	      end;
+          let meta-supers :: <list>
+            = if (~class-slot-infos.empty?
+                    & each-subclass-slot-infos.empty?)
+                // class-meta will be a wrapper below...
+                // cases 4. and 5.
+                super-metas
+              else
+                // we have introduced each-subclass slots
+                list(make(<meta-cclass>,
+                          loading: #f,
+                          name: make(<derived-name>,
+                                     how: #"each-subclass-meta",
+                                     base: defn.defn-name),
+                          direct-superclasses: super-metas,
+                          not-functional: #t,
+                          functional: #f,
+                          sealed: #t,
+                          abstract: #t,
+                          primary: #f,
+                          slots: associated-esc-infos,
+                          metaclass: #f))
+              end;
 
-	  if (class-slot-infos.empty?)
-	    assert(meta-supers.size == 1);
-	    // cases 1., 2. and 3.
-	    meta-supers.first
-	  else
-	    make(<meta-cclass>,
-		 loading: #f,
-		 name: make(<derived-name>,
-			    how: #"class-meta",
-			    base: defn.defn-name),
-		 direct-superclasses: meta-supers,
-		 not-functional: #t,
-		 functional: #f,
-		 sealed: #t,
-		 abstract: #t,
-		 primary: #t,
-		 slots: associated-infos,
-		 metaclass: #f)
-	  end if
-	end unless;
+          if (class-slot-infos.empty?)
+            assert(meta-supers.size == 1);
+            // cases 1., 2. and 3.
+            meta-supers.first
+          else
+            make(<meta-cclass>,
+                 loading: #f,
+                 name: make(<derived-name>,
+                            how: #"class-meta",
+                            base: defn.defn-name),
+                 direct-superclasses: meta-supers,
+                 not-functional: #t,
+                 functional: #f,
+                 sealed: #t,
+                 abstract: #t,
+                 primary: #t,
+                 slots: associated-infos,
+                 metaclass: #f)
+          end if
+        end unless;
     //
     // Class and init arguments for constructing the class
     values(<defined-cclass>,
@@ -1109,25 +1110,25 @@ define method compute-slot (slot :: <slot-defn>) => info :: <slot-info>;
   // can't do until tlf-finalization time.
   let info
     = if (slot.slot-defn-sizer-defn)
-	make(<vector-slot-info>,
-	     getter: find-variable(getter-name, create: #t),
-	     read-only: slot.slot-defn-setter-name == #f,
-	     init-value: slot.slot-defn-init-value & #t,
-	     init-function: slot.slot-defn-init-function & #t,
-	     init-keyword: slot.slot-defn-init-keyword,
-	     init-keyword-required:
-	       slot.slot-defn-init-keyword-required?,
-	     size-slot: slot.slot-defn-sizer-defn.slot-defn-info);
+        make(<vector-slot-info>,
+             getter: find-variable(getter-name, create: #t),
+             read-only: slot.slot-defn-setter-name == #f,
+             init-value: slot.slot-defn-init-value & #t,
+             init-function: slot.slot-defn-init-function & #t,
+             init-keyword: slot.slot-defn-init-keyword,
+             init-keyword-required:
+               slot.slot-defn-init-keyword-required?,
+             size-slot: slot.slot-defn-sizer-defn.slot-defn-info);
       else
-	make(<slot-info>,
-	     allocation: slot.slot-defn-allocation,
-	     getter: find-variable(getter-name, create: #t),
-	     read-only: slot.slot-defn-setter-name == #f,
-	     init-value: slot.slot-defn-init-value & #t,
-	     init-function: slot.slot-defn-init-function & #t,
-	     init-keyword: slot.slot-defn-init-keyword,
-	     init-keyword-required:
-	       slot.slot-defn-init-keyword-required?);
+        make(<slot-info>,
+             allocation: slot.slot-defn-allocation,
+             getter: find-variable(getter-name, create: #t),
+             read-only: slot.slot-defn-setter-name == #f,
+             init-value: slot.slot-defn-init-value & #t,
+             init-function: slot.slot-defn-init-function & #t,
+             init-keyword: slot.slot-defn-init-keyword,
+             init-keyword-required:
+               slot.slot-defn-init-keyword-required?);
       end;
   slot.slot-defn-info := info;
   info;
@@ -1141,9 +1142,9 @@ define method compute-override
   // because we need to compile-time-eval those, which we can't do until
   // tlf-finalization time.
   let info = make(<override-info>,
-		  getter: find-variable(getter-name, create: #t),
-		  init-value: override.override-defn-init-value & #t,
-		  init-function: override.override-defn-init-function & #t);
+                  getter: find-variable(getter-name, create: #t),
+                  init-value: override.override-defn-init-value & #t,
+                  init-function: override.override-defn-init-function & #t);
   override.override-defn-info := info;
   info;
 end;
@@ -1155,10 +1156,10 @@ define method compute-keyword
   // init-function, because we need to compile-time-eval those, which we
   // can't do until tlf-finalization time.
   let info = make(<keyword-info>,
-		  symbol: keyword.keyword-defn-symbol,
-		  required?: keyword.keyword-defn-required?,
-		  init-value: keyword.keyword-defn-init-value & #t,
-		  init-function: keyword.keyword-defn-init-function & #t);
+                  symbol: keyword.keyword-defn-symbol,
+                  required?: keyword.keyword-defn-required?,
+                  init-value: keyword.keyword-defn-init-value & #t,
+                  init-function: keyword.keyword-defn-init-function & #t);
   keyword.keyword-defn-info := info;
   info;
 end;
@@ -1191,7 +1192,7 @@ define method finalize-top-level-form (tlf :: <define-class-tlf>) => ();
           defn.class-defn-cclass := apply(make, class, init-args);
         end if;
       else
-	defn.class-defn-cclass;
+        defn.class-defn-cclass;
       end;
   let class-type = cclass | make(<unknown-ctype>);
 
@@ -1206,23 +1207,23 @@ define method finalize-top-level-form (tlf :: <define-class-tlf>) => ();
     let info = override.override-defn-info;
     if (info)
       if (override.override-defn-init-function)
-	let (ctv, change-to-init-value?)
-	  = maybe-define-init-function(override.override-defn-init-function, 
-				       override.override-defn-getter-name,
-				       tlf);
-	if (ctv)
-	  if (change-to-init-value?)
-	    info.override-init-function := #f;
-	    info.override-init-value := ctv;
-	  else
-	    info.override-init-function := ctv;
-	  end if;
-	end if;
+        let (ctv, change-to-init-value?)
+          = maybe-define-init-function(override.override-defn-init-function, 
+                                       override.override-defn-getter-name,
+                                       tlf);
+        if (ctv)
+          if (change-to-init-value?)
+            info.override-init-function := #f;
+            info.override-init-value := ctv;
+          else
+            info.override-init-function := ctv;
+          end if;
+        end if;
       elseif (override.override-defn-init-value)
-	let init-val = ct-eval(override.override-defn-init-value, #f);
-	if (init-val)
-	  info.override-init-value := init-val;
-	end;
+        let init-val = ct-eval(override.override-defn-init-value, #f);
+        if (init-val)
+          info.override-init-value := init-val;
+        end;
       end;
     end;
   end;
@@ -1246,23 +1247,23 @@ define method finalize-top-level-form (tlf :: <define-class-tlf>) => ();
       info.keyword-type := keyword-type;
 
       if (keyword.keyword-defn-init-function)
-	let (ctv, change-to-init-value?)
-	  = maybe-define-init-function(keyword.keyword-defn-init-function, 
+        let (ctv, change-to-init-value?)
+          = maybe-define-init-function(keyword.keyword-defn-init-function, 
                                        #f,
-				       tlf);
-	if (ctv)
-	  if (change-to-init-value?)
-	    info.keyword-init-function := #f;
-	    info.keyword-init-value := ctv;
-	  else
-	    info.keyword-init-function := ctv;
-	  end if;
-	end if;
+                                       tlf);
+        if (ctv)
+          if (change-to-init-value?)
+            info.keyword-init-function := #f;
+            info.keyword-init-value := ctv;
+          else
+            info.keyword-init-function := ctv;
+          end if;
+        end if;
       elseif (keyword.keyword-defn-init-value)
-	let init-val = ct-eval(keyword.keyword-defn-init-value, #f);
-	if (init-val)
-	  info.keyword-init-value := init-val;
-	end;
+        let init-val = ct-eval(keyword.keyword-defn-init-value, #f);
+        if (init-val)
+          info.keyword-init-value := init-val;
+        end;
       end;
     end;
   end;
@@ -1276,21 +1277,21 @@ define method finalize-slot
   // Compute the type of the slot.
   let slot-type
     = if (slot.slot-defn-type)
-	let type = ct-eval(slot.slot-defn-type, #f);
-	if (instance?(type, <ctype>))
-	  type;
-	else
-	  make(<unknown-ctype>);
-	end;
+        let type = ct-eval(slot.slot-defn-type, #f);
+        if (instance?(type, <ctype>))
+          type;
+        else
+          make(<unknown-ctype>);
+        end;
       else
-	object-ctype();
+        object-ctype();
       end;
 
   let specializers
     = if (slot.slot-defn-sizer-defn)
-	list(class-type, specifier-type(#"<integer>"));
+        list(class-type, specifier-type(#"<integer>"));
       else
-	list(class-type);
+        list(class-type);
       end;
 
   // Fill in the <slot-info> with the type, init value, and init-function.
@@ -1300,21 +1301,21 @@ define method finalize-slot
 
     if (slot.slot-defn-init-function)
       let (ctv, change-to-init-value?)
-	= maybe-define-init-function(slot.slot-defn-init-function,
-				     slot.slot-defn-getter-name,
-				     tlf);
+        = maybe-define-init-function(slot.slot-defn-init-function,
+                                     slot.slot-defn-getter-name,
+                                     tlf);
       if (ctv)
-	if (change-to-init-value?)
-	  info.slot-init-function := #f;
-	  info.slot-init-value := ctv;
-	else
-	  info.slot-init-function := ctv;
-	end if;
+        if (change-to-init-value?)
+          info.slot-init-function := #f;
+          info.slot-init-value := ctv;
+        else
+          info.slot-init-function := ctv;
+        end if;
       end if;
     elseif (slot.slot-defn-init-value)
       let init-val = ct-eval(slot.slot-defn-init-value, #f);
       if (init-val)
-	info.slot-init-value := init-val;
+        info.slot-init-value := init-val;
       end if;
     end if;
   end if;
@@ -1343,56 +1344,56 @@ define method finalize-slot
     //
     slot.slot-defn-getter
       := make(<getter-method-definition>,
-	      base-name: slot.slot-defn-getter-name,
-	      library: library,
-	      signature: make(<signature>,
-			      specializers: specializers,
-			      returns: slot-type),
-	      hairy: hairy?,
-	      slot: info,
-	      source-location: slot.source-location);
+              base-name: slot.slot-defn-getter-name,
+              library: library,
+              signature: make(<signature>,
+                              specializers: specializers,
+                              returns: slot-type),
+              hairy: hairy?,
+              slot: info,
+              source-location: slot.source-location);
     let gf = slot.slot-defn-getter.method-defn-of;
     if (gf)
       ct-add-method(gf, slot.slot-defn-getter);
     end;
     if (slot.slot-defn-sealed?)
       if (gf)
-	add-seal(gf, library, specializers, tlf);
+        add-seal(gf, library, specializers, tlf);
       else
-	compiler-error
-	  ("%s doesn't name a generic function, so can't be sealed.",
-	   slot.slot-defn-getter-name);
+        compiler-error
+          ("%s doesn't name a generic function, so can't be sealed.",
+           slot.slot-defn-getter-name);
       end;
     end;
     slot.slot-defn-setter
       := if (slot.slot-defn-setter-name)
-	   let defn = make(<setter-method-definition>,
-			   base-name: slot.slot-defn-setter-name,
-			   library: library,
-			   signature: make(<signature>,
-					   specializers:
-					     pair(slot-type, specializers),
-					   returns: slot-type),
-			   hairy: hairy?,
-			   slot: info,
-			   source-location: slot.source-location);
-	   let gf = defn.method-defn-of;
-	   if (gf)
-	     ct-add-method(gf, defn);
-	   end;
-	   if (slot.slot-defn-sealed?)
-	     if (gf)
-	       add-seal(gf, library, pair(slot-type, specializers), tlf);
-	     else
-	       compiler-error
-		 ("%s doesn't name a generic function, so can't be sealed.",
-		  slot.slot-defn-setter-name);
-	     end;
-	   end;
-	   defn;
-	 else
-	   #f;
-	 end;
+           let defn = make(<setter-method-definition>,
+                           base-name: slot.slot-defn-setter-name,
+                           library: library,
+                           signature: make(<signature>,
+                                           specializers:
+                                             pair(slot-type, specializers),
+                                           returns: slot-type),
+                           hairy: hairy?,
+                           slot: info,
+                           source-location: slot.source-location);
+           let gf = defn.method-defn-of;
+           if (gf)
+             ct-add-method(gf, defn);
+           end;
+           if (slot.slot-defn-sealed?)
+             if (gf)
+               add-seal(gf, library, pair(slot-type, specializers), tlf);
+             else
+               compiler-error
+                 ("%s doesn't name a generic function, so can't be sealed.",
+                  slot.slot-defn-setter-name);
+             end;
+           end;
+           defn;
+         else
+           #f;
+         end;
   end unless;
 end method finalize-slot;
 
@@ -1414,55 +1415,55 @@ define method maybe-define-init-function
     if (method-ref)
       let method-parse = method-ref.method-ref-method;
       let (signature, anything-non-constant?)
-	= compute-signature(method-parse.method-parameters,
-			    method-parse.method-returns);
+        = compute-signature(method-parse.method-parameters,
+                            method-parse.method-returns);
       if (anything-non-constant?)
-	values(#f, #f);
+        values(#f, #f);
       else
-	let result-type = first(signature.returns.positional-types,
-				default: signature.returns.rest-value-type);
-	let ctv = ct-eval(method-parse.method-body, #f);
-	if (ctv & cinstance?(ctv, result-type))
-	  // Change it to an init-value.
-	  values(ctv, #t);
-	else
-	  // Make a constant init-function definition.
-	  let result-param
-	    = (first(method-parse.method-returns.varlist-fixed,
-		     default: method-parse.method-returns.varlist-rest)
-		 | make(<parameter>,
-			name: make(<identifier-token>,
-				   kind: $raw-ordinary-word-token,
-				   symbol: #"result")));
-	  let new-method-parse
-	    = make(<method-parse>,
-		   parameters: make(<parameter-list>),
-		   returns: make(<variable-list>, fixed: vector(result-param)),
-		   body: make(<funcall-parse>,
-			      function: make(<method-ref-parse>,
-					     method: method-parse),
-			      arguments: #[]));
-	  let (new-signature, anything-non-constant?)
-	    = compute-signature(new-method-parse.method-parameters,
-				new-method-parse.method-returns);
-	  if (anything-non-constant?)
-	    error("%= shouldn't be able to have anything non-constant in it",
-		  new-signature);
-	  end if;
-	  let name
+        let result-type = first(signature.returns.positional-types,
+                                default: signature.returns.rest-value-type);
+        let ctv = ct-eval(method-parse.method-body, #f);
+        if (ctv & cinstance?(ctv, result-type))
+          // Change it to an init-value.
+          values(ctv, #t);
+        else
+          // Make a constant init-function definition.
+          let result-param
+            = (first(method-parse.method-returns.varlist-fixed,
+                     default: method-parse.method-returns.varlist-rest)
+                 | make(<parameter>,
+                        name: make(<identifier-token>,
+                                   kind: $raw-ordinary-word-token,
+                                   symbol: #"result")));
+          let new-method-parse
+            = make(<method-parse>,
+                   parameters: make(<parameter-list>),
+                   returns: make(<variable-list>, fixed: vector(result-param)),
+                   body: make(<funcall-parse>,
+                              function: make(<method-ref-parse>,
+                                             method: method-parse),
+                              arguments: #[]));
+          let (new-signature, anything-non-constant?)
+            = compute-signature(new-method-parse.method-parameters,
+                                new-method-parse.method-returns);
+          if (anything-non-constant?)
+            error("%= shouldn't be able to have anything non-constant in it",
+                  new-signature);
+          end if;
+          let name
             = if(getter-name)
                 make(<derived-name>, how: #"init-function", base: getter-name);
               else
                 make(<anonymous-name>, location: source-location(tlf));
               end;
-	  let init-func-defn
-	    = make(<init-function-definition>, name: name,
-		   library: tlf.tlf-defn.defn-library,
-		   signature: new-signature,
-		   method-parse: new-method-parse);
-	  add!(tlf.tlf-init-function-defns, init-func-defn);
-	  values(init-func-defn.ct-value, #f);
-	end if;
+          let init-func-defn
+            = make(<init-function-definition>, name: name,
+                   library: tlf.tlf-defn.defn-library,
+                   signature: new-signature,
+                   method-parse: new-method-parse);
+          add!(tlf.tlf-init-function-defns, init-func-defn);
+          values(init-func-defn.ct-value, #f);
+        end if;
       end if;
     else
       values(#f, #f);
@@ -1487,92 +1488,92 @@ define method class-defn-deferred-evaluations-function
   if (defn.%class-defn-deferred-evaluations-function == #"not-computed-yet")
     defn.%class-defn-deferred-evaluations-function
       := if (block (return)
-	       let cclass = ct-value(defn);
-	       unless (cclass)
-		 return(#f);
-	       end;
-	       // If any of our superclasses have a deferred evaluations
-	       // function, we need one.
-	       for (super in cclass.direct-superclasses)
-		 if (super.class-defn.class-defn-deferred-evaluations-function)
-		   return(#t);
-		 end;
-	       end;
-	       // If any of our slots require some deferred evaluations,
-	       // then we need a deferred evaluations function.
-	       for (slot-defn in defn.class-defn-slots)
-		 let info = slot-defn.slot-defn-info;
-		 if (instance?(info.slot-type, <unknown-ctype>)
-		       | info.slot-init-value == #t
-		       | info.slot-init-function == #t)
-		   return(#t);
-		 end;
-	       end;
-	       // Same for the overrides.
-	       for (override-defn in defn.class-defn-overrides)
-		 let info = override-defn.override-defn-info;
-		 if (info.override-init-value == #t
-		       | info.override-init-function == #t)
-		   return(#t);
-		 end;
-	       end;
-	       // And for initialization argument keywords
-	       for (keyword-defn in defn.class-defn-keywords)
-		 let info = keyword-defn.keyword-defn-info;
-		 if (info.keyword-init-value == #t
-		       | info.keyword-init-function == #t)
-		   return(#t);
-		 end;
-	       end;
-	       // Inherited each-subclass slots w/ non obvious init
-	       // values impose the existence of the deferred-evaluations
-	       // function. (covered also below) SO THIS IS REDUNDANT??? TODO
-	       for (override-defn in defn.class-defn-overrides)
-		 let info = override-defn.override-defn-info;
-		 if (instance?(info.override-slot, <each-subclass-slot-info>))
-		   if (info.override-init-value /* == #t ¥ TODO (same as above?) */
-			| info.override-init-function)
-		     return(#t);
-		   end;
-		 end;
-	       end;
+               let cclass = ct-value(defn);
+               unless (cclass)
+                 return(#f);
+               end;
+               // If any of our superclasses have a deferred evaluations
+               // function, we need one.
+               for (super in cclass.direct-superclasses)
+                 if (super.class-defn.class-defn-deferred-evaluations-function)
+                   return(#t);
+                 end;
+               end;
+               // If any of our slots require some deferred evaluations,
+               // then we need a deferred evaluations function.
+               for (slot-defn in defn.class-defn-slots)
+                 let info = slot-defn.slot-defn-info;
+                 if (instance?(info.slot-type, <unknown-ctype>)
+                       | info.slot-init-value == #t
+                       | info.slot-init-function == #t)
+                   return(#t);
+                 end;
+               end;
+               // Same for the overrides.
+               for (override-defn in defn.class-defn-overrides)
+                 let info = override-defn.override-defn-info;
+                 if (info.override-init-value == #t
+                       | info.override-init-function == #t)
+                   return(#t);
+                 end;
+               end;
+               // And for initialization argument keywords
+               for (keyword-defn in defn.class-defn-keywords)
+                 let info = keyword-defn.keyword-defn-info;
+                 if (info.keyword-init-value == #t
+                       | info.keyword-init-function == #t)
+                   return(#t);
+                 end;
+               end;
+               // Inherited each-subclass slots w/ non obvious init
+               // values impose the existence of the deferred-evaluations
+               // function. (covered also below) SO THIS IS REDUNDANT??? TODO
+               for (override-defn in defn.class-defn-overrides)
+                 let info = override-defn.override-defn-info;
+                 if (instance?(info.override-slot, <each-subclass-slot-info>))
+                   if (info.override-init-value /* == #t TODO (same as above?) */
+                        | info.override-init-function)
+                     return(#t);
+                   end;
+                 end;
+               end;
 
 
-	       // Any each-subclass slots w/ non obvious init
-	       // values impose the existence of the deferred-evaluations
-	       // function.
-	       for (slot-info in cclass.all-slot-infos)
-		 if (instance?(slot-info, <each-subclass-slot-info>))
-		   if (slot-info.slot-init-value /* == #t ¥ TODO (same as above?) */
-			| slot-info.slot-init-function)
-		     return(#t);
-		   end;
-		   // examine if overridden¥¥¥¥
-		 end;
-	       end;
+               // Any each-subclass slots w/ non obvious init
+               // values impose the existence of the deferred-evaluations
+               // function.
+               for (slot-info in cclass.all-slot-infos)
+                 if (instance?(slot-info, <each-subclass-slot-info>))
+                   if (slot-info.slot-init-value /* == #t TODO (same as above?) */
+                        | slot-info.slot-init-function)
+                     return(#t);
+                   end;
+                   // examine if overridden FIXME
+                 end;
+               end;
 
 
-	       // Also indirect slots with non-ctv init-values/functions
-	       // imply a deferred-evaluations function.
-	       for (slot-defn in defn.class-defn-slots)
-		 let info = slot-defn.slot-defn-info;
-		 if (instance?(info, <indirect-slot-info>))
-		   if (info.slot-init-value /* == #t ¥ TODO */
-			| info.slot-init-function)
-		     return(#t);
-		   end;
-		 end;
-	       end;
-	       
-	     end)
-	   make(<ct-function>,
-		name: make(<derived-name>, how: #"deferred-evaluation",
-			   base: defn.defn-name),
-		signature: make(<signature>, specializers: #(),
-				returns: make-values-ctype(#(), #f)));
-	 else
-	   #f;
-	 end;
+               // Also indirect slots with non-ctv init-values/functions
+               // imply a deferred-evaluations function.
+               for (slot-defn in defn.class-defn-slots)
+                 let info = slot-defn.slot-defn-info;
+                 if (instance?(info, <indirect-slot-info>))
+                   if (info.slot-init-value /* == #t FIXME TODO */
+                        | info.slot-init-function)
+                     return(#t);
+                   end;
+                 end;
+               end;
+               
+             end)
+           make(<ct-function>,
+                name: make(<derived-name>, how: #"deferred-evaluation",
+                           base: defn.defn-name),
+                signature: make(<signature>, specializers: #(),
+                                returns: make-values-ctype(#(), #f)));
+         else
+           #f;
+         end;
   else
     defn.%class-defn-deferred-evaluations-function;
   end;
@@ -1593,30 +1594,30 @@ define method class-defn-key-defaulter-function
     let cclass = ct-value(defn);
     defn.%class-defn-key-defaulter-function
       := if (cclass
-	       & ~cclass.abstract?
-	       & (~empty?(cclass.keyword-infos)
-		    | any?(method(super)
-			     super.class-defn.class-defn-key-defaulter-function
-			   end, cclass.direct-superclasses)))
-	   make(<ct-function>,
-		name:
-		  make(<derived-name>,
-		       how: #"key-defaulter",
-		       base: defn.defn-name),
-		signature:
-		  make(<signature>,
-		       specializers:
-			 list(specifier-type(#"<simple-object-vector>")),
-		       returns:
-			 specifier-type(#"<simple-object-vector>")));
-	 else
-	   #f;
-	 end;
+               & ~cclass.abstract?
+               & (~empty?(cclass.keyword-infos)
+                    | any?(method(super)
+                             super.class-defn.class-defn-key-defaulter-function
+                           end, cclass.direct-superclasses)))
+           make(<ct-function>,
+                name:
+                  make(<derived-name>,
+                       how: #"key-defaulter",
+                       base: defn.defn-name),
+                signature:
+                  make(<signature>,
+                       specializers:
+                         list(specifier-type(#"<simple-object-vector>")),
+                       returns:
+                         specifier-type(#"<simple-object-vector>")));
+         else
+           #f;
+         end;
   else
     defn.%class-defn-key-defaulter-function;
   end;
 end;
-	   
+           
 
 define function add-key-info!
     (key :: <symbol>,
@@ -1629,8 +1630,8 @@ define function add-key-info!
   let required? = ~override & slot.slot-init-keyword-required?;
   let default-bogus? = default & ~cinstance?(default, type);
   let key-info = make(<key-info>, key-name: key, type: type,
-		      required: required? | default-bogus?,
-		      default: default);
+                      required: required? | default-bogus?,
+                      default: default);
   add!(key-infos, key-info);
   key-info
 end function;
@@ -1641,9 +1642,9 @@ define function find-override
   block (found)
     for (override in slot.slot-overrides)
       if ((override.override-init-value
-	   | override.override-init-function)
-	  & csubtype?(cclass, override.override-introduced-by))
-	found(override);
+           | override.override-init-function)
+          & csubtype?(cclass, override.override-introduced-by))
+        found(override);
       end;
     finally
       #f;
@@ -1665,102 +1666,102 @@ define method class-defn-maker-function
   if (defn.%class-defn-maker-function == #"not-computed-yet")
     defn.%class-defn-maker-function
       := block (return)
-	   let cclass = ct-value(defn);
-	   //
-	   // If the class is hairy or abstract, no maker.
-	   if (cclass == #f | cclass.abstract?)
-	     return(#f);
-	   end;
-	   //
-	   let key-infos = make(<stretchy-vector>);
-	   for (slot in cclass.all-slot-infos)
-	     unless (instance?(slot, <virtual-slot-info>))
-	       if (instance?(slot.slot-type, <unknown-ctype>))
-		 //
-		 // Unknown slot type: no maker.
-		 return(#f);
-	       end;
-	       //
-	       // Find the active override.
-	       let override = find-override(slot, cclass);
-	       //
-	       // If there is an init-function, and it isn't a constant,
-	       // give up.
-	       let init-function
-		 = if (override)
-		     override.override-init-function;
-		   else
-		     slot.slot-init-function;
-		   end if;
-	       if (init-function == #t)
-		 return(#f);
-	       end if;
-	       //
-	       // If there is an init-value, and it isn't a constant, give up.
-	       let init-value
-		 = if (override)
-		     override.override-init-value;
-		   else
-		     slot.slot-init-value;
-		   end;
-	       if (init-value == #t)
-		 return(#f);
+           let cclass = ct-value(defn);
+           //
+           // If the class is hairy or abstract, no maker.
+           if (cclass == #f | cclass.abstract?)
+             return(#f);
+           end;
+           //
+           let key-infos = make(<stretchy-vector>);
+           for (slot in cclass.all-slot-infos)
+             unless (instance?(slot, <virtual-slot-info>))
+               if (instance?(slot.slot-type, <unknown-ctype>))
+                 //
+                 // Unknown slot type: no maker.
+                 return(#f);
+               end;
+               //
+               // Find the active override.
+               let override = find-override(slot, cclass);
+               //
+               // If there is an init-function, and it isn't a constant,
+               // give up.
+               let init-function
+                 = if (override)
+                     override.override-init-function;
+                   else
+                     slot.slot-init-function;
+                   end if;
+               if (init-function == #t)
+                 return(#f);
+               end if;
+               //
+               // If there is an init-value, and it isn't a constant, give up.
+               let init-value
+                 = if (override)
+                     override.override-init-value;
+                   else
+                     slot.slot-init-value;
+                   end;
+               if (init-value == #t)
+                 return(#f);
 
-		// add-key-info! could be extended to accept lazy values, i.e.
-		// a thunk (not <ct-function>) that fetches the deferred-eval
-		// value from the slot-info.
-		// this would be useful when init-value is a module variable or
-		// runtime computed constant, where the C location is known.
+                // add-key-info! could be extended to accept lazy values, i.e.
+                // a thunk (not <ct-function>) that fetches the deferred-eval
+                // value from the slot-info.
+                // this would be useful when init-value is a module variable or
+                // runtime computed constant, where the C location is known.
 
-	       end;
-	       //
-	       // If the slot is keyword initializable, make a key-info for it.
-	       let key = slot.slot-init-keyword;
-	       if (key)
-		 add-key-info!(key, key-infos, slot, slot.slot-type,
-			       override, init-value);
-	       end if;
-	     end unless;
-	   end for;
-	   //
-	   // Okay, we can make a ctv for the maker function.  First,
-	   // compute some values we will need.
-	   let name = make(<derived-name>, how: #"maker", base: defn.defn-name);
-	   let sig = make(<signature>, specializers: #(),
-			  keys: as(<list>, key-infos), all-keys: #t,
-			  returns: make(<direct-instance-ctype>,
-					base-class: cclass));
+               end;
+               //
+               // If the slot is keyword initializable, make a key-info for it.
+               let key = slot.slot-init-keyword;
+               if (key)
+                 add-key-info!(key, key-infos, slot, slot.slot-type,
+                               override, init-value);
+               end if;
+             end unless;
+           end for;
+           //
+           // Okay, we can make a ctv for the maker function.  First,
+           // compute some values we will need.
+           let name = make(<derived-name>, how: #"maker", base: defn.defn-name);
+           let sig = make(<signature>, specializers: #(),
+                          keys: as(<list>, key-infos), all-keys: #t,
+                          returns: make(<direct-instance-ctype>,
+                                        base-class: cclass));
 
            // XXX this really doesn't belong here. There should be a central
            // place in optimize to decide about inlining.
-	   //
-	   // If this is the maker for an immediate representation class,
-	   // set up the maker so that it can be inlined.
-	   let instance-rep = pick-representation(cclass, #"speed");
-	   let maker-defn
-	     = if (instance?(instance-rep, <immediate-representation>))
-		 make(<maker-function-definition>,
-		      name: name,
-		      source-location: defn.source-location,
-		      library: defn.defn-library,
-		      signature: sig,
-		      inline-function: maker-inline-expansion,
-		      inline-type: #"inline",
-		      class-defn: defn);
-	       else
-		 make(<maker-function-definition>,
-		      name: name,
-		      source-location: defn.source-location,
-		      library: defn.defn-library,
-		      signature: sig,
-		      inline-type: #"not-inline",
-		      class-defn: defn);		 
-	       end if;
-	   //
-	   // And make the ctv.
-	   make(<ct-function>, name: name, signature: sig,
-		definition: maker-defn);
-	 end block;
+           //
+           // If this is the maker for an immediate representation class,
+           // set up the maker so that it can be inlined.
+           let instance-rep = pick-representation(cclass, #"speed");
+           let maker-defn
+             = if (instance?(instance-rep, <immediate-representation>))
+                 make(<maker-function-definition>,
+                      name: name,
+                      source-location: defn.source-location,
+                      library: defn.defn-library,
+                      signature: sig,
+                      inline-function: maker-inline-expansion,
+                      inline-type: #"inline",
+                      class-defn: defn);
+               else
+                 make(<maker-function-definition>,
+                      name: name,
+                      source-location: defn.source-location,
+                      library: defn.defn-library,
+                      signature: sig,
+                      inline-type: #"not-inline",
+                      class-defn: defn);                 
+               end if;
+           //
+           // And make the ctv.
+           make(<ct-function>, name: name, signature: sig,
+                definition: maker-defn);
+         end block;
   else
     defn.%class-defn-maker-function;
   end if;
@@ -1775,11 +1776,11 @@ define method maker-inline-expansion
   let builder = make-builder(component);
   let (region, signature)
     = build-maker-function-body(builder,
-				class-defn,
-				signature: maker-defn.function-defn-signature,
-				name: maker-defn.defn-name);
+                                class-defn,
+                                signature: maker-defn.function-defn-signature,
+                                name: maker-defn.defn-name);
   let leaf = make-function-literal(builder, #f, #"function", #"local",
-				   signature, region);
+                                   signature, region);
   optimize-component(*current-optimizer*, component, simplify-only?: #t);
   leaf;
 end method maker-inline-expansion;
@@ -1802,31 +1803,31 @@ define function call-init-function
   if (init-function == #t)
     let init-function-ref :: <leaf>
       = init-function-leaf
-	| make-local-var(builder,
-			 symcat(slot-name, "-init-function"),
-			 function-ctype());
+        | make-local-var(builder,
+                         symcat(slot-name, "-init-function"),
+                         function-ctype());
     unless (init-function-leaf)
       let (getter-name, instance)
-	= if (override)
-	    values(#"override-init-function", override);
-	  else
-	    values(#"slot-init-function", slot);
-	  end;
+        = if (override)
+            values(#"override-init-function", override);
+          else
+            values(#"slot-init-function", slot);
+          end;
       build-assignment
-	(builder, policy, source,
-	 init-function-ref,
-	 make-unknown-call
-	   (builder,
-	    ref-dylan-defn(builder, policy, source, getter-name),
-	    #f,
-	    list(make-literal-constant(builder, instance))));
+        (builder, policy, source,
+         init-function-ref,
+         make-unknown-call
+           (builder,
+            ref-dylan-defn(builder, policy, source, getter-name),
+            #f,
+            list(make-literal-constant(builder, instance))));
     end unless;
 
     build-assignment
       (builder, policy, source, init-value-var,
        make-unknown-call(builder, init-function-ref, #f, #()));
   elseif (init-function)
-	    // is it a reducible function? -- then just assign the ctv result, dont call the func! TODO
+            // is it a reducible function? -- then just assign the ctv result, dont call the func! TODO
     let init-func-leaf
       = make-literal-constant(builder, init-function);
     build-assignment
@@ -1834,15 +1835,15 @@ define function call-init-function
        make-unknown-call(builder, init-func-leaf, #f, #()));
   else
     error("shouldn't have called call-init-function "
-	  "when init-function is false");
+          "when init-function is false");
   end;
 
   if (type-var)
     build-assignment
       (builder, policy, source, init-value-var,
        make-check-type-operation
-	 (builder, policy, source,
-	  init-value-var, type-var));
+         (builder, policy, source,
+          init-value-var, type-var));
   end;
 end function call-init-function;
 
@@ -1874,8 +1875,8 @@ define method build-home-store
   let slot-home
     = build-slot-home
         (slot-info.slot-getter.variable-name,
-	 make-literal-constant(builder, class-instance),
-	 builder, policy, source);
+         make-literal-constant(builder, class-instance),
+         builder, policy, source);
   let meta-slot = slot-info.associated-meta-slot;
   assert(~meta-slot.slot-initialized?-slot);
   let meta-instance = meta-slot.slot-introduced-by;
@@ -1884,8 +1885,8 @@ define method build-home-store
     (builder, policy, source, #(),
      make-operation
        (builder, <heap-slot-set>,
-	list(new, slot-home, make-literal-constant(builder, offset)),
-	slot-info: meta-slot));
+        list(new, slot-home, make-literal-constant(builder, offset)),
+        slot-info: meta-slot));
 end method;
 
 define method build-home-store
@@ -1900,24 +1901,24 @@ define method build-home-store
   let slot-home
     = build-slot-home
         (slot-info.slot-getter.variable-name,
-	 make-literal-constant(builder, class-instance),
-	 builder, policy, source);
+         make-literal-constant(builder, class-instance),
+         builder, policy, source);
   let meta-slot = slot-info.associated-meta-slot;
   assert(override-info | ~meta-slot.slot-initialized?-slot);
   let meta-instance
     = class-instance & class-instance.class-metaclass
       | if (override-info)
-	  override-info.override-introduced-by.class-metaclass;
+          override-info.override-introduced-by.class-metaclass;
         else
-	  meta-slot.slot-introduced-by;
+          meta-slot.slot-introduced-by;
         end;
-  let offset = find-slot-offset(meta-slot, meta-instance); // there may be more than one!!¥¥¥
+  let offset = find-slot-offset(meta-slot, meta-instance); // there may be more than one!!FIXME
   build-assignment
     (builder, policy, source, #(),
      make-operation
        (builder, <heap-slot-set>,
-	list(new, slot-home, make-literal-constant(builder, offset)),
-	slot-info: meta-slot));
+        list(new, slot-home, make-literal-constant(builder, offset)),
+        slot-info: meta-slot));
 end method;
 
 
@@ -1945,7 +1946,7 @@ define method convert-top-level-form
       let meth = init-func-defn.init-func-defn-method-parse;
       let name = init-func-defn.defn-name;
       fer-convert-method(tl-builder, meth, name, init-func-defn.ct-value,
-			 #"global", lexenv, lexenv);
+                         #"global", lexenv, lexenv);
     end for;
 
     let evals-builder = make-builder(tl-builder);
@@ -1953,412 +1954,412 @@ define method convert-top-level-form
 
       // Do the deferred evaluations for any of the superclasses that need it.
       for (super in cclass.direct-superclasses)
-	if (super.class-defn.class-defn-deferred-evaluations-function)
-	  build-assignment
-	    (evals-builder, policy, source, #(),
-	     make-unknown-call
-	       (evals-builder,
-		ref-dylan-defn(evals-builder, policy, source,
-			       #"maybe-do-deferred-evaluations"),
-		#f,
-		list(make-literal-constant(evals-builder, super))));
-	end;
+        if (super.class-defn.class-defn-deferred-evaluations-function)
+          build-assignment
+            (evals-builder, policy, source, #(),
+             make-unknown-call
+               (evals-builder,
+                ref-dylan-defn(evals-builder, policy, source,
+                               #"maybe-do-deferred-evaluations"),
+                #f,
+                list(make-literal-constant(evals-builder, super))));
+        end;
       end;
 
       local method update-indirect-slot
-	(slot-info :: <indirect-slot-info>,
-	 override-info :: false-or(<override-info>),
-	 slot-name :: <symbol>,
-	 init-value :: type-union(<ct-value>, <boolean>),
-	 init-function :: type-union(<ct-value>, <boolean>),
-	 type :: <ctype>,
-	 init-value-var :: false-or(<initial-variable>),
-	 make-init-value-var :: <function>,
-	 init-function-leaf :: false-or(<leaf>),
-	 type-var :: false-or(<initial-variable>))
+        (slot-info :: <indirect-slot-info>,
+         override-info :: false-or(<override-info>),
+         slot-name :: <symbol>,
+         init-value :: type-union(<ct-value>, <boolean>),
+         init-function :: type-union(<ct-value>, <boolean>),
+         type :: <ctype>,
+         init-value-var :: false-or(<initial-variable>),
+         make-init-value-var :: <function>,
+         init-function-leaf :: false-or(<leaf>),
+         type-var :: false-or(<initial-variable>))
        => ();
-	if (init-value) // later: init-value == #t TODO
-	  //
-	  // Copy over the value into the class instance.
-	  let var = init-value-var | make-init-value-var();
-	  unless (init-value-var)
-	    build-assignment
-	      (evals-builder, policy, source, var,
-	       make-unknown-call
-		 (evals-builder,
-		  ref-dylan-defn(evals-builder, policy, source,
-				 if (override-info)
-				   #"override-init-value"
-				 else
-				   #"slot-init-value"
-				 end),
-		  #f,
-		  list(make-literal-constant(evals-builder, override-info | slot-info))));
-	  end unless;
-	  //
-	  // assign to the indirect slot.
-	  // cannot simply use the slot-setter because slot might be constant.
-	  build-home-store(evals-builder, var,
-			   slot-info, override-info,
-			   policy, source, cclass);
-	elseif (init-function)
-	  //
-	  // Invoke the init function and store the result
-	  // into the class instance.
-	  let var = make-init-value-var();
-	  call-init-function(init-function, slot-info, override-info,
-			     slot-name, evals-builder, policy, source,
-			     var, init-function-leaf, type-var);
-	  // assign to the indirect slot.
-	  // cannot simply use the slot-setter because slot might be constant.
-	  build-home-store(evals-builder, var,
-			   slot-info, override-info,
-			   policy, source, cclass);
-	end if;
+        if (init-value) // later: init-value == #t TODO
+          //
+          // Copy over the value into the class instance.
+          let var = init-value-var | make-init-value-var();
+          unless (init-value-var)
+            build-assignment
+              (evals-builder, policy, source, var,
+               make-unknown-call
+                 (evals-builder,
+                  ref-dylan-defn(evals-builder, policy, source,
+                                 if (override-info)
+                                   #"override-init-value"
+                                 else
+                                   #"slot-init-value"
+                                 end),
+                  #f,
+                  list(make-literal-constant(evals-builder, override-info | slot-info))));
+          end unless;
+          //
+          // assign to the indirect slot.
+          // cannot simply use the slot-setter because slot might be constant.
+          build-home-store(evals-builder, var,
+                           slot-info, override-info,
+                           policy, source, cclass);
+        elseif (init-function)
+          //
+          // Invoke the init function and store the result
+          // into the class instance.
+          let var = make-init-value-var();
+          call-init-function(init-function, slot-info, override-info,
+                             slot-name, evals-builder, policy, source,
+                             var, init-function-leaf, type-var);
+          // assign to the indirect slot.
+          // cannot simply use the slot-setter because slot might be constant.
+          build-home-store(evals-builder, var,
+                           slot-info, override-info,
+                           policy, source, cclass);
+        end if;
       end method update-indirect-slot;
 
       for (slot-defn in defn.class-defn-slots,
-	   index from 0)
-	let slot-info = slot-defn.slot-defn-info;
-	let getter = slot-info.slot-getter;
- 	let slot-name = slot-info.slot-getter.variable-name;
+           index from 0)
+        let slot-info = slot-defn.slot-defn-info;
+        let getter = slot-info.slot-getter;
+        let slot-name = slot-info.slot-getter.variable-name;
 
-	let slot-type = slot-info.slot-type;
-	let (type, type-var)
-	  = if (instance?(slot-type, <unknown-ctype>))
-	      let type-expr = slot-defn.slot-defn-type;
-	      let var
-		= make-local-var(evals-builder,
-				 symcat(slot-name, "-type"),
-				 specifier-type(#"<type>"));
-	      fer-convert(evals-builder, type-expr, lexenv,
-			  #"assignment", var);
-	      build-assignment
-		(evals-builder, policy, source, #(),
-		 make-unknown-call
-		   (evals-builder,
-		    ref-dylan-defn(evals-builder, policy, source,
-				   #"slot-type-setter"),
-		    #f,
-		    list(var,
-			 make-literal-constant(evals-builder, slot-info))));
-	      values(object-ctype(), var);
-	    else
-	      values(slot-type, #f);
-	    end;
+        let slot-type = slot-info.slot-type;
+        let (type, type-var)
+          = if (instance?(slot-type, <unknown-ctype>))
+              let type-expr = slot-defn.slot-defn-type;
+              let var
+                = make-local-var(evals-builder,
+                                 symcat(slot-name, "-type"),
+                                 specifier-type(#"<type>"));
+              fer-convert(evals-builder, type-expr, lexenv,
+                          #"assignment", var);
+              build-assignment
+                (evals-builder, policy, source, #(),
+                 make-unknown-call
+                   (evals-builder,
+                    ref-dylan-defn(evals-builder, policy, source,
+                                   #"slot-type-setter"),
+                    #f,
+                    list(var,
+                         make-literal-constant(evals-builder, slot-info))));
+              values(object-ctype(), var);
+            else
+              values(slot-type, #f);
+            end;
 
-	local method make-init-value-var() => var :: <initial-variable>;
-		make-local-var(evals-builder, symcat(slot-name, "-init-value"),
-			       type);
-	      end;
+        local method make-init-value-var() => var :: <initial-variable>;
+                make-local-var(evals-builder, symcat(slot-name, "-init-value"),
+                               type);
+              end;
 
-	let init-value = slot-info.slot-init-value;
-	let init-function = slot-info.slot-init-function;
+        let init-value = slot-info.slot-init-value;
+        let init-function = slot-info.slot-init-function;
 
-	let (init-value-var, init-function-leaf) =
-	  if (init-value == #t)
-	    let var = make-init-value-var();
-	    fer-convert(evals-builder, slot-defn.slot-defn-init-value,
-			lexenv, #"assignment", var);
-	    build-assignment
-	      (evals-builder, policy, source, #(),
-	       make-unknown-call
-		 (evals-builder,
-		  ref-dylan-defn(evals-builder, policy, source,
-				 #"slot-init-value-setter"),
-		  #f,
-		  list(var, make-literal-constant(evals-builder, slot-info))));
-	    var;
-	  elseif (init-function == #t)
-	    let leaf = convert-init-function(evals-builder, slot-info.slot-getter,
-					     slot-defn.slot-defn-init-function,
-					     type, tlf);
-	    build-assignment
-	      (evals-builder, policy, source, #(),
-	       make-unknown-call
-		 (evals-builder,
-		  ref-dylan-defn(evals-builder, policy, source,
-				 #"slot-init-function-setter"),
-		  #f,
-		  list(leaf, make-literal-constant(evals-builder, slot-info))));
-	    values(#f, leaf);
-	  end if;
+        let (init-value-var, init-function-leaf) =
+          if (init-value == #t)
+            let var = make-init-value-var();
+            fer-convert(evals-builder, slot-defn.slot-defn-init-value,
+                        lexenv, #"assignment", var);
+            build-assignment
+              (evals-builder, policy, source, #(),
+               make-unknown-call
+                 (evals-builder,
+                  ref-dylan-defn(evals-builder, policy, source,
+                                 #"slot-init-value-setter"),
+                  #f,
+                  list(var, make-literal-constant(evals-builder, slot-info))));
+            var;
+          elseif (init-function == #t)
+            let leaf = convert-init-function(evals-builder, slot-info.slot-getter,
+                                             slot-defn.slot-defn-init-function,
+                                             type, tlf);
+            build-assignment
+              (evals-builder, policy, source, #(),
+               make-unknown-call
+                 (evals-builder,
+                  ref-dylan-defn(evals-builder, policy, source,
+                                 #"slot-init-function-setter"),
+                  #f,
+                  list(leaf, make-literal-constant(evals-builder, slot-info))));
+            values(#f, leaf);
+          end if;
 
-	// Now that the <slot-descriptor> contains the proper values,
-	// we can begin to initialize the storage allocated for
-	// indirect slots (if they are not already).
-	if (instance?(slot-info, <indirect-slot-info>))
-	  update-indirect-slot(slot-info, #f, slot-name, init-value, init-function, type,
-			       init-value-var, make-init-value-var, init-function-leaf, type-var);
-	end if;
+        // Now that the <slot-descriptor> contains the proper values,
+        // we can begin to initialize the storage allocated for
+        // indirect slots (if they are not already).
+        if (instance?(slot-info, <indirect-slot-info>))
+          update-indirect-slot(slot-info, #f, slot-name, init-value, init-function, type,
+                               init-value-var, make-init-value-var, init-function-leaf, type-var);
+        end if;
 
-	unless (#"virtual" == slot-defn.slot-defn-allocation)
-	  if (type-var)
-	    local
-	      method build-call (name, #rest args)
-		let temp = make-local-var(evals-builder, name, object-ctype());
-		build-assignment
-		  (evals-builder, policy, source, temp,
-		   make-unknown-call
-		     (evals-builder,
-		      ref-dylan-defn(evals-builder, policy, source, name),
-		      #f, as(<list>, args)));
-		temp;
-	      end,
-	      method build-add-method (gf-name, method-defn, method-leaf)
-		// We don't use method-defn-of, because that is #f if there
-		// is a definition but it isn't a define generic.
-		let gf-var = find-variable(gf-name);
-		let gf-defn = gf-var & gf-var.variable-definition;
-		if (gf-defn)
-		  let gf-leaf = build-defn-ref(evals-builder, policy,
-					       source, gf-defn);
-		  build-assignment
-		    (evals-builder, policy, source, #(),
-		     make-unknown-call
-		       (evals-builder,
-			ref-dylan-defn(evals-builder, policy, source,
-				       #"add-method"),
-			#f,
-			list(gf-leaf, method-leaf)));
-		  build-defn-set(evals-builder, policy, source, method-defn,
-				 method-leaf);
-		else
-		  compiler-fatal-error-location
-		    (tlf,
-		     "No definition for %s, and can't implicitly define it.",
-		     gf-name.name-symbol);
-		end;
-	      end;
+        unless (#"virtual" == slot-defn.slot-defn-allocation)
+          if (type-var)
+            local
+              method build-call (name, #rest args)
+                let temp = make-local-var(evals-builder, name, object-ctype());
+                build-assignment
+                  (evals-builder, policy, source, temp,
+                   make-unknown-call
+                     (evals-builder,
+                      ref-dylan-defn(evals-builder, policy, source, name),
+                      #f, as(<list>, args)));
+                temp;
+              end,
+              method build-add-method (gf-name, method-defn, method-leaf)
+                // We don't use method-defn-of, because that is #f if there
+                // is a definition but it isn't a define generic.
+                let gf-var = find-variable(gf-name);
+                let gf-defn = gf-var & gf-var.variable-definition;
+                if (gf-defn)
+                  let gf-leaf = build-defn-ref(evals-builder, policy,
+                                               source, gf-defn);
+                  build-assignment
+                    (evals-builder, policy, source, #(),
+                     make-unknown-call
+                       (evals-builder,
+                        ref-dylan-defn(evals-builder, policy, source,
+                                       #"add-method"),
+                        #f,
+                        list(gf-leaf, method-leaf)));
+                  build-defn-set(evals-builder, policy, source, method-defn,
+                                 method-leaf);
+                else
+                  compiler-fatal-error-location
+                    (tlf,
+                     "No definition for %s, and can't implicitly define it.",
+                     gf-name.name-symbol);
+                end;
+              end;
 
-	    let results = build-call(#"list", type-var);
-	    let cclass-leaf = make-literal-constant(evals-builder, cclass);
-	    let false-leaf
-	      = make-literal-constant(evals-builder, #f);
-	    begin
-	      let getter
-		= build-getter(evals-builder, #f, slot-defn, slot-info, tlf);
-	      let getter-specializers = build-call(#"list", cclass-leaf);
-	      let meth = build-call(#"%make-method", getter-specializers,
-				    results, false-leaf, getter);
-	      build-add-method(slot-defn.slot-defn-getter-name,
-			       slot-defn.slot-defn-getter, meth);
-	    end;
-	    if (slot-defn.slot-defn-setter)
-	      let setter
-		= build-setter(evals-builder, #f, slot-defn, slot-info, tlf);
-	      let setter-specializers = build-call(#"list", type-var,
-						   cclass-leaf);
-	      let meth = build-call(#"%make-method", setter-specializers,
-				    results, false-leaf, setter);
-	      build-add-method(slot-defn.slot-defn-setter-name,
-			       slot-defn.slot-defn-setter, meth);
-	    end;
-	  else
-	    begin
-	      let getter = slot-defn.slot-defn-getter.ct-value;
-	      let getter-standin = slot-accessor-standin(slot-info, #"getter");
-	      if (getter-standin)
-		getter.ct-accessor-standin := getter-standin;
-	      else
-		build-getter(tl-builder, getter, slot-defn, slot-info, tlf);
-	      end if;
-	    end;
-	    if (slot-defn.slot-defn-setter)
-	      let setter = slot-defn.slot-defn-setter.ct-value;
-	      let setter-standin = slot-accessor-standin(slot-info, #"setter");
-	      if (setter-standin)
-		setter.ct-accessor-standin := setter-standin;
-	      else
-		build-setter(tl-builder, setter, slot-defn, slot-info, tlf);
-	      end if;
-	    end if;
-	  end if;
-	end unless;
+            let results = build-call(#"list", type-var);
+            let cclass-leaf = make-literal-constant(evals-builder, cclass);
+            let false-leaf
+              = make-literal-constant(evals-builder, #f);
+            begin
+              let getter
+                = build-getter(evals-builder, #f, slot-defn, slot-info, tlf);
+              let getter-specializers = build-call(#"list", cclass-leaf);
+              let meth = build-call(#"%make-method", getter-specializers,
+                                    results, false-leaf, getter);
+              build-add-method(slot-defn.slot-defn-getter-name,
+                               slot-defn.slot-defn-getter, meth);
+            end;
+            if (slot-defn.slot-defn-setter)
+              let setter
+                = build-setter(evals-builder, #f, slot-defn, slot-info, tlf);
+              let setter-specializers = build-call(#"list", type-var,
+                                                   cclass-leaf);
+              let meth = build-call(#"%make-method", setter-specializers,
+                                    results, false-leaf, setter);
+              build-add-method(slot-defn.slot-defn-setter-name,
+                               slot-defn.slot-defn-setter, meth);
+            end;
+          else
+            begin
+              let getter = slot-defn.slot-defn-getter.ct-value;
+              let getter-standin = slot-accessor-standin(slot-info, #"getter");
+              if (getter-standin)
+                getter.ct-accessor-standin := getter-standin;
+              else
+                build-getter(tl-builder, getter, slot-defn, slot-info, tlf);
+              end if;
+            end;
+            if (slot-defn.slot-defn-setter)
+              let setter = slot-defn.slot-defn-setter.ct-value;
+              let setter-standin = slot-accessor-standin(slot-info, #"setter");
+              if (setter-standin)
+                setter.ct-accessor-standin := setter-standin;
+              else
+                build-setter(tl-builder, setter, slot-defn, slot-info, tlf);
+              end if;
+            end if;
+          end if;
+        end unless;
       end for;
 
       local method effective-override(slot-info :: <slot-info>, #key start)
        => override :: false-or(<override-info>);
-	block (return)
-	  if (start)
-	    if (start.override-init-value | start.override-init-function)
-	      return(start);
-	    end;
-	  else
-	    for (override in cclass.override-infos)
-	      if (override.override-slot == slot-info)
-	        return(#f);
-	      end if;
-	    end for;
-	  end;
-	  for (super in cclass.precedence-list.tail)
-	    for (override in super.override-infos)
-	      if (override.override-slot == slot-info
-		  & (override.override-init-value | override.override-init-function))
-	        return(override);
-	      end;
-	    end for;
-	  end for;
-	end block;
+        block (return)
+          if (start)
+            if (start.override-init-value | start.override-init-function)
+              return(start);
+            end;
+          else
+            for (override in cclass.override-infos)
+              if (override.override-slot == slot-info)
+                return(#f);
+              end if;
+            end for;
+          end;
+          for (super in cclass.precedence-list.tail)
+            for (override in super.override-infos)
+              if (override.override-slot == slot-info
+                  & (override.override-init-value | override.override-init-function))
+                return(override);
+              end;
+            end for;
+          end for;
+        end block;
       end method;
       
       for (override-defn in defn.class-defn-overrides,
-	   index from 0)
-	let override-info = override-defn.override-defn-info;
-	let getter = override-info.override-getter;
-	let slot-name = getter.variable-name;
-	let init-value = override-info.override-init-value;
-	let init-function = override-info.override-init-function;
-	let type = object-ctype(); /// ¥¥¥ as above!!!
+           index from 0)
+        let override-info = override-defn.override-defn-info;
+        let getter = override-info.override-getter;
+        let slot-name = getter.variable-name;
+        let init-value = override-info.override-init-value;
+        let init-function = override-info.override-init-function;
+        let type = object-ctype(); /// FIXME as above!!!
 
 
-	local method make-init-value-var() => var :: <initial-variable>;
-		make-local-var(evals-builder, symcat(slot-name, "-init-value"),
-			       type);
-	      end; /// reuse ¥¥¥¥ TODO
+        local method make-init-value-var() => var :: <initial-variable>;
+                make-local-var(evals-builder, symcat(slot-name, "-init-value"),
+                               type);
+              end; /// reuse TODO
 
 
-	let (init-value-var, init-function-leaf) =
-	  if (init-value == #t)
-	    let var = make-init-value-var();
-	    fer-convert(evals-builder, override-defn.override-defn-init-value,
-			lexenv, #"assignment", var);
-	    build-assignment
-	      (evals-builder, policy, source, #(),
-	       make-unknown-call
-		 (evals-builder,
-		  ref-dylan-defn(evals-builder, policy, source,
-				 #"override-init-value-setter"),
-		  #f,
-		  list(var, make-literal-constant(evals-builder, override-info))));
-	    var;
-	  elseif (init-function == #t)
-	    let leaf = convert-init-function(evals-builder, getter,
-					     override-defn.override-defn-init-function,
-					     type, tlf);
-	    build-assignment
-	      (evals-builder, policy, source, #(),
-	       make-unknown-call
-		 (evals-builder,
-		  ref-dylan-defn(evals-builder, policy, source,
-				 #"override-init-function-setter"),
-		  #f,
-		  list(leaf, make-literal-constant(evals-builder, override-info))));
-	    values(#f, leaf);
-	  end if;
+        let (init-value-var, init-function-leaf) =
+          if (init-value == #t)
+            let var = make-init-value-var();
+            fer-convert(evals-builder, override-defn.override-defn-init-value,
+                        lexenv, #"assignment", var);
+            build-assignment
+              (evals-builder, policy, source, #(),
+               make-unknown-call
+                 (evals-builder,
+                  ref-dylan-defn(evals-builder, policy, source,
+                                 #"override-init-value-setter"),
+                  #f,
+                  list(var, make-literal-constant(evals-builder, override-info))));
+            var;
+          elseif (init-function == #t)
+            let leaf = convert-init-function(evals-builder, getter,
+                                             override-defn.override-defn-init-function,
+                                             type, tlf);
+            build-assignment
+              (evals-builder, policy, source, #(),
+               make-unknown-call
+                 (evals-builder,
+                  ref-dylan-defn(evals-builder, policy, source,
+                                 #"override-init-function-setter"),
+                  #f,
+                  list(leaf, make-literal-constant(evals-builder, override-info))));
+            values(#f, leaf);
+          end if;
 
-	local method effective-inits(slot-info :: <slot-info>, #key start)
-	 => (override-info :: false-or(<override-info>),
-	     init-value :: type-union(<ct-value>, <boolean>),
-	     init-function :: type-union(<ct-value>, <boolean>));
+        local method effective-inits(slot-info :: <slot-info>, #key start)
+         => (override-info :: false-or(<override-info>),
+             init-value :: type-union(<ct-value>, <boolean>),
+             init-function :: type-union(<ct-value>, <boolean>));
 
-	  let override-info = effective-override(slot-info, start: start);
-	  values(override-info,
-		 override-info & override-info.override-init-value
-		  | slot-info.slot-init-value,
-		 override-info & override-info.override-init-function
-		  | slot-info.slot-init-function)
-	end method effective-inits;
+          let override-info = effective-override(slot-info, start: start);
+          values(override-info,
+                 override-info & override-info.override-init-value
+                  | slot-info.slot-init-value,
+                 override-info & override-info.override-init-function
+                  | slot-info.slot-init-function)
+        end method effective-inits;
 
-	// now update the each-subclass-slot
-	// since all deferred evaluations are performed at this point,
-	// we can assume that slot and override descriptors are properly set up.
-	let slot-info = override-info.override-slot;
-	if (instance?(slot-info, <each-subclass-slot-info>))
-	  let (override-info, init-value, init-function)
-	    = effective-inits(slot-info, start: override-info);
-	  update-indirect-slot(slot-info, override-info, slot-name, init-value, init-function, type,
-			       init-value-var, make-init-value-var, init-function-leaf,
-			       /* ¥¥¥ type-var */ #f);
-	end if;
+        // now update the each-subclass-slot
+        // since all deferred evaluations are performed at this point,
+        // we can assume that slot and override descriptors are properly set up.
+        let slot-info = override-info.override-slot;
+        if (instance?(slot-info, <each-subclass-slot-info>))
+          let (override-info, init-value, init-function)
+            = effective-inits(slot-info, start: override-info);
+          update-indirect-slot(slot-info, override-info, slot-name, init-value, init-function, type,
+                               init-value-var, make-init-value-var, init-function-leaf,
+                               /* FIXME type-var */ #f);
+        end if;
       end for;
       
       // now it remains to initialize all the remaining each subclass slots
       // that are inherited but not mentioned by override-infos
       //
       for (slot-info in cclass.all-slot-infos)
-	if (instance?(slot-info, <each-subclass-slot-info>)
-	    & slot-info.slot-introduced-by ~== cclass
-	    & ~any?(compose(curry(\==, slot-info), override-slot), cclass.override-infos))
-	  
-	  // use effective-inits above!!! ¥¥¥
-	  let override-info = slot-info.effective-override; // ¥¥¥ reuse find-override !!!
-	  // since all deferred evaluations are performed at this point,
-	  // we can assume that slot and override descriptors are properly set up.
-	  let init-value = override-info & override-info.override-init-value
-			   | slot-info.slot-init-value;
-	  let init-function = override-info & override-info.override-init-function
-			      | slot-info.slot-init-function;
-	  let type = object-ctype(); /// ¥¥¥ as above!!!
-	  let slot-name = slot-info.slot-getter.variable-name;
-	  
-	  local method make-init-value-var() => var :: <initial-variable>;
-		make-local-var(evals-builder, symcat(slot-name, "-init-value"),
-			       type);
-	      end;
+        if (instance?(slot-info, <each-subclass-slot-info>)
+            & slot-info.slot-introduced-by ~== cclass
+            & ~any?(compose(curry(\==, slot-info), override-slot), cclass.override-infos))
+          
+          // use effective-inits above!!! FIXME
+          let override-info = slot-info.effective-override; // FIXME reuse find-override !!!
+          // since all deferred evaluations are performed at this point,
+          // we can assume that slot and override descriptors are properly set up.
+          let init-value = override-info & override-info.override-init-value
+                           | slot-info.slot-init-value;
+          let init-function = override-info & override-info.override-init-function
+                              | slot-info.slot-init-function;
+          let type = object-ctype(); /// FIXME as above!!!
+          let slot-name = slot-info.slot-getter.variable-name;
+          
+          local method make-init-value-var() => var :: <initial-variable>;
+                make-local-var(evals-builder, symcat(slot-name, "-init-value"),
+                               type);
+              end;
 
-	  update-indirect-slot
-	    (slot-info, override-info, slot-name,
-	     init-value, init-function, type,
-	     #f, make-init-value-var, #f, #f);
-	end if;
+          update-indirect-slot
+            (slot-info, override-info, slot-name,
+             init-value, init-function, type,
+             #f, make-init-value-var, #f, #f);
+        end if;
       end for;
     end begin;
 
     unless (cclass.abstract?)
       if(~empty?(cclass.keyword-infos)
-	   | any?(method(super)
-		      super.class-defn.class-defn-key-defaulter-function
-		  end, cclass.direct-superclasses))
-	//
-	// Build the key-defaulter
-	let (defaulter-region, defaulter-signature)
-	  = build-key-defaulter-function-body(tl-builder, defn);
-	
-	let ctv = defn.class-defn-key-defaulter-function;
-	if(ctv)
-	  make-function-literal(tl-builder, ctv, #"function", #"global",
-				defaulter-signature, defaulter-region);
-	else
-	  let defaulter-leaf
-	    = make-function-literal(tl-builder, #f, #"function", #"local",
-				    defaulter-signature, defaulter-region);
-	  build-assignment
-	    (evals-builder, policy, source, #(),
-	     make-unknown-call
-	       (evals-builder,
-		ref-dylan-defn(evals-builder, policy, source,
-			       #"class-key-defaulter-setter"),
-		#f,
-		list(defaulter-leaf,
-		     make-literal-constant(evals-builder, cclass))));
-	end if;
+           | any?(method(super)
+                      super.class-defn.class-defn-key-defaulter-function
+                  end, cclass.direct-superclasses))
+        //
+        // Build the key-defaulter
+        let (defaulter-region, defaulter-signature)
+          = build-key-defaulter-function-body(tl-builder, defn);
+        
+        let ctv = defn.class-defn-key-defaulter-function;
+        if(ctv)
+          make-function-literal(tl-builder, ctv, #"function", #"global",
+                                defaulter-signature, defaulter-region);
+        else
+          let defaulter-leaf
+            = make-function-literal(tl-builder, #f, #"function", #"local",
+                                    defaulter-signature, defaulter-region);
+          build-assignment
+            (evals-builder, policy, source, #(),
+             make-unknown-call
+               (evals-builder,
+                ref-dylan-defn(evals-builder, policy, source,
+                               #"class-key-defaulter-setter"),
+                #f,
+                list(defaulter-leaf,
+                     make-literal-constant(evals-builder, cclass))));
+        end if;
       end if;
       //
       // Build the maker.
       let (maker-region, maker-signature)
-	= build-maker-function-body(tl-builder, defn);
+        = build-maker-function-body(tl-builder, defn);
       
       // Fill in the maker function.
       let ctv = defn.class-defn-maker-function;
       if (ctv)
-	make-function-literal(tl-builder, ctv, #"function", #"global",
-			      maker-signature, maker-region);
+        make-function-literal(tl-builder, ctv, #"function", #"global",
+                              maker-signature, maker-region);
       else
-	// The maker function isn't a compile-time constant, so add code to
-	// the deferred evaluations to install it.
-	let maker-leaf
-	  = make-function-literal(tl-builder, #f, #"function", #"local",
-				  maker-signature, maker-region);
-	build-assignment
-	  (evals-builder, policy, source, #(),
-	   make-unknown-call
-	     (evals-builder,
-	      ref-dylan-defn(evals-builder, policy, source,
-			     #"class-maker-setter"),
-	      #f,
-	      list(maker-leaf,
-		   make-literal-constant(evals-builder, cclass))));
+        // The maker function isn't a compile-time constant, so add code to
+        // the deferred evaluations to install it.
+        let maker-leaf
+          = make-function-literal(tl-builder, #f, #"function", #"local",
+                                  maker-signature, maker-region);
+        build-assignment
+          (evals-builder, policy, source, #(),
+           make-unknown-call
+             (evals-builder,
+              ref-dylan-defn(evals-builder, policy, source,
+                             #"class-maker-setter"),
+              #f,
+              list(maker-leaf,
+                   make-literal-constant(evals-builder, cclass))));
       end if;
     end unless;
 
@@ -2367,16 +2368,16 @@ define method convert-top-level-form
     let ctv = defn.class-defn-deferred-evaluations-function;
     if (ctv)
       let func-region = build-function-body(tl-builder, policy, source, #f,
-					    ctv.ct-function-name,
-					    #(), make-values-ctype(#(), #f),
-					    #t);
+                                            ctv.ct-function-name,
+                                            #(), make-values-ctype(#(), #f),
+                                            #t);
       build-region(tl-builder, builder-result(evals-builder));
       
       // It returns nothing.
       build-return(tl-builder, policy, source, func-region, #());
       end-body(tl-builder);
       make-function-literal(tl-builder, ctv, #"function", #"global",
-			    ctv.ct-function-signature, func-region);
+                            ctv.ct-function-signature, func-region);
     else
       assert(instance?(builder-result(evals-builder), <empty-region>));
     end if;
@@ -2389,15 +2390,15 @@ define method make-descriptors-leaf
      what :: <byte-string>, for-class :: <cclass>)
     => leaf :: <leaf>;
   let var = make-local-var(builder, symcat(what, "-descriptors"),
-			   object-ctype());
+                           object-ctype());
   build-assignment
     (builder, policy, source, var,
      make-unknown-call
        (builder,
-	ref-dylan-defn(builder, policy, source,
-		       symcat("class-", what, "-descriptors")),
-	#f,
-	list(make-literal-constant(builder, for-class))));
+        ref-dylan-defn(builder, policy, source,
+                       symcat("class-", what, "-descriptors")),
+        #f,
+        list(make-literal-constant(builder, for-class))));
   var;
 end;
 
@@ -2413,7 +2414,7 @@ end class;
 define method build-key-defaulter-function-body
     (tl-builder :: <fer-builder>, defn :: <class-definition>)
     => (defaulter-region :: <fer-function-region>,
-	signature :: <signature>);
+        signature :: <signature>);
   let builder = make-builder(tl-builder);
   let cclass :: <cclass> = defn.ct-value;
   let keyword-infos = cclass.all-keyword-infos;
@@ -2426,10 +2427,10 @@ define method build-key-defaulter-function-body
 
   let defaulter-region
     = build-function-body(builder, policy, source, #f,
-			  make(<derived-name>, how: #"key-defaulter",
-			       base: defn.defn-name),
-			  list(arg),
-			  sov-type, #t);
+                          make(<derived-name>, how: #"key-defaulter",
+                               base: defn.defn-name),
+                          list(arg),
+                          sov-type, #t);
 
   //
   // Create value and supplied? local variables for each keyword
@@ -2450,8 +2451,8 @@ define method build-key-defaulter-function-body
                                        concatenate(as(<string>, key),
                                                    "-supplied?")),
                            dylan-value(#"<boolean>"));
-	    else
-	      #f;
+            else
+              #f;
           end;
       build-assignment
         (builder, policy, source, var,
@@ -2654,14 +2655,14 @@ define method build-key-defaulter-function-body
   build-return(builder, policy, source, defaulter-region, vec-var);
   end-body(builder);
   values(defaulter-region,
-	 make(<signature>, specializers: list(sov-type), returns: sov-type));
+         make(<signature>, specializers: list(sov-type), returns: sov-type));
 end method;
 
 define method build-maker-function-body
     (tl-builder :: <fer-builder>, defn :: <class-definition>,
      #key signature :: false-or(<signature>), name :: false-or(<derived-name>))
     => (maker-region :: <fer-function-region>,
-	signature :: <signature>);
+        signature :: <signature>);
   let key-infos = make(<stretchy-vector>);
   let maker-args = make(<stretchy-vector>);
   let setup-builder = make-builder(tl-builder);
@@ -2693,21 +2694,21 @@ define method build-maker-function-body
       // Get ahold of the type.
       let slot-type = slot.slot-type;
       let (type, type-var)
-	= if (instance?(slot-type, <unknown-ctype>))
-	    let var = make-local-var(maker-builder,
-				     symcat(slot-name, "-type"),
-				     specifier-type(#"<type>"));
-	    build-assignment
-	      (maker-builder, policy, source, var,
-	       make-unknown-call
-		 (maker-builder,
-		  ref-dylan-defn(maker-builder, policy, source, #"slot-type"),
-		  #f,
-		  list(make-literal-constant(maker-builder, slot))));
-	    values(object-ctype(), var);
-	  else
-	    values(slot-type, #f);
-	  end;
+        = if (instance?(slot-type, <unknown-ctype>))
+            let var = make-local-var(maker-builder,
+                                     symcat(slot-name, "-type"),
+                                     specifier-type(#"<type>"));
+            build-assignment
+              (maker-builder, policy, source, var,
+               make-unknown-call
+                 (maker-builder,
+                  ref-dylan-defn(maker-builder, policy, source, #"slot-type"),
+                  #f,
+                  list(make-literal-constant(maker-builder, slot))));
+            values(object-ctype(), var);
+          else
+            values(slot-type, #f);
+          end;
       //
       // Find the active override if there is one. 
       let override = find-override(slot, cclass);
@@ -2716,312 +2717,312 @@ define method build-maker-function-body
       // active override or from the slot itself if there is no
       // active override.
       let (init-value, init-function)
-	= if (override)
-	    values(override.override-init-value,
-		   override.override-init-function);
-	  else
-	    values(slot.slot-init-value, slot.slot-init-function);
-	  end;
+        = if (override)
+            values(override.override-init-value,
+                   override.override-init-function);
+          else
+            values(slot.slot-init-value, slot.slot-init-function);
+          end;
 
       local method extract-init-value (init-value-var) => ();
-	      if (init-value == #t)
-		if (override)
-		  build-assignment
-		    (maker-builder, policy, source,
-		     init-value-var,
-		     make-unknown-call
-		       (maker-builder,
-			ref-dylan-defn(maker-builder, policy, source,
-				       #"override-init-value"),
-			#f,
-			list(make-literal-constant(maker-builder, override))));
-		else
-		  build-assignment
-		    (maker-builder, policy, source,
-		     init-value-var,
-		     make-unknown-call
-		       (maker-builder,
-			ref-dylan-defn(maker-builder, policy, source,
-				       #"slot-init-value"),
-			#f,
-			list(make-literal-constant(maker-builder, slot))));
-		end if;
-	      elseif (init-value)
-		build-assignment
-		  (maker-builder, policy, source, init-value-var,
-		   make-literal-constant(maker-builder, init-value));
-	      else
-		error("shouldn't have called extract-init-value "
-			"when init-value is false");
-	      end;
+              if (init-value == #t)
+                if (override)
+                  build-assignment
+                    (maker-builder, policy, source,
+                     init-value-var,
+                     make-unknown-call
+                       (maker-builder,
+                        ref-dylan-defn(maker-builder, policy, source,
+                                       #"override-init-value"),
+                        #f,
+                        list(make-literal-constant(maker-builder, override))));
+                else
+                  build-assignment
+                    (maker-builder, policy, source,
+                     init-value-var,
+                     make-unknown-call
+                       (maker-builder,
+                        ref-dylan-defn(maker-builder, policy, source,
+                                       #"slot-init-value"),
+                        #f,
+                        list(make-literal-constant(maker-builder, slot))));
+                end if;
+              elseif (init-value)
+                build-assignment
+                  (maker-builder, policy, source, init-value-var,
+                   make-literal-constant(maker-builder, init-value));
+              else
+                error("shouldn't have called extract-init-value "
+                        "when init-value is false");
+              end;
 
-	      if (type-var)
-		build-assignment
-		  (maker-builder, policy, source, init-value-var,
-		   make-check-type-operation
-		     (maker-builder, policy, source,
-		      init-value-var, type-var));
-	      end;
-	    end method extract-init-value,
-	    method call-init-function-simpl (init-value-var) => ();
-	      call-init-function(init-function, slot, override, slot-name,
-				 maker-builder, policy, source,
-				 init-value-var, #f, type-var);
-	    end method call-init-function-simpl;
+              if (type-var)
+                build-assignment
+                  (maker-builder, policy, source, init-value-var,
+                   make-check-type-operation
+                     (maker-builder, policy, source,
+                      init-value-var, type-var));
+              end;
+            end method extract-init-value,
+            method call-init-function-simpl (init-value-var) => ();
+              call-init-function(init-function, slot, override, slot-name,
+                                 maker-builder, policy, source,
+                                 init-value-var, #f, type-var);
+            end method call-init-function-simpl;
 
       select (slot by instance?)
-	<instance-slot-info> =>
-	  local
-	    method build-slot-init
-		(slot :: false-or(<slot-info>), leaf :: <leaf>) => ();
-	      if (slot)
-		if (immediate-rep?)
-		  add!(make-immediate-args, leaf);
-		else
-		  let posn
-		    = get-direct-position(slot.slot-positions, cclass);
-		  unless (posn)
-		    error("Couldn't find the position for %s",
-			  slot-name);
-		  end unless;
-		  if (posn == #"data-word")
-		    data-word-leaf := leaf;
-		  else
-		    let posn-leaf
-		      = make-literal-constant(init-builder, posn);
-		    if (instance?(slot, <vector-slot-info>))
-		      // We need to build a loop to initialize every
-		      // element.
-		      let block-region
-			= build-block-body(init-builder, policy, source);
-		      let index
-			= make-local-var(init-builder, #"index",
-					 specifier-type(#"<integer>"));
-		      build-assignment
-			(init-builder, policy, source, index,
-			 make-literal-constant(init-builder, 0));
-		      build-loop-body(init-builder, policy, source);
-		      let more?
-			= make-local-var(init-builder, #"more?",
-					 boolean-ctype());
-		      build-assignment
-			(init-builder, policy, source, more?,
-			 make-unknown-call
-			   (init-builder,
-			    ref-dylan-defn(init-builder, policy, source,
-					   #"<"),
-			    #f,
-			    list(index, size-leaf)));
-		      build-if-body(init-builder, policy, source, more?);
-		      build-assignment
-			(init-builder, policy, source, #(),
-			 make-operation
-			   (init-builder, <heap-slot-set>,
-			    list(leaf, instance-leaf, posn-leaf, index),
-			    slot-info: slot));
-		      build-assignment
-			(init-builder, policy, source, index,
-			 make-unknown-call
-			   (init-builder,
-			    ref-dylan-defn(init-builder, policy, source,
-					   #"+"),
-			    #f,
-			    list(index,
-				 make-literal-constant(init-builder, 1))));
-		      build-else(init-builder, policy, source);
-		      build-exit
-			(init-builder, policy, source, block-region);
-		      end-body(init-builder);
-		      end-body(init-builder);
-		      end-body(init-builder);
-		    else
-		      build-assignment
-			(init-builder, policy, source, #(),
-			 make-operation
-			   (init-builder, <heap-slot-set>,
-			    list(leaf, instance-leaf, posn-leaf),
-			    slot-info: slot));
-		      if (slot == size-slot)
-			size-leaf := leaf;
-		      end if;
-		    end if;
-		  end if;
-		end if;
-	      end if;
-	    end method build-slot-init;
+        <instance-slot-info> =>
+          local
+            method build-slot-init
+                (slot :: false-or(<slot-info>), leaf :: <leaf>) => ();
+              if (slot)
+                if (immediate-rep?)
+                  add!(make-immediate-args, leaf);
+                else
+                  let posn
+                    = get-direct-position(slot.slot-positions, cclass);
+                  unless (posn)
+                    error("Couldn't find the position for %s",
+                          slot-name);
+                  end unless;
+                  if (posn == #"data-word")
+                    data-word-leaf := leaf;
+                  else
+                    let posn-leaf
+                      = make-literal-constant(init-builder, posn);
+                    if (instance?(slot, <vector-slot-info>))
+                      // We need to build a loop to initialize every
+                      // element.
+                      let block-region
+                        = build-block-body(init-builder, policy, source);
+                      let index
+                        = make-local-var(init-builder, #"index",
+                                         specifier-type(#"<integer>"));
+                      build-assignment
+                        (init-builder, policy, source, index,
+                         make-literal-constant(init-builder, 0));
+                      build-loop-body(init-builder, policy, source);
+                      let more?
+                        = make-local-var(init-builder, #"more?",
+                                         boolean-ctype());
+                      build-assignment
+                        (init-builder, policy, source, more?,
+                         make-unknown-call
+                           (init-builder,
+                            ref-dylan-defn(init-builder, policy, source,
+                                           #"<"),
+                            #f,
+                            list(index, size-leaf)));
+                      build-if-body(init-builder, policy, source, more?);
+                      build-assignment
+                        (init-builder, policy, source, #(),
+                         make-operation
+                           (init-builder, <heap-slot-set>,
+                            list(leaf, instance-leaf, posn-leaf, index),
+                            slot-info: slot));
+                      build-assignment
+                        (init-builder, policy, source, index,
+                         make-unknown-call
+                           (init-builder,
+                            ref-dylan-defn(init-builder, policy, source,
+                                           #"+"),
+                            #f,
+                            list(index,
+                                 make-literal-constant(init-builder, 1))));
+                      build-else(init-builder, policy, source);
+                      build-exit
+                        (init-builder, policy, source, block-region);
+                      end-body(init-builder);
+                      end-body(init-builder);
+                      end-body(init-builder);
+                    else
+                      build-assignment
+                        (init-builder, policy, source, #(),
+                         make-operation
+                           (init-builder, <heap-slot-set>,
+                            list(leaf, instance-leaf, posn-leaf),
+                            slot-info: slot));
+                      if (slot == size-slot)
+                        size-leaf := leaf;
+                      end if;
+                    end if;
+                  end if;
+                end if;
+              end if;
+            end method build-slot-init;
 
-	  let key = slot.slot-init-keyword;
-	  if (key)
-	    let default = ~(init-value == #t) & init-value;
-	    let key-info = add-key-info!(key, key-infos, slot, type, override, default);
-	    let init-value-var
-	      = make-local-var(maker-builder,
-			       symcat(slot-name, "-init-value"),
-			       type);
-	    if (default)
-	      add!(maker-args, init-value-var);
-	      build-slot-init(slot, init-value-var);
-	      build-slot-init(slot.slot-initialized?-slot,
-			      make-literal-constant(init-builder, #t));
-	    else
-	      let arg = make-local-var(maker-builder, key, type);
-	      add!(maker-args, arg);
-	      let supplied?-arg
-		= make-local-var(maker-builder,
-				 symcat(key, "-supplied?"),
-				 boolean-ctype());
-	      if (key-info.key-needs-supplied?-var)
-		add!(maker-args, supplied?-arg);
-	      else
-		build-assignment
-		  (maker-builder, policy, source, supplied?-arg,
-		   make-operation(maker-builder, <primitive>, list(arg),
-				  name: #"initialized?"));
-	      end;
-	      build-if-body(maker-builder, policy, source, supplied?-arg);
-	      build-assignment(maker-builder, policy, source,
-			       init-value-var, arg);
-	      build-else(maker-builder, policy, source);
-	      if (init-value)
-		extract-init-value(init-value-var);
-	      elseif (init-function)
-		call-init-function-simpl(init-value-var);
-	      elseif (slot.slot-init-keyword-required?)
-		build-assignment
-		  (maker-builder, policy, source, #(),
-		   make-error-operation
-		     (maker-builder, policy, source,
-		      #"missing-required-init-keyword-error",
-		      make-literal-constant(maker-builder, key),
-		      make-literal-constant(maker-builder, cclass)));
-	      else
-		build-assignment(maker-builder, policy, source,
-				 init-value-var,
-				 make(<uninitialized-value>,
-				      derived-type: type.ctype-extent));
-	      end;
-	      end-body(maker-builder);
-	      build-slot-init(slot, init-value-var);
-	      build-slot-init(slot.slot-initialized?-slot,
-			      if (init-value | init-function)
-				make-literal-constant(init-builder, #t);
-			      else
-				supplied?-arg;
-			      end);
-	    end;
-	  else
-	    if (init-value | init-function)
-	      let init-value-var
-		= make-local-var(maker-builder,
-				 symcat(slot-name, "-init-value"),
-				 type);
-	      if (init-value)
-		extract-init-value(init-value-var);
-	      else
-		call-init-function-simpl(init-value-var);
-	      end;
-	      build-slot-init(slot, init-value-var);
-	      build-slot-init(slot.slot-initialized?-slot,
-			      make-literal-constant(init-builder, #t));
-	    else
-	      build-slot-init
-		(slot, make(<uninitialized-value>,
-			    derived-type: type.ctype-extent));
-	      build-slot-init
-		(slot.slot-initialized?-slot,
-		 make-literal-constant(init-builder, #f));
-	    end if;
-	  end if;
+          let key = slot.slot-init-keyword;
+          if (key)
+            let default = ~(init-value == #t) & init-value;
+            let key-info = add-key-info!(key, key-infos, slot, type, override, default);
+            let init-value-var
+              = make-local-var(maker-builder,
+                               symcat(slot-name, "-init-value"),
+                               type);
+            if (default)
+              add!(maker-args, init-value-var);
+              build-slot-init(slot, init-value-var);
+              build-slot-init(slot.slot-initialized?-slot,
+                              make-literal-constant(init-builder, #t));
+            else
+              let arg = make-local-var(maker-builder, key, type);
+              add!(maker-args, arg);
+              let supplied?-arg
+                = make-local-var(maker-builder,
+                                 symcat(key, "-supplied?"),
+                                 boolean-ctype());
+              if (key-info.key-needs-supplied?-var)
+                add!(maker-args, supplied?-arg);
+              else
+                build-assignment
+                  (maker-builder, policy, source, supplied?-arg,
+                   make-operation(maker-builder, <primitive>, list(arg),
+                                  name: #"initialized?"));
+              end;
+              build-if-body(maker-builder, policy, source, supplied?-arg);
+              build-assignment(maker-builder, policy, source,
+                               init-value-var, arg);
+              build-else(maker-builder, policy, source);
+              if (init-value)
+                extract-init-value(init-value-var);
+              elseif (init-function)
+                call-init-function-simpl(init-value-var);
+              elseif (slot.slot-init-keyword-required?)
+                build-assignment
+                  (maker-builder, policy, source, #(),
+                   make-error-operation
+                     (maker-builder, policy, source,
+                      #"missing-required-init-keyword-error",
+                      make-literal-constant(maker-builder, key),
+                      make-literal-constant(maker-builder, cclass)));
+              else
+                build-assignment(maker-builder, policy, source,
+                                 init-value-var,
+                                 make(<uninitialized-value>,
+                                      derived-type: type.ctype-extent));
+              end;
+              end-body(maker-builder);
+              build-slot-init(slot, init-value-var);
+              build-slot-init(slot.slot-initialized?-slot,
+                              if (init-value | init-function)
+                                make-literal-constant(init-builder, #t);
+                              else
+                                supplied?-arg;
+                              end);
+            end;
+          else
+            if (init-value | init-function)
+              let init-value-var
+                = make-local-var(maker-builder,
+                                 symcat(slot-name, "-init-value"),
+                                 type);
+              if (init-value)
+                extract-init-value(init-value-var);
+              else
+                call-init-function-simpl(init-value-var);
+              end;
+              build-slot-init(slot, init-value-var);
+              build-slot-init(slot.slot-initialized?-slot,
+                              make-literal-constant(init-builder, #t));
+            else
+              build-slot-init
+                (slot, make(<uninitialized-value>,
+                            derived-type: type.ctype-extent));
+              build-slot-init
+                (slot.slot-initialized?-slot,
+                 make-literal-constant(init-builder, #f));
+            end if;
+          end if;
 
-	<indirect-slot-info> =>
-	  // If the slot is keyword-initializable, add stuff to the maker
-	  // to check for that keyword and change the class slot.
-	  
-	  local
-	    method build-slot-init
-		(slot :: <indirect-slot-info>, leaf :: <leaf>, init?-leaf :: <leaf>) => ();
+        <indirect-slot-info> =>
+          // If the slot is keyword-initializable, add stuff to the maker
+          // to check for that keyword and change the class slot.
+          
+          local
+            method build-slot-init
+                (slot :: <indirect-slot-info>, leaf :: <leaf>, init?-leaf :: <leaf>) => ();
 
-	      if (immediate-rep?) //¥¥¥???
-		add!(make-immediate-args, leaf);
-	      else
-		let associated = slot.associated-meta-slot;
-		let metaclass = associated.slot-introduced-by;
-		
-		let posn
-		  = get-direct-position(associated.slot-positions, metaclass);
-		unless (posn)
-		  error("Couldn't find the position for %s", slot-name);
-		end unless;
-		if (posn == #"data-word")
-		  error("Indirect slot allocated in data word for %s?", slot-name);
-		else
-		  let posn-leaf
-		    = make-literal-constant(maker-builder, posn);
-		  
-		  let slot-initialized?-posn-leaf :: false-or(<leaf>)
-		    = associated.slot-initialized?-slot
-			& make-literal-constant(maker-builder, posn);
+              if (immediate-rep?) //FIXME???
+                add!(make-immediate-args, leaf);
+              else
+                let associated = slot.associated-meta-slot;
+                let metaclass = associated.slot-introduced-by;
+                
+                let posn
+                  = get-direct-position(associated.slot-positions, metaclass);
+                unless (posn)
+                  error("Couldn't find the position for %s", slot-name);
+                end unless;
+                if (posn == #"data-word")
+                  error("Indirect slot allocated in data word for %s?", slot-name);
+                else
+                  let posn-leaf
+                    = make-literal-constant(maker-builder, posn);
+                  
+                  let slot-initialized?-posn-leaf :: false-or(<leaf>)
+                    = associated.slot-initialized?-slot
+                        & make-literal-constant(maker-builder, posn);
 
-		  let slot-home
-		    = build-slot-home(slot-name,
-				      make-literal-constant(maker-builder, cclass),
-				      maker-builder, policy, source);
+                  let slot-home
+                    = build-slot-home(slot-name,
+                                      make-literal-constant(maker-builder, cclass),
+                                      maker-builder, policy, source);
 
-		  build-assignment
-		    (maker-builder, policy, source, #(),
-		     make-operation
-		       (maker-builder, <heap-slot-set>,
-			list(leaf, slot-home, posn-leaf),
-			slot-info: associated));
-		  if (slot-initialized?-posn-leaf)
-		    build-assignment
-		      (maker-builder, policy, source, #(),
-		       make-operation
-			 (maker-builder, <heap-slot-set>,
-			  list(init?-leaf, slot-home, slot-initialized?-posn-leaf),
-			  slot-info: associated.slot-initialized?-slot));
-		  end if;
-		end if;
-	      end if;
-	    end method build-slot-init;
+                  build-assignment
+                    (maker-builder, policy, source, #(),
+                     make-operation
+                       (maker-builder, <heap-slot-set>,
+                        list(leaf, slot-home, posn-leaf),
+                        slot-info: associated));
+                  if (slot-initialized?-posn-leaf)
+                    build-assignment
+                      (maker-builder, policy, source, #(),
+                       make-operation
+                         (maker-builder, <heap-slot-set>,
+                          list(init?-leaf, slot-home, slot-initialized?-posn-leaf),
+                          slot-info: associated.slot-initialized?-slot));
+                  end if;
+                end if;
+              end if;
+            end method build-slot-init;
 
-	  let key = slot.slot-init-keyword;
-	  if (key)
-	    let key-info = add-key-info!(key, key-infos, slot, type, override, #f);
-	    let init-value-var
-	      = make-local-var(maker-builder,
-			       symcat(slot-name, "-init-value"),
-			       type);
-	    let arg = make-local-var(maker-builder, key, type);
-	    add!(maker-args, arg);
-	    let supplied?-arg
-	      = make-local-var(maker-builder,
-			       symcat(key, "-supplied?"),
-			       boolean-ctype());
-	    if (key-info.key-needs-supplied?-var)
-	      add!(maker-args, supplied?-arg);
-	    else
-	      build-assignment
-		(maker-builder, policy, source, supplied?-arg,
-		 make-operation(maker-builder, <primitive>, list(arg),
-				name: #"initialized?"));
-	    end;
-	    build-if-body(maker-builder, policy, source, supplied?-arg);
-	    build-assignment(maker-builder, policy, source,
-			     init-value-var, arg);
-	    build-slot-init(slot, init-value-var, supplied?-arg);
-	    if (slot.slot-init-keyword-required?)
-	      build-else(maker-builder, policy, source);
-	      build-assignment
-		(maker-builder, policy, source, #(),
-		 make-error-operation
-		   (maker-builder, policy, source,
-		    #"missing-required-init-keyword-error",
-		    make-literal-constant(maker-builder, key),
-		    make-literal-constant(maker-builder, cclass)));
-	    end if;
-	    end-body(maker-builder);
-	  end if;
+          let key = slot.slot-init-keyword;
+          if (key)
+            let key-info = add-key-info!(key, key-infos, slot, type, override, #f);
+            let init-value-var
+              = make-local-var(maker-builder,
+                               symcat(slot-name, "-init-value"),
+                               type);
+            let arg = make-local-var(maker-builder, key, type);
+            add!(maker-args, arg);
+            let supplied?-arg
+              = make-local-var(maker-builder,
+                               symcat(key, "-supplied?"),
+                               boolean-ctype());
+            if (key-info.key-needs-supplied?-var)
+              add!(maker-args, supplied?-arg);
+            else
+              build-assignment
+                (maker-builder, policy, source, supplied?-arg,
+                 make-operation(maker-builder, <primitive>, list(arg),
+                                name: #"initialized?"));
+            end;
+            build-if-body(maker-builder, policy, source, supplied?-arg);
+            build-assignment(maker-builder, policy, source,
+                             init-value-var, arg);
+            build-slot-init(slot, init-value-var, supplied?-arg);
+            if (slot.slot-init-keyword-required?)
+              build-else(maker-builder, policy, source);
+              build-assignment
+                (maker-builder, policy, source, #(),
+                 make-error-operation
+                   (maker-builder, policy, source,
+                    #"missing-required-init-keyword-error",
+                    make-literal-constant(maker-builder, key),
+                    make-literal-constant(maker-builder, cclass)));
+            end if;
+            end-body(maker-builder);
+          end if;
       end select;
     end if;
   end for;
@@ -3029,7 +3030,7 @@ define method build-maker-function-body
   let name = name | make(<derived-name>, how: #"maker", base: defn.defn-name);
   let maker-region
     = build-function-body(tl-builder, policy, source, #f, name,
-			  as(<list>, maker-args), cclass, #t);
+                          as(<list>, maker-args), cclass, #t);
   build-region(tl-builder, builder-result(setup-builder));
   build-region(tl-builder, builder-result(maker-builder));
   let bytes = cclass.instance-slots-layout.layout-length;
@@ -3037,64 +3038,64 @@ define method build-maker-function-body
     = make-literal-constant(tl-builder, bytes);
   let len-leaf
     = if (vector-slot)
-	let fi = specifier-type(#"<integer>");
-	let elsize
-	  = vector-slot.slot-representation.representation-size;
-	let extra
-	  = if (elsize == 1)
-	      size-leaf;
-	    else
-	      let var = make-local-var(tl-builder, #"extra", fi);
-	      let elsize-leaf
-		= make-literal-constant(tl-builder, elsize);
-	      build-assignment
-		(tl-builder, policy, source, var,
-		 make-unknown-call
-		   (tl-builder,
-		    ref-dylan-defn(tl-builder, policy, source, #"*"),
-		    #f,
-		    list(size-leaf, elsize-leaf)));
-	      var;
-	    end;
-	let var = make-local-var(tl-builder, #"bytes", fi);
-	build-assignment
-	  (tl-builder, policy, source, var,
-	   make-unknown-call
-	     (tl-builder,
-	      ref-dylan-defn(tl-builder, policy, source, #"+"),
-	      #f,
-	      list(base-len, extra)));
-	var;
+        let fi = specifier-type(#"<integer>");
+        let elsize
+          = vector-slot.slot-representation.representation-size;
+        let extra
+          = if (elsize == 1)
+              size-leaf;
+            else
+              let var = make-local-var(tl-builder, #"extra", fi);
+              let elsize-leaf
+                = make-literal-constant(tl-builder, elsize);
+              build-assignment
+                (tl-builder, policy, source, var,
+                 make-unknown-call
+                   (tl-builder,
+                    ref-dylan-defn(tl-builder, policy, source, #"*"),
+                    #f,
+                    list(size-leaf, elsize-leaf)));
+              var;
+            end;
+        let var = make-local-var(tl-builder, #"bytes", fi);
+        build-assignment
+          (tl-builder, policy, source, var,
+           make-unknown-call
+             (tl-builder,
+              ref-dylan-defn(tl-builder, policy, source, #"+"),
+              #f,
+              list(base-len, extra)));
+        var;
       else
-	base-len;
+        base-len;
       end;
   build-assignment
     (tl-builder, policy, source, instance-leaf,
      if (immediate-rep?)
        make-operation
-	 (tl-builder, <primitive>, as(<list>, make-immediate-args),
-	  name: #"make-immediate", derived-type: direct.ctype-extent);
+         (tl-builder, <primitive>, as(<list>, make-immediate-args),
+          name: #"make-immediate", derived-type: direct.ctype-extent);
      elseif (data-word-leaf)
        make-operation
-	 (tl-builder, <primitive>,
-	  list(make-literal-constant(tl-builder, cclass),
-	       len-leaf, data-word-leaf),
-	  name: #"allocate-with-data-word", derived-type: direct.ctype-extent);
+         (tl-builder, <primitive>,
+          list(make-literal-constant(tl-builder, cclass),
+               len-leaf, data-word-leaf),
+          name: #"allocate-with-data-word", derived-type: direct.ctype-extent);
      else
        make-operation
-	 (tl-builder, <primitive>,
-	  list(make-literal-constant(tl-builder, cclass), len-leaf),
-	  name: #"allocate", derived-type: direct.ctype-extent);
+         (tl-builder, <primitive>,
+          list(make-literal-constant(tl-builder, cclass), len-leaf),
+          name: #"allocate", derived-type: direct.ctype-extent);
      end if);
   build-region(tl-builder, builder-result(init-builder));
   build-return(tl-builder, policy, source, maker-region,
-	       list(instance-leaf));
+               list(instance-leaf));
   end-body(tl-builder);
   values(maker-region,
-	 signature | make(<signature>, specializers: #(),
-			  keys: as(<list>, key-infos),
-			  all-keys: #t,
-			  returns: direct));
+         signature | make(<signature>, specializers: #(),
+                          keys: as(<list>, key-infos),
+                          all-keys: #t,
+                          returns: direct));
 end method build-maker-function-body;
 
 
@@ -3107,28 +3108,28 @@ define function convert-init-function
     => res :: <leaf>;
   let slot-name = getter.variable-name;
   let fun-name = make(<derived-name>,
-  		      base: make(<basic-name>, symbol: slot-name,
-		      		 module: getter.variable-home),
-		      how: #"init-function");
+                      base: make(<basic-name>, symbol: slot-name,
+                                 module: getter.variable-home),
+                      how: #"init-function");
   let lexenv = make(<lexenv>, method-name: fun-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
   let source = init-function.source-location;
   let var = make-lexical-var(builder, symcat(slot-name, "-init-function"),
-			     source, function-ctype());
+                             source, function-ctype());
   fer-convert(builder, init-function, lexenv, #"let", var);
 
   let func-region
     = build-function-body(builder, policy, source, #t,
-    			  fun-name, #(),
-			  result-type, #f);
+                          fun-name, #(),
+                          result-type, #f);
   let temp = make-local-var(builder, #"result", result-type);
   build-assignment(builder, policy, source, temp,
-		   make-unknown-call(builder, var, #f, #()));
+                   make-unknown-call(builder, var, #f, #()));
   build-return(builder, policy, source, func-region, temp);
   end-body(builder);
   make-function-literal(builder, #f, #"function", #"local",
-			make(<signature>, specializers: #()),
-			func-region);
+                        make(<signature>, specializers: #()),
+                        func-region);
 end;
 
 
@@ -3141,18 +3142,18 @@ define method slot-accessor-standin
     let rep = slot.slot-representation;
     let standin-name :: false-or(<symbol>)
       = if (rep == *general-rep*)
-	  symcat("general-rep-", kind);
-	elseif (rep == *heap-rep*)
-	  symcat("heap-rep-", kind);
-	else
-	  #f;
-	end if;
+          symcat("general-rep-", kind);
+        elseif (rep == *heap-rep*)
+          symcat("heap-rep-", kind);
+        else
+          #f;
+        end if;
     if (standin-name)
       let defn = dylan-defn(standin-name);
       if (defn)
-	defn.ct-value;
+        defn.ct-value;
       else
-	#f;
+        #f;
       end if;
     else
       #f;
@@ -3162,7 +3163,7 @@ end method slot-accessor-standin;
 
 
 
-define method slot-accessor-standin // used for spew-object (cback)¥¥¥ relevance???
+define method slot-accessor-standin // used for spew-object (cback)FIXME relevance???
     (slot :: <indirect-slot-info>, kind :: one-of(#"getter", #"setter"))
     => standin :: false-or(<ct-function>);
 
@@ -3171,18 +3172,18 @@ define method slot-accessor-standin // used for spew-object (cback)¥¥¥ releva
 /*    let rep = meta-slot.slot-representation;
     let standin-name :: false-or(<symbol>)
       = if (rep == *general-rep*)
-	  symcat("general-rep-", kind);
-	elseif (rep == *heap-rep*)
-	  symcat("heap-rep-", kind);
-	else
-	  #f;
-	end if;
+          symcat("general-rep-", kind);
+        elseif (rep == *heap-rep*)
+          symcat("heap-rep-", kind);
+        else
+          #f;
+        end if;
     if (standin-name)
       let defn = dylan-defn(standin-name);
       if (defn)
-	defn.ct-value;
+        defn.ct-value;
       else
-	#f;
+        #f;
       end if;
     else
       #f;
@@ -3215,7 +3216,7 @@ define method build-getter
     => res :: <method-literal>;
   let getter-name
       = make(<derived-name>, how: #"getter",
-     	     base: defn.slot-defn-getter.defn-name);
+             base: defn.slot-defn-getter.defn-name);
   let lexenv = make(<lexenv>, method-name: getter-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
   let source = defn.source-location;
@@ -3232,8 +3233,8 @@ define method build-getter
 
 /*  let slot-home
     = build-slot-home(slot.slot-getter.variable-name,
-		      make-literal-constant(builder, cclass),
-		      builder, policy, source);
+                      make-literal-constant(builder, cclass),
+                      builder, policy, source);
 */
 
 
@@ -3242,12 +3243,12 @@ define method build-getter
 
   let slot-home
     = build-slot-home(slot.slot-getter.variable-name,
-		      make-unknown-call
-			(builder,
-			 ref-dylan-defn(builder, policy, source, #"%object-class"),
-			 #f,
-			 list(instance)),
-		      builder, policy, source);
+                      make-unknown-call
+                        (builder,
+                         ref-dylan-defn(builder, policy, source, #"%object-class"),
+                         #f,
+                         list(instance)),
+                      builder, policy, source);
 
 
 
@@ -3257,80 +3258,80 @@ define method build-getter
     (builder, policy, source, result,
      make-operation
        (builder, <heap-slot-ref>,
-	list(slot-home, make-literal-constant(builder, offset)),
-	derived-type: type.ctype-extent,
-	slot-info: slot.associated-meta-slot));
+        list(slot-home, make-literal-constant(builder, offset)),
+        derived-type: type.ctype-extent,
+        slot-info: slot.associated-meta-slot));
 
 
 /*  local
     method get (offset :: <leaf>, init?-offset :: false-or(<leaf>)) => ();
       if (init?-offset)
-	let init?-slot = slot.slot-initialized?-slot;
-	let temp = make-local-var(builder, #"initialized?",
-				  boolean-ctype());
-	build-assignment
-	  (builder, policy, source, temp,
-	   make-operation
-	     (builder, <heap-slot-ref>,
-	      list(instance, init?-offset),
-	      derived-type: init?-slot.slot-type.ctype-extent,
-	      slot-info: init?-slot));
-	build-if-body(builder, policy, source, temp);
-	build-else(builder, policy, source);
-	build-assignment
-	  (builder, policy, source, #(),
-	   make-error-operation
-	     (builder, policy, source, #"uninitialized-slot-error",
-	      make-literal-constant(builder, slot), instance));
-	end-body(builder);
+        let init?-slot = slot.slot-initialized?-slot;
+        let temp = make-local-var(builder, #"initialized?",
+                                  boolean-ctype());
+        build-assignment
+          (builder, policy, source, temp,
+           make-operation
+             (builder, <heap-slot-ref>,
+              list(instance, init?-offset),
+              derived-type: init?-slot.slot-type.ctype-extent,
+              slot-info: init?-slot));
+        build-if-body(builder, policy, source, temp);
+        build-else(builder, policy, source);
+        build-assignment
+          (builder, policy, source, #(),
+           make-error-operation
+             (builder, policy, source, #"uninitialized-slot-error",
+              make-literal-constant(builder, slot), instance));
+        end-body(builder);
       end;
       let maybe-data-word? = slot.might-be-in-data-word?;
       if (maybe-data-word?)
-	assert(~init?-offset);
-	assert(~index);
-	let temp = make-local-var(builder, #"data-word?",
-				  boolean-ctype());
-	build-assignment
-	  (builder, policy, source, temp,
-	   make-unknown-call
-	     (builder, ref-dylan-defn(builder, policy, source, #"=="), #f,
-	      list(offset,
-		   make-literal-constant(builder, #"data-word"))));
-	build-if-body(builder, policy, source, temp);
-	build-assignment
-	  (builder, policy, source, result,
-	   make-operation
-	     (builder, <data-word-ref>, list(instance),
-	      derived-type: slot.slot-type.ctype-extent, slot-info: slot));
-	build-else(builder, policy, source);
+        assert(~init?-offset);
+        assert(~index);
+        let temp = make-local-var(builder, #"data-word?",
+                                  boolean-ctype());
+        build-assignment
+          (builder, policy, source, temp,
+           make-unknown-call
+             (builder, ref-dylan-defn(builder, policy, source, #"=="), #f,
+              list(offset,
+                   make-literal-constant(builder, #"data-word"))));
+        build-if-body(builder, policy, source, temp);
+        build-assignment
+          (builder, policy, source, result,
+           make-operation
+             (builder, <data-word-ref>, list(instance),
+              derived-type: slot.slot-type.ctype-extent, slot-info: slot));
+        build-else(builder, policy, source);
       end if;
       build-assignment
-	(builder, policy, source, result,
-	 make-operation
-	   (builder, <heap-slot-ref>,
-	    if (index)
-	      list(instance, offset, index);
-	    else
-	      list(instance, offset);
-	    end,
-	    derived-type: slot.slot-type.ctype-extent,
-	    slot-info: slot));
+        (builder, policy, source, result,
+         make-operation
+           (builder, <heap-slot-ref>,
+            if (index)
+              list(instance, offset, index);
+            else
+              list(instance, offset);
+            end,
+            derived-type: slot.slot-type.ctype-extent,
+            slot-info: slot));
       if (maybe-data-word?)
-	end-body(builder);
+        end-body(builder);
       end if;
       unless (init?-offset | slot-guaranteed-initialized?(slot, cclass))
-	let temp = make-local-var(builder, #"initialized?", object-ctype());
-	build-assignment(builder, policy, source, temp,
-			 make-operation(builder, <primitive>, list(result),
-					name: #"initialized?"));
-	build-if-body(builder, policy, source, temp);
-	build-else(builder, policy, source);
-	build-assignment
-	  (builder, policy, source, #(),
-	   make-error-operation
-	     (builder, policy, source, #"uninitialized-slot-error",
-	      make-literal-constant(builder, slot), instance));
-	end-body(builder);
+        let temp = make-local-var(builder, #"initialized?", object-ctype());
+        build-assignment(builder, policy, source, temp,
+                         make-operation(builder, <primitive>, list(result),
+                                        name: #"initialized?"));
+        build-if-body(builder, policy, source, temp);
+        build-else(builder, policy, source);
+        build-assignment
+          (builder, policy, source, #(),
+           make-error-operation
+             (builder, policy, source, #"uninitialized-slot-error",
+              make-literal-constant(builder, slot), instance));
+        end-body(builder);
       end;
     end;*/
 //  build-slot-posn-dispatch(builder, slot, instance, get);
@@ -3342,13 +3343,13 @@ define method build-getter
   make-function-literal
     (builder, ctv, #"method", if (ctv) #"global" else #"local" end,
      make(<signature>,
-	  specializers:
-	    if (index)
-	      list(cclass, specifier-type(#"<integer>"));
-	    else
-	      list(cclass);
-	    end,
-	  returns: type),
+          specializers:
+            if (index)
+              list(cclass, specifier-type(#"<integer>"));
+            else
+              list(cclass);
+            end,
+          returns: type),
      region);
 end;
 
@@ -3361,7 +3362,7 @@ define method build-getter
     => res :: <method-literal>;
   let getter-name
       = make(<derived-name>, how: #"getter",
-     	     base: defn.slot-defn-getter.defn-name);
+             base: defn.slot-defn-getter.defn-name);
   let lexenv = make(<lexenv>, method-name: getter-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
   let source = defn.source-location;
@@ -3378,8 +3379,8 @@ define method build-getter
 
   let slot-home
     = build-slot-home(slot.slot-getter.variable-name,
-		      make-literal-constant(builder, cclass),
-		      builder, policy, source);
+                      make-literal-constant(builder, cclass),
+                      builder, policy, source);
 
   let offset = get-universal-position(slot.associated-meta-slot.slot-positions);
 
@@ -3387,80 +3388,80 @@ define method build-getter
     (builder, policy, source, result,
      make-operation
        (builder, <heap-slot-ref>,
-	list(slot-home, make-literal-constant(builder, offset)),
-	derived-type: type.ctype-extent,
-	slot-info: slot.associated-meta-slot));
+        list(slot-home, make-literal-constant(builder, offset)),
+        derived-type: type.ctype-extent,
+        slot-info: slot.associated-meta-slot));
 
 
 /*  local
     method get (offset :: <leaf>, init?-offset :: false-or(<leaf>)) => ();
       if (init?-offset)
-	let init?-slot = slot.slot-initialized?-slot;
-	let temp = make-local-var(builder, #"initialized?",
-				  boolean-ctype());
-	build-assignment
-	  (builder, policy, source, temp,
-	   make-operation
-	     (builder, <heap-slot-ref>,
-	      list(instance, init?-offset),
-	      derived-type: init?-slot.slot-type.ctype-extent,
-	      slot-info: init?-slot));
-	build-if-body(builder, policy, source, temp);
-	build-else(builder, policy, source);
-	build-assignment
-	  (builder, policy, source, #(),
-	   make-error-operation
-	     (builder, policy, source, #"uninitialized-slot-error",
-	      make-literal-constant(builder, slot), instance));
-	end-body(builder);
+        let init?-slot = slot.slot-initialized?-slot;
+        let temp = make-local-var(builder, #"initialized?",
+                                  boolean-ctype());
+        build-assignment
+          (builder, policy, source, temp,
+           make-operation
+             (builder, <heap-slot-ref>,
+              list(instance, init?-offset),
+              derived-type: init?-slot.slot-type.ctype-extent,
+              slot-info: init?-slot));
+        build-if-body(builder, policy, source, temp);
+        build-else(builder, policy, source);
+        build-assignment
+          (builder, policy, source, #(),
+           make-error-operation
+             (builder, policy, source, #"uninitialized-slot-error",
+              make-literal-constant(builder, slot), instance));
+        end-body(builder);
       end;
       let maybe-data-word? = slot.might-be-in-data-word?;
       if (maybe-data-word?)
-	assert(~init?-offset);
-	assert(~index);
-	let temp = make-local-var(builder, #"data-word?",
-				  boolean-ctype());
-	build-assignment
-	  (builder, policy, source, temp,
-	   make-unknown-call
-	     (builder, ref-dylan-defn(builder, policy, source, #"=="), #f,
-	      list(offset,
-		   make-literal-constant(builder, #"data-word"))));
-	build-if-body(builder, policy, source, temp);
-	build-assignment
-	  (builder, policy, source, result,
-	   make-operation
-	     (builder, <data-word-ref>, list(instance),
-	      derived-type: slot.slot-type.ctype-extent, slot-info: slot));
-	build-else(builder, policy, source);
+        assert(~init?-offset);
+        assert(~index);
+        let temp = make-local-var(builder, #"data-word?",
+                                  boolean-ctype());
+        build-assignment
+          (builder, policy, source, temp,
+           make-unknown-call
+             (builder, ref-dylan-defn(builder, policy, source, #"=="), #f,
+              list(offset,
+                   make-literal-constant(builder, #"data-word"))));
+        build-if-body(builder, policy, source, temp);
+        build-assignment
+          (builder, policy, source, result,
+           make-operation
+             (builder, <data-word-ref>, list(instance),
+              derived-type: slot.slot-type.ctype-extent, slot-info: slot));
+        build-else(builder, policy, source);
       end if;
       build-assignment
-	(builder, policy, source, result,
-	 make-operation
-	   (builder, <heap-slot-ref>,
-	    if (index)
-	      list(instance, offset, index);
-	    else
-	      list(instance, offset);
-	    end,
-	    derived-type: slot.slot-type.ctype-extent,
-	    slot-info: slot));
+        (builder, policy, source, result,
+         make-operation
+           (builder, <heap-slot-ref>,
+            if (index)
+              list(instance, offset, index);
+            else
+              list(instance, offset);
+            end,
+            derived-type: slot.slot-type.ctype-extent,
+            slot-info: slot));
       if (maybe-data-word?)
-	end-body(builder);
+        end-body(builder);
       end if;
       unless (init?-offset | slot-guaranteed-initialized?(slot, cclass))
-	let temp = make-local-var(builder, #"initialized?", object-ctype());
-	build-assignment(builder, policy, source, temp,
-			 make-operation(builder, <primitive>, list(result),
-					name: #"initialized?"));
-	build-if-body(builder, policy, source, temp);
-	build-else(builder, policy, source);
-	build-assignment
-	  (builder, policy, source, #(),
-	   make-error-operation
-	     (builder, policy, source, #"uninitialized-slot-error",
-	      make-literal-constant(builder, slot), instance));
-	end-body(builder);
+        let temp = make-local-var(builder, #"initialized?", object-ctype());
+        build-assignment(builder, policy, source, temp,
+                         make-operation(builder, <primitive>, list(result),
+                                        name: #"initialized?"));
+        build-if-body(builder, policy, source, temp);
+        build-else(builder, policy, source);
+        build-assignment
+          (builder, policy, source, #(),
+           make-error-operation
+             (builder, policy, source, #"uninitialized-slot-error",
+              make-literal-constant(builder, slot), instance));
+        end-body(builder);
       end;
     end;*/
 //  build-slot-posn-dispatch(builder, slot, instance, get);
@@ -3472,13 +3473,13 @@ define method build-getter
   make-function-literal
     (builder, ctv, #"method", if (ctv) #"global" else #"local" end,
      make(<signature>,
-	  specializers:
-	    if (index)
-	      list(cclass, specifier-type(#"<integer>"));
-	    else
-	      list(cclass);
-	    end,
-	  returns: type),
+          specializers:
+            if (index)
+              list(cclass, specifier-type(#"<integer>"));
+            else
+              list(cclass);
+            end,
+          returns: type),
      region);
 end;
 
@@ -3494,24 +3495,24 @@ defn.slot-defn-getter.defn-name == defn.slot-defn-getter-name
 (instance?(defn.slot-defn-getter.defn-name, <method-name>)
    & defn.slot-defn-getter.defn-name.method-name-generic-function == defn.slot-defn-getter-name)
     | begin
-	compiler-warning("defn.slot-defn-getter.defn-name %=", defn.slot-defn-getter.defn-name);
-	compiler-warning("defn.slot-defn-getter-name %=", defn.slot-defn-getter-name);
+        compiler-warning("defn.slot-defn-getter.defn-name %=", defn.slot-defn-getter.defn-name);
+        compiler-warning("defn.slot-defn-getter-name %=", defn.slot-defn-getter-name);
       end;
 
   let getter-name
       = make(<derived-name>, how: #"getter",
-     	     base: defn.slot-defn-getter.defn-name);
+             base: defn.slot-defn-getter.defn-name);
   let lexenv = make(<lexenv>, method-name: getter-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
   let source = defn.source-location;
   let cclass = slot.slot-introduced-by;
   let instance = make-lexical-var(builder, #"object", source, cclass);
   let index = if (instance?(slot, <vector-slot-info>))
-		make-lexical-var(builder, #"index", source,
-				 specifier-type(#"<integer>"));
-	      else
-		#f;
-	      end if;
+                make-lexical-var(builder, #"index", source,
+                                 specifier-type(#"<integer>"));
+              else
+                #f;
+              end if;
   let type = slot.slot-type;
   let region = build-function-body
     (builder, policy, source, #f,
@@ -3526,70 +3527,70 @@ defn.slot-defn-getter.defn-name == defn.slot-defn-getter-name
   local
     method get (offset :: <leaf>, init?-offset :: false-or(<leaf>)) => ();
       if (init?-offset)
-	let init?-slot = slot.slot-initialized?-slot;
-	let temp = make-local-var(builder, #"initialized?", boolean-ctype());
-	build-assignment
-	  (builder, policy, source, temp,
-	   make-operation
-	     (builder, <heap-slot-ref>,
-	      list(instance, init?-offset),
-	      derived-type: init?-slot.slot-type.ctype-extent,
-	      slot-info: init?-slot));
-	build-if-body(builder, policy, source, temp);
-	build-else(builder, policy, source);
-	build-assignment
-	  (builder, policy, source, #(),
-	   make-error-operation
-	     (builder, policy, source, #"uninitialized-slot-error",
-	      make-literal-constant(builder, slot), instance));
-	end-body(builder);
+        let init?-slot = slot.slot-initialized?-slot;
+        let temp = make-local-var(builder, #"initialized?", boolean-ctype());
+        build-assignment
+          (builder, policy, source, temp,
+           make-operation
+             (builder, <heap-slot-ref>,
+              list(instance, init?-offset),
+              derived-type: init?-slot.slot-type.ctype-extent,
+              slot-info: init?-slot));
+        build-if-body(builder, policy, source, temp);
+        build-else(builder, policy, source);
+        build-assignment
+          (builder, policy, source, #(),
+           make-error-operation
+             (builder, policy, source, #"uninitialized-slot-error",
+              make-literal-constant(builder, slot), instance));
+        end-body(builder);
       end;
       let maybe-data-word? = slot.might-be-in-data-word?;
       if (maybe-data-word?)
-	assert(~init?-offset);
-	assert(~index);
-	let temp = make-local-var(builder, #"data-word?", boolean-ctype());
-	build-assignment
-	  (builder, policy, source, temp,
-	   make-unknown-call
-	     (builder, ref-dylan-defn(builder, policy, source, #"=="), #f,
-	      list(offset,
-		   make-literal-constant(builder, #"data-word"))));
-	build-if-body(builder, policy, source, temp);
-	build-assignment
-	  (builder, policy, source, result,
-	   make-operation
-	     (builder, <data-word-ref>, list(instance),
-	      derived-type: type.ctype-extent, slot-info: slot));
-	build-else(builder, policy, source);
+        assert(~init?-offset);
+        assert(~index);
+        let temp = make-local-var(builder, #"data-word?", boolean-ctype());
+        build-assignment
+          (builder, policy, source, temp,
+           make-unknown-call
+             (builder, ref-dylan-defn(builder, policy, source, #"=="), #f,
+              list(offset,
+                   make-literal-constant(builder, #"data-word"))));
+        build-if-body(builder, policy, source, temp);
+        build-assignment
+          (builder, policy, source, result,
+           make-operation
+             (builder, <data-word-ref>, list(instance),
+              derived-type: type.ctype-extent, slot-info: slot));
+        build-else(builder, policy, source);
       end if;
       build-assignment
-	(builder, policy, source, result,
-	 make-operation
-	   (builder, <heap-slot-ref>,
-	    if (index)
-	      list(instance, offset, index);
-	    else
-	      list(instance, offset);
-	    end,
-	    derived-type: type.ctype-extent,
-	    slot-info: slot));
+        (builder, policy, source, result,
+         make-operation
+           (builder, <heap-slot-ref>,
+            if (index)
+              list(instance, offset, index);
+            else
+              list(instance, offset);
+            end,
+            derived-type: type.ctype-extent,
+            slot-info: slot));
       if (maybe-data-word?)
-	end-body(builder);
+        end-body(builder);
       end if;
       unless (init?-offset | slot-guaranteed-initialized?(slot, cclass))
-	let temp = make-local-var(builder, #"initialized?", object-ctype());
-	build-assignment(builder, policy, source, temp,
-			 make-operation(builder, <primitive>, list(result),
-					name: #"initialized?"));
-	build-if-body(builder, policy, source, temp);
-	build-else(builder, policy, source);
-	build-assignment
-	  (builder, policy, source, #(),
-	   make-error-operation
-	     (builder, policy, source, #"uninitialized-slot-error",
-	      make-literal-constant(builder, slot), instance));
-	end-body(builder);
+        let temp = make-local-var(builder, #"initialized?", object-ctype());
+        build-assignment(builder, policy, source, temp,
+                         make-operation(builder, <primitive>, list(result),
+                                        name: #"initialized?"));
+        build-if-body(builder, policy, source, temp);
+        build-else(builder, policy, source);
+        build-assignment
+          (builder, policy, source, #(),
+           make-error-operation
+             (builder, policy, source, #"uninitialized-slot-error",
+              make-literal-constant(builder, slot), instance));
+        end-body(builder);
       end;
     end;
   build-slot-posn-dispatch(builder, slot, instance, get);
@@ -3598,13 +3599,13 @@ defn.slot-defn-getter.defn-name == defn.slot-defn-getter-name
   make-function-literal
     (builder, ctv, #"method", if (ctv) #"global" else #"local" end,
      make(<signature>,
-	  specializers:
-	    if (index)
-	      list(cclass, specifier-type(#"<integer>"));
-	    else
-	      list(cclass);
-	    end,
-	  returns: type),
+          specializers:
+            if (index)
+              list(cclass, specifier-type(#"<integer>"));
+            else
+              list(cclass);
+            end,
+          returns: type),
      region);
 end;
 
@@ -3637,7 +3638,7 @@ define method build-setter
     => res :: <method-literal>;
   let setter-name
     = make(<derived-name>, how: #"setter",
-     	   base: defn.slot-defn-setter.defn-name);
+           base: defn.slot-defn-setter.defn-name);
   let lexenv = make(<lexenv>, method-name: setter-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
   let source = defn.source-location;
@@ -3655,39 +3656,39 @@ define method build-setter
 
   let slot-home
     = build-slot-home(slot.slot-getter.variable-name,
-		      make-unknown-call
-			(builder,
-			 ref-dylan-defn(builder, policy, source, #"%object-class"),
-			 #f,
-			 list(instance)),
-		      builder, policy, source);
+                      make-unknown-call
+                        (builder,
+                         ref-dylan-defn(builder, policy, source, #"%object-class"),
+                         #f,
+                         list(instance)),
+                      builder, policy, source);
 
   let offset = get-universal-position(slot.associated-meta-slot.slot-positions);
 
   build-assignment(builder, policy, source, #(),
-		   make-operation(builder, <heap-slot-set>,
-				  list(new,
-				       slot-home,
-				       make-literal-constant(builder, offset)),
-				  slot-info: slot.associated-meta-slot));
+                   make-operation(builder, <heap-slot-set>,
+                                  list(new,
+                                       slot-home,
+                                       make-literal-constant(builder, offset)),
+                                  slot-info: slot.associated-meta-slot));
 
 /*  local
     method set (offset :: <leaf>, init?-offset :: false-or(<leaf>)) => ();
       build-assignment(builder, policy, source, #(),
-		       make-operation(builder, <heap-slot-set>,
-				      if (index)
-					list(new, instance, offset, index);
-				      else
-					list(new, instance, offset);
-				      end if,
-				      slot-info: slot));
+                       make-operation(builder, <heap-slot-set>,
+                                      if (index)
+                                        list(new, instance, offset, index);
+                                      else
+                                        list(new, instance, offset);
+                                      end if,
+                                      slot-info: slot));
       if (init?-offset)
-	let init?-slot = slot.slot-initialized?-slot;
-	let true-leaf = make-literal-constant(builder, #t);
-	let init-op = make-operation
-	  (builder, <heap-slot-set>, list(true-leaf, instance, init?-offset),
-	   slot-info: init?-slot);
-	build-assignment(builder, policy, source, #(), init-op);
+        let init?-slot = slot.slot-initialized?-slot;
+        let true-leaf = make-literal-constant(builder, #t);
+        let init-op = make-operation
+          (builder, <heap-slot-set>, list(true-leaf, instance, init?-offset),
+           slot-info: init?-slot);
+        build-assignment(builder, policy, source, #(), init-op);
       end;
     end;
 */
@@ -3698,13 +3699,13 @@ define method build-setter
   make-function-literal
     (builder, ctv, #"method", if (ctv) #"global" else #"local" end,
      make(<signature>,
-	  specializers:
-	    if (index)
-	      list(type, cclass, specifier-type(#"<integer>"));
-	    else
-	      list(type, cclass);
-	    end,
-	  returns: type),
+          specializers:
+            if (index)
+              list(type, cclass, specifier-type(#"<integer>"));
+            else
+              list(type, cclass);
+            end,
+          returns: type),
      region);
 end;
 
@@ -3717,7 +3718,7 @@ define method build-setter
     => res :: <method-literal>;
   let setter-name
     = make(<derived-name>, how: #"setter",
-     	   base: defn.slot-defn-setter.defn-name);
+           base: defn.slot-defn-setter.defn-name);
   let lexenv = make(<lexenv>, method-name: setter-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
   let source = defn.source-location;
@@ -3735,35 +3736,35 @@ define method build-setter
 
   let slot-home
     = build-slot-home(slot.slot-getter.variable-name,
-		      make-literal-constant(builder, cclass),
-		      builder, policy, source);
+                      make-literal-constant(builder, cclass),
+                      builder, policy, source);
 
   let offset = get-universal-position(slot.associated-meta-slot.slot-positions);
 
   build-assignment(builder, policy, source, #(),
-		   make-operation(builder, <heap-slot-set>,
-				  list(new,
-				       slot-home,
-				       make-literal-constant(builder, offset)),
-				  slot-info: slot.associated-meta-slot));
+                   make-operation(builder, <heap-slot-set>,
+                                  list(new,
+                                       slot-home,
+                                       make-literal-constant(builder, offset)),
+                                  slot-info: slot.associated-meta-slot));
 
 /*  local
     method set (offset :: <leaf>, init?-offset :: false-or(<leaf>)) => ();
       build-assignment(builder, policy, source, #(),
-		       make-operation(builder, <heap-slot-set>,
-				      if (index)
-					list(new, instance, offset, index);
-				      else
-					list(new, instance, offset);
-				      end if,
-				      slot-info: slot));
+                       make-operation(builder, <heap-slot-set>,
+                                      if (index)
+                                        list(new, instance, offset, index);
+                                      else
+                                        list(new, instance, offset);
+                                      end if,
+                                      slot-info: slot));
       if (init?-offset)
-	let init?-slot = slot.slot-initialized?-slot;
-	let true-leaf = make-literal-constant(builder, #t);
-	let init-op = make-operation
-	  (builder, <heap-slot-set>, list(true-leaf, instance, init?-offset),
-	   slot-info: init?-slot);
-	build-assignment(builder, policy, source, #(), init-op);
+        let init?-slot = slot.slot-initialized?-slot;
+        let true-leaf = make-literal-constant(builder, #t);
+        let init-op = make-operation
+          (builder, <heap-slot-set>, list(true-leaf, instance, init?-offset),
+           slot-info: init?-slot);
+        build-assignment(builder, policy, source, #(), init-op);
       end;
     end;
 */
@@ -3774,13 +3775,13 @@ define method build-setter
   make-function-literal
     (builder, ctv, #"method", if (ctv) #"global" else #"local" end,
      make(<signature>,
-	  specializers:
-	    if (index)
-	      list(type, cclass, specifier-type(#"<integer>"));
-	    else
-	      list(type, cclass);
-	    end,
-	  returns: type),
+          specializers:
+            if (index)
+              list(type, cclass, specifier-type(#"<integer>"));
+            else
+              list(type, cclass);
+            end,
+          returns: type),
      region);
 end;
 
@@ -3792,7 +3793,7 @@ define method build-setter
     => res :: <method-literal>;
   let setter-name
     = make(<derived-name>, how: #"setter",
-     	   base: defn.slot-defn-setter.defn-name);
+           base: defn.slot-defn-setter.defn-name);
   let init?-slot = slot.slot-initialized?-slot;
   let lexenv = make(<lexenv>, method-name: setter-name, inside: make(<top-level-lexenv>, tlf: tlf));
   let policy = lexenv.lexenv-policy;
@@ -3802,12 +3803,12 @@ define method build-setter
   let cclass = slot.slot-introduced-by;
   let instance = make-lexical-var(builder, #"object", source, cclass);
   let index = if (instance?(slot, <vector-slot-info>))
-		let fi = specifier-type(#"<integer>");
-		let index = make-lexical-var(builder, #"index", source, fi);
-		index;
-	      else
-		#f;
-	      end if;
+                let fi = specifier-type(#"<integer>");
+                let index = make-lexical-var(builder, #"index", source, fi);
+                index;
+              else
+                #f;
+              end if;
   let region = build-function-body
     (builder, policy, source, #f,
      setter-name,
@@ -3821,20 +3822,20 @@ define method build-setter
   local
     method set (offset :: <leaf>, init?-offset :: false-or(<leaf>)) => ();
       build-assignment(builder, policy, source, #(),
-		       make-operation(builder, <heap-slot-set>,
-				      if (index)
-					list(new, instance, offset, index);
-				      else
-					list(new, instance, offset);
-				      end if,
-				      slot-info: slot));
+                       make-operation(builder, <heap-slot-set>,
+                                      if (index)
+                                        list(new, instance, offset, index);
+                                      else
+                                        list(new, instance, offset);
+                                      end if,
+                                      slot-info: slot));
       if (init?-offset)
-	let init?-slot = slot.slot-initialized?-slot;
-	let true-leaf = make-literal-constant(builder, #t);
-	let init-op = make-operation
-	  (builder, <heap-slot-set>, list(true-leaf, instance, init?-offset),
-	   slot-info: init?-slot);
-	build-assignment(builder, policy, source, #(), init-op);
+        let init?-slot = slot.slot-initialized?-slot;
+        let true-leaf = make-literal-constant(builder, #t);
+        let init-op = make-operation
+          (builder, <heap-slot-set>, list(true-leaf, instance, init?-offset),
+           slot-info: init?-slot);
+        build-assignment(builder, policy, source, #(), init-op);
       end;
     end;
   build-slot-posn-dispatch(builder, slot, instance, set);
@@ -3843,13 +3844,13 @@ define method build-setter
   make-function-literal
     (builder, ctv, #"method", if (ctv) #"global" else #"local" end,
      make(<signature>,
-	  specializers:
-	    if (index)
-	      list(type, cclass, specifier-type(#"<integer>"));
-	    else
-	      list(type, cclass);
-	    end,
-	  returns: type),
+          specializers:
+            if (index)
+              list(type, cclass, specifier-type(#"<integer>"));
+            else
+              list(type, cclass);
+            end,
+          returns: type),
      region);
 end;
 
@@ -3863,12 +3864,12 @@ define method build-slot-posn-dispatch
     // slot accessor method.
     let new-thunk
       = method (offset :: <slot-position>,
-		init?-offset :: false-or(<slot-position>))
-	    => ();
-	  thunk(make-literal-constant(builder, offset),
-		init?-offset
-		  & make-literal-constant(builder, init?-offset));
-	end method;
+                init?-offset :: false-or(<slot-position>))
+            => ();
+          thunk(make-literal-constant(builder, offset),
+                init?-offset
+                  & make-literal-constant(builder, init?-offset));
+        end method;
     let position = get-universal-position(slot.slot-positions);
     let init?-slot = slot.slot-initialized?-slot;
     let init?-position
@@ -3886,15 +3887,15 @@ define method build-slot-posn-dispatch
       assert(cclass.sealed?);
       
       if (every?(disjoin(abstract?, unique-id), cclass.subclasses))
-	// All the concrete subclasses have unique-id's, so we can compute a
-	// direct mapping from instance.object-class.unique-id to offset.
-	build-unique-id-slot-posn-dispatch
-	  (builder, slot, instance-leaf, new-thunk);
+        // All the concrete subclasses have unique-id's, so we can compute a
+        // direct mapping from instance.object-class.unique-id to offset.
+        build-unique-id-slot-posn-dispatch
+          (builder, slot, instance-leaf, new-thunk);
       else
-	// One or more concrete subclass doesn't have a unique-id so we have
-	// to build an instance? tree.
-	build-instance?-slot-posn-dispatch
-	  (builder, slot, instance-leaf, new-thunk);
+        // One or more concrete subclass doesn't have a unique-id so we have
+        // to build an instance? tree.
+        build-instance?-slot-posn-dispatch
+          (builder, slot, instance-leaf, new-thunk);
       end if;
     end if;
   else
@@ -3914,21 +3915,21 @@ define method build-unique-id-slot-posn-dispatch
   let positions = slot.slot-positions;
   let init?-positions
     = (slot.slot-initialized?-slot
-	 & slot.slot-initialized?-slot.slot-positions);
+         & slot.slot-initialized?-slot.slot-positions);
   let ranges = #();
   let prev = #f;
   for (entry in sort!(map(method (subclass)
-			    let id = subclass.unique-id;
-			    vector(id, id,
-				   get-direct-position(positions, subclass),
-				   init?-positions
-				     & get-direct-position(init?-positions,
-							   subclass));
-			  end,
-			  find-direct-classes(cclass)),
-		      test: method (entry1, entry2)
-			      entry1[0] < entry2[0];
-			    end))
+                            let id = subclass.unique-id;
+                            vector(id, id,
+                                   get-direct-position(positions, subclass),
+                                   init?-positions
+                                     & get-direct-position(init?-positions,
+                                                           subclass));
+                          end,
+                          find-direct-classes(cclass)),
+                      test: method (entry1, entry2)
+                              entry1[0] < entry2[0];
+                            end))
     if (prev == #f)
       ranges := list(entry);
       prev := ranges;
@@ -3948,34 +3949,34 @@ define method build-unique-id-slot-posn-dispatch
     let obj-class-leaf
       = ref-dylan-defn(builder, policy, source, #"%object-class");
     build-assignment(builder, policy, source, class-temp,
-		     make-unknown-call(builder, obj-class-leaf, #f,
-				       list(instance-leaf)));
+                     make-unknown-call(builder, obj-class-leaf, #f,
+                                       list(instance-leaf)));
     let id-temp = make-local-var(builder, #"id", object-ctype());
     let unique-id-leaf
       = ref-dylan-defn(builder, policy, source, #"unique-id");
     build-assignment(builder, policy, source, id-temp,
-		     make-unknown-call(builder, unique-id-leaf, #f,
-				       list(class-temp)));
+                     make-unknown-call(builder, unique-id-leaf, #f,
+                                       list(class-temp)));
     local
       method split-range (min, max)
-	if (min == max)
-	  let entry :: <simple-object-vector> = ranges[min];
-	  thunk(entry[2], entry[3]);
-	else
-	  let half-way-point = ash(min + max, -1);
-	  let cond-temp = make-local-var(builder, #"cond", object-ctype());
-	  let bound = make-literal-constant(builder,
-					    ranges[half-way-point][1] + 1);
-	  build-assignment
-	    (builder, policy, source, cond-temp,
-	     make-unknown-call(builder, less-then, #f,
-			       list(id-temp, bound)));
-	  build-if-body(builder, policy, source, cond-temp);
-	  split-range(min, half-way-point);
-	  build-else(builder, policy, source);
-	  split-range(half-way-point + 1, max);
-	  end-body(builder);
-	end;
+        if (min == max)
+          let entry :: <simple-object-vector> = ranges[min];
+          thunk(entry[2], entry[3]);
+        else
+          let half-way-point = ash(min + max, -1);
+          let cond-temp = make-local-var(builder, #"cond", object-ctype());
+          let bound = make-literal-constant(builder,
+                                            ranges[half-way-point][1] + 1);
+          build-assignment
+            (builder, policy, source, cond-temp,
+             make-unknown-call(builder, less-then, #f,
+                               list(id-temp, bound)));
+          build-if-body(builder, policy, source, cond-temp);
+          split-range(min, half-way-point);
+          build-else(builder, policy, source);
+          split-range(half-way-point + 1, max);
+          end-body(builder);
+        end;
       end;
     split-range(0, ranges.size - 1);
   end;
@@ -3995,10 +3996,10 @@ define method build-instance?-slot-posn-dispatch
   let positions = as(<list>, slot.slot-positions);
   let init?-positions
     = (slot.slot-initialized?-slot
-	 & as(<list>, slot.slot-initialized?-slot.slot-positions));
+         & as(<list>, slot.slot-initialized?-slot.slot-positions));
   local
     method split (classes :: <list>, possible-splits :: <list>)
-	=> ();
+        => ();
       let best-test = #f;
       let best-yes-classes = #f;
       let best-yes-count = #f;
@@ -4007,45 +4008,45 @@ define method build-instance?-slot-posn-dispatch
       let best-weight = -1;
 
       for (split :: <cclass> in possible-splits)
-	let yes-classes = #();
-	let no-classes = #();
-	for (class in classes)
-	  if (csubtype?(class, split))
-	    yes-classes := pair(class, yes-classes);
-	  else
-	    no-classes := pair(class, no-classes);
-	  end if;
-	end for;
-	let yes-count
-	  = count-distinct-positions(yes-classes, positions, init?-positions);
-	let no-count
-	  = count-distinct-positions(no-classes, positions, init?-positions);
-	let weight = yes-count * no-count;
-	if (weight > best-weight)
-	  best-test := split;
-	  best-yes-classes := yes-classes;
-	  best-yes-count := yes-count;
-	  best-no-classes := no-classes;
-	  best-no-count := no-count;
-	  best-weight := weight;
-	end if;
+        let yes-classes = #();
+        let no-classes = #();
+        for (class in classes)
+          if (csubtype?(class, split))
+            yes-classes := pair(class, yes-classes);
+          else
+            no-classes := pair(class, no-classes);
+          end if;
+        end for;
+        let yes-count
+          = count-distinct-positions(yes-classes, positions, init?-positions);
+        let no-count
+          = count-distinct-positions(no-classes, positions, init?-positions);
+        let weight = yes-count * no-count;
+        if (weight > best-weight)
+          best-test := split;
+          best-yes-classes := yes-classes;
+          best-yes-count := yes-count;
+          best-no-classes := no-classes;
+          best-no-count := no-count;
+          best-weight := weight;
+        end if;
       end for;
 
       let cond-temp = make-local-var(builder, #"cond", object-ctype());
       let type-leaf = make-literal-constant(builder, best-test);
       let instance?-leaf
-	= ref-dylan-defn(builder, policy, source, #"instance?");
+        = ref-dylan-defn(builder, policy, source, #"instance?");
       build-assignment
-	(builder, policy, source, cond-temp,
-	 make-unknown-call
-	   (builder, instance?-leaf, #f,
-	    list(instance-leaf, type-leaf)));
+        (builder, policy, source, cond-temp,
+         make-unknown-call
+           (builder, instance?-leaf, #f,
+            list(instance-leaf, type-leaf)));
       build-if-body(builder, policy, source, cond-temp);
 
       if (best-yes-count == 1)
-	let characteristic-class = best-yes-classes.first;
-	thunk(lookup-position(characteristic-class, positions),
-	      lookup-position(characteristic-class, init?-positions));
+        let characteristic-class = best-yes-classes.first;
+        thunk(lookup-position(characteristic-class, positions),
+              lookup-position(characteristic-class, init?-positions));
       elseif (best-test)
         split(best-yes-classes,
               restrict-splits(possible-splits, best-test, #t));
@@ -4054,9 +4055,9 @@ define method build-instance?-slot-posn-dispatch
       build-else(builder, policy, source);
 
       if (best-no-count == 1)
-	let characteristic-class = best-no-classes.first;
-	thunk(lookup-position(characteristic-class, positions),
-	      lookup-position(characteristic-class, init?-positions));
+        let characteristic-class = best-no-classes.first;
+        thunk(lookup-position(characteristic-class, positions),
+              lookup-position(characteristic-class, init?-positions));
       elseif (best-test)
         split(best-no-classes,
               restrict-splits(possible-splits, best-test, #f));
@@ -4070,12 +4071,12 @@ define method build-instance?-slot-posn-dispatch
     for (entry in init?-positions)
       let split :: <cclass> = entry.head;
       unless (member?(split, initial-splits))
-	initial-splits := pair(split, initial-splits);
+        initial-splits := pair(split, initial-splits);
       end unless;
     end for;
   end if;
   split(find-direct-classes(cclass),
-	restrict-splits(initial-splits, cclass, #t));
+        restrict-splits(initial-splits, cclass, #t));
 end method build-instance?-slot-posn-dispatch;
 
 define method lookup-position (class :: <cclass>, positions :: <list>)
@@ -4083,7 +4084,7 @@ define method lookup-position (class :: <cclass>, positions :: <list>)
   block (return)
     for (entry in positions)
       if (csubtype?(class, entry.head))
-	return(entry.tail);
+        return(entry.tail);
       end if;
     end for;
     #f;
@@ -4099,9 +4100,9 @@ define method restrict-splits
     (splits :: <list>, class :: <cclass>, if-yes? :: <boolean>)
     => res :: <list>;
   choose(method (split :: <cclass>) => res :: <boolean>;
-	   split ~== class & csubtype?(split, class) == if-yes?;
-	 end method,
-	 splits);
+           split ~== class & csubtype?(split, class) == if-yes?;
+         end method,
+         splits);
 end method restrict-splits;
 
 define method count-distinct-positions
@@ -4114,9 +4115,9 @@ define method count-distinct-positions
     let init?-offset = lookup-position(class, init?-positions);
     block (next)
       for (entry :: <pair> in entries)
-	if (entry.head == offset & entry.tail == init?-offset)
-	  next();
-	end if;
+        if (entry.head == offset & entry.tail == init?-offset)
+          next();
+        end if;
       end for;
       entries := pair(pair(offset, init?-offset), entries);
     end block;
@@ -4136,36 +4137,36 @@ define method build-runtime-slot-posn-dispatch
   let obj-class-leaf
     = ref-dylan-defn(builder, policy, source, #"%object-class");
   build-assignment(builder, policy, source, class-temp,
-		   make-unknown-call(builder, obj-class-leaf, #f,
-				     list(instance-leaf)));
+                   make-unknown-call(builder, obj-class-leaf, #f,
+                                     list(instance-leaf)));
 
   local
     method make-offset-var
-	(name :: <symbol>, slot :: false-or(<instance-slot-info>))
-	=> var :: false-or(<abstract-variable>);
+        (name :: <symbol>, slot :: false-or(<instance-slot-info>))
+        => var :: false-or(<abstract-variable>);
       if (slot)
-	let var = make-local-var(builder, name,
-				 if (slot.might-be-in-data-word?)
-				   specifier-type
-				     (#(union:, #"<integer>",
-					#(singleton:, #"data-word")));
-				 else
-				   specifier-type(#"<integer>");
-				 end if);
-	build-assignment
-	  (builder, policy, source, var,
-	   make-unknown-call
-	     (builder,
-	      ref-dylan-defn(builder, policy, source, #"find-slot-offset"),
-	      #f,
-	      list(class-temp, make-literal-constant(builder, slot))));
-	var;
+        let var = make-local-var(builder, name,
+                                 if (slot.might-be-in-data-word?)
+                                   specifier-type
+                                     (#(union:, #"<integer>",
+                                        #(singleton:, #"data-word")));
+                                 else
+                                   specifier-type(#"<integer>");
+                                 end if);
+        build-assignment
+          (builder, policy, source, var,
+           make-unknown-call
+             (builder,
+              ref-dylan-defn(builder, policy, source, #"find-slot-offset"),
+              #f,
+              list(class-temp, make-literal-constant(builder, slot))));
+        var;
       else
-	#f;
+        #f;
       end if;
     end method make-offset-var;
   thunk(make-offset-var(#"offset", slot),
-	make-offset-var(#"init?-offset", slot.slot-initialized?-slot));
+        make-offset-var(#"init?-offset", slot.slot-initialized?-slot));
 end method build-runtime-slot-posn-dispatch;
 
 
@@ -4185,24 +4186,24 @@ define method dump-od (tlf :: <define-class-tlf>, state :: <dump-state>) => ();
       let sealed? = slot.slot-defn-sealed?;
       let getter = slot.slot-defn-getter;
       if (getter.method-defn-of
-	    & name-inherited-or-exported?(getter.defn-name))
-	dump-od(slot.slot-defn-getter, state);
-	if (sealed? & getter.method-defn-of.defn-library ~== defn.defn-library)
-	  dump-simple-object(#"sealed-domain", state,
-			     getter.method-defn-of,
-			     defn.defn-library,
-			     getter.function-defn-signature.specializers);
-	end if;
+            & name-inherited-or-exported?(getter.defn-name))
+        dump-od(slot.slot-defn-getter, state);
+        if (sealed? & getter.method-defn-of.defn-library ~== defn.defn-library)
+          dump-simple-object(#"sealed-domain", state,
+                             getter.method-defn-of,
+                             defn.defn-library,
+                             getter.function-defn-signature.specializers);
+        end if;
       end;
       let setter = slot.slot-defn-setter;
       if (setter & setter.method-defn-of
-	    & name-inherited-or-exported?(setter.defn-name))
-	dump-od(setter, state);
-	if (sealed? & setter.method-defn-of.defn-library ~== defn.defn-library)
-	  dump-simple-object
-	    (#"sealed-domain", state, setter.method-defn-of, defn.defn-library,
+            & name-inherited-or-exported?(setter.defn-name))
+        dump-od(setter, state);
+        if (sealed? & setter.method-defn-of.defn-library ~== defn.defn-library)
+          dump-simple-object
+            (#"sealed-domain", state, setter.method-defn-of, defn.defn-library,
              setter.function-defn-signature.specializers);
-	end if;
+        end if;
       end if;
     end unless;
   end for;
@@ -4285,45 +4286,45 @@ end;
 
 define constant $class-definition-slots
   = concatenate($definition-slots,
-		list(class-defn-cclass, class:, #f,
-		     class-defn-deferred-evaluations-function, #f,
-		       %class-defn-deferred-evaluations-function-setter,
-		     class-defn-key-defaulter-function, #f,
-		       %class-defn-key-defaulter-function-setter,
-		     class-defn-maker-function, #f,
-		       %class-defn-maker-function-setter,
-		     class-defn-new-slot-infos, #f,
-		       class-defn-new-slot-infos-setter,
+                list(class-defn-cclass, class:, #f,
+                     class-defn-deferred-evaluations-function, #f,
+                       %class-defn-deferred-evaluations-function-setter,
+                     class-defn-key-defaulter-function, #f,
+                       %class-defn-key-defaulter-function-setter,
+                     class-defn-maker-function, #f,
+                       %class-defn-maker-function-setter,
+                     class-defn-new-slot-infos, #f,
+                       class-defn-new-slot-infos-setter,
     /* ### -- currently recomputed, so we don't really need to dump them.
-		     class-defn-all-slot-infos, #f,
-		       class-defn-all-slot-infos-setter, */
-		     class-defn-override-infos, #f,
-		       class-defn-override-infos-setter,
-		     class-defn-keyword-infos, #f,
-		       class-defn-keyword-infos-setter
+                     class-defn-all-slot-infos, #f,
+                       class-defn-all-slot-infos-setter, */
+                     class-defn-override-infos, #f,
+                       class-defn-override-infos-setter,
+                     class-defn-keyword-infos, #f,
+                       class-defn-keyword-infos-setter
     /* ### -- currently recomputed, so we don't really need to dump them.
-		     , class-defn-vector-slot, #f,
-		       class-defn-vector-slot-setter */));
+                     , class-defn-vector-slot, #f,
+                       class-defn-vector-slot-setter */));
 
 add-make-dumper(#"class-definition", *compiler-dispatcher*,
-		<real-class-definition>, $class-definition-slots,
-		load-external: #t,
-		load-side-effect:
-		  method (defn :: <real-class-definition>) => ();
-		    let class = defn.class-defn-cclass;
-		    if (class)
-		      class.class-defn := defn;
-		    end;
-		  end);
+                <real-class-definition>, $class-definition-slots,
+                load-external: #t,
+                load-side-effect:
+                  method (defn :: <real-class-definition>) => ();
+                    let class = defn.class-defn-cclass;
+                    if (class)
+                      class.class-defn := defn;
+                    end;
+                  end);
 
 add-make-dumper(#"class-definition", *compiler-dispatcher*,
-		<local-class-definition>, $class-definition-slots,
-		dumper-only: #t);
+                <local-class-definition>, $class-definition-slots,
+                dumper-only: #t);
 
 add-make-dumper(#"init-function-definition", *compiler-dispatcher*,
-		<init-function-definition>,
-		$abstract-method-definition-slots,
-		load-external: #t);
+                <init-function-definition>,
+                $abstract-method-definition-slots,
+                load-external: #t);
 
 add-make-dumper
   (#"maker-function-definition", *compiler-dispatcher*,
