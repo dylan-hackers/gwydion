@@ -334,9 +334,6 @@ define module macros
 
   export
     <macro-definition>, identify-variable-references, macro-expand,
-#if (mindy)
-    recursively-macro-expand,
-#endif
     macro-expansion-tokenizer,
 
     <expansion-generator>, generate-token-source-location, generate-fragment,

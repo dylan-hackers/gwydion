@@ -243,7 +243,6 @@ define variable *old-debugger* = *debugger*;
 //----------------------------------------------------------------------
 
 define method main (argv0 :: <byte-string>, #rest args) => ();
-#if (~mindy)
   no-core-dumps();
 
    // alter the GC params, if the user wants
@@ -261,7 +260,6 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
   if (getenv("D2C_BIG_MACHINE"))
     c-expr(void: "GC_free_space_divisor = 2");
   end;
-  #endif
 
   *random-state* := make(<random-state>, seed: 0);
  
@@ -529,7 +527,6 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
           compile-library(state);
         end method build-file;
 
-#if(~mindy)
   if (option-value-by-long-name(argp, "interactive")
         | args.size = 0)
     make(<command>, name: "Build",
@@ -538,7 +535,6 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
     run-command-processor();
     exit();
   end if;
-#endif
 
   // Process our regular arguments
   unless (args.size = 1)
@@ -550,7 +546,3 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
   let worked? = build-file(lid-locator);
   exit(exit-code: if (worked?) 0 else 1 end);
 end method main;
-
-#if (mindy)
-collect-garbage(purify: #t);
-#endif

@@ -95,109 +95,12 @@ add-make-dumper(#"unknown-source-location", *compiler-dispatcher*,
 
 // Source files.
 
-#if (mindy)
-
-define constant $big-buffer-threshold = 64 * 1024;
-
-define class <big-buffer> (<vector>)
-  slot size :: <integer>, setter: #f,
-    required-init-keyword: size:;
-  slot buffers :: <simple-object-vector>,
-    required-init-keyword: buffers:;
-end class <big-buffer>;
-
-define method make
-    (class == <big-buffer>, #next next-method, #key size = 0, fill = 0)
-    => res :: <big-buffer>;
-  let (nbuffers, extra) = floor/(size, $big-buffer-threshold);
-  let buffers = make(<simple-object-vector>,
-		     size: if (zero?(extra)) nbuffers else nbuffers + 1 end);
-  for (index from 0 below nbuffers)
-    buffers[index] := make(<buffer>, size: $big-buffer-threshold, fill: fill);
-  end for;
-  unless (zero?(extra))
-    buffers[nbuffers] := make(<buffer>, size: extra, fill: fill);
-  end unless;
-  next-method(class, size: size, buffers: buffers);
-end method make;
-
-define constant $butt-plug = list(#"x");
-
-define method element
-    (vec :: <big-buffer>, index :: <integer>, #key default = $butt-plug)
-    => element :: <object>;
-  if (index >= 0 & index < vec.size)
-    let (buf, extra) = floor/(index, $big-buffer-threshold);
-    vec.buffers[buf][extra];
-  elseif (default ~== $butt-plug)
-    default;
-  else
-    error("No element %= in %=", index, vec);
-  end if;
-end method element;
-
-define method element-setter
-    (new :: <byte>, vec :: <big-buffer>, index :: <integer>)
-    => new :: <byte>;
-  if (index >= 0 & index < vec.size)
-    let (buf, extra) = floor/(index, $big-buffer-threshold);
-    vec.buffers[buf][extra] := new;
-  else
-    error("No element %= in %=", index, vec);
-  end if;
-end method element-setter;
-
-define method fill-buffer (big-buf :: <big-buffer>, stream :: <stream>) => ();
-  for (buf in big-buf.buffers)
-    fill-buffer(buf, stream);
-  end for;
-end method fill-buffer;
-
-/*
-define method copy-bytes
-    (dst :: <byte-string>, dst-offset :: <integer>,
-     src :: <big-buffer>, src-offset :: <integer>,
-     count :: <integer>)
-    => ();
-  let (start-buf, start-byte) = floor/(src-offset, $big-buffer-threshold);
-  let (end-buf, end-byte) = floor/(src-offset + count, $big-buffer-threshold);
-  if (start-buf == end-buf)
-    copy-bytes(dst, dst-offset, src.buffers[start-buf], start-byte, count);
-  else
-    local method partial-copy (buf, byte, bytes)
-	    copy-bytes(dst, dst-offset, src.buffers[buf], byte, bytes);
-	    dst-offset := dst-offset + bytes;
-	  end method partial-copy;
-    partial-copy(start-buf, start-byte, $big-buffer-threshold - start-byte);
-    for (buf from start-buf + 1 below end-buf)
-      partial-copy(start-buf, 0, $big-buffer-threshold);
-    end for;
-    partial-copy(end-buf, 0, end-byte);
-  end if;
-end method copy-bytes;
-*/
-
-define constant <file-contents> = type-union(<buffer>, <big-buffer>, <byte-vector>);
-
-define method make-buffer (size :: <integer>)
-    => res :: <file-contents>;
-  if (size > $big-buffer-threshold)
-    make(<big-buffer>, size: size);
-  else
-    make(<buffer>, size: size);
-  end if;
-end method make-buffer;
-
-#else // Not mindy.
-
 define constant <file-contents> = type-union(<buffer>, <byte-vector>);
 
 define inline method make-buffer (size :: <integer>)
     => res :: <file-contents>;
   make(<buffer>, size: size);
 end method make-buffer;
-
-#endif
 
 define method fill-buffer (buf :: <buffer>, stream :: <stream>) => ();
   block ()

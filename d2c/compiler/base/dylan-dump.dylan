@@ -120,14 +120,12 @@ define method dump-od(obj :: <extended-integer>, buf :: <dump-state>)
   for (i :: <integer> from 0 below len,
        x :: <extended-integer> = obj then ash(x, - $word-bits))
     let word = logand(x, $word-mask);
-#if (~mindy)
     let word :: <integer>
       = if (word <= $maximum-integer)
 	  as(<integer>, word);
 	else
 	  as(<integer>, logior(word, ash(-$e1, $word-bits)));
 	end if;
-#endif
     dump-word(word, buf);
   end;
 end method;

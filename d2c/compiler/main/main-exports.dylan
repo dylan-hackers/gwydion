@@ -65,14 +65,10 @@ define module main
   use common;
   use byte-vector;
   use Extensions, exclude: { element-type, value };
-#if (mindy)
-  use System, import: {system, getenv, collect-garbage};
-#else
   use System, 
      import: {system, getenv, <raw-pointer>, import-string, 
               export-string, no-core-dumps,
               c-include, c-expr, c-decl, pointer-deref, pointer-deref-setter, call-out};
-#endif
   use string-conversions, import: {string-to-integer};
   use substring-search;
   use character-type;

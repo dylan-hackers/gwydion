@@ -32,9 +32,7 @@ define library d2c-gnu
   use streams;
   use standard-io;
   use format;
-#if (~mindy)
   use melange-support;
-#endif
   use table-extensions;
   use string-extensions;
   use regular-expressions;
@@ -47,11 +45,7 @@ define module d2c-gnu
   use streams;
   use format;
   use standard-io;
-#if (~mindy)
   use melange-support;
-#else
-  use file-descriptors;
-#endif
   use regular-expressions;
   use string-conversions;
   use substring-search;

@@ -103,12 +103,6 @@ define sealed domain initialize(<memo-entry>);
 
 define constant $null-memo-entry :: <memo-entry> = make(<memo-entry>);
 
-#if (mindy)
-
-define constant <memo-table> = <simple-object-vector>;
-
-#else
-
 define sealed class <memo-table> (<vector>)
   sealed slot %element :: <memo-entry>,
     init-value: type-union(), init-keyword: fill:,
@@ -140,8 +134,6 @@ define sealed inline method element-setter
   end;
 end;
 
-#endif
-
 // log2 of the the number of entries in the table.
 define constant memo2-bits = 9;
 
@@ -166,11 +158,7 @@ define function memo2-lookup
      precise :: <boolean>);
   
   *memo2-probes* := *memo2-probes* + 1;
-#if (mindy)
-  let base = modulo(type1.type-hash - type2.type-hash, memo2-size);
-#else
   let base = logand(type1.type-hash - type2.type-hash, memo2-mask);
-#endif
   let entry :: <memo-entry> = table[base];
   if (entry.memo-type1 == type1 & entry.memo-type2 == type2)
     *memo2-hits* := *memo2-hits* + 1;
@@ -184,11 +172,7 @@ define function memo2-enter
     (type1 :: <ctype>, type2 :: <ctype>,
      result :: type-union(<ctype>, <boolean>),
      precise :: <boolean>, table :: <memo-table>)
-#if (mindy)  
-  let base = modulo(type1.type-hash - type2.type-hash, memo2-size);
-#else
   let base = logand(type1.type-hash - type2.type-hash, memo2-mask);
-#endif
   let entry :: <memo-entry> = table[base];
   if (entry == $null-memo-entry)
     entry := make(<memo-entry>);

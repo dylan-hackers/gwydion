@@ -427,21 +427,11 @@ end;
 define variable *error-output* :: <stream>
   = make(<flush-happy-stream>, inner-stream: *standard-error*);
 
-#if (mindy)
-
-*debug-output* := make(<flush-happy-stream>, inner-stream: *debug-output*);
-
-#else
-
 define variable *debug-output* :: <stream>
   = make(<flush-happy-stream>, inner-stream: *standard-output*);
 
-#endif
-
 
 // Debugger hooks
-
-#if (~mindy)
 
 define class <pretty-debugger> (<debugger>)
 end class <pretty-debugger>;
@@ -459,8 +449,6 @@ method ()
   *warning-output* := *debug-output*;
   *debugger* := make(<pretty-debugger>);
 end method();
-
-#endif
 
 
 // Defines the Info slot used for back-end annotation.

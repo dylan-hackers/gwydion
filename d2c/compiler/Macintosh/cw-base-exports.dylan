@@ -37,9 +37,6 @@ define library compiler-base
   use Standard-IO, export: all;
   use Print, export: all;
   use Format, export: all;
-#if (mindy)
-  use Debugger-Format;
-#endif
   use String-extensions;
   use Table-extensions, export: all;
   use base-file-system,
@@ -82,12 +79,8 @@ define module common
 	     report-condition, condition-format,
              <format-string-condition>, <never-returns>,
              <ratio>, numerator, denominator, key-exists?, assert,
-#if (mindy)
-             *debug-output*, main},
-#else
              *warning-output*,
              <debugger>, *debugger*, invoke-debugger},
-#endif
     export: all;
   use Table-Extensions,
     import: {<equal-table>, <string-table>, equal-hash},
@@ -96,10 +89,8 @@ define module common
   use Print, export: all;
   use PPrint, export: all;
   use Format, export: all;
-#if (~mindy)
   create
      *debug-output*;
-#endif
 end;
 
 define module utils
@@ -107,9 +98,7 @@ define module utils
   use standard-io;
   use Introspection, import: {object-address, class-name};
   use System, import: {copy-bytes};
-#if (~mindy)
   use System, import: {\call-out};
-#endif
 
   // Stuff defined in utils
   export
@@ -126,11 +115,7 @@ end;
 
 define module od-format
   use common;
-#if (mindy)
-  use system, import: {get-time-of-day};
-#else
   use system, import: {\call-out};
-#endif
   use standard-io;
   use introspection, import: {function-name};
   use utils;
@@ -253,9 +238,7 @@ end;
 define module source
   use common;
   use System, import: {copy-bytes};
-#if (~mindy)
   use System, import: {buffer-address};
-#endif
   use utils;
   use od-format;
   use compile-time-values;

@@ -299,10 +299,10 @@ define method receive-gdb-response
 	  write-element($to-gdb, read-element(*standard-input*));
 	end while;
 	force-output($to-gdb);
-#if (~mindy & compiled-for-unix)
+#if (compiled-for-unix)
         // ### sleep(0) delays us just long enough to give other
         // processes a chance to run
-	call-out("sleep", void:, int: 0);
+        call-out("sleep", void:, int: 0);
 #endif
       end while;
     else
@@ -1044,7 +1044,6 @@ define method dispatch-command (command :: <string>, line :: <string>)
   end if;
 end method dispatch-command;
 
-#if (~mindy)
 define macro dig-command-definer 
   { define dig-command ?name:token (?line:name)
       ?val:body
@@ -1054,7 +1053,6 @@ define macro dig-command-definer
                ?val;
 	     end method; }
 end macro;
-#endif
 
 
 //========================================================================
@@ -1063,7 +1061,6 @@ end macro;
 
 define variable $exit-fun :: false-or(<function>) = #f;
 
-#if (~mindy)
 define dig-command "quit" (str)
   send-gdb-command("quit");
   send-user-response("Bye!\n");
@@ -1136,14 +1133,6 @@ define dig-command "run-stopped" (line)
   do-gdb-command("run %s", line);
   do-gdb-command("break dylanZdylan_visceraZinvoke_debugger_METH_GENERIC");
 end;
-
-#else
-
-*command-table*["print"] := compose(print-any-value, transform-expression);
-*command-table*["break"] := set-any-breakpoints;
-*command-table*["quit"] := method (line) $exit-fun() end method;
-
-#endif
 
 
 //========================================================================

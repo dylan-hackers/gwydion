@@ -83,11 +83,7 @@ define module cback
   use variables;
   use source;
   use source-utilities; // For <macro-source-location>, which isn't yet handled
-#if (mindy)
-  use Dylan, import: {<stretchy-vector> => <stretchy-object-vector>};
-#else
   use Extensions, import: {<stretchy-object-vector>};
-#endif
   use abstract-optimizer;
   use xep-tools, import: {build-xep-component};
 

@@ -36,9 +36,6 @@ define library compiler-base
   use Random;
   use IO, export: all;
   use System;
-#if (mindy)
-  use Debugger-Format;
-#endif
   use String-extensions;
   use Table-extensions, export: all;
 
@@ -79,12 +76,8 @@ define module common
              <format-string-condition>, <never-returns>,
              <ratio>, numerator, denominator, key-exists?, \assert,
              <byte>, <byte-vector>,
-#if (mindy)
-             *debug-output*, main
-#else
              *warning-output*,
              <debugger>, *debugger*, invoke-debugger
-#endif
      },
     export: all;
   use Table-Extensions,
@@ -98,10 +91,8 @@ define module common
   use Format, export: all;
   create
     *error-output*;
-#if (~mindy)
   create
      *debug-output*;
-#endif
 end;
 
 define module utils
@@ -110,9 +101,7 @@ define module utils
   use standard-io;
   use Introspection, import: {object-address, class-name};
   use byte-vector;
-#if (~mindy)
   use System, import: {\call-out};
-#endif
 
   // Stuff defined in utils
   export
@@ -129,11 +118,7 @@ end;
 
 define module od-format
   use common;
-#if (mindy)
-  use system, import: {get-time-of-day};
-#else
   use system, import: {\call-out};
-#endif
   use standard-io;
   use introspection, import: {function-name};
   use utils;
@@ -256,9 +241,7 @@ end;
 define module source
   use common;
   use byte-vector;
-#if (~mindy)
   use System, import: {buffer-address};
-#endif
   use utils;
   use od-format;
   use compile-time-values;

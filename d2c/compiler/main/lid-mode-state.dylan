@@ -283,9 +283,6 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
       end block;
     end if;
   end for;
-#if (mindy)
-  collect-garbage(purify: #t);
-#endif
   finalize-library(state);
 end method parse-and-finalize-library;
 

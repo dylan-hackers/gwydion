@@ -3,10 +3,8 @@ module: progress-indicator
 define abstract class <progress-indicator> (<object>)
   constant slot total :: <integer>, required-init-keyword: total:;
   slot done :: <integer> = 0;
-#if (~mindy)
   slot last-time-flushed :: <integer>,
     init-function: method() get-time-of-day() + 1 end;
-#endif
 end class <progress-indicator>;
 
 define method increment-progress(indicator :: <progress-indicator>) => ()
