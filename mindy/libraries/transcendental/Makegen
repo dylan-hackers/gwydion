@@ -1,4 +1,0 @@
-# The mindy random needs the mindy transcendental.
-do emit_library_rule(
-   'Mindy-transcendental', '', '', 'compile-mindy', 'no-d2c', 'install'
-);
