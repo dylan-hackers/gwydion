@@ -2472,6 +2472,52 @@ end;
 
 // Function calls:
 
+// luc: contains table with visited locations for every file
+define constant $file-visited :: <string-table> = make(<string-table>);
+
+define method write-generic-call-info(sl :: <source-location>)
+  // nothing to write :-(
+end method write-generic-call-info;
+
+define method write-generic-call-info(sl :: <known-source-location>) 
+  if (instance?(sl.source,<source-file>))
+    let src-file = as(<file-locator>,sl.source.source-name);
+    let el-file = make(<file-locator>, directory: src-file.locator-directory, 
+		       base: src-file.locator-base, 
+		       extension: "el",
+		       name: src-file.locator-name);
+    let visited = element($file-visited,as(<string>,el-file),default: #f);
+    if (~ visited)
+      if (file-exists?(el-file))
+	delete-file(el-file);
+      end if;
+      $file-visited[as(<string>,el-file)] := make(<string-table>);
+    end if;
+    let location = format-to-string("%d-%d-%d-%d",sl.start-line,sl.start-column,sl.end-line,sl.end-column);
+    visited := element($file-visited[as(<string>,el-file)],
+		       location,
+		       default: #f);
+    if (~ visited)
+      $file-visited[as(<string>,el-file)][location] := #t;
+      let write-header = #f;
+      if(~ file-exists?(el-file))
+	write-header := #t;
+      end if;
+      let el = make(<file-stream>, locator: el-file,
+		    direction: #"output",
+		    if-exists: #"append",
+		    if-does-no-exists: #"create");
+      if (write-header)
+	write(el,";;; Automaticaly generated file\n");
+	write(el,";;; DON'T EDIT IT\n");
+	write(el,concatenate(";;; Generic calls in file '",sl.source.source-name,"'\n\n"));
+      end if;
+      write(el,format-to-string("(color-foregrounds color-not-all-methods-known '((%d %d %d %d)))\n",sl.start-line,sl.start-column,sl.end-line,sl.end-column));
+      close(el);
+    end if;
+  end if;
+end method write-generic-call-info;
+
 define method emit-assignment
     (results :: false-or(<definition-site-variable>), call :: <abstract-call>,
      source-location :: <source-location>,
@@ -2571,6 +2617,9 @@ define method emit-assignment
     end;
     format(stream, "GENERIC_ENTRY(L_meth)(%s, L_meth, %s, L_next_info);\n}\n",
            call-top-name, count);
+
+    // luc: writing information about this generic call to .el file
+    write-generic-call-info(source-location);
   else
     if (results)
       format(stream, "%s = ", return-top-name);
