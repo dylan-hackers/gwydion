@@ -305,7 +305,9 @@ define sealed domain size(<table>);
 define sealed domain empty?(<table>);
 
 
-define inline sealed method key-test (ht :: <table>) => test :: <function>;
+// Sealed over tables per the DRM, but perhaps this is unnecessarily
+// aggressive. Need to investigate further.
+define sealed inline method key-test (ht :: <table>) => test :: <function>;
   table-protocol(ht);    // drop the second return value
 end method key-test;
 
@@ -533,7 +535,7 @@ define function sequence-hash
   values(current-id, current-state);
 end function sequence-hash;
 
-define inline sealed method table-protocol (ht :: <object-table>) 
+define sealed inline method table-protocol (ht :: <object-table>) 
  => (key-test :: <function>, key-hash :: <function>);
   values(\==, object-hash);
 end method table-protocol;
@@ -846,8 +848,9 @@ define function make-initial-iteration-state (ht :: <table>)
   make(<table-iterator>, entries: vec);
 end make-initial-iteration-state;
 
-
-define inline sealed method forward-iteration-protocol (ht :: <table>)
+// Sealed over tables per the DRM, but perhaps this is unnecessarily
+// aggressive. Need to investigate further.
+define sealed inline method forward-iteration-protocol (ht :: <table>)
  => (initial-state :: <table-iterator>,
      limit :: <integer>,
      next-state :: <function>,
@@ -908,7 +911,7 @@ end method forward-iteration-protocol;
 // A convenient method for hashing strings. Calls sequence-hash 
 // and "does the right thing."
 //
-define inline sealed method string-hash (s :: <string>, initial-state :: <hash-state>)
+define inline method string-hash (s :: <string>, initial-state :: <hash-state>)
  => (id :: <integer>, state :: <hash-state>);
   sequence-hash(value-hash, s, initial-state);
 end method string-hash;
@@ -916,7 +919,7 @@ end method string-hash;
 // This string-hash method should have the same semantics as the standard
 // one, but should be much faster.
 //
-define sealed method string-hash (s :: <byte-string>, initial-state :: <hash-state>)
+define method string-hash (s :: <byte-string>, initial-state :: <hash-state>)
  => (id :: <integer>, state :: <hash-state>);
   for (id = 0 then merge-hash-ids(id, as(<integer>, s[i]), ordered: #t),
        i from 0 below s.size)

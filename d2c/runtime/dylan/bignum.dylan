@@ -529,7 +529,7 @@ define method as (class == <extended-integer>, num :: <float>)
   end if;
 end method;
 
-define method integer-decode-float
+define function integer-decode-float
     (num :: <float>)
  => (significand :: <extended-integer>,
      exponent :: <integer>, sign :: <integer>);
@@ -555,7 +555,7 @@ define method integer-decode-float
     repeat(top, rem, significand);
     values(bignum, exponent - digits, sign);
   end if;
-end method;
+end function;
 
 
 // Comparison methods.
