@@ -364,8 +364,7 @@ define open generic pointer-value-setter
 // 0.  "Structure-size" is defined as an alias for compatibility with Creole.
 //
 define open generic content-size
-//    (cls :: limited(<class>, subclass-of: <statically-typed-pointer>))
-    (cls :: <class>)
+    (cls :: subclass(<statically-typed-pointer>))
  => (result :: <integer>);
 
 define constant structure-size = content-size;
