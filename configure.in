@@ -16,7 +16,7 @@ dnl	it.
 # processing config.h.in.
 #--------------------------------------------------------------------
 
-AC_INIT(common/format/format.dylan)
+AC_INIT(d2c/compiler/platforms.descr)
 AC_PREREQ(2.50)
 AC_CONFIG_HEADER(config.h)
 
