@@ -38,7 +38,7 @@ static const char* r = "r";
 static int O_BINARY = 0;
 #endif
 
-int cygwin() { return strcmp("x86-cygnus-gcc", TARGET) == 0; }
+int cygwin() { return strcmp("x86-cygwin-gcc", TARGET) == 0; }
 const char* open_for() { return (cygwin() ? rb : r); }
 int flags_for(int flags_in) 
 { 
