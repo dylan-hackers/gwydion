@@ -390,7 +390,6 @@ double-alignment:		4
 long-long-alignment:		4
 long-double-alignment:		4
 
-
 // Linux
 platform-name:			ppc-linux-gcc
 inherit-from:			gcc linux ppc
@@ -409,25 +408,24 @@ link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
 // Entries for rather experimental platforms.
 //
 
-// Intel C++ Compiler with libtool
+// Intel C++ Compiler
+//  This kinda works. Some fiddling with CPPFLAGS is needed to
+//  make it work. Should be easy to make fully operational.
 platform-name:			icc
 default-features:		C-compiler-is-ICC
-compile-c-command:		icc $(CCFLAGS) -c %s -o %s
-compile-c-for-shared-command:	$(LIBTOOL) --mode=compile icc $(CCFLAGS) -c %s -o %s
+compile-c-command:		icc $(CCFLAGS) -I. -c %s -o %s
 default-c-compiler-flags:		-I. -I%s -O2 -ip -ip_no_inlining -ip_no_pinlining
 default-c-compiler-debug-flags:		-I. -I%s -g -fp
 default-c-compiler-profile-flags:	-I. -I%s -g -fp
 assembler-command:		gcc $(CCFLAGS) -c %s -o %s
 link-library-command:		ar qc %s %s
-link-executable-command:	$(LIBTOOL) --mode=link icc -o %s %s %s
-link-shared-executable-command:	$(LIBTOOL) --mode=link icc -o %s %s %s
+link-executable-command:	icc -o %s %s %s
 link-executable-flags:		$(GC_LIBS) -lm
 link-debug-flags:		-g
 link-profile-flags:		-g
 
 platform-name:			x86-linux-icc
 inherit-from:			icc linux x86
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
 
 
 
