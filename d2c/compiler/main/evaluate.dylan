@@ -134,10 +134,13 @@ define method evaluate(expression :: <string>, env :: <interpreter-environment> 
   *Current-Module*  := find-module(*interpreter-library*, #"dylan-user");
 */
   *top-level-forms* := make(<stretchy-vector>);
+  let expression-buffer = make(<buffer>, size: expression.size);
+  copy-bytes(expression, 0, expression-buffer, 0, expression.size);
+
   let tokenizer = make(<lexer>,
                        module: *Current-Module*,
                        source: make(<source-buffer>, 
-                                    buffer: as(<byte-vector>, expression)),
+                                    buffer: expression-buffer),
                        start-line: 0,
                        start-posn: 0);
   parse-source-record(tokenizer);
