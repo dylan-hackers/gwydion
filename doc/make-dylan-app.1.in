@@ -17,9 +17,7 @@ reference or a tutorial, please see the web site.
 creates a directory
 .I appname
 containing a minimal Dylan application that can be compiled with
-.IR d2c (1)
-or interpreted with
-.IR mindy (1).
+.IR d2c (1).
 This makes it unnecessary to understand the Dylan ``library interchange
 definition'' just to compile a simple program.
 .PP
@@ -35,7 +33,7 @@ declarations, and the third contains actual source code.
 An effort has been made to include libraries suitable for writing small,
 command-line applications.
 .SH SEE ALSO
-gwydion(7), d2c(1), mindy(1).
+gwydion(7), d2c(1).
 .PP
 Much more extensive documentation in various formats is available through
 the Gwydion Dylan web site at

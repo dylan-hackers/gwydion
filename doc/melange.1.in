@@ -133,7 +133,7 @@ bug tracker on the website for an up-to-date list.)
 In particular, it would be desirable for melange to search include
 directories in exactly the fashion as a given platform's C compiler.
 .SH SEE ALSO
-gwydion(7), d2c(1), mindy(1).
+gwydion(7), d2c(1).
 .PP
 Much more extensive documentation in various formats is available through
 the Gwydion Dylan web site at

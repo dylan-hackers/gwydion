@@ -10,9 +10,9 @@ Each platform consists of a number of key-value pairs, and platforms may
 inherit from other platforms.
 .PP
 Several of the Perl scripts used to build Gwydion Dylan also look in this
-file, but Mindy does not.
+file.
 .SH SEE ALSO
-gwydion(7), d2c(1), mindy(1).
+gwydion(7), d2c(1).
 .PP
 Much more extensive documentation in various formats is available through
 the Gwydion Dylan web site at

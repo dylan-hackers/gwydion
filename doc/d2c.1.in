@@ -21,10 +21,7 @@ generate native executables.
 .B d2c
 supports nearly all of the Dylan language, including the macro system. It
 can interface with C using
-.IR melange (1)\c
-, and can compile code developed under the
-.IR mindy (1)
-Dylan interpreter.
+.IR melange (1).
 .SH PROGRAM STRUCTURE
 A Dylan program is made up out of one or more libraries. Each library
 contains one or more modules, each of which can be defined in one or more
@@ -134,7 +131,7 @@ creating classes at runtime.
 .PP
 Other bugs can be found on the website.
 .SH SEE ALSO
-dylan(7), gwydion(7), melange(1), make-dylan-app(1), platforms.descr(4), mindy(1).
+dylan(7), gwydion(7), melange(1), make-dylan-app(1), platforms.descr(4).
 .PP
 Much more extensive documentation in various formats is available through
 the Gwydion Dylan web site at
