@@ -88,18 +88,19 @@ define function %file-type
  => (file-type :: <file-type>)
   let file = %expand-pathname(file);
   let (err?, st) = %lstat(as(<byte-string>, file));
-  if (~err?)
+  if (err?)
     if (unix-last-error() = $ENOENT & if-not-exists)
       if-not-exists
     else
       unix-file-error("determine the type of", "%s", file)
     end
-  elseif (logand(st-mode(st), $S_IFMT) = $S_IFDIR)
-    #"directory"
-  elseif (logand(st-mode(st), $S_IFMT) = $S_IFLNK)
-    #"link"
-  else // if (logand(st-mode(st), $S_IFMT) = $S_IFREG)
-    #"file"
+  else
+    select (logand(st-mode(st), $S_IFMT))
+      $S_IFDIR => #"directory";
+      $S_IFLNK => #"link";
+      $S_IFREG => #"file";
+      otherwise => #"file";
+    end;
   end
 end function %file-type;
 
