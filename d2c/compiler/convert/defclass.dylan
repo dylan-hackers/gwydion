@@ -828,7 +828,7 @@ define method compute-cclass (defn :: <real-class-definition>)
         compiler-warning-location
           (super-expr.source-location,
            "abstract class %s can't inherit from %s because "
-             "%s is concrete -- ignoring abstract abjective.",
+             "%s is concrete -- ignoring abstract adjective.",
            defn.defn-name, super, super);
         defn.class-defn-abstract? := #f;
       end if;
@@ -1976,6 +1976,41 @@ define method convert-top-level-form
         end if;
       end method update-indirect-slot;
 
+      local method convert-init-entities(info, getter, slot-specifier, make-init-value-var :: <function>, type)
+	      => (init-value-var, init-function-leaf);
+
+	  let init-value = info.slot-init-value;
+	  let init-function = info.slot-init-function;
+          if (init-value == #t)
+            let var = make-init-value-var();
+            fer-convert(evals-builder, slot-specifier.slot-definition-init-value,
+                        lexenv, #"assignment", var);
+            build-assignment
+              (evals-builder, policy, source, #(),
+               make-unknown-call
+                 (evals-builder,
+                  ref-dylan-defn(evals-builder, policy, source,
+                                 #"slot-init-value-setter"),
+                  #f,
+                  list(var, make-literal-constant(evals-builder, info))));
+            var;
+          elseif (init-function == #t)
+            let leaf = convert-init-function(evals-builder, getter,
+                                             slot-specifier.slot-definition-init-function,
+                                             type, tlf);
+            build-assignment
+              (evals-builder, policy, source, #(),
+               make-unknown-call
+                 (evals-builder,
+                  ref-dylan-defn(evals-builder, policy, source,
+                                 #"slot-init-function-setter"),
+                  #f,
+                  list(leaf, make-literal-constant(evals-builder, info))));
+            values(#f, leaf);
+          end if;
+      end method convert-init-entities;
+
+
       for (slot-defn in defn.class-defn-slots,
            index from 0)
         let slot-info = slot-defn.slot-definition-info;
@@ -2011,44 +2046,14 @@ define method convert-top-level-form
                                type);
               end;
 
-        let init-value = slot-info.slot-init-value;
-        let init-function = slot-info.slot-init-function;
-
-        let (init-value-var, init-function-leaf) =
-          if (init-value == #t)
-            let var = make-init-value-var();
-            fer-convert(evals-builder, slot-defn.slot-definition-init-value,
-                        lexenv, #"assignment", var);
-            build-assignment
-              (evals-builder, policy, source, #(),
-               make-unknown-call
-                 (evals-builder,
-                  ref-dylan-defn(evals-builder, policy, source,
-                                 #"slot-init-value-setter"),
-                  #f,
-                  list(var, make-literal-constant(evals-builder, slot-info))));
-            var;
-          elseif (init-function == #t)
-            let leaf = convert-init-function(evals-builder, slot-info.slot-getter,
-                                             slot-defn.slot-definition-init-function,
-                                             type, tlf);
-            build-assignment
-              (evals-builder, policy, source, #(),
-               make-unknown-call
-                 (evals-builder,
-                  ref-dylan-defn(evals-builder, policy, source,
-                                 #"slot-init-function-setter"),
-                  #f,
-                  list(leaf, make-literal-constant(evals-builder, slot-info))));
-            values(#f, leaf);
-          end if;
+        let (init-value-var, init-function-leaf) = convert-init-entities(slot-info, slot-info.slot-getter, slot-defn, make-init-value-var, type);
 
         // Now that the <slot-descriptor> contains the proper values,
         // we can begin to initialize the storage allocated for
         // indirect slots (if they are not already).
         if (instance?(slot-info, <indirect-slot-info>))
-          update-indirect-slot(slot-info, #f, slot-name, init-value, init-function, type,
-                               init-value-var, make-init-value-var, init-function-leaf, type-var);
+          update-indirect-slot(slot-info, #f, slot-name, slot-info.slot-init-value, slot-info.slot-init-function,
+                               type, init-value-var, make-init-value-var, init-function-leaf, type-var);
         end if;
 
         unless (#"virtual" == slot-defn.slot-definition-allocation)
@@ -2176,35 +2181,7 @@ define method convert-top-level-form
                                type);
               end; /// reuse TODO
 
-
-        let (init-value-var, init-function-leaf) =
-          if (init-value == #t)
-            let var = make-init-value-var();
-            fer-convert(evals-builder, override-defn.slot-definition-init-value,
-                        lexenv, #"assignment", var);
-            build-assignment
-              (evals-builder, policy, source, #(),
-               make-unknown-call
-                 (evals-builder,
-                  ref-dylan-defn(evals-builder, policy, source,
-                                 #"slot-init-value-setter"),
-                  #f,
-                  list(var, make-literal-constant(evals-builder, override-info))));
-            var;
-          elseif (init-function == #t)
-            let leaf = convert-init-function(evals-builder, getter,
-                                             override-defn.slot-definition-init-function,
-                                             type, tlf);
-            build-assignment
-              (evals-builder, policy, source, #(),
-               make-unknown-call
-                 (evals-builder,
-                  ref-dylan-defn(evals-builder, policy, source,
-                                 #"slot-init-function-setter"),
-                  #f,
-                  list(leaf, make-literal-constant(evals-builder, override-info))));
-            values(#f, leaf);
-          end if;
+        let (init-value-var, init-function-leaf) = convert-init-entities(override-info, getter, override-defn, make-init-value-var, type);
 
         local method effective-inits(slot-info :: <slot-info>, #key start)
          => (override-info :: false-or(<override-info>),
