@@ -508,3 +508,11 @@ define inline method \/ (a :: <extended-float>, b :: <ratio>)
     => res :: <extended-float>;
   a / as(<extended-float>, b);
 end;
+
+
+// <ratio>-returning integer divide
+
+define inline method \/ (a :: <general-integer>, b :: <general-integer>)
+    => res :: <ratio>;
+  ratio(a, b);
+end;
