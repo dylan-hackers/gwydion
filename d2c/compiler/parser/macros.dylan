@@ -2764,11 +2764,13 @@ define method append-element!
      prev-was-separator? :: <boolean>)
     => ends-in-separator? :: <false>;
   let token = varref.patvarref-name;
+  let macro-token = generator.generator-call.macro-call-word;
   let token = make(<identifier-token>,
          	   source-location: token.source-location,
          	   kind: token.token-kind,
          	   symbol: token.token-symbol,
-         	   module: token.token-module);
+         	   module: macro-token.token-module,
+                   uniquifier: macro-token.token-uniquifier);
   generate-token(generator, token, token.source-location);
 end method append-element!;
 
