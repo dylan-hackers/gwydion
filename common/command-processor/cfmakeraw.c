@@ -1,4 +1,6 @@
-#if defined(GD_PLATFORM_SOLARIS) || defined(GD_PLATFORM_CYGWIN)
+#include "config.h"
+
+#if !HAVE_DECL_CFMAKERAW
 
 #include "cfmakeraw.h"
 #include <errno.h>
