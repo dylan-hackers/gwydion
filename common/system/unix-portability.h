@@ -13,6 +13,14 @@
 #include <string.h>
 #include <errno.h>
 
+#ifndef _PC_SYMLINK_MAX
+#define _PC_SYMLINK_MAX _PC_PATH_MAX
+#endif
+
+#ifndef O_SYNC
+#define O_SYNC 0
+#endif
+
 int system_errno(void);
 void system_errno_setter(int);
 
