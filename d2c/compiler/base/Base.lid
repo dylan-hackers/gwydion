@@ -18,7 +18,7 @@ defns.dylan
 variables.dylan
 policy.dylan
 ctype.dylan
-rep.dylan
+representation.dylan
 cclass.dylan
 cdclass.dylan
 type-dump.dylan
