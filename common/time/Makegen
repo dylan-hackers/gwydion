@@ -3,9 +3,6 @@
 $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
     . ' -L../collection-extensions'
-    . ' -L../format'
-    . ' -L../print'
-    . ' -L../streams'
     . ' -L../string-ext'
     . ' -L../table-ext';
 $CPPFLAGS = $CPPFLAGS . ' -I$(SRCDIR) -I$(top_builddir)';
