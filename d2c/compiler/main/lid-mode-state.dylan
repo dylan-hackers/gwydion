@@ -272,7 +272,7 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
                       vector(working-directory(),
                              state.unit-lid-locator.locator-directory));
 	if (prefixed-filename == #f)
-	  compiler-fatal-error("Can't find source file %=.", file);
+	  compiler-fatal-error("Can't find source file %s.", file);
 	end if;
 	log-dependency(prefixed-filename);
 	let (tokenizer, mod) = file-tokenizer(state.unit-lib, 
