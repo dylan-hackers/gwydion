@@ -121,6 +121,7 @@ define module c-lexer
   use character-type;
   use streams;
   use file-system;
+  use locators;
   use source-locations;
   use parse-conditions,
     // XXX - These should probably go away.
@@ -141,7 +142,7 @@ define module c-lexer
     <union-token>, <enum-token>, <minus-token>, <tilde-token>, <bang-token>,
     <alien-name-token>, <macro-parse-token>, <cpp-parse-token>, string-value,
     value, unget-token, add-typedef, get-token, include-path,
-    check-cpp-expansion, open-in-include-path
+    check-cpp-expansion, file-in-include-path
 end module c-lexer;
 
 define module portability

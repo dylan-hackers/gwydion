@@ -129,7 +129,7 @@ define module int-parse
   use common-dylan, exclude: { format-to-string, position };
   use table-extensions;
   use self-organizing-list;
-  use c-lexer, import: {include-path, open-in-include-path};
+  use c-lexer, import: {include-path, file-in-include-path};
   use streams;
   use standard-io;
   use format;
@@ -189,7 +189,7 @@ define module define-interface
   // local packages
   use int-lexer;
   use int-parse, rename: {rename => renames};
-  use c-lexer, import: {include-path, open-in-include-path, *framework-paths*, find-frameworks};
+  use c-lexer, import: {include-path, file-in-include-path, *framework-paths*, find-frameworks};
   use c-declarations,
     rename: {parse => c-parse, <parse-state> => <c-parse-state>};
   use name-mappers;

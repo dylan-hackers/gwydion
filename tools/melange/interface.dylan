@@ -493,9 +493,8 @@ define method process-parse-state
   end if;
   let full-names = make(<vector>, size: state.include-files.size);
   for (name in state.include-files, index from 0)
-    let (full-name, stream) = open-in-include-path(name);
+    let full-name = file-in-include-path(name);
     unless (full-name) error("File not found: %s", name) end;
-    close(stream); // This is inefficient -- we should use the open stream
     full-names[index] := full-name;
   end for;
   

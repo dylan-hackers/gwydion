@@ -73,20 +73,19 @@ define variable *framework-paths* :: <vector> = make( <vector> );
 
 define variable *frameworks* :: <table> = make( <table> );
 
+define method file-is-header?(path :: <pathname>)
+ => (header? :: <boolean>)
+  let path = as(<file-system-locator>, path);
+  path.file-exists? & path.link-target.file-type = #"file";
+end;
+
 // These routines support finding frameworks at run time
 
 define method framework-exists?( path :: <string>, name :: <string> )
 => ( exists :: <boolean> )
     let framework-header :: <string> =
         concatenate( path, name, ".h" );
-    block()
-        let file = make(<file-stream>, locator: path, 
-                        direction: #"input");	
-        close( file );
-        #t;
-    exception (<file-does-not-exist-error>)
-        #f;
-    end block;
+    path.file-is-header?;
 end method framework-exists?;
 
 define method find-frameworks( frameworks :: <vector> )
@@ -306,7 +305,7 @@ end function check-cpp-expansion;
 // Check for #include<Framework/Framework.h>
 
 define method framework-include( filename :: <string> )
- => (full-name :: false-or( <string> ), stream :: false-or( <stream> ) )
+ => (full-name :: false-or( <string> ))
   
   // Break the include down into a framework name and a file name
   let slash-position :: false-or( <integer> ) = subsequence-position( filename, "/" );
@@ -320,28 +319,23 @@ define method framework-include( filename :: <string> )
     if (framework-path)
       let file-name :: <string> = copy-sequence( filename, start: slash-position + 1 );
       let full-path :: <string> = concatenate( framework-path, file-name );
-      block()
-        values( full-path, make(<file-stream>, locator: full-path, direction: #"input") );
-      exception (<file-does-not-exist-error>)
-        values( #f, #f );
-      end block;
+      if(full-path.file-is-header?) full-path else #f end;
     else
       // It may be a nested framework
       // Try to find it
       // Otherwise it's probably not a framework include.
-      // Let open-in-include-path try
-      values( #f, #f );
+      // Let file-in-include-path try
+      #f;
     end if;
   else
-    values( #f, #f );
+    #f;
   end if;
 end method framework-include;
 
-// open-in-include-path -- exported function.
+// file-in-include-path -- exported function.
 //
-define /* exported */ function open-in-include-path
-    (name :: <string>)
- => (full-name :: false-or(<string>), stream :: false-or(<stream>));
+define /* exported */ function file-in-include-path (name :: <string>)
+ => (full-name :: false-or(<string>));
  
  	#if (MacOS)
  		// Convert UNIX paths to Mac paths
@@ -351,65 +345,50 @@ define /* exported */ function open-in-include-path
  	#endif
  
   if (first(name) == '/')
-    block ()
-      values(name, make(<file-stream>, locator: name, direction: #"input"));
-    exception (<file-does-not-exist-error>)
-      values(#f, #f);
-    end block;
+    if(name.file-is-header?) name else #f end;
   else
 
     // We don't have any "file-exists" functions, so we just keep trying
     // to open files until one of them fails to signal an error.
     block (return)
-        for (dir in include-path)
-            block ()
-            #if (MacOS)
-                    let full-name = if( (dir ~= "") & (dir ~= ":") )
-                                                            concatenate(dir, ":", name);
-                                                    else
-                                                            name;
-                                                    end if;
-            #else
-                    let full-name = concatenate(dir, "/", name);
-            #endif
-            let stream = make(<file-stream>, locator: full-name,
-                                direction: #"input");
-            return(full-name, stream);
-            exception (<file-does-not-exist-error>)
-            #f;
-            end block;
-        finally
-            // Try looking in the frameworks
-            let( file-path, file-stream ) = framework-include( name );
-            if( file-stream )
-                values( file-path, file-stream );
-            else
-                values(#f, #f);
-            end if;
-        end for;
+      for (dir in include-path)
+        block ()
+        #if (MacOS)
+                let full-name = if( (dir ~= "") & (dir ~= ":") )
+                                                        concatenate(dir, ":", name);
+                                                else
+                                                        name;
+                                                end if;
+        #else
+                let full-name = concatenate(dir, "/", name);
+        #endif
+                if(full-name.file-is-header?) return(full-name) end;
+        end block;
+      finally
+        // Try looking in the frameworks
+        framework-include( name );
+      end for;
     end block;
   end if;
-end function open-in-include-path;
+end function file-in-include-path;
 
 // Check for a #include<angles.h> file
 //
 define method angle-include( state, contents, angle-start, angle-end )
-=>( tokenizer :: <tokenizer> )
-    // We've got a '<>' name, so we need to successively try each of the
-    // directories in include-path until we find it.  (Of course, if a
-    // full pathname is specified, we just use that.)
-    let name = copy-sequence(contents, start: angle-start + 1,
-                                end: angle-end - 1);
-    let (full-name, stream) = open-in-include-path(name);
-    if (full-name)
-        // This is inefficient, but simplifies our logic.  We may wish to
-        // adjust later.
-        close(stream);
-        state.include-tokenizer
-        := make(<tokenizer>, name: full-name, parent: state);
-    else
-        parse-error(state, "File not found: %s", name);
-    end if;
+ =>( tokenizer :: <tokenizer> )
+  // We've got a '<>' name, so we need to successively try each of the
+  // directories in include-path until we find it.  (Of course, if a
+  // full pathname is specified, we just use that.)
+  let name = copy-sequence(contents,
+                           start: angle-start + 1,
+                           end: angle-end - 1);
+  let full-name = file-in-include-path(name);
+  if (full-name)
+    state.include-tokenizer
+      := make(<tokenizer>, name: full-name, parent: state);
+  else
+    parse-error(state, "File not found: %s", name);
+  end if;
 end;
 
 // Check for a #include"quotes.h" file
@@ -455,31 +434,11 @@ define method quote-include( state, contents, quote-start, quote-end )
                                             name);
     end if;
     
-    // Make sure the file exists in the same directory as the file
-    // If not, try the include paths
-    let stream = block ()
-                    make(<file-stream>, locator: absolute-name, direction: #"input");
-                exception (<file-does-not-exist-error>)
-                    #f;
-                end block;
-    if (stream)
-        // This is inefficient, but simplifies our logic.  We may wish to
-        // adjust later.
-        close(stream);
+    if (absolute-name.file-is-header?)
         state.include-tokenizer
-        := make(<tokenizer>, name: absolute-name, parent: state);
+          := make(<tokenizer>, name: absolute-name, parent: state);
     else
-        // Not found yet? Try the include paths
-        let (full-name, stream) = open-in-include-path(name);
-        if (full-name)
-            // This is inefficient, but simplifies our logic.  We may wish to
-            // adjust later.
-            close(stream);
-            state.include-tokenizer
-            := make(<tokenizer>, name: full-name, parent: state);
-        else
-            parse-error(state, "File not found: %s", name);
-        end if;
+        angle-include( state, contents, quote-start, quote-end );
     end if;
 end;
 

@@ -132,12 +132,10 @@ define method process-container-options
           result.global-import-mode := value;
         end if;
       #"import-file" =>
-        let (file, stream) = open-in-include-path(item.second.value);
-        if (stream)
-          close(stream);
-        else
+        let file = file-in-include-path(item.second.value);
+        unless(file)
           parse-error(item.second, "File does not exist in path.");
-        end if;
+        end unless;
 	let value = item.third;
         if (instance?(value, <sequence>))
 	  let imports = (element(result.file-imports, file, default: #f)
@@ -164,10 +162,9 @@ define method process-container-options
       #"exclude-file" =>
         // exclude lists contain tokens
 	for (elem in item.second) 
-          let (file, stream) = open-in-include-path(elem.value);
-          if (stream)
+          let file = file-in-include-path(elem.value);
+          if (file)
 	    add!(result.excluded-files, file);
-            close(stream);
           else
             parse-error(elem, "File does not exist in path.");
           end if;
