@@ -1027,7 +1027,7 @@ $srcdir/mkinstalldirs tools
 # problems: d2c expects all sources to live in the srcdir (which is a problem
 # in and of itself) and configure tries to create the *.dylan files before
 # we build our buildroot tree causing things to flame out horribly.
-AC_OUTPUT(Defaults gwydion-dylan.spec tools/shared-misc/gen-makefile tools/shared-misc/mk-build-tree tools/shared-misc/line-count tools/shared-misc/make-dylan-app tools/shared-misc/make-dylan-lib tools/shared-misc/update-libdirs tools/unix-misc/mk-rcs-links doc/Makefile doc/dylan.7 doc/gwydion.7 doc/d2c.1 doc/dybug.1 doc/mindy.1 doc/mindycomp.1 doc/mindyexec.1 doc/melange.1 doc/parsergen.1 doc/make-dylan-app.1 doc/gobject-tool.1 doc/platforms.descr.4,
+AC_OUTPUT(Defaults tools/shared-misc/gen-makefile tools/shared-misc/mk-build-tree tools/shared-misc/line-count tools/shared-misc/make-dylan-app tools/shared-misc/make-dylan-lib tools/shared-misc/update-libdirs tools/unix-misc/mk-rcs-links doc/Makefile doc/dylan.7 doc/gwydion.7 doc/d2c.1 doc/dybug.1 doc/mindy.1 doc/mindycomp.1 doc/mindyexec.1 doc/melange.1 doc/parsergen.1 doc/make-dylan-app.1 doc/gobject-tool.1 doc/platforms.descr.4,
 	 [${INSTALL} -m uog+rx $buildroot/tools/shared-misc/mk-build-tree ./
 	  ${INSTALL} -m uog+rx $buildroot/tools/shared-misc/gen-makefile ./
 	  (PATH=$buildroot:$PATH; export PATH; perl mk-build-tree -p$srcdir/d2c/compiler/platforms.descr)
