@@ -29,7 +29,7 @@ module: dylan-viscera
 //======================================================================
 
 // This is a dummy implementation of the FD threading interface,
-// to be renamed to something like thread-dummy.dylan in SVN. -prom
+// to be renamed to thread-single.dylan in SVN. -prom
 
 // some dummy priority values
 define constant $low-priority         = -2;
@@ -83,7 +83,9 @@ end function;
 
 define function thread-yield()
  => ();
-  /* should call libc:sched_yield() */
+  // sched_yield() can, says the manpage, actually
+  // fail to yield. but we dont care.
+  call-out("sched_yield", int:);
 end function;
 
 define sealed domain make (singleton(<thread>));
