@@ -11,7 +11,7 @@
 //
 // Each description looks like a Dylan header, with keywords and
 // values.  In a value, the character sequences \, \\, \n, and \t are
-// interpretted as if they were inside Dylan string literals.
+// interpreted as if they were inside Dylan string literals.
 // Multi-line values might or might not do what you expect (this of
 // course depends on what you expect); they work fine for feature
 // lists..
@@ -376,8 +376,8 @@ link-shared-library-command:     $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
 // SHOULD be working
 //
 // These architectures are very likely to work.
-// They are in a sepparate category only because i (prom)
-// didnt find anyone who tried HEAD on them recently yet.
+// They are in a separate category only because I (prom)
+// didn't find anyone who tried HEAD on them recently yet.
 //
 
 // Darwin (MacOS X)
@@ -555,53 +555,6 @@ big-endian?:			#t
 platform-name:			s390-linux-gcc
 inherit-from:			gcc linux s390
 link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
-
-
-// MacOS Classic
-// considered obsolete by at least me -prom
-platform-name:				macintosh
-inherit-from:				generic-unix
-default-features:			compiled-for-macos
-make-command:				dummy
-
-// ... with CodeWarrior
-platform-name:			mac-cw
-default-features:		C-compiler-is-GCC
-compile-c-command:              gcc $(CCFLAGS) -c %s -o %s
-compile-c-for-shared-command:   $(LIBTOOL) --mode=compile gcc $(CCFLAGS) -c %s -o %s
-default-c-compiler-flags:	-I. -I%s -g -O4 -finline-functions
-default-c-compiler-debug-flags:	-I. -I%s -g -O -fno-inline-functions
-default-c-compiler-profile-flags: -I. -I%s -pg -g -O -fno-inline-functions
-assembler-command:		gcc $(CCFLAGS) -c %s -o %s
-link-library-command:           ar qc %s %s
-link-executable-command: 	$(LIBTOOL) --mode=link gcc -o %s %s %s
-link-shared-executable-command: $(LIBTOOL) --mode=link gcc -o %s %s %s
-link-executable-flags:          $(GC_LIBS) -lm
-path-separator:        		:
-
-platform-name:			MacOS-ppc
-inherit-from:			mac-cw macintosh ppc
-
-// ... with egcs
-platform-name:			egcs
-default-features:		C-compiler-is-EGCS
-compile-c-command:              cc $(CCFLAGS) -c %s -o %s
-compile-c-for-shared-command:   $(LIBTOOL) --mode=compile cc $(CCFLAGS) -c %s -o %s
-default-c-compiler-flags:	-I. -I%s -O2 -fomit-frame-pointer
-default-c-compiler-debug-flags:	-I. -I%s -g -O -fno-inline-functions
-default-c-compiler-profile-flags: -I. -I%s -pg -g -O -fno-inline-functions
-assembler-command:		cc $(CCFLAGS) -c %s -o %s
-link-library-command:           ar qc %s %s
-link-executable-command: 	$(LIBTOOL) --mode=link cc -o %s %s %s
-link-shared-executable-command: $(LIBTOOL) --mode=link cc -o %s %s %s
-link-executable-flags:          $(GC_LIBS) -multiply_defined suppress         
-path-separator:        		/
-
-platform-name:			ppc-macos-egcs
-inherit-from:			egcs macintosh ppc
-long-long-alignment:	4
-long-double-size:		8
-long-double-alignment:	4
 
 
 // NetBSD
