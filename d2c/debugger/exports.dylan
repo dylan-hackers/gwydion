@@ -6,7 +6,6 @@ define library debugger
   use io;
   use melange-support;
   use command-processor;
-  use collection-extensions;
   use string-extensions;
 
   export debugger;
@@ -26,7 +25,6 @@ define module debugger
                         buffer-end, buffer-end-setter};
   use melange-support;
   use command-processor;
-  use subseq;
   use string-hacking;
 
   export find-address;
