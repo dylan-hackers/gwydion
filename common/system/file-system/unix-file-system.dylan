@@ -112,16 +112,23 @@ define function %link-target
   while (%file-type(link, if-not-exists: #"file") == #"link")
     let link-path = as(<byte-string>, link);
     let buffer-size = %pathconf(link-path, $_PC_SYMLINK_MAX);
-    let buffer = make(<c-string>, size: buffer-size, fill: '\0');
-    let count = %readlink(link-path, buffer, buffer-size);
-    if (count = -1)
-      unless (unix-last-error() = $ENOENT | unix-last-error() = $EINVAL)
-	unix-file-error("readlink", "%s", link)
-      end
-    else
-      let target = as(<file-system-locator>, copy-sequence(buffer, end: count));
-      link := merge-locators(target, link)
-    end
+    local method try-with-buffer-size(buffer-size :: <integer>)
+            let buffer = make(<c-string>, size: buffer-size + 1, fill: '\0');
+            let count = %readlink(link-path, buffer, buffer-size);
+            if (count = buffer-size)
+              try-with-buffer-size(2 * buffer-size)
+            else
+              if (count = -1)
+                unless (unix-last-error() = $ENOENT | unix-last-error() = $EINVAL)
+                  unix-file-error("readlink", "%s", link)
+                end
+              else
+                let target = as(<file-system-locator>, copy-sequence(buffer, end: count));
+                link := merge-locators(target, link)
+              end
+            end if;
+          end method try-with-buffer-size;
+    try-with-buffer-size(if (buffer-size > 0) buffer-size else 1024 end);
   end;
   link
 end function %link-target;
