@@ -254,11 +254,13 @@ define method complete-command-and-insert-space(c)
 end method complete-command-and-insert-space;
 
 define method show-possible-completions(commands)
-  format-out("\r\n");
-  for(i from 0 below commands.size)
-    format-out("%s\t", commands[i].name);
-  end for;
-  format-out("\r\n");
+  if(commands.size > 0)
+    format-out("\r\n");
+    for(i from 0 below commands.size)
+      format-out("%s\t", commands[i].name);
+    end for;
+    format-out("\r\n");
+  end if;
 end method show-possible-completions;
 
 define method beginning-of-line(c)
