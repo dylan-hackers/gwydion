@@ -200,8 +200,6 @@ if test "$PERL" = no; then
 fi
 
 AC_PROG_INSTALL
-AC_PROG_LEX
-AC_PROG_YACC
 AC_PROG_LN_S
 
 AC_CHECK_TOOL(RANLIB, ranlib, :)
@@ -524,32 +522,7 @@ AC_SUBST(CCOPTS)
 AC_SUBST(EXTRA_INCLUDE_DIR)
 
 #--------------------------------------------------------------------
-#	Establish the default options for lex
-#--------------------------------------------------------------------
-
-if test $LEX = flex; then
-  LFLAGS=${LFLAGS--i}
-else
-  echo "I could not find flex, so do not try to rebuild comp/lexer-tab.c"
-  echo "because lex cannot do it."
-  LFLAGS=${LFLAGS-}
-fi
-AC_SUBST(LFLAGS)
-
-#--------------------------------------------------------------------
-#	Establish the default options for yacc
-#--------------------------------------------------------------------
-
-if test "$YACC" = "bison -y"; then
-  # do nothing (an empty then clause is a syntax error)
-  DUMMY=dummy
-else
-  echo "I could not find bison, so do not try to rebuild comp/parser-tab.c"
-  echo "or interp/parser-tab.c because yacc cannot do it."
-fi
-
-#--------------------------------------------------------------------
-#	Determine whether the time library can be supported
+#      Determine whether the time library can be supported
 #--------------------------------------------------------------------
 
 AC_MSG_CHECKING([whether daylight and timezone are supported])
@@ -560,7 +533,7 @@ AC_TRY_LINK([#include <time.h>], [int a = daylight; long b = timezone;],
    AC_MSG_CHECKING([whether struct tm has a tm_gmtoff field])
    AC_TRY_COMPILE([#include <time.h>], [struct tm t; long g = t.tm_gmtoff;],
      [AC_MSG_RESULT(yes)
-     AC_DEFINE(HAVE_TM_GMTOFF)], 
+     AC_DEFINE(HAVE_TM_GMTOFF)],
      [AC_MSG_RESULT(no)
      AC_MSG_CHECKING([whether _daylight and _timezone are supported])
      AC_TRY_LINK([#include <time.h>], [int a = _daylight; long b = _timezone;],
@@ -583,28 +556,6 @@ AC_CHECK_MEMBERS([struct stat.st_atim])
 AC_CHECK_MEMBERS([struct stat.st_mtim])
 
 #--------------------------------------------------------------------
-#	Find out if sigaction is available.
-#--------------------------------------------------------------------
-
-AC_FUNC_CHECK(sigaction, sigaction=1, sigaction=0)
-if test $sigaction = 0; then
-  AC_DEFINE(NO_SIGACTION)
-  AC_LIBOBJ([sigaction])
-  AC_FUNC_CHECK(sigsetmask, sigsetmask=1, sigsetmask=0)
-  AC_FUNC_CHECK(sigrelse, sigrelse=1, sigrelse=0)
-  if test $sigsetmask = 1; then
-    echo "BSD_signals"
-    AC_DEFINE(BSD_SIGNALS)
-  elif test $sigrelse = 1; then
-    echo "USG_signals"
-    AC_DEFINE(USG_SIGNALS)
-  else
-    echo "I couldn't find posix, bsd, or sysV signal support."
-    echo "You may be able to compile compat/sigaction.c by hand."
-  fi
-fi
-
-#--------------------------------------------------------------------
 #	This next section is lifted from tcl-7.3, it deals with
 #	establishing which of the known faults in POSIX compliance
 #	need to be corrected.
@@ -617,64 +568,6 @@ fi
 
 AC_REPLACE_FUNCS(getcwd opendir strerror strstr)
 AC_REPLACE_FUNCS(strtol memmove tmpnam waitpid)
-AC_CHECK_FUNC(gettimeofday, , AC_DEFINE(NO_GETTOD))
-AC_CHECK_FUNC(getwd, , AC_DEFINE(NO_GETWD))
-AC_CHECK_FUNC(wait3, , AC_DEFINE(NO_WAIT3))
-
-#--------------------------------------------------------------------
-#	Supply substitutes for missing POSIX header files.  Special
-#	notes:
-#	    - Sprite's dirent.h exists but is bogus.
-#	    - stdlib.h doesn't define strtol, strtoul, or
-#	      strtod insome versions of SunOS
-#	    - some versions of string.h don't declare procedures such
-#	      as strstr
-#--------------------------------------------------------------------
-
-AC_HEADER_CHECK(unistd.h, , AC_DEFINE(NO_UNISTD_H))
-AC_MSG_CHECKING(dirent.h)
-AC_TRY_COMPILE([#include <sys/types.h>
-#include <dirent.h>], [
-DIR *d;
-struct dirent *entryPtr;
-char *p;
-d = opendir("foobar");
-entryPtr = readdir(d);
-p = entryPtr->d_name;
-closedir(d);
-], tcl_ok=1, tcl_ok=0)
-AC_EGREP_HEADER([Sprite version.* NOT POSIX], dirent.h, tcl_ok=0)
-if test $tcl_ok = 0; then
-    AC_DEFINE(NO_DIRENT_H)
-    AC_MSG_RESULT(no dirent.h)
-else
-    AC_MSG_RESULT(yes)
-fi
-AC_CHECK_HEADER(errno.h, , AC_DEFINE(NO_ERRNO_H))
-AC_CHECK_HEADER(float.h, , AC_DEFINE(NO_FLOAT_H))
-AC_CHECK_HEADER(limits.h, , AC_DEFINE(NO_LIMITS_H))
-AC_CHECK_HEADER(bstring.h, , AC_DEFINE(NO_BSTRING_H))
-AC_CHECK_HEADER(stdlib.h, tcl_ok=1, tcl_ok=0)
-AC_EGREP_HEADER(getenv, stdlib.h, , tcl_ok=0)
-AC_EGREP_HEADER(strtol, stdlib.h, , tcl_ok=0)
-AC_EGREP_HEADER(strtoul, stdlib.h, , tcl_ok=0)
-AC_EGREP_HEADER(strtod, stdlib.h, , tcl_ok=0)
-if test $tcl_ok = 0; then
-    AC_DEFINE(NO_STDLIB_H)
-fi
-AC_CHECK_HEADER(string.h, tcl_ok=1, tcl_ok=0)
-AC_EGREP_HEADER(strstr, string.h, , tcl_ok=0)
-AC_EGREP_HEADER(strerror, string.h, , tcl_ok=0)
-if test $tcl_ok = 0; then
-    AC_DEFINE(NO_STRING_H)
-fi
-AC_EGREP_HEADER(setsid, unistd.h, tcl_ok=1, tcl_ok=0)
-if test $tcl_ok = 0; then
-    AC_LIBOBJ([setsid])
-fi
-AC_CHECK_HEADER(sys/time.h, , AC_DEFINE(NO_SYS_TIME_H))
-AC_CHECK_HEADER(sys/wait.h, , AC_DEFINE(NO_SYS_WAIT_H))
-
 
 #--------------------------------------------------------------------
 #	Include sys/select.h if it exists and if it supplies things
@@ -693,71 +586,6 @@ AC_TRY_COMPILE([#include <sys/types.h>],
 		AC_DEFINE(NO_FD_SET))
 	 AC_MSG_RESULT(no fd_set)])
 
-# On the HP, select is defined in sys/time.h
-#
-AC_EGREP_HEADER(select, sys/time.h, AC_DEFINE(SELECT_IN_TIME_H))
-
-
-#--------------------------------------------------------------------
-#	On some systems strstr is broken: it returns a pointer even
-#	even if the original string is empty.
-#--------------------------------------------------------------------
-
-AC_TRY_RUN([
-extern int strstr();
-int main()
-{
-    exit(strstr("\0test", "test") ? 1 : 0);
-}
-],  , [AC_LIBOBJ([strstr])], [AC_LIBOBJ([strstr]) ])
-
-#--------------------------------------------------------------------
-#	Check for strtoul function.  This is tricky because under some
-#	versions of AIX strtoul returns an incorrect terminator
-#	pointer for the string "0".
-#--------------------------------------------------------------------
-
-AC_CHECK_FUNC(strtoul, tcl_ok=1, tcl_ok=0)
-AC_TRY_RUN([
-extern int strtoul();
-int main()
-{
-    char *string = "0";
-    char *term;
-    int value;
-    value = strtoul(string, &term, 0);
-    if ((value != 0) || (term != (string+1))) {
-        exit(1);
-    }
-    exit(0);
-}], , tcl_ok=0, tcl_ok=0)
-if test $tcl_ok = 0; then
-    AC_LIBOBJ([strtoul.])
-fi
-
-#--------------------------------------------------------------------
-#	Check for the strtod function.  This is tricky because under
-#	some versions of Linux it mis-parses the string "+".
-#--------------------------------------------------------------------
-
-AC_CHECK_FUNC(strtod, tcl_ok=1, tcl_ok=0)
-AC_TRY_RUN([
-extern double strtod();
-int main()
-{
-    char *string = "+";
-    char *term;
-    double value;
-    value = strtod(string, &term);
-    if (term != string) {
-	exit(1);
-    }
-    exit(0);
-}], , tcl_ok=0, tcl_ok=0)
-if test $tcl_ok = 0; then
-    AC_LIBOBJ([strtod.o])
-fi
-
 #--------------------------------------------------------------------
 #	Check for various typedefs and provide substitutes if
 #	they don't exist.
@@ -767,63 +595,6 @@ AC_TYPE_MODE_T
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
 AC_TYPE_UID_T
-
-#--------------------------------------------------------------------
-#	If a system doesn't have an opendir function (man, that's old!)
-#	then we have to supply a different version of dirent.h which
-#	is compatible with the substitute version of opendir that's
-#	provided.  This version only works with V7-style directories.
-#--------------------------------------------------------------------
-
-AC_CHECK_FUNC(opendir, , AC_DEFINE(USE_DIRENT2_H))
-
-#--------------------------------------------------------------------
-#	Check for the existence of sys_errlist (this is only needed if
-#	there's no strerror, but I don't know how to conditionalize the
-#	check).
-#--------------------------------------------------------------------
-
-AC_MSG_CHECKING(sys_errlist)
-AC_TRY_COMPILE( , [
-extern char *sys_errlist[];
-extern int sys_nerr;
-sys_errlist[sys_nerr-1][0] = 0;
-], AC_MSG_RESULT(yes), 
-[AC_DEFINE(NO_SYS_ERRLIST)
- AC_MSG_RESULT(no sys_errlist)])
-
-#--------------------------------------------------------------------
-#	The check below checks whether <sys/wait.h> defines the type
-#	"union wait" correctly.  It's needed because of weirdness in
-#	HP-UX where "union wait" is defined in both the BSD and SYS-V
-#	environments.  Checking the usability of WIFEXITED seems to do
-#	the trick.
-#--------------------------------------------------------------------
-
-AC_MSG_CHECKING(union wait)
-AC_TRY_COMPILE([#include <sys/types.h> 
-#include <sys/wait.h>], [
-union wait x;
-WIFEXITED(x);		/* Generates compiler error if WIFEXITED
-			 * uses an int. */
-], AC_MSG_RESULT(yes), 
-[AC_DEFINE(NO_UNION_WAIT)
- AC_MSG_RESULT(no union wait)])
-
-#--------------------------------------------------------------------
-#	Check to see whether the system supports the matherr function
-#	and its associated type "struct exception".
-#--------------------------------------------------------------------
-
-AC_MSG_CHECKING(matherr support)
-AC_TRY_COMPILE([#include <math.h>], [
-struct exception x;
-x.type = DOMAIN;
-x.type = SING;
-], [AC_LIBOBJ([matherr])
-    AC_DEFINE(NEED_MATHERR) 
-    AC_MSG_RESULT(need matherr)],
-AC_MSG_RESULT(don't need matherr))
 
 #--------------------------------------------------------------------
 #	End of the section lifted from tcl.
@@ -845,75 +616,10 @@ AC_CHECK_FUNCS(fabsf sinf cosf tanf asinf acosf atanf atan2f expf sqrtf)
 AC_CHECK_FUNCS(logf log2f log10f powf sinhf coshf tanhf)
 
 #--------------------------------------------------------------------
-#	Check for GNU Readline library
-#--------------------------------------------------------------------
-
-AC_CHECK_LIB(readline, readline, [AC_DEFINE(HAVE_LIBREADLINE)
-				  LIBS="$LIBS -lreadline"])
-AC_CHECK_HEADERS(readline.h readline/readline.h)
-
-#--------------------------------------------------------------------
-#	Check to see whether we know how to read the number of bytes
-#	in a stdio buffer.
-#--------------------------------------------------------------------
-
-AC_MSG_CHECKING(stdio support)
-AC_TRY_COMPILE([#include <stdio.h>], [
-FILE f;
-(f._IO_read_ptr >= f._IO_read_end);
-],[AC_DEFINE(USE_LINUX_FBUFEMPTYP)
-   AC_MSG_RESULT(using Linux fbufempty)],
-AC_TRY_COMPILE([#include <stdio.h>], [
-FILE f;
-(f._r <= 0);
-],[AC_DEFINE(USE_BSD_FBUFEMPTYP)
-   AC_MSG_RESULT(using BSD fbufempty)],
-AC_MSG_RESULT(yes)))
-
-#--------------------------------------------------------------------
-#	Check to see if fsync is available.
-#--------------------------------------------------------------------
-
-AC_CHECK_FUNC(fsync, , AC_DEFINE(NO_FSYNC))
-
-#--------------------------------------------------------------------
 #	See if cfmakeraw() is already declared
 #--------------------------------------------------------------------
 
 AC_CHECK_DECLS([cfmakeraw],,,[#include <termios.h>])
-
-#--------------------------------------------------------------------
-#	Look for select() in various places.
-#	Tk adds all of these libraries that are found.
-#	Under Irix 5.2, all three are found, but none should be
-#	used.  Go figure.  So I test to see when select() is
-#	found and stop adding libraries at that point.
-#--------------------------------------------------------------------
-
-AC_CHECK_FUNC(select, select=1, select=0)
-SAVE_LIBS="$LIBS"
-for lib in Xbsd socket nsl; do
-  if test $select = 0; then
-    AC_CHECK_LIB($lib, main, tryit=1, tryit=0)
-    if test $tryit = 1; then
-      LIBS="$LIBS -l$lib"
-      AC_CHECK_FUNC(select, select=1, LIBS="$SAVE_LIBS")
-    fi
-  fi
-done
-if test $select = 0; then
-  echo "I can't find a select() in any library I've looked in,"
-  echo "and you won't be able to compile without it.  Sorry."
-fi
-
-
-#--------------------------------------------------------------------
-#       See if _setjmp and _longjmp are defined.  If not, use
-#       setjmp and longjmp.
-#--------------------------------------------------------------------
-
-AC_CHECK_FUNCS(_setjmp)
-AC_CHECK_FUNCS(_longjmp)
 
 #====================================================================
 # End of section lifted from original configure.in.
