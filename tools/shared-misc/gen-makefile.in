@@ -606,6 +606,7 @@ sub parse_lid_file {
     open(LIDFILE, $srcdir.'/'.$lid_file.'.lid')
       || die("Can't open $lid_file.lid: $!\n");
 
+    $lidfile_line = 0;
     %contents = &parse_dylan_header();
 
     # Read the filenames
@@ -651,6 +652,7 @@ sub read_platforms_dot_descr {
     ### Should have better way of specifying location of .descr
     open(LIDFILE, $platforms_dot_descr)
       || die("Can't open $platforms_dot_descr: $!\n");
+    $lidfile_line = 0;
     while (! $lidfile_hit_eof) {
         local(%platform) = &parse_dylan_header();
         local(@keywords) = keys(%platform);
