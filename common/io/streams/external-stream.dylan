@@ -100,7 +100,13 @@ end method;
 
 define method newline-sequence (stream :: <external-stream>)
  => (elements :: <string>)
-  accessor-newline-sequence(stream.accessor)
+  if (stream.accessor)
+    accessor-newline-sequence(stream.accessor)
+  else
+    error(make(<stream-closed-error>, stream: stream,
+               format-string:
+                 "Can't get newline-sequence of a closed external stream"));
+  end;
 end method newline-sequence;
 
 

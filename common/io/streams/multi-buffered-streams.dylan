@@ -250,27 +250,36 @@ end method stream-at-end?;
 
 define sealed method stream-input-available?
     (stream :: <multi-buffered-stream>) => (available? :: <boolean>)
-  stream-position(stream) < stream.stream-size
+  if(stream.stream-open?)
+    stream-position(stream) < stream.stream-size
+  else
+    #f
+  end
 end method stream-input-available?;
 
 define sealed method stream-size 
     (the-stream :: <multi-buffered-stream>) => (the-size :: <integer>);
-  // If the last buffer for this stream is paged in and modified then
-  // use the maximum of buffer-end for that last buffer and the
-  // accessor file size, otherwise use the accessor file size.
-  let last-buffer :: false-or(<power-of-two-buffer>) = 
-    if ((the-stream.buffer-map.size > 0) 
-	  & ~buffer-map-entry-empty?(the-stream.buffer-map.last)) 
-      let index = buffer-map-entry-index(the-stream.buffer-map.last);
-      the-stream.buffer-vector.buffers[index] 
-    end if;
-  if (last-buffer & last-buffer.buffer-dirty?)
-    let last-buffer :: <buffer> = last-buffer; // HACK: TYPE ONLY
-    max(last-buffer.buffer-position + last-buffer.buffer-end,
-	the-stream.accessor.accessor-size)
+  if (the-stream.stream-open?)
+    // If the last buffer for this stream is paged in and modified then
+    // use the maximum of buffer-end for that last buffer and the
+    // accessor file size, otherwise use the accessor file size.
+    let last-buffer :: false-or(<power-of-two-buffer>) = 
+      if ((the-stream.buffer-map.size > 0) 
+            & ~buffer-map-entry-empty?(the-stream.buffer-map.last)) 
+        let index = buffer-map-entry-index(the-stream.buffer-map.last);
+        the-stream.buffer-vector.buffers[index] 
+      end if;
+    if (last-buffer & last-buffer.buffer-dirty?)
+      let last-buffer :: <buffer> = last-buffer; // HACK: TYPE ONLY
+      max(last-buffer.buffer-position + last-buffer.buffer-end,
+          the-stream.accessor.accessor-size)
+    else
+      the-stream.accessor.accessor-size
+    end if
   else
-    the-stream.accessor.accessor-size
-  end if
+    error(make(<stream-closed-error>, stream: the-stream,
+               format-string: "Cant get the size of a closed stream"));
+  end;
 end method;
 
 
@@ -652,11 +661,16 @@ end method do-force-output-buffers;
 /// Positioning methods
 define sealed method stream-position
     (stream :: <multi-buffered-stream>) => (position :: <integer>)
-  if (stream-shared-buffer(stream))
-    stream-shared-buffer(stream).buffer-position
-      + stream-shared-buffer(stream).buffer-next 
+  if(stream.stream-open?)
+    if (stream-shared-buffer(stream))
+      stream-shared-buffer(stream).buffer-position
+        + stream-shared-buffer(stream).buffer-next 
+    else
+      stream.current-position
+    end
   else
-    stream.current-position
+    error(make(<stream-closed-error>, stream: stream,
+               format-string: "Cant get the position of a closed stream"));
   end
 end method stream-position;
 
