@@ -5,6 +5,7 @@ common-dylan-exports.dylan
 c-support.dylan
 extensions.dylan
 common-extensions.dylan
+float.dylan
 format.dylan
 profiling.dylan
 fun-dev-compat.dylan

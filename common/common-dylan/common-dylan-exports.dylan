@@ -139,12 +139,10 @@ define module common-extensions
     export: {remove-all-keys!};
   use table-extensions,
     export: {<string-table>};
-  use transcendentals, import: { logn };
   use c-support;
   use simple-profiling,
     export: { \profiling, 
 	      profiling-type-result };
-  use gwydion-extensions;
 
   create
     <closable-object>,
@@ -156,6 +154,8 @@ define module common-extensions
     split,
     fill-table!,
     find-element,
+    float-to-string,
+    string-to-float,
     machine-word-to-string,
     string-to-machine-word,
     condition-to-string,
@@ -204,11 +204,9 @@ define module common-extensions
     ignorable,
 
     /* Converting to and from numbers */
-    float-to-string,
     integer-to-string,
     number-to-string,
     string-to-integer,
-    string-to-float,
 
     /* Appliation runtime environment */
     application-name,
@@ -308,6 +306,8 @@ define module common-dylan-internals
   use common-dylan;
   use extensions;
   use functional-objects-extras;
+  use gwydion-extensions;
+  use transcendentals, import: { logn };
   use system, import: { copy-bytes => %copy-bytes, vector-elements-address };
   use magic, import: { %element, %element-setter };
   use introspection, rename: { subclass-of => subclass-class };
