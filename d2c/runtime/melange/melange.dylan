@@ -146,11 +146,9 @@ define sealed method as
   obj.raw-value;
 end method as;
 
-
-define constant (null-pointer :: <statically-typed-pointer>)
+define constant null-pointer :: <statically-typed-pointer>
   = as(<statically-typed-pointer>, 0);
 
-// export-rename??? ###
 define constant $null-pointer :: <statically-typed-pointer> = null-pointer;
 
 define sealed inline method signed-byte-at
@@ -231,7 +229,6 @@ define sealed inline method unsigned-long-at-setter
   pointer-deref(long:, ptr.raw-value, offset) := new;
 end method unsigned-long-at-setter;
 
-/*
 define sealed inline method longlong-at
     (ptr :: <statically-typed-pointer>, #key offset :: <integer> = 0)
  => (result :: <double-integer>);
@@ -257,7 +254,6 @@ define sealed inline method unsigned-longlong-at-setter
  => (result :: <double-integer>);
   pointer-deref(long-long:, ptr.raw-value, offset) := new;
 end method unsigned-longlong-at-setter;
-*/
 
 define sealed inline method float-at
     (ptr :: <statically-typed-pointer>, #key offset :: <integer> = 0)
@@ -369,8 +365,7 @@ define open generic pointer-value-setter
 //
 define open generic content-size
 //    (cls :: limited(<class>, subclass-of: <statically-typed-pointer>))
-//    (cls :: <class>)
-    (cls :: subclass(<statically-typed-pointer>))
+    (cls :: <class>)
  => (result :: <integer>);
 
 define constant structure-size = content-size;
