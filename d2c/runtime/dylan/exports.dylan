@@ -253,10 +253,10 @@ define module Runtime-Threads
     import: {<thread>, thread-name, current-thread, join-thread, thread-yield,
              $low-priority, $background-priority, $normal-priority, $interactive-priority, $high-priority,
              <synchronization>, wait-for, release,
-             <lock>, <exclusive-lock>, owned?,
+             <lock>, with-lock, <exclusive-lock>, owned?,
              <semaphore>, <simple-lock>, <recursive-lock>, <read-write-lock>,
              <notification>, release-all,
-             <count-exceeded-error>, <not-owned-error>},
+             <count-exceeded-error>, <timeout-exceeded>, <not-owned-error>},
     export: all;
 end module;
 

@@ -46,14 +46,6 @@ define macro dynamic-bind
                                      ?arg) }
 end macro dynamic-bind;
 
-define macro with-lock
-	{ with-lock( ?lock:expression ) ?lock-body:body end }
-	 => { ?lock-body }
-	{ with-lock( ?lock:expression ) ?lock-body:body failure ?fail-body:body end }
-	 => { ?lock-body }
-end macro with-lock;
-
-
 // atomic-increment!
 // increments without worrying about atomicity
 // Since we don't need to worry about atomicity, we just increment

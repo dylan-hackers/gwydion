@@ -76,7 +76,7 @@ define constant <read-write-lock-mode> = one-of(#"read", #"write");
 // <synchronization-error>
 //
 
-define sealed abstract class <synchronization-error> (<error>)
+define sealed abstract class <synchronization-condition> (<condition>)
   constant slot condition-synchronization :: <synchronization>,
     required-init-keyword: synchronization:;
 end class;
@@ -87,7 +87,7 @@ end class;
 // Signalled when a <semaphore> exceeds its maximum count.
 //
 
-define sealed class <count-exceeded-error> (<synchronization-error>)
+define sealed class <count-exceeded-error> (<synchronization-condition>, <error>)
 end class;
 
 define sealed method default-handler (cond :: <count-exceeded-error>)
@@ -109,7 +109,7 @@ end function;
 // for the single-threaded implementation.
 //
 
-define sealed class <deadlock-error> (<synchronization-error>)
+define sealed class <deadlock-error> (<synchronization-condition>, <error>)
 end class;
 
 define sealed method default-handler (cond :: <deadlock-error>)
@@ -124,13 +124,31 @@ define function deadlock-error(sync :: <synchronization>)
 end function;
 
 
+// <timeout-exceeded>
+//
+
+define sealed class <timeout-exceeded> (<synchronization-condition>, <serious-condition>)
+end class;
+
+define sealed method default-handler (cond :: <timeout-exceeded>)
+ => ();
+  invoke-debugger(*debugger*, cond);
+end method;
+
+define function timeout-exceeded(sync :: <synchronization>)
+ => ();
+  error(make(<timeout-exceeded>,
+             synchronization: sync));
+end function;
+
+
 // <not-owned-error>
 //
 // Signalled when the client tries to release an <exclusive-lock>
 // on a thread that is not the owner of the lock.
 //
 
-define sealed class <not-owned-error> (<synchronization-error>)
+define sealed class <not-owned-error> (<synchronization-condition>, <error>)
 end class;
 
 define sealed method default-handler (cond :: <not-owned-error>)
@@ -143,3 +161,35 @@ define function not-owned-error(lock :: <exclusive-lock>)
   error(make(<deadlock-error>,
              synchronization: lock));
 end function;
+
+
+// MACROS
+//
+
+// with-lock
+//
+
+define macro with-lock
+  { with-lock (?lock:expression, ?keys:*)
+      ?body:body
+      ?failure
+    end }
+    => { begin
+           let $$the-lock = ?lock;
+           if(wait-for($$the-lock, ?keys))
+             block ()
+                 ?body
+             cleanup
+                 release($$the-lock);
+             end;
+           else
+             ?failure
+           end
+         end }
+
+ failure:
+  { failure ?body:body }
+    => { ?body }
+  { }
+    => { timeout-exceeded($$the-lock) }
+end macro;
