@@ -23,10 +23,6 @@
 *  comments and suggestions are welcome at <gd-hackers@gwydiondylan.org>.
 *  Also, see http://www.gwydiondylan.org/ for updates and documentation. 
 *
-***********************************************************************
-*
-* $Header: /scm/cvs/src/mindy/interp/interp.c,v 1.8 2003/12/22 06:16:03 housel Exp $
-*
 * This file implements the actual byte interpreter.
 *
 \**********************************************************************/

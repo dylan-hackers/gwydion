@@ -23,10 +23,6 @@
 *  comments and suggestions are welcome at <gd-hackers@gwydiondylan.org>.
 *  Also, see http://www.gwydiondylan.org/ for updates and documentation. 
 *
-***********************************************************************
-*
-* $Header: /scm/cvs/src/mindy/interp/mindy.c,v 1.5 2000/03/18 15:43:27 robmyers Exp $
-*
 * This file starts everything going.
 *
 \**********************************************************************/

@@ -1,5 +1,4 @@
 library: dylan
-RCS-header: $header $
 
 exports.dylan
 misc.dylan

@@ -23,10 +23,6 @@
 *  comments and suggestions are welcome at <gd-hackers@gwydiondylan.org>.
 *  Also, see http://www.gwydiondylan.org/ for updates and documentation. 
 *
-***********************************************************************
-*
-* $Header: /scm/cvs/src/mindy/interp/func.c,v 1.5 2000/10/21 19:45:52 dauclair Exp $
-*
 * This file implements functions.
 *
 \**********************************************************************/

@@ -21,10 +21,6 @@
 *  comments and suggestions are welcome at <gd-hackers@gwydiondylan.org>.
 *  Also, see http://www.gwydiondylan.org/ for updates and documentation. 
 *
-***********************************************************************
-*
-* $Header: /scm/cvs/src/mindy/interp/instance.c,v 1.4 2000/10/21 19:45:53 dauclair Exp $
-*
 * This file implements instances and user defined classes.
 *
 \**********************************************************************/

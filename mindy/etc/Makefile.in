@@ -25,7 +25,6 @@
 ##
 ######################################################################
 ##
-##  $Header: /scm/cvs/src/mindy/etc/Makefile.in,v 1.7 2002/05/08 14:42:10 housel Exp $
 ##
 ##  This is the makefile for the Mindy load and go executive
 ##	and any other small programs that might be useful.

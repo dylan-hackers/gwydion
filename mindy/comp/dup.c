@@ -23,10 +23,6 @@
 *  comments and suggestions are welcome at <gd-hackers@gwydiondylan.org>.
 *  Also, see http://www.gwydiondylan.org/ for updates and documentation. 
 *
-***********************************************************************
-*
-* $Header: /scm/cvs/src/mindy/comp/dup.c,v 1.2 2000/01/24 04:57:49 andreas Exp $
-*
 * This file duplicates parts of the parse tree.
 *
 \**********************************************************************/

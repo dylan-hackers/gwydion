@@ -23,10 +23,6 @@
 *  comments and suggestions are welcome at <gd-hackers@gwydiondylan.org>.
 *  Also, see http://www.gwydiondylan.org/ for updates and documentation. 
 *
-***********************************************************************
-*
-* $Header: /scm/cvs/src/mindy/interp/init.c,v 1.2 2000/01/24 04:58:18 andreas Exp $
-*
 * This file initializes everything else.
 *
 \**********************************************************************/

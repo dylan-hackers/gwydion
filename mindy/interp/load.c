@@ -23,10 +23,6 @@
 *  comments and suggestions are welcome at <gd-hackers@gwydiondylan.org>.
 *  Also, see http://www.gwydiondylan.org/ for updates and documentation. 
 *
-***********************************************************************
-*
-* $Header: /scm/cvs/src/mindy/interp/load.c,v 1.7 2000/10/31 14:37:40 dauclair Exp $
-*
 * This file implements the loader.
 *
 \**********************************************************************/

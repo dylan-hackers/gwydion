@@ -25,7 +25,6 @@
 ##
 ######################################################################
 ##
-##  $Header: /scm/cvs/src/mindy/interp/Makefile.in,v 1.18 2003/07/11 03:43:25 housel Exp $
 ##
 ##  This is the makefile for the Mindy byte-interpreter.
 ##

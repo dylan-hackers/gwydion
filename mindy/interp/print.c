@@ -23,10 +23,6 @@
 *  comments and suggestions are welcome at <gd-hackers@gwydiondylan.org>.
 *  Also, see http://www.gwydiondylan.org/ for updates and documentation. 
 *
-***********************************************************************
-*
-* $Header: /scm/cvs/src/mindy/interp/print.c,v 1.3 2000/10/31 14:37:40 dauclair Exp $
-*
 * This file implements the printer framework.
 *
 \**********************************************************************/

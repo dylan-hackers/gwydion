@@ -1,5 +1,4 @@
 Library: Tk
-RCS-header: $header $
 
 tk-library.dylan
 tk-io.dylan

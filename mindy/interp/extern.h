@@ -23,10 +23,6 @@
 *  comments and suggestions are welcome at <gd-hackers@gwydiondylan.org>.
 *  Also, see http://www.gwydiondylan.org/ for updates and documentation. 
 *
-***********************************************************************
-*
-* $Header: /scm/cvs/src/mindy/interp/extern.h,v 1.2 2000/01/24 04:58:14 andreas Exp $
-*
 * This file exports definitions for support of raw C pointers.
 *
 \**********************************************************************/
