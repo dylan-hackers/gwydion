@@ -42,5 +42,7 @@ output.dylan
 condition.dylan
 debug.dylan
 thread.dylan
+synchronization.dylan
+synchronization-single.dylan
 system.dylan
 main.dylan

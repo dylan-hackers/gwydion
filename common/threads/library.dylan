@@ -9,15 +9,16 @@ define module threads
   use dylan;
   use runtime-threads,
     import: {<thread>, thread-name, current-thread, join-thread, thread-yield,
-             $low-priority, $background-priority,
-             $normal-priority, $interactive-priority, $high-priority},
+             $low-priority, $background-priority, $normal-priority, $interactive-priority, $high-priority,
+             <synchronization>, wait-for, release,
+             <lock>, <exclusive-lock>, owned?,
+             <semaphore>, <simple-lock>, <recursive-lock>, <read-write-lock>,
+             <notification>, release-all,
+             <count-exceeded-error>, <not-owned-error>},
     export: all;
   
-  export dynamic-bind,
-    <synchronization>, <exclusive-lock>,
-    <semaphore>, <recursive-lock>,
-    <read-write-lock>,
-    <lock>, <simple-lock>, with-lock,
-    atomic-increment!,
-    <notification>, wait-for, release-all;
+  export
+    dynamic-bind,
+    with-lock,
+    atomic-increment!;
 end module threads;

@@ -2,7 +2,14 @@
 
 $D2CFLAGS = $d2c_runtime;
 
-do emit_library_rule(
-    'threads', '$(BUILDROOT)/force.timestamp', '', 'compile', 
-    'install'
-);
+if($enable_bootstrap) {
+    do emit_library_rule(
+      'bootstrap-threads', '$(BUILDROOT)/force.timestamp', '', 'compile',
+      'install'
+    );
+} else {
+    do emit_library_rule(
+      'threads', '$(BUILDROOT)/force.timestamp', '', 'compile', 
+      'install'
+    );
+}

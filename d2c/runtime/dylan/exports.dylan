@@ -251,8 +251,12 @@ end;
 define module Runtime-Threads
   use Dylan-Viscera,
     import: {<thread>, thread-name, current-thread, join-thread, thread-yield,
-             $low-priority, $background-priority,
-             $normal-priority, $interactive-priority, $high-priority},
+             $low-priority, $background-priority, $normal-priority, $interactive-priority, $high-priority,
+             <synchronization>, wait-for, release,
+             <lock>, <exclusive-lock>, owned?,
+             <semaphore>, <simple-lock>, <recursive-lock>, <read-write-lock>,
+             <notification>, release-all,
+             <count-exceeded-error>, <not-owned-error>},
     export: all;
 end module;
 
