@@ -1,5 +1,5 @@
 Module:       format-internals
-Author:       Scott McKay
+Author:       Scott McKay, Peter S. Housel
 Synopsis:     This file implements 'format' to buffered output streams
 Copyright:    Original Code is Copyright (c) 1995-2004 Functional Objects, Inc.
               All rights reserved.
@@ -78,42 +78,52 @@ define method format
       if (control-string[start - 1] == '\n')
         new-line(stream)
       else
-        // Parse for field within which to pad output.
-        let (field, field-spec-end)
-          = if (char-classes[as(<byte>, control-string[start])] == #"digit")
-              parse-integer(control-string, start)
-            end;
-        if (field)
+        // Parse conversion modifier flags
+        let (flags, left-justified?, flags-end)
+          = parse-flags(control-string, start);
+        
+        // Parse for field width within which to pad output.
+        let (width, width-end)
+          = string-to-integer(control-string, start: flags-end, default: 0);
+        
+        // Parse precision specifier
+        let (precision, precision-end)
+          = parse-precision(control-string, width-end);
+        
+        if (width > 0)
           // Capture output in string and compute padding.
           // Assume the output is very small in length.
           let s = make(<byte-string-stream>,
                        contents: make(<byte-string>, size: 80),
                        direction: #"output");
-          if (do-dispatch(control-string[field-spec-end], s,
-                          element(args, arg-i, default: #f)))
+          if (do-dispatch(control-string[precision-end], s,
+                          element(args, arg-i, default: #f),
+                          flags, width, precision))
             arg-i := arg-i + 1
           end;
           let output = s.stream-contents;
           let output-len :: <integer> = output.size;
-          let padding :: <integer> = (abs(field) - output-len);
+          let padding :: <integer> = width - output-len;
           case
             (padding < 0) =>
               buffered-write(stream, sb, output);
-            (field > 0) =>
-              buffered-write(stream, sb, make(<byte-string>, size: padding, fill: ' '));
+            (left-justified?) =>
               buffered-write(stream, sb, output);
+              buffered-write(stream, sb,
+                             make(<byte-string>, size: padding, fill: ' '));
             otherwise =>
+              buffered-write(stream, sb,
+                             make(<byte-string>, size: padding, fill: ' '));
               buffered-write(stream, sb, output);
-              buffered-write(stream, sb, make(<byte-string>, size: padding, fill: ' '));
           end;
-          start := field-spec-end + 1   // Add one to skip dispatch char.
         else
-          if (buffered-do-dispatch(control-string[start], stream, sb,
-                                   element(args, arg-i, default: #f)))
+          if (buffered-do-dispatch(control-string[precision-end], stream, sb,
+                                   element(args, arg-i, default: #f),
+                                   flags, width, precision))
             arg-i := arg-i + 1
           end;
-          start := start + 1            // Add one to skip dispatch char.
-        end
+        end;
+        start := precision-end + 1 // Add one to skip dispatch char.
       end
     end while;
   cleanup
@@ -122,7 +132,8 @@ define method format
 end method format;
 
 define method buffered-do-dispatch
-    (char :: <byte-character>, stream :: <buffered-stream>, sb :: <buffer>, arg)
+    (char :: <byte-character>, stream :: <buffered-stream>, sb :: <buffer>, arg,
+     flags :: <list>, width :: <integer>, precision :: false-or(<integer>))
  => (consumed-arg? :: <boolean>)
   select (char by \==)
     ('s'), ('S') =>
@@ -160,6 +171,15 @@ define method buffered-do-dispatch
       #t;
     ('x'), ('X') =>
       buffered-format-integer(arg, 16, stream, sb);
+      #t;
+    ('e'), ('E') =>
+      apply(format-float-exponential, arg, precision, stream, flags);
+      #t;
+    ('f'), ('F') =>
+      apply(format-float-fixed, arg, precision, stream, flags);
+      #t;
+    ('g'), ('G') =>
+      apply(format-float-general, arg, precision, stream, flags);
       #t;
     ('m'), ('M') =>
       apply(arg, list(stream));

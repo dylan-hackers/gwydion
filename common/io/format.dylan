@@ -106,15 +106,6 @@ end method;
 
 define constant $dispatch-char = '%';
 
-define constant char-classes :: <simple-object-vector> 
-  = make(<vector>, size: 256, fill: #f);
-///
-for (i from as(<byte>, '0') below (as(<byte>, '9') + 1))
-  char-classes[i] := #"digit";
-end;
-char-classes[as(<byte>, '-')] := #"digit";
-
-
 define generic format (stream :: <stream>, control-string :: <string>,
                        #rest args)
     => ();
@@ -148,57 +139,110 @@ define method format (stream :: <stream>, control-string :: <byte-string>,
         if (control-string[start - 1] == '\n')
           new-line(stream)
         else
-          // Parse for field within which to pad output.
-          let (field, field-spec-end)
-            = if (char-classes[as(<byte>, control-string[start])] == #"digit")
-                parse-integer(control-string, start);
-              end;
-          if (field)
+          // Parse conversion modifier flags
+          let (flags, left-justified?, flags-end)
+            = parse-flags(control-string, start);
+
+          // Parse for field width within which to pad output.
+          let (width, width-end)
+            = string-to-integer(control-string, start: flags-end, default: 0);
+
+          // Parse precision specifier
+          let (precision, precision-end)
+            = parse-precision(control-string, width-end);
+
+          if (width > 0)
             // Capture output in string and compute padding.
             // Assume the output is very small in length.
             let s :: <byte-string-stream>
               = make(<byte-string-stream>,
                      contents: make(<byte-string>, size: 80),
                      direction: #"output");
-            if (do-dispatch(control-string[field-spec-end], s,
-                            element(args, arg-i, default: #f)))
+            if (do-dispatch(control-string[precision-end],
+                            s, element(args, arg-i, default: #f),
+                            flags, width, precision))
               arg-i := arg-i + 1;
             end;
             let output :: <byte-string> = s.stream-contents;
             let output-len :: <integer> = output.size;
-            let padding :: <integer> = (abs(field) - output-len);
+            let padding :: <integer> = width - output-len;
             case
               (padding < 0) =>
                 write(stream, output);
-              (field > 0) =>
-                write(stream, make(<byte-string>, size: padding, fill: ' '));
+              (left-justified?) =>
                 write(stream, output);
+                write(stream, make(<byte-string>, size: padding, fill: ' '));
               otherwise =>
-                write(stream, output);
                 write(stream, make(<byte-string>, size: padding, fill: ' '));
+                write(stream, output);
             end;
-            start := field-spec-end + 1;  // Add one to skip dispatch char.
           else
-            if (do-dispatch(control-string[start], stream,
-                            element(args, arg-i, default: #f)))
+            if (do-dispatch(control-string[precision-end],
+                            stream, element(args, arg-i, default: #f),
+                            flags, width, precision))
               arg-i := arg-i + 1;
             end;
-            start := start + 1;  // Add one to skip dispatch char.
-          end
+          end;
+          start := precision-end + 1;  // Add one to skip dispatch char.
         end
       end while;
     end block;
   end with-stream-locked;
 end method;
     
+/// parse-flags -- Internal.
+///
+define method parse-flags
+    (input :: <byte-string>, index :: <integer>)
+ => (flags :: <list>, left-justified? :: <boolean>, index :: <integer>);
+  let input-size = input.size;
+  iterate loop (flags :: <list> = #(),
+                left-justified? :: <boolean> = #f,
+                index :: <integer> = index)
+    if (index = input-size)
+      values(flags, left-justified?, index)
+    else
+      select (input[index] by \==)
+        ('-') =>
+          loop(pair(left-justified?:, pair(#t, flags)), #t, index + 1);
+        ('+') =>
+          loop(pair(plus-sign:, pair('+', flags)), left-justified?, index + 1);
+        (' ') =>
+          loop(pair(plus-sign:, pair(' ', flags)), left-justified?, index + 1);
+        ('#') =>
+          loop(pair(alternate-form?:, pair(#t, flags)), left-justified?,
+               index + 1);
+        ('0') =>
+          loop(pair(zero-fill?:, pair(#t, flags)), left-justified?, index + 1);
+        otherwise =>
+          values(flags, left-justified?, index);
+      end select;
+    end;
+  end iterate;
+end method;
+
+/// parse-precision -- Internal.
+///
+define method parse-precision
+    (input :: <byte-string>, index :: <integer>)
+ => (precision :: false-or(<integer>), index :: <integer>);
+  if (input[index] == '.')
+    string-to-integer(input, start: index + 1, default: 0)
+  else
+    values(#f, index)
+  end if
+end method;
+
 /// do-dispatch -- Internal.
 ///
 /// This function dispatches on char, which should be a format directive.
 /// The return value indicates whether to consume one format argument;
 /// otherwise, consume none.
 ///
-define method do-dispatch (char :: <byte-character>, stream :: <stream>, arg)
-    => consumed-arg? :: <boolean>;
+define method do-dispatch
+    (char :: <byte-character>, stream :: <stream>, arg,
+     flags :: <list>, width :: <integer>, precision :: false-or(<integer>))
+ => (consumed-arg? :: <boolean>);
   select (char by \==)
     ('s'), ('S'), ('c'), ('C') =>
       print-message(arg, stream);
@@ -220,6 +264,15 @@ define method do-dispatch (char :: <byte-character>, stream :: <stream>, arg)
     ('x'), ('X') =>
       format-integer(arg, 16, stream);
       #t;
+    ('e'), ('E') =>
+      apply(format-float-exponential, arg, precision, stream, flags);
+      #t;
+    ('f'), ('F') =>
+      apply(format-float-fixed, arg, precision, stream, flags);
+      #t;
+    ('g'), ('G') =>
+      apply(format-float-general, arg, precision, stream, flags);
+      #t;
     ('m'), ('M') =>
       apply(arg, list(stream));
       #t;
@@ -230,36 +283,6 @@ define method do-dispatch (char :: <byte-character>, stream :: <stream>, arg)
       error("Unknown format dispatch character, %c", char);
   end;
 end method;
-
-/// parse-integer -- Internal.
-///
-/// This function reads an integer from input starting at index.  Index must
-/// be at the first digit or a leading negative sign.  This function reads
-/// decimal representation, and it stops at the first character that is not
-/// a decimal digit.  It returns the integer parsed and the index
-/// immediately following the last decimal digit.
-///
-define method parse-integer (input :: <byte-string>, index :: <integer>)
-    => (result :: false-or(<integer>), index :: <integer>);
-  let result :: <integer> = 0;
-  let negative? = if (input[index] = '-')
-                    index := index + 1;
-                  end;
-  for (i :: <integer> = index then (i + 1),
-       len :: <integer> = input.size then len,
-       ascii-zero :: <byte> = as(<byte>, '0') then ascii-zero,
-       until: ((i = len) |
-                 (~ (char-classes[as(<byte>, input[i])] == #"digit"))))
-    result := ((result * 10) + (as(<byte>, input[i]) - ascii-zero));
-  finally
-    if (result = 0)
-      values(#f, index);
-    else
-      values(if (negative?) (- result) else result end, i);
-    end;
-  end;
-end method;
-
 
 define constant $digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -310,3 +333,229 @@ define method format-integer (arg :: <float>,
   assert(radix = 10, "Can only print floats in base 10");
   print(arg, stream)
 end method;
+
+/// format-float-exponential -- internal.
+///
+
+define method format-float-exponential
+    (v :: <float>, precision :: false-or(<integer>), stream :: <stream>,
+     #key plus-sign :: false-or(<character>),
+          alternate-form? :: <boolean>,
+     #all-keys)
+ => ();
+  let precision = precision | 6;
+  let v = if (negative?(v))
+            write-element(stream, '-');
+            -v;
+          elseif (plus-sign)
+            write-element(stream, plus-sign);
+            v;
+          else
+            v;
+          end;
+
+  block (return)
+    let (exponent :: <integer>, digits :: <list>) =
+      if (zero?(v))
+        values(0, #())
+      elseif (v ~= v)
+        write(stream, "nan");
+        return();
+      elseif (v + v = v)
+        write(stream, "infinity");
+        return();
+      else
+        float-decimal-digits(v, round-significant-digits: precision + 1);
+      end if;
+    let digits
+      = if(alternate-form?) digits else strip-trailing-zeroes(digits) end;
+    
+    for (digit in digits, first? = #t then #f, place from 0 by -1)
+      write-element(stream, $digits[as(<integer>, digit)]);
+      if (first?)
+        write-element(stream, '.')
+      end;
+    finally
+      if (alternate-form?)
+        for (i from place above -precision - 1 by -1)
+          write-element(stream, '0');
+        end;
+      end if;
+    end;
+    write-element(stream, 'e');
+    format-exponent(exponent - 1, stream);
+  end block;
+end method;
+
+/// format-float-fixed -- internal.
+///
+
+define method format-float-fixed
+    (v :: <float>, precision :: false-or(<integer>), stream :: <stream>,
+     #key plus-sign :: false-or(<character>),
+          alternate-form? :: <boolean>,
+     #all-keys)
+ => ();
+  let precision = precision | 6;
+  let v = if (negative?(v))
+            write-element(stream, '-');
+            -v;
+          elseif (plus-sign)
+            write-element(stream, plus-sign);
+            v;
+          else
+            v;
+          end;
+
+  block (return)
+    let (exponent :: <integer>, digits :: <list>) =
+      if (zero?(v))
+        values(0, #())
+      elseif (v ~= v)
+        write(stream, "nan");
+        return();
+      elseif (v + v = v)
+        write(stream, "infinity");
+        return();
+      else
+        float-decimal-digits(v, round-position: -precision);
+      end if;
+    let digits
+      = if(alternate-form?) digits else strip-trailing-zeroes(digits) end;
+    
+    for (digit in digits, place from exponent by -1)
+      if (place = 0)
+        write-element(stream, '.');
+      end;
+      write-element(stream, $digits[as(<integer>, digit)]);
+    finally
+      if (alternate-form?)
+        for (i from place above -precision by -1)
+          write-element(stream, '0');
+        end;
+        if (place = 0)
+          write-element(stream, ".");
+        end;
+      end if;
+    end for;
+  end block;
+end method;
+
+/// format-float-general -- internal.
+///
+
+define method format-float-general
+    (v :: <float>, precision :: false-or(<integer>), stream :: <stream>,
+     #key plus-sign :: false-or(<character>),
+          alternate-form? :: <boolean>,
+     #all-keys)
+ => ();
+  let precision = precision | 6;
+  let v = if (negative?(v))
+            write-element(stream, '-');
+            -v;
+          elseif (plus-sign)
+            write-element(stream, plus-sign);
+            v;
+          else
+            v;
+          end;
+
+  block (return)
+    let (exponent :: <integer>, digits :: <list>) =
+      if (zero?(v))
+        values(0, #())
+      elseif (v ~= v)
+        write(stream, "nan");
+        return();
+      elseif (v + v = v)
+        write(stream, "infinity");
+        return();
+      else
+        float-decimal-digits(v, round-significant-digits: precision);
+      end if;
+    let digits
+      = if(alternate-form?) digits else strip-trailing-zeroes(digits) end;
+    
+    if (-3 <= exponent & exponent <= 0)
+      write-element(stream, '0');
+      if (~empty?(digits) | alternate-form?) write-element(stream, '.') end;
+      for (i from exponent below 0)
+        write-element(stream, '0');
+      end for;
+      for (digit in digits, place from exponent by -1)
+        write-element(stream, $digits[as(<integer>, digit)]);
+      finally
+        if (alternate-form?)
+          for (i from place above -precision by -1)
+            write-element(stream, '0');
+          end;
+        end if;
+      end for;
+    elseif (0 < exponent & exponent - 1 < precision)
+      for (digit in digits, place from exponent by -1)
+        if (place = 0)
+          write-element(stream, '.');
+        end;
+        write-element(stream, $digits[as(<integer>, digit)]);
+      finally
+        let limit = if (alternate-form?) exponent - precision else 0 end;
+        for (i from place above limit by -1)
+          write-element(stream, '0');
+        end;
+        if (alternate-form? & place = 0)
+          write-element(stream, ".");
+        end;
+      end for;
+    else
+      for (digit in digits, first? = #t then #f, place from 0 by -1)
+        write-element(stream, $digits[as(<integer>, digit)]);
+        if (first?)
+          write-element(stream, '.')
+        end;
+      finally
+        if (alternate-form?)
+          for (i from place above -precision by -1)
+            write-element(stream, '0');
+          end;
+        end if;
+      end for;
+      write-element(stream, 'e');
+      format-exponent(exponent - 1, stream);
+    end if;
+  end block;
+end method;
+
+// format-exponent -- internal
+//
+
+define method format-exponent (e :: <integer>, stream :: <stream>) => ();
+  let e = if (e < 0)
+            write-element(stream, '-');
+            -e
+          else
+            write-element(stream, '+');
+            e
+          end;
+  let (tens, ones) = truncate/(e, 10);
+  format-integer(tens, 10, stream);
+  write-element(stream, $digits[ones]);
+end method;
+
+// strip-trailing-zeroes -- internal
+//
+
+define function strip-trailing-zeroes (digits :: <list>) => (result :: <list>);
+  if (empty?(digits))
+    #()
+  else
+    let stripped = strip-trailing-zeroes(digits.tail);
+    if (zero?(digits.head) & empty?(stripped))
+      #()
+    elseif (stripped == digits.tail)
+      digits
+    else
+      pair(digits.head, stripped)
+    end if
+  end if
+end function;

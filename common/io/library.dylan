@@ -316,6 +316,7 @@ define module format-internals
     exclude: { format-to-string };
   use extensions;
   use threads;
+  use gwydion-extensions;
   use streams-internals;
   use print;
   use format,
