@@ -1,7 +1,6 @@
 copyright: see below
 module: dylan-viscera
 
-
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University

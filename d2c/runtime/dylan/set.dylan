@@ -3,7 +3,7 @@ module: dylan-viscera
 
 //======================================================================
 //
-// Copyright (c) 2003  Gwydion Dylan Maintainers
+// Copyright (c) 2003 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
