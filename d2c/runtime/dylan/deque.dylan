@@ -234,52 +234,7 @@ define inline method %element-setter
 end;
 
 
-// This method is identical to the one in "array.dylan", except that it
-// is more tightly specialized to a single sealed class.  If you need to 
-// make a general change, you should probably grep for "outlined-iterator" 
-// and change all matching locations.
-//
-define inline method forward-iteration-protocol
-    (array :: <object-deque>)
-    => (initial-state :: <integer>,
-	limit :: <integer>,
-	next-state :: <function>,
-	finished-state? :: <function>,
-	current-key :: <function>,
-	current-element :: <function>,
-	current-element-setter :: <function>,
-	copy-state :: <function>);
-  values(0,
-	 array.size,
-	 method (array :: <object-deque>, state :: <integer>)
-	     => new-state :: <integer>;
-	   state + 1;
-	 end,
-	 method (array :: <object-deque>, state :: <integer>,
-		 limit :: <integer>)
-	     => done? :: <boolean>;
-	   // We use >= instead of == so that the constraint propagation
-	   // stuff can tell that state is < limit if this returns #f.
-	   state >= limit;
-	 end,
-	 method (array :: <object-deque>, state :: <integer>)
-	     => key :: <integer>;
-	   state;
-	 end,
-	 method (array :: <object-deque>, state :: <integer>)
-	     => element :: <object>;
-	   element(array, state);
-	 end,
-	 method (new-value :: <object>, array :: <object-deque>,
-		 state :: <integer>)
-	     => new-value :: <object>;
-	   element(array, state) := new-value;
-	 end,
-	 method (array :: <object-deque>, state :: <integer>)
-	     => state-copy :: <integer>;
-	   state;
-	 end);
-end;
+define inline outlined-forward-iteration-protocol <object-deque>;
 
 
 define inline method empty? (deq :: <object-deque>)

@@ -174,51 +174,7 @@ define inline method element-setter
   end;
 end;
 
-// This method is identical to the one in "array.dylan", except that it
-// is more tightly specialized to a single sealed class.  If you need to 
-// make a general change, you should probably grep for "outlined-iterator" 
-// and change all matching locations.
-//
-define inline method forward-iteration-protocol (array :: <unicode-string>)
-    => (initial-state :: <integer>,
-	limit :: <integer>,
-	next-state :: <function>,
-	finished-state? :: <function>,
-	current-key :: <function>,
-	current-element :: <function>,
-	current-element-setter :: <function>,
-	copy-state :: <function>);
-  values(0,
-	 array.size,
-	 method (array :: <unicode-string>, state :: <integer>)
-	     => new-state :: <integer>;
-	   state + 1;
-	 end,
-	 method (array :: <unicode-string>, state :: <integer>,
-		 limit :: <integer>)
-	     => done? :: <boolean>;
-	   // We use >= instead of == so that the constraint propagation
-	   // stuff can tell that state is < limit if this returns #f.
-	   state >= limit;
-	 end,
-	 method (array :: <unicode-string>, state :: <integer>)
-	     => key :: <integer>;
-	   state;
-	 end,
-	 method (array :: <unicode-string>, state :: <integer>)
-	     => element :: <object>;
-	   element(array, state);
-	 end,
-	 method (new-value :: <object>, array :: <unicode-string>,
-		 state :: <integer>)
-	     => new-value :: <object>;
-	   element(array, state) := new-value;
-	 end,
-	 method (array :: <unicode-string>, state :: <integer>)
-	     => state-copy :: <integer>;
-	   state;
-	 end);
-end;
+define inline outlined-forward-iteration-protocol <unicode-string>;
 
 
 // Byte strings.
@@ -269,51 +225,7 @@ define inline method element-setter
   end;
 end;
 
-// This method is identical to the one in "array.dylan", except that it
-// is more tightly specialized to a single sealed class.  If you need to 
-// make a general change, you should probably grep for "outlined-iterator" 
-// and change all matching locations.
-//
-define inline method forward-iteration-protocol (array :: <byte-string>)
-    => (initial-state :: <integer>,
-	limit :: <integer>,
-	next-state :: <function>,
-	finished-state? :: <function>,
-	current-key :: <function>,
-	current-element :: <function>,
-	current-element-setter :: <function>,
-	copy-state :: <function>);
-  values(0,
-	 array.size,
-	 method (array :: <byte-string>, state :: <integer>)
-	     => new-state :: <integer>;
-	   state + 1;
-	 end,
-	 method (array :: <byte-string>, state :: <integer>,
-		 limit :: <integer>)
-	     => done? :: <boolean>;
-	   // We use >= instead of == so that the constraint propagation
-	   // stuff can tell that state is < limit if this returns #f.
-	   state >= limit;
-	 end,
-	 method (array :: <byte-string>, state :: <integer>)
-	     => key :: <integer>;
-	   state;
-	 end,
-	 method (array :: <byte-string>, state :: <integer>)
-	     => element :: <object>;
-	   element(array, state);
-	 end,
-	 method (new-value :: <object>, array :: <byte-string>,
-		 state :: <integer>)
-	     => new-value :: <object>;
-	   element(array, state) := new-value;
-	 end,
-	 method (array :: <byte-string>, state :: <integer>)
-	     => state-copy :: <integer>;
-	   state;
-	 end);
-end;
+define inline outlined-forward-iteration-protocol <byte-string>;
 
 define method \= (str1 :: <byte-string>, str2 :: <byte-string>)
  => (res :: <boolean>);

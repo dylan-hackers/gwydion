@@ -187,52 +187,7 @@ define inline method %element-setter
   %element(v.ssv-data, i) := newVal;
 end;
 
-// This method is identical to the one in "array.dylan", except that it
-// is more tightly specialized to a single sealed class.  If you need to 
-// make a general change, you should probably grep for "outlined-iterator" 
-// and change all matching locations.
-//
-define inline method forward-iteration-protocol
-    (array :: <stretchy-object-vector>)
-    => (initial-state :: <integer>,
-	limit :: <integer>,
-	next-state :: <function>,
-	finished-state? :: <function>,
-	current-key :: <function>,
-	current-element :: <function>,
-	current-element-setter :: <function>,
-	copy-state :: <function>);
-  values(0,
-	 array.size,
-	 method (array :: <stretchy-object-vector>, state :: <integer>)
-	     => new-state :: <integer>;
-	   state + 1;
-	 end,
-	 method (array :: <stretchy-object-vector>, state :: <integer>,
-		 limit :: <integer>)
-	     => done? :: <boolean>;
-	   // We use >= instead of == so that the constraint propagation
-	   // stuff can tell that state is < limit if this returns #f.
-	   state >= limit;
-	 end,
-	 method (array :: <stretchy-object-vector>, state :: <integer>)
-	     => key :: <integer>;
-	   state;
-	 end,
-	 method (array :: <stretchy-object-vector>, state :: <integer>)
-	     => element :: <object>;
-	   element(array, state);
-	 end,
-	 method (new-value :: <object>, array :: <stretchy-object-vector>,
-		 state :: <integer>)
-	     => new-value :: <object>;
-	   element(array, state) := new-value;
-	 end,
-	 method (array :: <stretchy-object-vector>, state :: <integer>)
-	     => state-copy :: <integer>;
-	   state;
-	 end);
-end;
+define inline outlined-forward-iteration-protocol <stretchy-object-vector>;
 
 define inline method empty? (ssv :: <stretchy-object-vector>)
  => res :: <boolean>;
@@ -452,53 +407,7 @@ define macro limited-sv-class
 	       check-type(ssv.ssv-data, ?compname)[key] := value;
 	     end if;
 	   end method element-setter;
-
-	   // This method is identical to the one in "array.dylan", except
-	   // that it is more tightly specialized to a single sealed class.
-	   // If you need to make a general change, you should probably grep
-	   // for "outlined-iterator" and change all matching locations.
-	   //
-	   define inline method forward-iteration-protocol (array :: ?name)
-	    => (initial-state :: <integer>,
-		limit :: <integer>,
-		next-state :: <function>,
-		finished-state? :: <function>,
-		current-key :: <function>,
-		current-element :: <function>,
-		current-element-setter :: <function>,
-		copy-state :: <function>);
-	     values(0,
-		    array.size,
-		    method (array :: ?name, state :: <integer>)
-		     => new-state :: <integer>;
-		      state + 1;
-		    end,
-		    method (array :: ?name, state :: <integer>,
-			    limit :: <integer>)
-		     => done? :: <boolean>;
-		      // We use >= instead of == so that the constraint
-		      // propagation stuff can tell that state is < limit if
-		      // this returns #f.
-		      state >= limit;
-		    end,
-		    method (array :: ?name, state :: <integer>)
-		     => key :: <integer>;
-		      state;
-		    end,
-		    method (array :: ?name, state :: <integer>)
-		     => element :: ?element-type;
-		      element(array, state);
-		    end,
-		    method (new-value :: ?element-type, array :: ?name,
-			    state :: <integer>)
-		     => new-value :: ?element-type;
-		      element(array, state) := new-value;
-		    end,
-		    method (array :: ?name, state :: <integer>)
-		     => state-copy :: <integer>;
-		      state;
-		    end);
-	   end;
+           define inline outlined-forward-iteration-protocol ?name;
            define sealed inline method add!
 	       (ssv :: ?name, new-element :: ?element-type)
 	    => ssv :: ?name;

@@ -3,6 +3,7 @@ unique-id-base: 0
 
 bootstrap.dylan
 macros.dylan
+macros-iteration.dylan
 exports.dylan
 object.dylan
 misc.dylan
