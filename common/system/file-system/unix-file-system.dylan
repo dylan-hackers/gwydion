@@ -459,16 +459,19 @@ end function %home-directory;
 ///
 define function %working-directory
     () => (working-directory :: false-or(<posix-directory-locator>))
-  let bufsiz :: <integer> = %pathconf(".", $_PC_PATH_MAX);
-  let buffer :: <c-string> = make(<c-string>, size: bufsiz, fill: '\0');
-  let result :: <c-string> = %getcwd(buffer, bufsiz);
+  iterate getcwd-with-size (bufsiz :: <integer> = 1024)
+    let buffer :: <c-string> = make(<c-string>, size: bufsiz, fill: '\0');
+    let result :: <c-string> = %getcwd(buffer, bufsiz);
 
-  if (result ~= null-pointer)
-    as(<directory-locator>, buffer);
-  else
-    // Arrive here iff we couldn't get the working directory
-    unix-file-error("getcwd", #f)
-  end
+    if (result ~= null-pointer)
+      as(<directory-locator>, buffer);
+    elseif (unix-last-error() = $ERANGE)
+      getcwd-with-size(bufsiz * 2);
+    else
+      // Arrive here iff we couldn't get the working directory
+      unix-file-error("getcwd", #f)
+    end
+  end iterate
 end function %working-directory;
 
 
