@@ -12,9 +12,9 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../../common/string-ext'
     . ' -L../../../common/system'
     . ' -L../../../common/table-ext'
-    . ' -L../../../common/threads'
     . ' -L../base'
-    . ' -L../../runtime/random';
+    . ' -L../../runtime/random'
+    . ' -L../../runtime/threads';
 
 &emit_parsergen_rule('parser');
 do emit_library_rule('Parser', '$(BUILDROOT)/force.timestamp', '', 

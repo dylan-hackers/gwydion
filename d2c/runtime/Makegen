@@ -13,6 +13,7 @@ if (!$enable_bootstrap) {
 }
 
 do compile_subdirs('random',
+		   'threads',
 		   '../../common/table-ext',
 		   '../../common/common-dylan',
 		   '../../common/collection-extensions',

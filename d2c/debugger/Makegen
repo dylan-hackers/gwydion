@@ -11,8 +11,8 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../common/streams'
     . ' -L../../common/string-ext'
     . ' -L../../common/table-ext'
-    . ' -L../../common/threads'
-    . ' -L../runtime/random';
+    . ' -L../runtime/random'
+    . ' -L../runtime/threads';
 
 &emit_melange_rule('dlfcn');
 &emit_library_rule('debugger', '$(BUILDROOT)/force.timestamp', 

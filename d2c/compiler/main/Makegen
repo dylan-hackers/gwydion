@@ -48,7 +48,7 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../../common/string-ext'
     . ' -L../../../common/system'
     . ' -L../../../common/table-ext'
-    . ' -L../../../common/threads'
+    . ' -L../../debugger'
     . ' -L../base'
     . ' -L../cback'
     . ' -L../convert'
@@ -56,8 +56,8 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../front'
     . ' -L../optimize'
     . ' -L../parser'
-    . ' -L../../debugger'
-    . ' -L../../runtime/random';
+    . ' -L../../runtime/random'
+    . ' -L../../runtime/threads';
 
 do emit_library_rule('Main', '$(BUILDROOT)/force.timestamp', '', 
 		     'compile', 'install');

@@ -4,8 +4,8 @@ $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
     . ' -L../../../../common/common-dylan'
     . ' -L../../../../common/table-ext'
-    . ' -L../../../../common/threads'
     . ' -L../../random'
+    . ' -L../../threads'
     . ' -L../../../../qa/testworks'
     . ' -L../../../../qa/testworks-specs';
 

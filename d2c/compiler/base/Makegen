@@ -12,8 +12,8 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../../common/string-ext'
     . ' -L../../../common/system'
     . ' -L../../../common/table-ext'
-    . ' -L../../../common/threads'
-    . ' -L../../runtime/random';
+    . ' -L../../runtime/random'
+    . ' -L../../runtime/threads';
 
 do emit_library_rule('Base', '$(BUILDROOT)/force.timestamp', '', 
 		     'compile', 'install');

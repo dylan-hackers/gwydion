@@ -10,8 +10,8 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../standard-io'
     . ' -L../streams'
     . ' -L../table-ext'
-    . ' -L../threads'
-    . ' -L../../d2c/runtime/random';
+    . ' -L../../d2c/runtime/random'
+    . ' -L../../d2c/runtime/threads';
 
 &emit_library_rule(
     'getopt', '$(BUILDROOT)/force.timestamp', '', 'compile',

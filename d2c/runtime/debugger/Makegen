@@ -17,8 +17,8 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../../common/streams'
     . ' -L../../../common/string-ext'
     . ' -L../../../common/table-ext'
-    . ' -L../../../common/threads'
-    . ' -L../random';
+    . ' -L../random'
+    . ' -L../threads';
 
 do emit_melange_rule('dlfcn');
 do emit_library_rule(

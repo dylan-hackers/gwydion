@@ -12,8 +12,8 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../streams'
     . ' -L../string-ext'
     . ' -L../table-ext'
-    . ' -L../threads'
-    . ' -L../../d2c/runtime/random';
+    . ' -L../../d2c/runtime/random'
+    . ' -L../../d2c/runtime/threads';
 
 $CPPFLAGS .= ' -I$(BUILDROOT)';
 

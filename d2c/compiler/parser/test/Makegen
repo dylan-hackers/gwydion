@@ -11,10 +11,10 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../../../common/string-ext'
     . ' -L../../../../common/system'
     . ' -L../../../../common/table-ext'
-    . ' -L../../../../common/threads'
     . ' -L../../base'
     . ' -L..'
     . ' -L../../../runtime/random'
+    . ' -L../../../runtime/threads'
     . ' -L../../../../qa/testworks';
 
 &emit_library_rule('compiler-parser-test', 

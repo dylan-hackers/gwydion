@@ -9,8 +9,8 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../common/streams'
     . ' -L../../common/system'
     . ' -L../../common/table-ext'
-    . ' -L../../common/threads'
-    . ' -L../../d2c/runtime/random';
+    . ' -L../../d2c/runtime/random'
+    . ' -L../../d2c/runtime/threads';
 
 do emit_library_rule(
     'stream-demo', '$(BUILDROOT)/force.timestamp', '', 'compile'
