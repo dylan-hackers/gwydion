@@ -91,7 +91,8 @@ define interface
     equate-argument: { 2 => <statically-typed-pointer> };
 
   struct "struct utsname",
-    read-only: #t;
+    read-only: #t,
+    rename: { "release" => utsname-release };
   function "uname",
     output-argument: 1;
   

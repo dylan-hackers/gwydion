@@ -14,7 +14,7 @@ define constant $os-name = begin
 define constant $os-variant = $os-name;
 define constant $os-version = begin
                                 let (result, utsname) = %uname();
-                                utsname.release
+                                utsname.utsname-release
                               end;
 
 define constant $command-line-option-prefix = '-';
