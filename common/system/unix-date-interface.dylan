@@ -10,39 +10,41 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define function read-clock () => (time :: <machine-word>)
   let (err?, timeval) = %gettimeofday($null-pointer);
-  as(<machine-word>, timeval.tv-sec);
+  as(<machine-word>, timeval)
 end function read-clock;
 
 define generic native-clock-to-tm (time) => (tm :: <tm>);
 
 define method native-clock-to-tm (time :: <integer>) => (tm :: <tm>)
-  native-clock-to-tm(as(<machine-word>, time))
+  let (err?, tm, gmtoff, zone) = %system-localtime(time);
+  tm
 end method native-clock-to-tm;
 
 define method native-clock-to-tm
     (time :: <machine-word>)
  => (tm :: <tm>)
   let (err?, tm, gmtoff, zone)
-    = %system-localtime(as(<integer>, time));
+    = %system-localtime(as(<timeval>, time).tv-sec);
   tm
 end method native-clock-to-tm;
 
 define function encode-native-clock-as-date (native-clock) => (date :: <date>)
+  let timeval = as(<timeval>, native-clock);
   let (err?, tm, gmtoff, zone)
-    = %system-localtime(as(<integer>, native-clock));
+    = %system-localtime(timeval.tv-sec);
   make(<date>, year: tm-year(tm) + 1900,
                month: tm-mon(tm) + 1,
                day: tm-mday(tm),
                hours: tm-hour(tm),
                minutes: tm-min(tm),
                seconds: tm-sec(tm),
+               microseconds: timeval.tv-usec,
                time-zone-offset: truncate/(gmtoff, 60))
 end function encode-native-clock-as-date;
 
 define function current-date () => (now :: <date>)
   let (err?, timeval) = %gettimeofday($null-pointer);
-  let (err?, tm, gmtoff, zone)
-    = %system-localtime(as(<integer>, timeval.tv-sec));
+  let (err?, tm, gmtoff, zone) = %system-localtime(timeval.tv-sec);
   make(<date>, year: tm-year(tm) + 1900,
                month: tm-mon(tm) + 1,
                day: tm-mday(tm),

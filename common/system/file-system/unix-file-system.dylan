@@ -201,11 +201,12 @@ define function %file-properties
     unix-file-error("get attributes of", "%s", file)
   else
     properties[#"size"] := st-size(st);
-    // ### st_ctime is the "Time of last status change", not creation-date
-    // ### st_birthtime is available on FreeBSD 5, but not elsewhere
-    properties[#"creation-date"] := make(<date>, native-clock: st-ctime(st));
-    properties[#"access-date"] := make(<date>, native-clock: st-atime(st));
-    properties[#"modification-date"] := make(<date>, native-clock: st-mtime(st))
+    properties[#"creation-date"]
+      := make(<date>, native-clock: as(<machine-word>, %st-birthtime(st)));
+    properties[#"access-date"]
+      := make(<date>, native-clock: as(<machine-word>, %st-atime(st)));
+    properties[#"modification-date"]
+      := make(<date>, native-clock: as(<machine-word>, %st-mtime(st)));
   end;
   properties[#"author"] := %file-property(file, #"author");
   properties[#"readable?"] := %file-property(file, #"readable?");

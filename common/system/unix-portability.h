@@ -28,3 +28,7 @@ int system_localtime(time_t clock, struct tm *result, long *gmtoff,
 		     const char **zone);
 
 int system_open(const char *path, int oflag, mode_t mode);
+
+void system_st_birthtime(struct stat *st, struct timeval *tp);
+void system_st_atime(struct stat *st, struct timeval *tp);
+void system_st_mtime(struct stat *st, struct timeval *tp);

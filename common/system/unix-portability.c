@@ -52,3 +52,49 @@ int system_open(const char *path, int oflag, mode_t mode)
 #endif
   return (oflag & O_CREAT) ? open(path, oflag, mode) : open(path, oflag);
 }
+
+void system_st_birthtime(struct stat *st, struct timeval *tp)
+{
+#if defined(HAVE_STRUCT_STAT_ST_BIRTHTIMESPEC)
+  tp->tv_sec = st->st_birthtimespec.tv_sec;
+  tp->tv_usec = st->st_birthtimespec.tv_nsec / 1000;
+#elif defined(HAVE_STRUCT_STAT_ST_CTIMESPEC)
+  tp->tv_sec = st->st_ctimespec.tv_sec;
+  tp->tv_usec = st->st_ctimespec.tv_nsec / 1000;
+#elif defined(HAVE_STRUCT_STAT_ST_CTIM)
+  tp->tv_sec = st->st_ctim.tv_sec;
+  tp->tv_usec = st->st_ctim.tv_nsec / 1000;
+#else
+  tp->tv_sec = st->st_ctime;
+  tp->tv_usec = 0;
+#endif
+}
+
+void system_st_atime(struct stat *st, struct timeval *tp)
+{
+#if defined(HAVE_STRUCT_STAT_ST_ATIMESPEC)
+  tp->tv_sec = st->st_atimespec.tv_sec;
+  tp->tv_usec = st->st_atimespec.tv_nsec / 1000;
+#elif defined(HAVE_STRUCT_STAT_ST_ATIM)
+  tp->tv_sec = st->st_atim.tv_sec;
+  tp->tv_usec = st->st_atim.tv_nsec / 1000;
+#else
+  tp->tv_sec = st->st_atime;
+  tp->tv_usec = 0;
+#endif
+}
+
+void system_st_mtime(struct stat *st, struct timeval *tp)
+{
+#if defined(HAVE_STRUCT_STAT_ST_MTIMESPEC)
+  tp->tv_sec = st->st_mtimespec.tv_sec;
+  tp->tv_usec = st->st_mtimespec.tv_nsec / 1000;
+#elif defined(HAVE_STRUCT_STAT_ST_MTIM)
+  tp->tv_sec = st->st_mtim.tv_sec;
+  tp->tv_usec = st->st_mtim.tv_nsec / 1000;
+#else
+  tp->tv_sec = st->st_mtime;
+  tp->tv_usec = 0;
+#endif
+}
+

@@ -44,6 +44,9 @@ define interface
               "S_IXUSR" => $S_IXUSR, "S_IXGRP" => $S_IXGRP,
               "S_IXOTH" => $S_IXOTH,
               "stat" => %stat, "lstat" => %lstat,
+              "system_st_birthtime" => %st-birthtime,
+              "system_st_atime" => %st-atime,
+              "system_st_mtime" => %st-mtime,
 
               "pathconf" => %pathconf,
               "_PC_SYMLINK_MAX" => $_PC_SYMLINK_MAX,
@@ -106,6 +109,13 @@ define interface
   function "lstat",
     map-result: <boolean>,
     output-argument: 2;
+  function "system_st_birthtime",
+    output-argument: 2;
+  function "system_st_atime",
+    output-argument: 2;
+  function "system_st_mtime",
+    output-argument: 2;
+  
   function "unlink",
     map-result: <boolean>;
   function "rename",
