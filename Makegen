@@ -74,10 +74,6 @@ if ($enable_bootstrap) {
     &message("to perform a regular build.");
 } else {
     &compile_subdirs("d2c", "common", "tools");
-    if($enable_duim ne 'no') {
-	&compile_subdirs("duim");
-    }
-    &compile_subdirs("platform");
     &compile_subdirs("tests", "qa");
 }    
 
