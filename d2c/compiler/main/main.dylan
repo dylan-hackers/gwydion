@@ -235,9 +235,6 @@ end;
   
 define variable *old-debugger* = *debugger*;
 
-*debugger* := make(<interactive-debugger>);
-
-
 //----------------------------------------------------------------------
 // Main
 //----------------------------------------------------------------------
@@ -353,6 +350,9 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
 			    long-options: #("debug-optimizer",
 					    "dump-transforms"));
   add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("debug-compiler"));
+  add-option-parser-by-type(argp,
 			    <repeated-parameter-option-parser>,
 			    long-options: #("optimizer-option"),
 			    short-options: #("o"));
@@ -402,6 +402,10 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
     debug-optimizer := string-to-integer(debug-optimizer);
   else
     debug-optimizer := 0;
+  end if;
+
+  if(option-value-by-long-name(argp, "debug-compiler"))
+       *debugger* := make(<interactive-debugger>);
   end if;
 
   let dump-testworks-spec? = option-value-by-long-name(argp, "testworks-spec");
