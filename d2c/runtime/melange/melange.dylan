@@ -122,10 +122,22 @@ define method as
   make(cls, pointer: as(<raw-pointer>, obj));
 end method as;
 
+define method as
+    (cls :: subclass(<statically-typed-pointer>), obj :: <machine-word>)
+ => (result :: <statically-typed-pointer>);
+  make(cls, pointer: as(<raw-pointer>, obj));
+end method as;
+
 define sealed method as
     (class == <integer>, obj :: <statically-typed-pointer>)
  => (result :: <integer>);
   as(<integer>, obj.raw-value);
+end method as;
+
+define sealed method as
+    (class == <machine-word>, obj :: <statically-typed-pointer>)
+ => (result :: <machine-word>);
+  as(<machine-word>, obj.raw-value);
 end method as;
 
 define sealed method as

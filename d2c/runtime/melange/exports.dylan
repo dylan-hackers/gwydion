@@ -40,6 +40,7 @@ define module melange-support
                        callback-method, callback-entry};
 
   use magic, exclude: {\without-bounds-checks };
+  use machine-words;
 
   export
     c-variable-ref, c-variable-ref-setter,
