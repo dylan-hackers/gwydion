@@ -131,9 +131,9 @@ define sealed method wait-for(lock :: <read-write-lock>,
   else
     select(mode)
       read: =>
-        lock-read-locks := lock-read-locks + 1;
+        lock.lock-read-locks := lock.lock-read-locks + 1;
       write: =>
-        if(lock-read-locks > 0)
+        if(lock.lock-read-locks > 0)
           deadlock-error(lock);
         else
           lock.owned? := #t;
