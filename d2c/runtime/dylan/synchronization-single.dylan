@@ -197,8 +197,10 @@ end method;
 
 define sealed method release(not :: <notification>, #key, #all-keys)
  => ();
+  error("Cant release a notification in single-threaded dylan.");
 end method;
 
 define function release-all(not :: <notification>)
  => ();
+  error("Cant release a notification in single-threaded dylan.");
 end function;
