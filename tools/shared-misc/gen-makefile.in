@@ -181,7 +181,7 @@ sub set_default_defaults {
     $DYLANDIR = 0;
     $D2C = '$(DYLANDIR)/bin/d2c';
     $D2CFLAGS = '-L$(DYLANDIR)/lib/dylan';
-    $CFLAGS = '-g';
+    $CFLAGS = '';
     $CPPFLAGS = '-I$(DYLANDIR)/include';
     $MELANGE = 'melange' . $dot_exe;
     $PARSERGEN = 'parsergen' . $dot_exe;
@@ -484,14 +484,14 @@ sub compile_subdir {
 sub maybe_emit_d2c_defines {
     unless ($d2c_defines) {
         if ($CC) {
-            print("CC=$CC\n");
+            print("CC = $CC\n");
         }
         if ($enable_debug) {
-            $CFLAGS = $target_platform{'default_c_compiler_debug_flags'};
+            $CFLAGS .= " $target_platform{'default_c_compiler_debug_flags'}";
         } elsif ($enable_profiling) {
-            $CFLAGS = $target_platform{'default_c_compiler_profile_flags'};
+            $CFLAGS .= " $target_platform{'default_c_compiler_profile_flags'}";
         } else {
-            $CFLAGS = $target_platform{'default_c_compiler_flags'};
+            $CFLAGS .= " $target_platform{'default_c_compiler_flags'}";
         }
         $CFLAGS =~ s/-I%s//;
 
