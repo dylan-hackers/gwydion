@@ -834,7 +834,7 @@ sub emit_library_rule {
 
 	$d2c_target = $foo_lib_du;
     }
-    
+
     if($extraflags ne '') {
 	print STDERR "gen-makefile: Makegen file contains extraflags: ";
 	print STDERR "'$extraflags'\n";
@@ -994,13 +994,19 @@ sub emit_cc_file_rule {
     } else {
         print "\n\t\$(CC) \$(CFLAGS) -I\$(SRCDIR) ";
     }
-    print "-c \$(SRCDIR)/$basefile.cc -o $objfile\n\n";
+    print " -c \$(SRCDIR)/$basefile.cc -o $objfile\n\n";
     if ($target_name eq $host_name) {
       push(@compile_dependencies, $objfile);
     } else {
       push(@cc_files_dependencies, $objfile);
     };
+
     push(@files_to_clean, $objfile);
+
+    if($static && $shared) {
+        local ($dot_static) = $target_platform{'object_filename_suffix'};
+        push(@files_to_clean, "$basefile$dot_static");
+    }
 }
 
 # emit_melange_rule($base_file_name, @dependencies) -- exported
