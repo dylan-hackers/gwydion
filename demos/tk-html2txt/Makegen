@@ -1,6 +1,0 @@
-$D2CFLAGS         # added by update-libdirs
-    = $d2c_runtime
-    . ' -L../../common/collection-extensions'
-    . ' -L../../common/string-ext'
-    . ' -L../../common/table-ext';
-
