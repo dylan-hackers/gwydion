@@ -32,23 +32,45 @@ module: melange-support
 // produced by Melange rather than being explicitly referenced by users.
 //
 
-// Usage: c-variable-ref(int: "&variable") { := expression }
+// Usage: c-variable(int: "&variable") { := expression }
 //
-define macro c-variable-ref
+define macro c-variable
   { c-variable(?result-type:expression, ?:expression) }
     => { pointer-deref(?result-type, c-expr(ptr: ?expression), 0) }
   { c-variable(?result-type:token ?:expression) }
     => { pointer-deref(?result-type, c-expr(ptr: ?expression), 0) }
 end;
 
-define macro c-variable-ref-setter
-  { c-variable(?value:expression, ?result-type:expression, ?:expression) }
+define macro c-variable-setter
+  { c-variable-setter(?value:expression, ?result-type:expression, ?:expression) }
     => { pointer-deref-setter(?value, ?result-type,
 			      c-expr(ptr: ?expression), 0) }
-  { c-variable(?value:expression, ?result-type:token ?:expression) }
+  { c-variable-setter(?value:expression, ?result-type:token ?:expression) }
     => { pointer-deref-setter(?value, ?result-type,
 			      c-expr(ptr: ?expression), 0) }
 end;
+
+
+// Usage: c-variable-ref(int: "&variable") { := expression }
+// implementation same as above but this spelling is deprecated
+// and will be wiped soon    
+//
+define macro c-variable-ref
+  { c-variable-ref (?result-type:expression, ?:expression) }
+    => { pointer-deref(?result-type, c-expr(ptr: ?expression), 0) }
+  { c-variable-ref (?result-type:token ?:expression) }
+    => { pointer-deref(?result-type, c-expr(ptr: ?expression), 0) }
+end;
+
+define macro c-variable-ref-setter
+  { c-variable-ref-setter (?value:expression, ?result-type:expression, ?:expression) }
+    => { pointer-deref-setter(?value, ?result-type,
+                              c-expr(ptr: ?expression), 0) }
+  { c-variable-ref-setter (?value:expression, ?result-type:token ?:expression) }
+    => { pointer-deref-setter(?value, ?result-type,
+                              c-expr(ptr: ?expression), 0) }
+end;
+// deprecated end /////////////////////////////////////////////
 
 define open primary functional class <statically-typed-pointer> (<object>)
   slot raw-value :: <raw-pointer>, required-init-keyword: #"pointer";

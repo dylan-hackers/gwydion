@@ -3,7 +3,7 @@ module: dylan-user
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -43,7 +43,8 @@ define module melange-support
   use machine-words;
 
   export
-    c-variable-ref, c-variable-ref-setter,
+    c-variable-ref, c-variable-ref-setter, // deprecated for new work, will be removed soon 
+    c-variable, c-variable-setter, // use these for development
     <statically-typed-pointer>, raw-value, null-pointer,
     signed-byte-at, signed-byte-at-setter,
     unsigned-byte-at, unsigned-byte-at-setter, signed-short-at,
