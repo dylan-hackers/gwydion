@@ -32,20 +32,20 @@ module: melange-support
 // produced by Melange rather than being explicitly referenced by users.
 //
 
-// Usage: c-variable(int: "&variable") { := expression }
+// Usage: c-variable-ref(int: "&variable") { := expression }
 //
-define macro c-variable
+define macro c-variable-ref
   { c-variable(?result-type:expression, ?:expression) }
     => { pointer-deref(?result-type, c-expr(ptr: ?expression), 0) }
   { c-variable(?result-type:token ?:expression) }
     => { pointer-deref(?result-type, c-expr(ptr: ?expression), 0) }
 end;
 
-define macro c-variable-setter
-  { c-variable-setter(?value:expression, ?result-type:expression, ?:expression) }
+define macro c-variable-ref-setter
+  { c-variable(?value:expression, ?result-type:expression, ?:expression) }
     => { pointer-deref-setter(?value, ?result-type,
 			      c-expr(ptr: ?expression), 0) }
-  { c-variable-setter(?value:expression, ?result-type:token ?:expression) }
+  { c-variable(?value:expression, ?result-type:token ?:expression) }
     => { pointer-deref-setter(?value, ?result-type,
 			      c-expr(ptr: ?expression), 0) }
 end;
