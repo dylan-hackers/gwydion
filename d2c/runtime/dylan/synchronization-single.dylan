@@ -181,7 +181,6 @@ end method;
 
 
 // <notification>
-// XXX: implement dummies
 //
 
 define sealed class <notification> (<synchronization>)
