@@ -708,21 +708,28 @@ define method try-cpp
 	  end for;
 	"error" =>
 	  if (empty?(state.cpp-stack) | head(state.cpp-stack) == #"accept")
-	    parse-error(state, "Encountered #error directive.");
+            for (i from pos below contents.size,
+                 until: (contents[i] == '\n' | contents[i] == '\r'))
+            finally
+              parse-error(state, "Encountered #error directive: %s",
+                          copy-sequence(contents, start: pos, end: i));
+            end for;
 	  end if;
         "warning" =>
           if (empty?(state.cpp-stack) | head(state.cpp-stack) == #"accept")
-            for (i from pos below contents.size, until: contents[i] == '\n')
+            for (i from pos below contents.size,
+                 until: (contents[i] == '\n' | contents[i] == '\r'))
             finally
               parse-warning(state,
                             "Warning: %s\n", 
-                            copy-sequence(contents, start: pos, end: i - 1));
+                            copy-sequence(contents, start: pos, end: i));
               state.position := i;
             end for;
           end if;
 	"line", "pragma" =>
 	  // Kill to end of line
-	  for (i from pos below contents.size, until: contents[i] == '\n')
+	  for (i from pos below contents.size,
+               until: (contents[i] == '\n' | contents[i] == '\r'))
 	  finally
 	    state.position := i;
 	  end for;
