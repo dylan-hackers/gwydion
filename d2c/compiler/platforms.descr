@@ -356,6 +356,7 @@ link-profile-flags:		-pg -g
 // Rename to x86-freebsd-gcc? -prom
 platform-name:			x86-freebsd-elf-gcc
 inherit-from:			gcc freebsd x86
+default-c-compiler-flags:	-Wall -Wno-unused-variable -I. -I%s -O2 -fno-strict-aliasing -fomit-frame-pointer
 link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
 
 // Linux
