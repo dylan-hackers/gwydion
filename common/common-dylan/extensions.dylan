@@ -109,6 +109,7 @@ end;
 
 define constant $digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+// This could definitely use a copy-down version specialized for <integer>
 define method integer-to-string
     (integer :: <general-integer>,
      #key base :: type-union(limited(<integer>, min: 2, max: 36)) = 10,
@@ -151,7 +152,7 @@ define method integer-to-string
     returned-string[0] := '-';
   end if;
 
-  for(digit in digits, index from string-size - count)
+  for (digit in digits, index from string-size - count)
     returned-string[index] := digit;
   end for;
   returned-string;
@@ -165,6 +166,8 @@ define constant $minimum-normalized-double-significand :: <extended-integer>
 define constant $minimum-normalized-extended-significand :: <extended-integer>
   = ash(#e1, float-digits(1.0x0) - 1);
 
+// This could use copy-down versions specialized for the subclasses
+// of <float> (in order to eliminate the gf call at float-decimal-digits(v))
 define method float-to-string
     (v :: <float>)
  => (string :: <byte-string>);
@@ -221,7 +224,11 @@ define method float-to-string
   as(<byte-string>, s)
 end method;
 
-// Don't inline this. We are essentially doing manual copy-down.
+// Don't inline these. We are essentially doing manual copy-downs.
+// Actually since this is float-decimal-digits now, it should
+// probably be made inline or inline-only, but it won't have
+// any useful effect until there are versions of float-to-string 
+// specialized for different subclasses of float.
 define method float-decimal-digits
     (v :: <single-float>)
  => (exponent :: <integer>, digits :: <list>);
@@ -229,7 +236,7 @@ define method float-decimal-digits
                            $minimum-normalized-single-significand)
 end method;
 
-// Don't inline this. We are essentially doing manual copy-down.
+// See above.
 define method float-decimal-digits
     (v :: <double-float>)
  => (exponent :: <integer>, digits :: <list>);
@@ -237,7 +244,7 @@ define method float-decimal-digits
                            $minimum-normalized-double-significand)
 end method;
 
-// Don't inline this. We are essentially doing manual copy-down.
+// See above.
 define method float-decimal-digits
     (v :: <extended-float>)
  => (exponent :: <integer>, digits :: <list>);
@@ -355,16 +362,18 @@ end method float-decimal-digits-aux;
 define open generic number-to-string
     (number :: <number>) => (string :: <string>);
 
-define method number-to-string (integer :: <general-integer>) => (string :: <string>);
+define sealed inline method number-to-string (integer :: <general-integer>) => (string :: <string>);
   integer-to-string(integer, base: 10);
 end method number-to-string;
 
 #if (~bootstrap)
-define method number-to-string (float :: <float>) => (string :: <string>);
+define sealed inline method number-to-string (float :: <float>) => (string :: <string>);
   float-to-string(float);
 end method number-to-string;
 #endif
 
+// To do: We should probably implement string-to-general-integer too
+// or generalize this function.
 define method string-to-integer
     (string :: <byte-string>,
      #key base :: <integer> = 10, 
