@@ -204,12 +204,65 @@ end function-test locator-name;
 
 /// Coercion protocols
 
+define variable $locator-coercion-tests-cache = #f;
+
+define function locator-coercion-tests() => (tests :: <vector>)
+  unless($locator-coercion-tests-cache)
+    $locator-coercion-tests-cache = make(<vector>);
+    for(inits
+          in #[#[#[],         #t, "./",    "f0", #f,    "f0"],
+               #[#["d"],      #t, "d/",    "f1", "txt", "d/f1.txt"],
+               #[#["d", "d"], #t, "d/d/",  "f2", #f,    "d/d/f2"],
+               #[#[],         #f, "/",     "f3", #f,    "/f3"],
+               #[#["d"],      #f, "/d/",   "f4", "c",   "/d/f4.c"],
+               #[#["d", "d"], #f, "/d/d/", "f5", #f,    "/d/d/f5"]])
+      let directory-as-locator = make(<posix-directory-locator>,
+                                      path: inits[0],
+                                      relative?: inits[1]);
+      let directory-as-string = inits[2];
+      let file-as-locator = make(<posix-file-locator>,
+                                 directory: directory-as-string,
+                                 base: inits[3],
+                                 extension: inits[4]);
+      let file-as-string = inits[5];
+
+      $locator-coercion-tests-cache
+        := add!($locator-coercion-tests-cache,
+                vector(directory-as-locator,
+                       directory-as-string,
+                       file-as-locator,
+                       file-as-string));
+    end;
+  end;
+  $locator-coercion-tests-cache;
+end;
+
 define locators function-test locator-as-string ()
-  //---*** Fill this in...
+  local method test-locator-as-string(locator, string)
+          check-equal(format-to-string("%s: locator-as-string(%=) = %=",
+                                       locator.object-class, locator, string),
+                      locator-as-string(<string>, locator),
+                      string);
+        end;
+
+  for(test in locator-coercion-tests())
+    test-locator-as-string(test[0], test[1]);
+    test-locator-as-string(test[2], test[3]);
+  end;
 end function-test locator-as-string;
 
 define locators function-test string-as-locator ()
-  //---*** Fill this in...
+  local method test-string-as-locator(string, locator)
+          check-equal(format-to-string("string-as-locator(%s, %=) = %=",
+                                       locator.object-class, string, locator),
+                      string-as-locator(locator.object-class, string),
+                      locator);
+          end;
+
+  for(test in locator-coercion-tests())
+    test-string-as-locator(test[1], test[0]);
+    test-string-as-locator(test[3], test[2]);
+  end;
 end function-test string-as-locator;
 
 /// Utilities

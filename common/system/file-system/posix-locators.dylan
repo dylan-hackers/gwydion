@@ -193,7 +193,7 @@ define sealed method string-as-locator
   let (directory, name)
     = if (pos)
 	values(as(<posix-directory-locator>, 
-		  copy-sequence(string, end: pos)),
+		  copy-sequence(string, end: pos + 1)),
 	       copy-sequence(string, start: pos + 1))
       else
 	values(#f, string)
