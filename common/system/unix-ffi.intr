@@ -126,7 +126,6 @@ define interface
     map-result: <c-string>,
     map-argument: { 1 => <c-string> };
   function "readlink",
-    map-result: <boolean>,
     map-argument: { 2 => <c-string> };
 
   struct "struct dirent",
