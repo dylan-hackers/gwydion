@@ -4,7 +4,7 @@ copyright: see below
 
 //======================================================================
 //
-// Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
+// Copyright (c) 1995 - 1997  Carnegie Mellon University
 // Copyright (c) 1998 - 2003  Gwydion Dylan Maintainers
 // All rights reserved.
 // 

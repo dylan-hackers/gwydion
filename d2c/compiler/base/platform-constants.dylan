@@ -1,12 +1,11 @@
 module: platform-constants
 author: Peter Housel
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/platform-constants.dylan,v 1.1 2003/05/25 15:39:16 housel Exp $
 copyright: see below
 
 //======================================================================
 //
-// Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998-2003  Gwydion Dylan Maintainers
+// Copyright (c) 1995 - 1997  Carnegie Mellon University
+// Copyright (c) 1998 - 2003  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
