@@ -71,28 +71,46 @@ define method float-to-string
   as(<byte-string>, s)
 end method;
 
-// Don't inline these. We are essentially doing manual copy-downs.
-define method float-decimal-digits
-    (v :: <single-float>)
+define not-inline method float-decimal-digits
+    (v :: <single-float>,
+     #key round-significant-digits: i :: false-or(<integer>),
+          round-position: j :: false-or(<integer>))
  => (exponent :: <integer>, digits :: <list>);
-  float-decimal-digits-free(v, $minimum-single-float-exponent,
-                            $minimum-normalized-single-significand)
+  if (i | j)
+    float-decimal-digits-fixed(v, i, j, $minimum-single-float-exponent,
+                               $minimum-normalized-single-significand)
+  else
+    float-decimal-digits-free(v, $minimum-single-float-exponent,
+                              $minimum-normalized-single-significand)
+  end if;
 end method;
 
-// See above.
-define method float-decimal-digits
-    (v :: <double-float>)
+define not-inline method float-decimal-digits
+    (v :: <double-float>,
+     #key round-significant-digits: i :: false-or(<integer>),
+          round-position: j :: false-or(<integer>))
  => (exponent :: <integer>, digits :: <list>);
-  float-decimal-digits-free(v, $minimum-double-float-exponent,
-                            $minimum-normalized-double-significand)
+  if (i | j)
+    float-decimal-digits-fixed(v, i, j, $minimum-double-float-exponent,
+                               $minimum-normalized-double-significand)
+  else
+    float-decimal-digits-free(v, $minimum-double-float-exponent,
+                              $minimum-normalized-double-significand)
+  end if;
 end method;
 
-// See above.
-define method float-decimal-digits
-    (v :: <extended-float>)
+define not-inline method float-decimal-digits
+    (v :: <extended-float>,
+     #key round-significant-digits: i :: false-or(<integer>),
+          round-position: j :: false-or(<integer>))
  => (exponent :: <integer>, digits :: <list>);
-  float-decimal-digits-free(v, $minimum-extended-float-exponent,
-                            $minimum-normalized-extended-significand)
+  if (i | j)
+    float-decimal-digits-fixed(v, i, j, $minimum-extended-float-exponent,
+                               $minimum-normalized-extended-significand)
+  else
+    float-decimal-digits-free(v, $minimum-extended-float-exponent,
+                              $minimum-normalized-extended-significand)
+  end if;
 end method;
 
 define inline-only method float-decimal-digits-free
@@ -199,6 +217,185 @@ define inline-only method float-decimal-digits-free
 
   initial(v, f, e)
 end method float-decimal-digits-free;
+
+define inline-only method float-decimal-digits-fixed
+    (v :: <float>, i :: false-or(<integer>), j :: false-or(<integer>),
+     minimum-exponent :: <integer>,
+     minimum-normalized-significand :: <extended-integer>)
+ => (exponent :: <integer>, digits :: <list>);
+  local
+    // The following methods implement the fixed-format conversion
+    // algorithm by Burger and Dybvig, as described in "Printing
+    // Floating-Point Numbers Quickly and Accurately", in the 1996
+    // ACM PLDI conference proceedings.
+    // 
+    // Set initial values according to Table I.  The high and low
+    // limits due to the floating-point precision are compared with
+    // the limits due to the requested rounding precision, and the larger
+    // range is used.  (Since integer arithmetic is being used, we express
+    // the limits in terms of the common denominator s).
+    //
+    method initial
+        (v :: <float>, f :: <extended-integer>, e :: <integer>,
+         j :: <integer>, k :: <integer>)
+     => (exponent :: <integer>, digits :: <list>);
+      let round? = (even?(f));
+
+      if (e >= 0)
+        let b^e = ash(#e1, e);
+        if (f ~= minimum-normalized-significand)
+          let limit = if (j < 0) #e0 else #e10 ^ j end;
+          if (limit >= b^e)
+            scale(f * b^e * 2, #e2, limit, limit, j, k, #t, #t);
+          else
+            scale(f * b^e * 2, #e2, b^e, b^e, j, k, round?, round?);
+          end if;
+        else
+          let limit
+            = if (j < 0) truncate/(2, #e10 ^ -j) else 2 * (#e10 ^ j) end;
+          if (limit >= b^e * 2)
+            scale(f * b^e * 4, #e4, limit, limit, j, k, #t, #t);
+          elseif (limit >= b^e)
+            scale(f * b^e * 4, #e4, b^e * 2, limit, j, k, round?, #t);
+          else
+            scale(f * b^e * 4, #e4, b^e * 2, b^e, j, k, round?, round?);
+          end if;
+        end if;
+      else
+        if (e = minimum-exponent | f ~= minimum-normalized-significand)
+          let b^-e = ash(#e1, -e);
+          let limit
+            = if (j < 0) truncate/(b^-e, #e10 ^ -j) else b^-e * (#e10 ^ j) end;
+          if (limit >= #e1)
+            scale(f * 2, ash(#e1, 1 - e), limit, limit, j, k, #t, #t);
+          else
+            scale(f * 2, ash(#e1, 1 - e), #e1, #e1, j, k, round?, round?);
+          end if;
+        else
+          let b^-e+1 = ash(#e1, 1 - e);
+          let limit
+            = if (j < 0) truncate/(b^-e+1, #e10 ^ -j)
+              else b^-e+1 * (#e10 ^ j) end;
+          if (limit >= #e2)
+            scale(f * 4, ash(#e1, 2 - e), limit, limit, j, k, #t, #t);
+          elseif (limit >= #e1)
+            scale(f * 4, ash(#e1, 2 - e), #e2, limit, j, k, round?, #t);
+          else
+            scale(f * 4, ash(#e1, 2 - e), #e2, #e1, j, k, round?, round?);
+          end if;
+        end if;
+      end if;
+    end,
+
+    // Scale to the appropriate power of 10 using an estimate of
+    // the base-10 logarithm.
+    //
+    method scale
+        (r :: <extended-integer>, s :: <extended-integer>,
+         m+ :: <extended-integer>, m- :: <extended-integer>,
+         j :: <integer>, k :: <integer>,
+         low-ok? :: <boolean>, high-ok? :: <boolean>)
+     => (exponent :: <integer>, digits :: <list>);
+      if (k >= 0)
+        fixup(r, s * #e10 ^ k, m+, m-, j, k, low-ok?, high-ok?);
+      else
+        let scale = #e10 ^ -k;
+        fixup(r * scale, s, m+ * scale, m- * scale, j, k, low-ok?, high-ok?);
+      end if;
+    end,
+
+    // Fix up the log estimate, which might be 1 too small.
+    //
+    method fixup
+        (r :: <extended-integer>, s :: <extended-integer>,
+         m+ :: <extended-integer>, m- :: <extended-integer>,
+         j :: <integer>, k :: <integer>,
+         low-ok? :: <boolean>, high-ok? :: <boolean>)
+     => (exponent :: <integer>, digits :: <list>);
+      if ((if (high-ok?) \>= else \> end)(r + m+, s)) // log estimate too low?
+        values(k + 1,
+               generate(r, s, m+, m-, j, k, low-ok?, high-ok?));
+      else
+        values(k,
+               generate(r * 10, s, m+ * 10, m- * 10, j, k - 1,
+                        low-ok?, high-ok?));
+      end;
+    end,
+
+    // Digit generation loop
+    //
+    method generate
+        (r :: <extended-integer>, s :: <extended-integer>,
+         m+ :: <extended-integer>, m- :: <extended-integer>,
+         j :: <integer>, k :: <integer>,
+         low-ok? :: <boolean>, high-ok? :: <boolean>)
+     => (digits :: <list>);
+      let (d :: <extended-integer>, r :: <extended-integer>) = truncate/(r, s);
+
+      let tc1 = (if (low-ok?) \<= else \< end)(r, m-);
+      let tc2 = (if (high-ok?) \>= else \> end)(r + m+, s);
+
+      if (~tc1)
+        if (~tc2)
+          pair(d, generate(r * 10, s, m+ * 10, m- * 10, j, k - 1,
+                           low-ok?, high-ok?));
+        else
+          pair(d + 1, generate-trailing(r * 10, s, m+ * 10, m- * 10, j, k - 1,
+                                        low-ok?, high-ok?));
+        end;
+      else
+        if (~tc2)
+          pair(d, generate-trailing(r * 10, s, m+ * 10, m- * 10, j, k - 1,
+                                    low-ok?, high-ok?));
+        elseif (k < j)
+          list(0);
+        elseif (r * 2 < s)
+          pair(d, generate-trailing(r * 10, s, m+ * 10, m- * 10, j, k - 1,
+                                    low-ok?, high-ok?));
+        else
+          pair(d + 1, generate-trailing(r * 10, s, m+ * 10, m- * 10, j, k - 1,
+                                        low-ok?, high-ok?));
+        end if;
+      end if;
+    end,
+
+    // Trailing zero generation loop
+    //
+    method generate-trailing
+        (r :: <extended-integer>, s :: <extended-integer>,
+         m+ :: <extended-integer>, m- :: <extended-integer>,
+         j :: <integer>, k :: <integer>,
+         low-ok? :: <boolean>, high-ok? :: <boolean>)
+     => (digits :: <list>);
+      if (k < j)
+        #()
+      elseif ((if (high-ok?) \>= else \> end)(r + m+, s))
+        list(0)
+      else
+        pair(0, generate-trailing(r * 10, s, m+ * 10, m- * 10, j, k - 1,
+                                  low-ok?, high-ok?))
+      end if;
+    end;
+
+  let (f :: <extended-integer>, e :: <integer>, sign :: <integer>)
+    = integer-decode-float(v);
+  let k = ceiling(logn(v, 10) - 1d-10);
+
+  if (j)
+    if (i)
+      error("Only one of round-significant-digits: and round-position: "
+              "may be specified");
+    end;
+    
+    initial(v, f, e, j, k)
+  else
+    if (v + (10.0 ^ (k - i)) / 2 < 10.0 ^ k)
+      initial(v, f, e, k - i, k)
+    else
+      initial(v, f, e, k + 1 - i, k + 1)
+    end if;
+  end if;
+end method float-decimal-digits-fixed;
 
 
 
