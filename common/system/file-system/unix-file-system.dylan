@@ -258,7 +258,7 @@ define method %file-property
   if (err?)
     unix-file-error("get the creation date of", "%s", file)
   else
-    make(<date>, native-clock: st-ctime(st))
+    make(<date>, native-clock: %st-birthtime(st))
   end
 end method %file-property;
 
@@ -270,7 +270,7 @@ define method %file-property
   if (err?)
     unix-file-error("get the access date of", "%s", file)
   else
-    make(<date>, native-clock: st-atime(st))
+    make(<date>, native-clock: %st-atime(st))
   end
 end method %file-property;
 
@@ -282,7 +282,7 @@ define method %file-property
   if (err?)
     unix-file-error("get the modification date of", "%s", file)
   else
-    make(<date>, native-clock: st-mtime(st))
+    make(<date>, native-clock: %st-mtime(st))
   end
 end method %file-property;
 
