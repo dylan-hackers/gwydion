@@ -17,7 +17,7 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../common/string-ext'
     . ' -L../common/system'
     . ' -L../common/table-ext'
-    . ' -L../common/threads'
+    . ' -L../d2c/runtime/threads'
     . ' -L../common/time'
     . ' -L../d2c/runtime/random';
 
@@ -74,7 +74,7 @@ unless (1 || $features{'no_time'}) {
 
 print <<"EOF"
 
-DYLANPATH=../common/transcendental:../common/collection-extensions:../common/table-ext:../common/string-ext:../common/standard-io:../common/streams:../common/print:../common/format:../common/matrix:../common/format-out:../common/time:../common/regular-expressions:../common/getopt
+DYLANPATH=../d2c/runtime/transcendental:../common/collection-extensions:../common/table-ext:../common/string-ext:../common/standard-io:../common/streams:../common/print:../common/format:../common/matrix:../common/format-out:../common/time:../common/regular-expressions:../common/getopt
 
 EOF
 ;

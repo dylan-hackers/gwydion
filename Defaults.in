@@ -74,11 +74,10 @@ if ($enable_bootstrap) {
     $d2c_runtime = '-L@LOCAL_RUNTIME@ ';
 } else {
     $CPPFLAGS = '-I'.$srcroot.'/d2c/runtime';
-    @runtime_directories = ('c-code', 'dylan', 'melange');
+    @runtime_directories = ('c-code', 'dylan', 'melange', 'transcendental');
     foreach (@runtime_directories) {
 	$d2c_runtime .= "-L$buildroot/d2c/runtime/$_ ";
     }
-    $d2c_runtime .= "-L$buildroot/common/transcendental";
 }
 
 $GC_CFLAGS = '@GC_CFLAGS@';

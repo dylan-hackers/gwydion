@@ -1,5 +1,3 @@
-&makegen_include("../common-Makegen");
-
 $D2CFLAGS = $d2c_runtime;
 
 if($enable_bootstrap) {

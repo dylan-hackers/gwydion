@@ -1,0 +1,4 @@
+$D2CFLAGS = $d2c_runtime;
+
+do emit_library_rule('Transcendental', '$(BUILDROOT)/force.timestamp', '', 
+		     'compile', 'no-mindy', 'install');

@@ -11,7 +11,7 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../streams'
     . ' -L..'
     . ' -L../../table-ext'
-    . ' -L../../tests'
+    . ' -L../../common-dylan/tests'
     . ' -L../../threads'
     . ' -L../../../d2c/runtime/dylan/tests'
     . ' -L../../../d2c/runtime/random'

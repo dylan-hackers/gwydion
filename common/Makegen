@@ -6,9 +6,7 @@
 # dependency order. 
 
 unless ($enable_bootstrap) {
-  &compile_subdirs('transcendental',
-		   'table-ext',
-		   'threads',
+  &compile_subdirs('table-ext',
 		   'common-dylan',
 		   'collections',
 		   'matrix',
@@ -20,8 +18,8 @@ unless ($enable_bootstrap) {
 		   'getopt',
 		   'stream-ext');
 
-  #&compile_subdirs('network');
-  #if($features{'compiled_for_unix'}) {
-  #  &compile_subdirs('command-processor');
-  #}
+  if($features{'compiled_for_unix'}) {
+    #&compile_subdirs('network');
+    &compile_subdirs('command-processor');
+  }
 }

@@ -1,7 +1,7 @@
 &compile_subdirs("testworks", "testworks-specs");
 
 @testdirs = ("../d2c/runtime/dylan/tests",
-	     "../common/tests",
+	     "../common/common-dylan/tests",
 	     "../common/collections/tests",
 	     "../common/io/tests",
 	     "../common/system/tests");

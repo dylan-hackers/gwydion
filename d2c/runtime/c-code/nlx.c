@@ -28,5 +28,4 @@ descriptor_t *catch(descriptor_t *(*fn)(descriptor_t *sp, void *state,
 void throw(void *state, descriptor_t *stack_top)
 {
     longjmp(state, (long)stack_top);
-    /*    restore_state(state, (long)stack_top); */
 }

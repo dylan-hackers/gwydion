@@ -149,12 +149,15 @@ define method run-command(c)
     force-output(*standard-output*);
     to-cooked();
 
-    block()
+//    let handler (<condition>) = break;
+
+//    block()
       commands[0].command(parameter);
-    exception (condition :: <condition>)
-      format(*standard-output*, "%s\r\n", condition);
-      #f
-    end block;
+//    exception (condition :: <condition>)
+//      break();
+//      format(*standard-output*, "%s\r\n", condition);
+//      #f
+//    end block;
 
     force-output(*standard-output*);
     to-raw();

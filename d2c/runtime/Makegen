@@ -5,14 +5,14 @@ if (!$enable_bootstrap) {
     };
 
     do compile_subdirs('dylan',
+                       'threads',
 		       'melange',
 #		       'c-ffi',
 		       'garbage-collection',
-		       '../../common/transcendental');
+		       'transcendental');
 }
 
 do compile_subdirs('random',
-		   '../../common/threads',
 		   '../../common/table-ext',
 		   '../../common/common-dylan',
 		   '../../common/collection-extensions',

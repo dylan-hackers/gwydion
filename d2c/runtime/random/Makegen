@@ -5,7 +5,7 @@ $CPPFLAGS = "$CPPFLAGS -I.. ";
 	
 $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
-    . ' -L../../../common/transcendental';
+    . ' -L../transcendental';
 
 do emit_library_rule(
     'Random', '$(BUILDROOT)/force.timestamp', '', 'compile', 'install'
