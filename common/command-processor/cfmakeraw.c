@@ -1,4 +1,4 @@
-#if defined(GD_PLATFORM_SOLARIS) || defined(GD_PLATFORM_CYGNUS)
+#if defined(GD_PLATFORM_SOLARIS) || defined(GD_PLATFORM_CYGWIN)
 
 #include "cfmakeraw.h"
 #include <errno.h>
