@@ -184,8 +184,6 @@ define sealed /* exported */ class <platform> (<object>)
     required-init-keyword: #"uses-drive-letters?";
   constant slot environment-variables-can-be-exported? :: <boolean>,
     required-init-keyword: #"environment-variables-can-be-exported?";
-  constant slot use-dbclink? :: <boolean>,
-    required-init-keyword: #"use-dbclink?";
 
   // if this is defined, search for shared libraries
   constant /* exported */ slot shared-library-filename-suffix
@@ -287,7 +285,6 @@ define variable *valid-properties* = make(<table>);
 *valid-properties*[#"makefiles-can-rebuild-themselves?"] := #t;
 *valid-properties*[#"uses-drive-letters?"] := #t;
 *valid-properties*[#"environment-variables-can-be-exported?"] := #t;
-*valid-properties*[#"use-dbclink?"] := #t;
 *valid-properties*[#"shared-library-filename-suffix"] := #f;
 *valid-properties*[#"randomize-library-command"] := #f;
 *valid-properties*[#"link-shared-library-command"] := #f;
@@ -430,8 +427,7 @@ define function add-platform! (header :: <header>)
 	  local-platform-info[key] := (name := as(<symbol>, val));
 	#"make-supports-phony-targets?", #"makefiles-can-rebuild-themselves?",
 	#"uses-drive-letters?", #"environment-variables-can-be-exported?",
-        #"use-dbclink?", #"link-doesnt-search-for-libs?",
-        #"big-endian?" =>
+        #"link-doesnt-search-for-libs?", #"big-endian?" =>
           local-platform-info[key] := string-to-boolean(val);
         #"integer-length", #"pointer-alignment", #"pointer-size",
         #"short-alignment", #"short-size",
