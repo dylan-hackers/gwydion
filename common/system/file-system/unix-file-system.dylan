@@ -11,38 +11,36 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 define method %expand-pathname 
     (path :: <posix-directory-locator>)
  => (expanded-path :: <locator>)
-  block (return)
-    if (locator-relative?(path))
-      let elements = locator-path(path);
-      if (size(elements) > 0)
-	let first = elements[0];
-	if (instance?(first, <string>)
-	      & size(first) > 0
-	      & first[0] = '~')
-	  let name = if (first = "~")
-		       login-name()
-		     else
-		       copy-sequence(first, start: 1)
-		     end;
-	  let passwd = %getpwnam(name);
-	  if (passwd =~ null-pointer)
-	    let homedir = as(<native-directory-locator>, pw-dir(passwd));
-	    return(merge-locators(make(<native-directory-locator>,
-				       path: copy-sequence(elements, start: 1),
-				       relative?: #t),
-				  homedir))
-	  else
-	    return(path)
-	  end
-	else
-	  return(path)
-	end
+  if (locator-relative?(path))
+    let elements = locator-path(path);
+    if (size(elements) > 0)
+      let first = elements[0];
+      if (instance?(first, <string>)
+            & size(first) > 0
+            & first[0] = '~')
+        let name = if (first = "~")
+                     login-name()
+                   else
+                     copy-sequence(first, start: 1)
+                   end;
+        let passwd = %getpwnam(name);
+        if (passwd ~= null-pointer)
+          let homedir = as(<native-directory-locator>, pw-dir(passwd));
+          merge-locators(make(<native-directory-locator>,
+                              path: copy-sequence(elements, start: 1),
+                              relative?: #t),
+                         homedir);
+        else
+          path
+        end
       else
-	return(path)
+        path
       end
     else
-      return(path)
+      path
     end
+  else
+    path
   end
 end method %expand-pathname;
 
