@@ -67,7 +67,7 @@ end method;
 
 define sealed method release(lock :: <recursive-lock>, #key, #all-keys)
  => ();
-  if(lock.recursive-lock-count > 0)
+  if(lock.owned?)
     lock.recursive-lock-count := lock.recursive-lock-count - 1;
   else
     not-owned-error(lock);
@@ -87,32 +87,27 @@ end method;
 //
 
 define open primary class <simple-lock> (<exclusive-lock>)
-  slot simple-lock-owned? :: <boolean> = #f;
+  sealed slot owned? :: <boolean> = #f;
 end class;
 
 define sealed method wait-for(lock :: <simple-lock>,
                        #key timeout :: false-or(<real>) = #f)
  => (success? :: <boolean>);
-  if(lock.simple-lock-owned?)
+  if(lock.owned?)
     deadlock-error(lock);
   else
-    lock.simple-lock-owned? := #t;
+    lock.owned? := #t;
   end;
   #t;
 end method;
 
 define sealed method release(lock :: <simple-lock>, #key, #all-keys)
  => ();
-  if(lock.simple-lock-owned?)
-    lock.simple-lock-owned? := #f;
+  if(lock.owned?)
+    lock.owned? := #f;
   else
     not-owned-error(lock);
   end;
-end method;
-
-define sealed method owned?(lock :: <simple-lock>)
- => (owned? :: <boolean>);
-  lock.simple-lock-owned?;
 end method;
 
 
@@ -150,13 +145,13 @@ define sealed class <notification> (<synchronization>)
     required-init-keyword: lock:;
 end class;
 
-define method wait-for(not :: <notification>,
+define sealed method wait-for(not :: <notification>,
                        #key timeout :: false-or(<real>) = #f)
  => (success? :: <boolean>);
   error("wait-for(<notification>) -> BAD!");
 end method;
 
-define method release(not :: <notification>, #key, #all-keys)
+define sealed method release(not :: <notification>, #key, #all-keys)
  => ();
   error("release(<notification>) -> BAD!");
 end method;
