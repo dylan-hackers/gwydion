@@ -329,7 +329,8 @@ define method emit-make-prologue (state :: <lid-mode-state>) => ();
      if (libtool)
        format(makefile, "LIBTOOL = %s\n", libtool);
      end;
-     format(makefile, "GC_LIBS = %s\n", $gc-libs);   
+     let gc-libs = getenv("GC_LIBS") | $gc-libs;
+     format(makefile, "GC_LIBS = %s\n", gc-libs);   
      
      format(makefile, "# We only know the ultimate target when we've finished"
 	      " building the rest\n");

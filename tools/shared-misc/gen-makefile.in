@@ -518,6 +518,9 @@ EOF
             if ($LIBTOOL) {
                 print "$EXPORT LIBTOOL = $LIBTOOL\n\n";
             }
+            if ($GC_LIBS) {
+                print "$EXPORT GC_LIBS = $GC_LIBS\n\n";
+            }
             if ($DYLANPATH) {
 		    print "$EXPORT DYLANPATH =\n\n";
             };

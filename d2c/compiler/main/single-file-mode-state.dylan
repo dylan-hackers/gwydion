@@ -281,8 +281,9 @@ define method build-executable (state :: <single-file-mode-state>) => ();
                                    state.unit-target.object-filename-suffix));
   let compile-string
     = substring-replace(compile-string, "$(CCFLAGS)", cc-flags);
+  let gc-libs = getenv("GC_LIBS") | $gc-libs;
   let linker-args
-    = substring-replace(linker-args, "$(GC_LIBS)", $gc-libs);
+    = substring-replace(linker-args, "$(GC_LIBS)", gc-libs);
 
   close(state.unit-stream);
   state.unit-stream := #f;
