@@ -64,16 +64,16 @@ define method print-test () => ();
   run-test(print-to-string("Hello"), "\"Hello\"", "string");
 
   let eint :: <extended-integer> = as(<extended-integer>, -1);
-  run-test(print-to-string(eint), "#e-1", "extended-integer");
+  run-test(print-to-string(eint), "-1", "extended-integer");
 	   
   let sequence-1 = make(<stretchy-vector>);
-  run-test(print-to-string(sequence-1), "{<stretchy-object-vector>: }",
+  run-test(print-to-string(sequence-1), "{stretchy vector }",
 	   "empty sequence");
 
   let sequence-2 = make(<stretchy-vector>, size: 5);
   sequence-2[3] := 3;
   run-test(print-to-string(sequence-2),
-	   "{<stretchy-object-vector>: #f, #f, #f, 3, #f}", "sequence");
+	   "{stretchy vector #f, #f, #f, 3, #f}", "sequence");
 
   let sequence-3 = #[4, 5, 6, 2];
   run-test(print-to-string(sequence-3), "#[4, 5, 6, 2]", "vector");
@@ -81,20 +81,20 @@ define method print-test () => ();
   let deque-1 = make(<deque>);
   push(deque-1, 4);
   push(deque-1, 5);
-  run-test(print-to-string(deque-1), "{<object-deque>: 5, 4}", "deque");
+  run-test(print-to-string(deque-1), "{deque of 5, 4}", "deque");
 
   let table-1 = make(<table>);
   table-1[5] := 42;
-  run-test(print-to-string(table-1), "{<table>: (5 => 42)}", "table");
+  run-test(print-to-string(table-1), "{instance of {class <simple-object-table>}}", "table");
 
   let range-1 = make(<range>);
-  run-test(print-to-string(range-1), "{<range>: 0, 1, ...}", "range");
+  run-test(print-to-string(range-1), "{range 0 by 1}", "range");
   
   let range-2 = make(<range>, from: 0, to: 0);
-  run-test(print-to-string(range-2), "{<range>: 0}", "0 range");
+  run-test(print-to-string(range-2), "{range 0 through 0 by 1}", "0 range");
 
   let range-3 = make(<range>, from: 0, to: -20, by: -2);
-  run-test(print-to-string(range-3), "{<range>: 0, -2, ..., -20}",
+  run-test(print-to-string(range-3), "{range 0 through -20 by -2}",
 	   "negative range");
 
   let array-1 = make(<array>, dimensions: #[2, 2]);
@@ -103,13 +103,13 @@ define method print-test () => ();
       array-1[i, j] := row-major-index(array-1, i, j);
     end for;
   end for;
-  run-test(print-to-string(array-1), "{<array>: {{0, 1}, {2, 3}}}", "array");
+  run-test(print-to-string(array-1), "{instance of {class <simple-object-array>}}", "array");
 
    let float-1 = 10.0s0;
-   run-test(print-to-string(float-1), "10.0s0", "float");
+   run-test(print-to-string(float-1), "10.0", "float");
 
    let double-float-1 = 10.0d0;
-   run-test(print-to-string(double-float-1), "10.0d0", "double-float");
+   run-test(print-to-string(double-float-1), "10.0", "double-float");
 end method print-test;
 
 define method main (argv0, #rest ignored)
