@@ -23,7 +23,7 @@
 
 #define STACK_SIZE (96 * 1024)
 
-heapptr_t allocate(int bytes)
+heapptr_t allocate(unsigned int bytes)
 {
   return (heapptr_t)GC_malloc_ignore_off_page(bytes);
 }

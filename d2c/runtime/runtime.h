@@ -44,7 +44,7 @@ typedef struct descriptor {
 
 typedef descriptor_t *(*entry_t)();
 
-extern heapptr_t allocate(int bytes);
+extern heapptr_t allocate(unsigned int bytes);
 extern descriptor_t *allocate_stack(void);
 extern void destroy(void* ptr);
 extern heapptr_t make_trampoline(void *func, descriptor_t closure,
