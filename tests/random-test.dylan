@@ -61,11 +61,6 @@ end method run-test;
 define method random-test () => ();
   let random-1 :: <integer> = random(20);
   let random-2 :: <integer> = random-bits();
-#if (mindy)
-  let random-3 :: <float> = random-float(30);
-  let random-4 :: <float> = random-gaussian();
-  let random-5 :: <float> = random-exponential();
-#endif
 end method random-test;
 
 define method main (argv0, #rest ignored)
