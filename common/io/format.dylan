@@ -421,8 +421,11 @@ define method format-float-fixed
         float-decimal-digits(v, round-position: -precision);
       end if;
     let digits
-      = if(alternate-form?) digits else strip-trailing-zeroes(digits) end;
+      = if(~alternate-form?) digits else strip-trailing-zeroes(digits) end;
     
+    if (exponent = 0)
+      write-element(stream, '0');
+    end if;
     for (digit in digits, place from exponent by -1)
       if (place = 0)
         write-element(stream, '.');
