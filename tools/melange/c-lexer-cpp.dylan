@@ -334,7 +334,8 @@ end method framework-include;
 
 // file-in-include-path -- exported function.
 //
-define /* exported */ function file-in-include-path (name :: <string>)
+define /* exported */ function file-in-include-path (name :: <string>,
+                                                     #key skip-to)
  => (full-name :: false-or(<string>));
  
  	#if (MacOS)
@@ -351,7 +352,14 @@ define /* exported */ function file-in-include-path (name :: <string>)
     // We don't have any "file-exists" functions, so we just keep trying
     // to open files until one of them fails to signal an error.
     block (return)
-      for (dir in include-path)
+      let search-path =
+        if(skip-to)
+          // XXX
+        else
+          include-path;
+        end if;
+        
+      for (dir in search-path)
         block ()
         #if (MacOS)
                 let full-name = if( (dir ~= "") & (dir ~= ":") )
@@ -372,6 +380,22 @@ define /* exported */ function file-in-include-path (name :: <string>)
   end if;
 end function file-in-include-path;
 
+define /* exported */ function next-file-in-include-path (state,file-path :: <string>,file-name :: <string>)
+ => (full-name :: false-or(<string>));
+  let skip = #t;
+  block (return)
+    for (dir in include-path)
+      if (skip = #f)
+        block ()
+          let full-name = concatenate(dir, "/", file-name);
+          if(full-name.file-is-header?) return(full-name) end;
+        end block;
+      end if;
+      if (skip & dir = file-path) skip := #f end if;
+    end for;
+  end block;
+end function next-file-in-include-path;
+
 // Check for a #include<angles.h> file
 //
 define method angle-include( state, contents, angle-start, angle-end )
@@ -388,6 +412,33 @@ define method angle-include( state, contents, angle-start, angle-end )
       := make(<tokenizer>, name: full-name, parent: state);
   else
     parse-error(state, "File not found: %s", name);
+  end if;
+end;
+
+define method angle-include-next( state, filename )
+ =>( tokenizer :: <tokenizer> )
+  let name = copy-sequence(state.file-name);
+  if (first(filename) == '/')
+    let (found,match-end,path-start,path-end,filename-start,filename-end) 
+      = regexp-position(filename, "^(.*)/([^/]+)");
+    filename := copy-sequence(filename,start: filename-start, end: filename-end);
+  end if;
+  if (first(name) == '/')
+    let (found,match-end,path-start,path-end,filename-start,filename-end) 
+      = regexp-position(state.file-name, "^(.*)/([^/]+)");
+    if(found)
+      let file-path = copy-sequence(name,start: path-start, end: path-end);      
+      let full-name = next-file-in-include-path(state,file-path,filename);
+      if (full-name)
+        state.include-tokenizer
+          := make(<tokenizer>, name: full-name, parent: state);
+      else
+        state.include-tokenizer
+          := make(<tokenizer>, contents: "", parent: state);
+      end if;
+    end if;
+  else
+    parse-error(state,"Filename is not absolute %s",name);
   end if;
 end;
 
@@ -470,6 +521,34 @@ define method cpp-include (state :: <tokenizer>, pos :: <integer>) => ();
 			      string: generator.file-name));
 end method cpp-include;
     
+define method cpp-include-next (state :: <tokenizer>, pos :: <integer>) => ();
+  let contents :: <string> = state.contents;
+  let (found, match-end, angle-start, angle-end, quote-start, quote-end)
+    = regexp-position(contents, "^(<[^>]+>)|(\"[^\"]+\")", start: pos);
+  state.position := match-end;
+  let filename = "";
+  if (angle-start & angle-end) 
+    filename := copy-sequence(contents,
+                              start: angle-start + 1,
+                              end: angle-end - 1);
+  elseif(quote-start & quote-end)
+    filename := copy-sequence(contents,
+                              start: quote-start + 1,
+                              end: quote-end - 1);
+  else
+    parse-error(state, "Fatal error handling #include_next: %= %= %= %= %= %=",
+                found, match-end,
+                angle-start, angle-end,
+                quote-start, quote-end);
+  end if;
+  let generator = angle-include-next(state, filename);
+
+  parse-header-progress-report(generator, ">>> entered header >>>");
+  unget-token(generator, make(<begin-include-token>, position: pos,
+			      generator: generator,
+			      string: generator.file-name));
+end method cpp-include-next;
+
 // Processes a preprocessor macro definition.  For "simple" macros, this only
 // involves building a reversed sequence of tokens from the remainder of the
 // line and putting it in cpp-table.  However, if it is a parameterized macro
@@ -740,7 +819,7 @@ define method try-cpp
 	"include_next" =>
 	  //signal("Warning: doing the wrong thing with #include_next.");
 	  if (empty?(state.cpp-stack) | head(state.cpp-stack) == #"accept")
-	    cpp-include(state, pos);
+	    cpp-include-next(state, pos);
 	  end if;
 	otherwise =>
 	  parse-error(state, "Unhandled preprocessor directive.");

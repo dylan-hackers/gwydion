@@ -103,14 +103,16 @@ define method int-value (token :: <character-token>, state :: <parse-state>)
 end method;
 
 define method int-value (value :: <object>, state :: <parse-state>)
-  error(value, "Value in constant expression must be an integer.");
+  error(value, 
+	"Value in constant expression must be an integer, but is %=\n.",
+	value);
 end method;
 
 // This method will only be called if we are evaluating an expression in a CPP
 // line.  It is not called for arbitrary identifiers.
 //
 define method int-value
-    (value :: <identifier-token>, state :: <parse-cpp-state>)
+    (value :: <identifier-token>, state :: <parse-value-state>)
   let expansion = element(value.generator.cpp-table,
                           value.string-value, default: #f);
   case
@@ -120,6 +122,7 @@ define method int-value
     empty?(expansion) =>
       1;
     expansion.size > 1 =>
+      format(*standard-output*, "Parsing odd macro: %=\n", value.string-value);
       int-value(parse-macro(value.string-value, state), state);
     otherwise =>
       int-value(head(expansion), state);
@@ -135,7 +138,8 @@ define method int-value
   if (instance?(object-decl, <enum-slot-declaration>))
     object-decl.constant-value;
   else
-    parse-error(value, "Value in constant expression must be an integer.");
+    parse-error(value, 
+	"Value in constant expression must be an integer, but isn't.");
   end if;
 end method int-value;
 
