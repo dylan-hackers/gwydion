@@ -1,6 +1,6 @@
 // A description of all target platforms we support. We use this in d2c as well as in the build scripts.
 // Remember, blank links separate the platforms.
-// $Header: /scm/cvs/src/d2c/compiler/platforms.descr,v 1.93 2004/09/16 04:11:30 phinely Exp $
+// $Header: /scm/cvs/src/d2c/compiler/platforms.descr,v 1.94 2004/10/12 19:49:15 hannes Exp $
 
 // A target description is a description of the target-environment we
 // are compiling for.  This includes information such as what files
@@ -193,9 +193,6 @@ big-endian?:			#t
 // supported, mk-build-tree will generate makefiles that export the
 // CCFLAGS variable.
 //
-// use-dbclink?: Whether or not we should use dbclink to link .dbc
-// files together.  If #f, we use "cat $(OBJS) > target.dbc".
-//
 // link-doesnt-search-for-libs?: If #t, the compiler assume the linker
 // has no library search path, so the compiler will provide pathnames
 // for all library files.  Otherwise, the compiler will simply use the
@@ -218,7 +215,6 @@ compare-file-command:           	cmp -s %s %s
 move-file-command:              	mv -f %s %s
 recursive-make-command:         	$(MAKE) -C %s %s
 //recursive-make-command:         	cmd /c "cd %s && $(MAKE) %s"
-use-dbclink?:				#t
 uses-drive-letters?:            	#t
 environment-variables-can-be-exported?: #t
 makefile-name:                  	Makefile
@@ -241,7 +237,6 @@ compare-file-command:           	cmp -s %s %s
 move-file-command:              	mv -f %s %s
 uses-drive-letters?:            	#f
 environment-variables-can-be-exported?: #t
-use-dbclink?:                           #f
 makefile-name:				GNUmakefile
 make-supports-phony-targets?:   	#t
 makefiles-can-rebuild-themselves?:      #t
@@ -256,7 +251,6 @@ default-features:			compiled-for-mingw32
 					newlines-are-CRLF
 inherit-from:				win32
 make-command:				make
-use-dbclink?:				#t
 executable-filename-suffix:		.exe
 double-alignment:			8
 long-double-alignment:			4
