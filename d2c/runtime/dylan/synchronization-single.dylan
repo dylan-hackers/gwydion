@@ -192,15 +192,13 @@ end class;
 define sealed method wait-for(not :: <notification>,
                        #key timeout :: false-or(<real>) = #f)
  => (success? :: <boolean>);
-  error("wait-for(<notification>) -> BAD!");
+  deadlock-error(not);
 end method;
 
 define sealed method release(not :: <notification>, #key, #all-keys)
  => ();
-  error("release(<notification>) -> BAD!");
 end method;
 
 define function release-all(not :: <notification>)
  => ();
-  error("release-all(<notification>) -> BAD!");
 end function;
