@@ -97,7 +97,7 @@ define constant <read-write-lock-mode> = one-of(#"read", #"write");
 // SYNCHRONIZATION CONDITIONS
 //
 
-// <synchronization-error>
+// <synchronization-condition>
 //
 
 define sealed abstract class <synchronization-condition> (<condition>)
