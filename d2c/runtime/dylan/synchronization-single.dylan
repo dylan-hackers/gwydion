@@ -112,27 +112,47 @@ end method;
 
 
 // <read-write-lock>
-// XXX: implement dummies
+//
+// This behaves like a multithreaded implementation,
+// but catches deadlocks, signaling a <deadlock-error>.
 //
 
 define open primary class <read-write-lock> (<exclusive-lock>)
+  sealed slot owned? :: <boolean> = #f;
+  slot lock-read-locks :: <integer> = 0;
 end class;
 
 define sealed method wait-for(lock :: <read-write-lock>,
                               #key timeout :: false-or(<real>) = #f,
                                    mode :: <read-write-lock-mode> = read:)
  => (success? :: <boolean>);
-  error("wait-for(<read-write-lock>) -> BAD!");
+  if(lock.owned?)
+    deadlock-error(lock);
+  else
+    select(mode)
+      read: =>
+        lock-read-locks := lock-read-locks + 1;
+      write: =>
+        if(lock-read-locks > 0)
+          deadlock-error(lock);
+        else
+          lock.owned? := #t;
+        end;
+    end;
+  end;
+  #t;
 end method;
 
 define sealed method release(lock :: <read-write-lock>, #key, #all-keys)
  => ();
-  error("release(<read-write-lock>) -> BAD!");
-end method;
-
-define sealed method owned?(lock :: <read-write-lock>)
- => (owned? :: <boolean>);
-  #f;
+  case
+    lock.owned? =>
+      lock.owned? := #f;
+    lock.lock-read-locks > 0 =>
+      lock.lock-read-locks := lock.lock-read-locks - 1;
+    otherwise =>
+      not-owned-error(lock);
+  end;
 end method;
 
 
