@@ -312,6 +312,8 @@ end;
 define sealed domain make (singleton(<meta-cclass>));
 define sealed domain initialize (<meta-cclass>);
 
+define constant <init-entity> = type-union(<ct-value>, <boolean>);
+
 define abstract class <abstract-slot-info> (<eql-ct-value>, <identity-preserving-mixin>)
   //
   // The cclass that introduces this slot.  Not required, because we have to
@@ -321,14 +323,19 @@ define abstract class <abstract-slot-info> (<eql-ct-value>, <identity-preserving
   //
   // The initial value.  A <ct-value> if we can figure one out, #t if there is
   // one but we can't tell what it is, and #f if there isn't one.
-  slot slot-init-value :: type-union(<ct-value>, <boolean>),
+  slot slot-init-value :: <init-entity>,
     init-value: #f, init-keyword: init-value:;
   //
   // The init-function.  A <ct-value> if we can figure one out, #t if there is
   // one but we can't tell what it is, and #f if there isn't one.
-  slot slot-init-function :: type-union(<ct-value>, <boolean>),
+  slot slot-init-function :: <init-entity>,
     init-value: #f, init-keyword: init-function:;
 end class <abstract-slot-info>;
+
+define sealed generic slot-init-value (info :: <abstract-slot-info>) => init :: <init-entity>;
+define sealed generic slot-init-value-setter (new-init :: <init-entity>, info :: <abstract-slot-info>) => init :: <init-entity>;
+define sealed generic slot-init-function (info :: <abstract-slot-info>) => init :: <init-entity>;
+define sealed generic slot-init-function-setter (new-init :: <init-entity>, info :: <abstract-slot-info>) => init :: <init-entity>;
 
 define abstract class <slot-info> (<abstract-slot-info>)
   //
@@ -461,6 +468,26 @@ end;
 
 define sealed domain make (singleton(<meta-slot-info>));
 define sealed domain initialize (<meta-slot-info>);
+
+define method slot-init-value (info :: <meta-slot-info>)
+ => init :: <init-entity>;
+  info.referred-slot-info.slot-init-value
+end;
+
+define method slot-init-value-setter (new-init :: <init-entity>, info :: <meta-slot-info>)
+ => init :: <init-entity>; // never returns TODO
+  "Must not set init-value via meta-slot!".error;
+end;
+
+define method slot-init-function (info :: <meta-slot-info>)
+ => init :: <init-entity>;
+  info.referred-slot-info.slot-init-function
+end;
+
+define method slot-init-function-setter (new-init :: <init-entity>, info :: <meta-slot-info>)
+ => init :: <init-entity>; // never returns TODO
+  "Must not set init-function via meta-slot!".error;
+end;
 
 
 define class <override-info> (<abstract-slot-info>)
@@ -1812,7 +1839,7 @@ end method find-slot-offset;
 define method slot-guaranteed-initialized?
     (slot :: <slot-info>, instance-type :: <ctype>) => res :: <boolean>;
   if (slot.slot-init-value | slot.slot-init-function
-	| slot.slot-init-keyword-required?)
+      | slot.slot-init-keyword-required?)
     #t;
   elseif (empty?(slot.slot-overrides))
     #f;
