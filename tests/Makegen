@@ -31,9 +31,6 @@ do emit_library_rule(
     'regexp-test', '$(BUILDROOT)/force.timestamp ' . $deps, '', 'compile'
 );
 do emit_library_rule(
-    'stream-test', '$(BUILDROOT)/force.timestamp ' . $deps, '', 'compile'
-);
-do emit_library_rule(
     'table-ext-test', '$(BUILDROOT)/force.timestamp ' . $deps, '', 'compile'
 );
 do emit_library_rule(
