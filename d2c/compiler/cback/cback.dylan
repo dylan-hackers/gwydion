@@ -879,7 +879,7 @@ define method emit-prototype-for
     format(stream, "extern descriptor_t %s;\t/* %s */\n\n",
 	   info.backend-var-info-name, defn.defn-name.clean-for-comment);
   end if;
-  unless (rep.representation-has-bottom-value?
+  unless (rep.representation-has-void-value?
 	    | defn.defn-guaranteed-initialized?)
     format(stream, "extern boolean %s_initialized;\n\n",
 	   info.backend-var-info-name);
@@ -2953,7 +2953,7 @@ define method emit-assignment
     defn.defn-guaranteed-initialized? =>
       deliver-result(defines, name, rep, #t, file);
 
-    rep.representation-has-bottom-value? =>
+    rep.representation-has-void-value? =>
       let c-type = rep.representation-c-type;
       let temp = new-local(file, modifier: "temp", wanted-rep: c-type);
       format(stream, "if ((%s = %s).heapptr == NULL) abort();\n", temp, name);
@@ -2979,7 +2979,7 @@ define method emit-assignment
   spew-pending-defines(file);
   emit-copy(target, rep, source, rep, file);
   unless (defn.defn-guaranteed-initialized?
-	    | rep.representation-has-bottom-value?)
+	    | rep.representation-has-void-value?)
     let stream = file.file-guts-stream;
     format(stream, "%s_initialized = TRUE;\n", target);
   end;

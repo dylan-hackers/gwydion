@@ -886,7 +886,7 @@ define function fer-convert-method
 				 source,
 				 specifier-type(#"<boolean>"));
 	    let rep = pick-representation(type, #"speed");
-	    if (rep.representation-has-bottom-value?)
+	    if (rep.representation-has-void-value?)
 	      build-let
 		(body-builder, policy, source, supplied?-var,
 		 make-operation

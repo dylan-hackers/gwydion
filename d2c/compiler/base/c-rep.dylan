@@ -71,10 +71,10 @@ define abstract class <c-representation>
     required-init-keyword: c-type:;
 end;
 
-define method representation-has-bottom-value? (res :: <representation>)
+define method representation-has-void-value? (res :: <representation>)
     => res :: <boolean>;
   #t;
-end method representation-has-bottom-value?;
+end method representation-has-void-value?;
 
 define method initialize
     (rep :: <c-representation>, #next next-method, #key more-general) => ();
@@ -103,11 +103,11 @@ end class <heap-representation>;
 define class <immediate-representation> (<c-representation>)
 end class <immediate-representation>;
 
-define method representation-has-bottom-value?
+define method representation-has-void-value?
     (res :: <immediate-representation>)
     => res :: <boolean>;
   #f;
-end method representation-has-bottom-value?;
+end method representation-has-void-value?;
 
 define class <magic-representation> (<c-representation>)
 end class <magic-representation>;

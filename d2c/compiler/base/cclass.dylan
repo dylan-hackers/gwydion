@@ -499,7 +499,7 @@ define method keyword-needs-supplied?-var
     #f;
   else
     let rep = pick-representation(info.keyword-type, #"speed");
-    ~rep.representation-has-bottom-value?;
+    ~rep.representation-has-void-value?;
   end;
 end;
 
@@ -1531,7 +1531,7 @@ define method layout-slots-for (class :: <cclass>) => ();
 	let rep = pick-representation(slot.slot-type, #"space");
 	slot.slot-representation := rep;
 	unless (slot-guaranteed-initialized?(slot, slot.slot-introduced-by)
-		  | rep.representation-has-bottom-value?)
+		  | rep.representation-has-void-value?)
 	  let class = slot.slot-introduced-by;
 	  let boolean-ctype = boolean-ctype();
 	  let init?-slot

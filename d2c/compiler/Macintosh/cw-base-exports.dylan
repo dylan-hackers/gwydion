@@ -625,7 +625,7 @@ define module representation
   export
     <representation>, <data-word-representation>,
     pick-representation, representation-alignment, representation-size,
-    representation-has-bottom-value?,
+    representation-has-void-value?,
     use-data-word-representation, use-general-representation;
 end;
 

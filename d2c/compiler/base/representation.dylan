@@ -44,7 +44,7 @@ define generic representation-alignment (rep :: <representation>)
 define generic representation-size (rep :: <representation>)
     => size :: <integer>;
 
-define generic representation-has-bottom-value? (rep :: <representation>)
+define generic representation-has-void-value? (rep :: <representation>)
     => res :: <boolean>;
 
 define generic use-data-word-representation
