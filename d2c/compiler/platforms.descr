@@ -1,6 +1,5 @@
 // A description of all target platforms we support. We use this in d2c as well as in the build scripts.
 // Remember, blank links separate the platforms.
-// $Header: /scm/cvs/src/d2c/compiler/platforms.descr,v 1.94 2004/10/12 19:49:15 hannes Exp $
 
 // A target description is a description of the target-environment we
 // are compiling for.  This includes information such as what files
@@ -45,7 +44,7 @@
 // inheritted.
 
 
-// Processor architectures:
+// CPU ARCHITECTURE entries:
 //
 // integer-length: [integer] The number of bits in a machine integer.
 //
@@ -71,7 +70,6 @@
 // Same for 'long double'. If not present, defaults to the values for 'double'.
 
 // 32-bit
-//
 platform-name:			32-bit
 integer-length:			32
 pointer-size:			4
@@ -79,78 +77,63 @@ integer-size:			4
 short-size:			2
 long-size:			4
 long-long-size:			8
-single-size:			4
-double-size:			8
-double-alignment:		4
-long-double-size:		8
 
-// IEEE floating point
-platform-name:			ieee-754
-single-mantissa-digits:		24
-minimum-single-float-exponent:	-125
-maximum-single-float-exponent:	128
-double-mantissa-digits:		53
-minimum-double-float-exponent:	-1021
-maximum-double-float-exponent:	1024
+// 64-bit
+platform-name:			64-bit
+integer-length:			64
+pointer-size:			8
+integer-size:			4
+short-size:			2
+long-size:			8
 
-// Intel 80386 or higher:
-platform-name:			x86
-inherit-from:			32-bit ieee-754
-default-features:		compiled-for-x86
-big-endian?:			#f
-long-long-alignment:		4
-long-double-size:		12
-long-double-alignment:		4
-long-double-mantissa-digits:	64
-minimum-long-double-float-exponent: -16381
-maximum-long-double-float-exponent: 16384
+// IEEE 754 floating point
+platform-name:				ieee-754
+single-size:				4
+single-mantissa-digits:			24
+minimum-single-float-exponent:		-125
+maximum-single-float-exponent:		128
+double-size:				8
+double-mantissa-digits:			53
+minimum-double-float-exponent:		-1021
+maximum-double-float-exponent:		1024
+long-double-size:			8
+long-double-mantissa-digits:		53
+minimum-long-double-float-exponent:	-1021
+maximum-long-double-float-exponent:	1024
 
-// SPARC:
-platform-name:			sparc
-inherit-from:			32-bit ieee-754
-default-features:		compiled-for-sparc
-double-alignment:		8
-big-endian?:			#t
 
-// PowerPC:
+// PowerPC
 platform-name:			ppc
 inherit-from:			32-bit ieee-754
 default-features:		compiled-for-ppc
 big-endian?:			#t
 
-// s390:
-platform-name:			s390
+// SPARC (32 bit)
+platform-name:			sparc
 inherit-from:			32-bit ieee-754
-default-features:		compiled-for-s390
+default-features:		compiled-for-sparc
 big-endian?:			#t
+long-double-size:			16
+long-double-mantissa-digits:		113
+minimum-long-double-float-exponent:	-16381
+maximum-long-double-float-exponent:	16384
 
-// HP-PA RISC processor:
-platform-name:			hppa
+// x86 (IA32)
+platform-name:			x86
 inherit-from:			32-bit ieee-754
-default-features:		compiled-for-hppa
-big-endian?:			#t
+default-features:		compiled-for-x86
+big-endian?:			#f
+long-long-alignment:			4
+double-alignment:			4
+long-double-size:			12
+long-double-alignment:			4
+long-double-mantissa-digits:		64
+minimum-long-double-float-exponent:	-16381
+maximum-long-double-float-exponent:	16384
 
-// Alpha:
-platform-name:			alpha
-inherit-from:			ieee-754
-default-features:		compiled-for-alpha
-integer-length:			64
-big-endian?:			#t
-pointer-size:			8
-short-size:			2
-integer-size:			4
-long-size:			8
-single-size:			4
-double-size:			8
-long-double-size:		8
 
-// MIPS:
-platform-name:			mips
-inherit-from:			32-bit ieee-754
-default-features:		compiled-for-mips
-big-endian?:			#t
 
-// Operating system entries:
+// OPERATING SYSTEM entries:
 // 
 // make-command: A string that gives the command for running the make
 // utility.  This is not a format string.
@@ -199,126 +182,29 @@ big-endian?:			#t
 // -l flag for some libraries (notably runtime and gc).  Currently unused.
 //
 
-
-// Microsoft Windows '95 or NT
-// Note:  These rules depend on the presence of the MingW utilities in your
-// system PATH.  You may elect to build using Microsoft's compiler, but
-// you will have a bear of a time getting things to work without some
-// UNIX-alike commands like "mv", "cmp", and GNU make.
-platform-name:                  	win32
-default-features:               	compiled-for-win32
-					newlines-are-CRLF
-					no-time
-link-doesnt-search-for-libs?:   	#t
-delete-file-command:            	rm -f %s
-compare-file-command:           	cmp -s %s %s
-move-file-command:              	mv -f %s %s
-recursive-make-command:         	$(MAKE) -C %s %s
-//recursive-make-command:         	cmd /c "cd %s && $(MAKE) %s"
-uses-drive-letters?:            	#t
-environment-variables-can-be-exported?: #t
-makefile-name:                  	Makefile
-make-supports-phony-targets?:   	#f
-makefiles-can-rebuild-themselves?:      #f
-make-command:                   	make 
-make-jobs-flag:                         #f
-
-// Generic Unix (parent class to linux, freebsd, solaris & hpux):
+// Generic Unix (parent class to all unices and unix-like environments)
 platform-name:				generic-unix
 default-features:			compiled-for-unix posix-dig
-object-filename-suffix:         	.o
-shared-object-filename-suffix:         	.lo
-library-filename-prefix:        	lib
-library-filename-suffix:        	.a
-shared-library-filename-suffix: 	.la
-executable-filename-suffix:     
-delete-file-command:            	rm -f
-compare-file-command:           	cmp -s %s %s
-move-file-command:              	mv -f %s %s
-uses-drive-letters?:            	#f
-environment-variables-can-be-exported?: #t
+object-filename-suffix:			.o
+shared-object-filename-suffix:		.lo
+library-filename-prefix:		lib
+library-filename-suffix:		.a
+shared-library-filename-suffix:		.la
+executable-filename-suffix: 
+path-separator:				/
+delete-file-command:			rm -f
+compare-file-command:			cmp -s %s %s
+move-file-command:			mv -f %s %s
+uses-drive-letters?:			#f
+environment-variables-can-be-exported?:	#t
 makefile-name:				GNUmakefile
-make-supports-phony-targets?:   	#t
-makefiles-can-rebuild-themselves?:      #t
+make-supports-phony-targets?:		#t
+makefiles-can-rebuild-themselves?:	#t
 make-jobs-flag:				-j
-recursive-make-command:         	$(MAKE) -C %s %s
+recursive-make-command:			$(MAKE) -C %s %s
 libtool-command:			libtool
 
-// Mingwin (automake, autoconf, libtool installed)
-// added by Douglas M. Auclair (dauclair@hotmail.com)
-platform-name:				mingw32
-default-features:			compiled-for-mingw32
-					newlines-are-CRLF
-inherit-from:				win32
-make-command:				make
-executable-filename-suffix:		.exe
-double-alignment:			8
-long-double-alignment:			4
-long-double-mantissa-digits:		53
-minimum-long-double-float-exponent:	-1021
-maximum-long-double-float-exponent:	1024
-
-// Linux:
-platform-name:				linux
-inherit-from:				generic-unix
-default-features:			compiled-for-linux
-make-command:                   	make
-
-// BSDI:
-// added by Douglas M. Auclair (doug@cotilliongroup.com) for his web-server
-// hosting OS
-platform-name:				bsdi
-inherit-from:				generic-unix
-default-features:			compiled-for-bsdi
-make-command:                   	gmake
-
-// FreeBSD:
-platform-name:				freebsd
-inherit-from:				generic-unix
-default-features:			compiled-for-freebsd
-make-command:                   	gmake
-randomize-library-command:      	ranlib %s
-
-// OpenBSD:
-platform-name:				openbsd
-inherit-from:				generic-unix
-default-features:			compiled-for-openbsd
-make-command:                   	gmake
-randomize-library-command:      	ranlib %s
-
-// NetBSD:
-platform-name:				netbsd
-inherit-from:				generic-unix
-default-features:			compiled-for-netbsd
-make-command:                   	gmake
-randomize-library-command:      	ranlib %s
-
-// Solaris:
-platform-name:				solaris
-inherit-from:				generic-unix
-default-features:			compiled-for-solaris
-make-command:                   	gmake
-
-// HP/UX:
-platform-name:				hpux
-inherit-from:				generic-unix
-default-features:			compiled-for-hpux
-make-command:                   	gmake
-
-// BeOS
-platform-name:				beos
-inherit-from:				generic-unix
-default-features:			compiled-for-beos
-make-command:                   	make
-
-// Classic Macintosh
-// Cheat and pretend we're a Unice
-platform-name:				macintosh
-inherit-from:				generic-unix
-default-features:			compiled-for-macos
-make-command:				dummy
-
-// MacOS X and Darwin
+// Darwin (MacOS X)
 platform-name:				darwin
 inherit-from:				generic-unix
 default-features:			compiled-for-darwin
@@ -326,14 +212,42 @@ make-command:                   	gnumake
 randomize-library-command:              ranlib -c %s
 libtool-command:			glibtool
 
-// IRIX
-platform-name:				irix
+// FreeBSD
+platform-name:				freebsd
 inherit-from:				generic-unix
-default-features:			compiled-for-irix
+default-features:			compiled-for-freebsd
 make-command:                   	gmake
+randomize-library-command:      	ranlib %s
+
+// Linux
+platform-name:				linux
+inherit-from:				generic-unix
+default-features:			compiled-for-linux
+make-command:                   	make
 
 
-// Build-environment properties:
+// Microsoft Win32
+platform-name:				win32
+default-features:			compiled-for-win32
+					newlines-are-CRLF
+					no-time
+link-doesnt-search-for-libs?:		#t
+executable-filename-suffix:		.exe
+delete-file-command:			rm -f %s
+compare-file-command:			cmp -s %s %s
+move-file-command:			mv -f %s %s
+recursive-make-command:			$(MAKE) -C %s %s
+uses-drive-letters?:			#t
+environment-variables-can-be-exported?:	#t
+makefile-name:				Makefile
+make-supports-phony-targets?:		#f
+makefiles-can-rebuild-themselves?:	#f
+make-command:				make
+make-jobs-flag:				#f
+
+
+
+// BUILD ENVIRONMENT entries:
 //
 // object-filename-suffix: The suffix (aka extension) used to
 // designate a file as an object-code file.  Includes the period.
@@ -410,8 +324,363 @@ make-command:                   	gmake
 // Optional flags: (All defaults are #f)
 //
 
+// GNU Compiler Collection with libtool
+platform-name:			gcc
+default-features:		C-compiler-is-GCC
+compile-c-command:		gcc $(CCFLAGS) -c %s -o %s
+compile-c-for-shared-command:	$(LIBTOOL) --mode=compile gcc $(CCFLAGS) -c %s -o %s
+default-c-compiler-flags:		-I. -I%s -O2 -fomit-frame-pointer -fno-strict-aliasing
+default-c-compiler-debug-flags:		-I. -I%s -g -O -fno-inline-functions
+default-c-compiler-profile-flags:	-I. -I%s -pg -g -O -fno-inline-functions
+assembler-command:		gcc $(CCFLAGS) -c %s -o %s
+link-library-command:		ar qc %s %s
+link-executable-command:	$(LIBTOOL) --mode=link gcc -o %s %s %s
+link-shared-executable-command:	$(LIBTOOL) --mode=link gcc -o %s %s %s
+link-executable-flags:		$(GC_LIBS) -lm
+link-debug-flags:		-g
+link-profile-flags:		-pg -g
 
-// Visual C for Windows
+
+// COMBINATION entries:
+//
+// These describe concrete build targets.
+//
+
+// KNOWN to be working
+//
+// These architectures are used by somebody
+// regularly and should usually be working.
+//
+
+// FreeBSD
+// Rename to x86-freebsd-gcc? -prom
+platform-name:			x86-freebsd-elf-gcc
+inherit-from:			gcc freebsd x86
+link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+
+// Linux
+platform-name:			x86-linux-gcc
+inherit-from:			gcc linux x86
+link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+
+// Microsoft Win32 with Cygwin
+platform-name:                   x86-cygwin-gcc
+default-features:                compiled-for-cygnus
+                                 newlines-are-CRLF
+inherit-from:                    x86 linux gcc
+default-c-compiler-flags:        -I. -I%s -O2 -fomit-frame-pointer
+link-shared-library-command:     $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+
+
+// SHOULD be working
+//
+// These architectures are very likely to work.
+// They are in a sepparate category only because i (prom)
+// didnt find anyone who tried HEAD on them recently yet.
+//
+
+// Darwin (MacOS X)
+platform-name:			ppc-darwin-gcc
+inherit-from:			gcc darwin ppc
+default-c-compiler-flags:		-I. -I%s -O2 -fomit-frame-pointer -no-cpp-precomp -Wno-long-double
+default-c-compiler-debug-flags:		-I. -I%s -g -O -fno-inline-functions -no-cpp-precomp -Wno-long-double
+default-c-compiler-profile-flags:	-I. -I%s -pg -g -O -fno-inline-functions -no-cpp-precomp -Wno-long-double
+link-executable-flags:			$(GC_LIBS) -multiply_defined suppress
+double-alignment:		4
+long-long-alignment:		4
+long-double-alignment:		4
+
+
+// Linux
+platform-name:			ppc-linux-gcc
+inherit-from:			gcc linux ppc
+link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+
+platform-name:			sparc-linux-gcc
+inherit-from:			gcc linux sparc
+link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+
+
+
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+// XXXXXXXXXXXXXXXXXXXXXXXXX EXPERIMENTAL XXXXXXXXXXXXXXXXXXXXXXXXXX
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+//
+// Entries for rather experimental platforms.
+//
+
+// Intel C++ Compiler with libtool
+platform-name:			icc
+default-features:		C-compiler-is-ICC
+compile-c-command:		icc $(CCFLAGS) -c %s -o %s
+compile-c-for-shared-command:	$(LIBTOOL) --mode=compile icc $(CCFLAGS) -c %s -o %s
+default-c-compiler-flags:		-I. -I%s -O2 -ip -ip_no_inlining -ip_no_pinlining
+default-c-compiler-debug-flags:		-I. -I%s -g -fp
+default-c-compiler-profile-flags:	-I. -I%s -g -fp
+assembler-command:		gcc $(CCFLAGS) -c %s -o %s
+link-library-command:		ar qc %s %s
+link-executable-command:	$(LIBTOOL) --mode=link icc -o %s %s %s
+link-shared-executable-command:	$(LIBTOOL) --mode=link icc -o %s %s %s
+link-executable-flags:		$(GC_LIBS) -lm
+link-debug-flags:		-g
+link-profile-flags:		-g
+
+platform-name:			x86-linux-icc
+inherit-from:			icc linux x86
+link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+
+
+
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+// XXXXXXXXXXXXXXXXXXXXXXXX PLATFORM SALAD XXXXXXXXXXXXXXXXXXXXXXXXX
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+//
+// These worked at some point in time but i (prom) dont know if
+// anybody is trying HEAD on them regularly.
+// 
+// Maintainers: move these up if they are compiled by someone from
+//              time to time and we know they are still working.
+//
+
+// BeOS
+platform-name:				beos
+inherit-from:				generic-unix
+default-features:			compiled-for-beos
+make-command:                   	make
+
+platform-name:			beos-gcc
+default-features:		C-compiler-is-GCC
+compile-c-command:              gcc $(CCFLAGS) -c %s -o %s
+compile-c-for-shared-command:   $(LIBTOOL) --mode=compile gcc $(CCFLAGS) -c %s -o %s
+default-c-compiler-flags:	-I. -I%s -g -O3
+default-c-compiler-debug-flags:	-I. -I%s -g -O -fno-inline-functions
+default-c-compiler-profile-flags: -I. -I%s -pg -g -O -fno-inline-functions
+assembler-command:		gcc $(CCFLAGS) -c %s -o %s
+link-library-command:           ar qc %s %s
+link-executable-command: 	$(LIBTOOL) --mode=link gcc -o %s %s %s
+link-shared-executable-command: $(LIBTOOL) --mode=link gcc -o %s %s %s
+link-executable-flags:          
+path-separator:        		/
+
+platform-name:			x86-beos-gcc
+// Note:  These rules depend on the presence of the MingW utilities in your
+// system PATH.  You may elect to build using Microsoft's compiler, but
+// you will have a bear of a time getting things to work without some
+// UNIX-alike commands like "mv", "cmp", and GNU make.
+inherit-from:			beos-gcc beos x86
+link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+
+
+// BSDI
+// once maintained by Douglas M. Auclair <doug@cotilliongroup.com>
+platform-name:				bsdi
+inherit-from:				generic-unix
+default-features:			compiled-for-bsdi
+make-command:                   	gmake
+
+platform-name:			x86-bsdi-gcc
+inherit-from:			gcc bsdi x86
+link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+
+
+// FreeBSD
+platform-name:			x86-freebsd-aout-gcc
+inherit-from:			gcc freebsd x86
+
+
+// HP/UX
+// Bruce Hoult made this work on HP/UX 10.20
+// HP/UX 11 not tried yet
+// Shared libraries disabled for now so we can get 2.3.11 out.
+// The problem is the -lm, which is required by recent FP routine changes
+platform-name:			hppa
+inherit-from:			32-bit ieee-754
+default-features:		compiled-for-hppa
+big-endian?:			#t
+
+platform-name:				hpux
+inherit-from:				generic-unix
+default-features:			compiled-for-hpux
+make-command:                   	gmake
+
+platform-name:				hppa-hpux-gcc
+inherit-from:				gcc hpux hppa
+default-features:               	compiled-for-hpux compiled-for-hppa C-compiler-is-GCC
+library-filename-suffix:        	.a .sl
+link-library-command:           	/bin/ar qc %s %s
+link-executable-command:        	$(LIBTOOL) --mode=link gcc -o %s %s %s
+//link-shared-library-command:    	$(LIBTOOL) --mode=link gcc -o %s %s -L/lib/pa1.1 -lm -rpath %s
+link-executable-flags:          	$(GC_LIBS) -L/lib/pa1.1 -lm
+double-alignment:                       8
+long-long-alignment:                    8
+long-double-size:                       8
+long-double-alignment:                  8
+
+
+// IRIX
+// once maintained by David Lichteblau <lichteblau@fhtw-berlin.de>
+platform-name:			mips
+inherit-from:			32-bit ieee-754
+default-features:		compiled-for-mips
+big-endian?:			#t
+
+platform-name:				irix
+inherit-from:				generic-unix
+default-features:			compiled-for-irix
+make-command:                   	gmake
+
+platform-name:			mips-irix-gcc
+inherit-from:			gcc irix mips
+default-features:               compiled-for-irix compiled-for-mips C-compiler-is-GCC
+link-shared-library-command:    $(LIBTOOL) --mode=link cc -n32 -Wl,-woff,85 -o %s %s -rpath %s
+
+
+// Linux
+// alpha support moved here due to uncertain state of 64bit-support.
+platform-name:			alpha
+inherit-from:			64-bit ieee-754
+default-features:		compiled-for-alpha
+big-endian?:			#f
+
+platform-name:			alpha-linux-gcc
+inherit-from:			gcc linux alpha
+assembler-command:		gcc $(CCFLAGS) -x assembler-with-cpp -c %s -o %s
+link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+
+// s390 support moved here because i dont think anybody is checking whether it works.
+platform-name:			s390
+inherit-from:			32-bit ieee-754
+default-features:		compiled-for-s390
+big-endian?:			#t
+
+platform-name:			s390-linux-gcc
+inherit-from:			gcc linux s390
+link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+
+
+// MacOS Classic
+// considered obsolete by at least me -prom
+platform-name:				macintosh
+inherit-from:				generic-unix
+default-features:			compiled-for-macos
+make-command:				dummy
+
+// ... with CodeWarrior
+platform-name:			mac-cw
+default-features:		C-compiler-is-GCC
+compile-c-command:              gcc $(CCFLAGS) -c %s -o %s
+compile-c-for-shared-command:   $(LIBTOOL) --mode=compile gcc $(CCFLAGS) -c %s -o %s
+default-c-compiler-flags:	-I. -I%s -g -O4 -finline-functions
+default-c-compiler-debug-flags:	-I. -I%s -g -O -fno-inline-functions
+default-c-compiler-profile-flags: -I. -I%s -pg -g -O -fno-inline-functions
+assembler-command:		gcc $(CCFLAGS) -c %s -o %s
+link-library-command:           ar qc %s %s
+link-executable-command: 	$(LIBTOOL) --mode=link gcc -o %s %s %s
+link-shared-executable-command: $(LIBTOOL) --mode=link gcc -o %s %s %s
+link-executable-flags:          $(GC_LIBS) -lm
+path-separator:        		:
+
+platform-name:			MacOS-ppc
+inherit-from:			mac-cw macintosh ppc
+
+// ... with egcs
+platform-name:			egcs
+default-features:		C-compiler-is-EGCS
+compile-c-command:              cc $(CCFLAGS) -c %s -o %s
+compile-c-for-shared-command:   $(LIBTOOL) --mode=compile cc $(CCFLAGS) -c %s -o %s
+default-c-compiler-flags:	-I. -I%s -O2 -fomit-frame-pointer
+default-c-compiler-debug-flags:	-I. -I%s -g -O -fno-inline-functions
+default-c-compiler-profile-flags: -I. -I%s -pg -g -O -fno-inline-functions
+assembler-command:		cc $(CCFLAGS) -c %s -o %s
+link-library-command:           ar qc %s %s
+link-executable-command: 	$(LIBTOOL) --mode=link cc -o %s %s %s
+link-shared-executable-command: $(LIBTOOL) --mode=link cc -o %s %s %s
+link-executable-flags:          $(GC_LIBS) -multiply_defined suppress         
+path-separator:        		/
+
+platform-name:			ppc-macos-egcs
+inherit-from:			egcs macintosh ppc
+long-long-alignment:	4
+long-double-size:		8
+long-double-alignment:	4
+
+
+// NetBSD
+platform-name:				netbsd
+inherit-from:				generic-unix
+default-features:			compiled-for-netbsd
+make-command:                   	gmake
+randomize-library-command:      	ranlib %s
+
+platform-name:			x86-netbsd-gcc
+inherit-from:			gcc netbsd x86
+default-c-compiler-flags:       -I. -I%s -I/usr/X11R6/include -fomit-frame-pointer -fno-strict-aliasing
+link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+
+
+// OpenBSD
+platform-name:				openbsd
+inherit-from:				generic-unix
+default-features:			compiled-for-openbsd
+make-command:                   	gmake
+randomize-library-command:      	ranlib %s
+
+platform-name:			sparc-openbsd-gcc
+inherit-from:			gcc openbsd sparc
+default-features:               compiled-for-openbsd compiled-for-sparc C-compiler-is-GCC
+default-c-compiler-debug-flags: -I. -I%s -g -O0 -fno-inline-functions
+
+
+// Solaris
+platform-name:				solaris
+inherit-from:				generic-unix
+default-features:			compiled-for-solaris
+make-command:                   	gmake
+
+platform-name:			x86-solaris-gcc
+inherit-from:			gcc solaris x86
+
+platform-name:			sparc-solaris-gcc
+inherit-from:			gcc solaris sparc
+default-features:		compiled-for-solaris compiled-for-sparc C-compiler-is-GCC
+default-c-compiler-debug-flags:		-I. -I%s -g -O0 -fno-inline-functions
+long-double-alignment:		8
+
+platform-name:			sparc-solaris-gcc30
+inherit-from:			gcc solaris sparc
+default-features:               compiled-for-solaris compiled-for-sparc C-compiler-is-GCC
+default-c-compiler-flags:	-I. -I%s -O1
+default-c-compiler-debug-flags: -I. -I%s -g -O0 -fno-inline-functions
+link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+long-long-alignment:	8
+long-double-size:               16
+long-double-alignment:          8
+long-double-mantissa-digits:	113
+minimum-long-double-float-exponent: -16381
+maximum-long-double-float-exponent: 16384
+
+
+// Microsoft Win32
+
+// ... with Mingwin (automake, autoconf, libtool installed)
+// once maintained by Douglas M. Auclair <dauclair@hotmail.com>
+platform-name:				mingw32
+default-features:			compiled-for-mingw32
+					newlines-are-CRLF
+inherit-from:				win32
+make-command:				make
+executable-filename-suffix:		.exe
+double-alignment:			8
+long-double-alignment:			4
+long-double-mantissa-digits:		53
+minimum-long-double-float-exponent:	-1021
+maximum-long-double-float-exponent:	1024
+
+platform-name:			x86-mingw32-gcc
+inherit-from:			gcc x86 mingw32
+link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+
+// ... with Microsoft Visual C++
 // FIXME: debugging and profiling flags look suspicious
 platform-name:			vc
 default-features:		C-compiler-is-VC
@@ -430,308 +699,8 @@ library-filename-prefix:
 library-filename-suffix:        .lib
 executable-filename-suffix:     .exe
 
-platform-name:			gcc
-default-features:		C-compiler-is-GCC
-compile-c-command:              gcc $(CCFLAGS) -c %s -o %s
-compile-c-for-shared-command:   $(LIBTOOL) --mode=compile gcc $(CCFLAGS) -c %s -o %s
-default-c-compiler-flags:	-I. -I%s -O2 -fomit-frame-pointer -fno-strict-aliasing
-default-c-compiler-debug-flags:	-I. -I%s -g -O -fno-inline-functions
-default-c-compiler-profile-flags:	-I. -I%s -pg -g -O -fno-inline-functions
-assembler-command:		gcc $(CCFLAGS) -c %s -o %s
-link-library-command:           ar qc %s %s
-link-executable-command: 	$(LIBTOOL) --mode=link gcc -o %s %s %s
-link-shared-executable-command: $(LIBTOOL) --mode=link gcc -o %s %s %s
-link-executable-flags:          $(GC_LIBS) -lm
-link-debug-flags:               -g
-link-profile-flags:		-pg -g
-path-separator:        		/
-
-platform-name:			beos-gcc
-default-features:		C-compiler-is-GCC
-compile-c-command:              gcc $(CCFLAGS) -c %s -o %s
-compile-c-for-shared-command:   $(LIBTOOL) --mode=compile gcc $(CCFLAGS) -c %s -o %s
-default-c-compiler-flags:	-I. -I%s -g -O3
-default-c-compiler-debug-flags:	-I. -I%s -g -O -fno-inline-functions
-default-c-compiler-profile-flags: -I. -I%s -pg -g -O -fno-inline-functions
-assembler-command:		gcc $(CCFLAGS) -c %s -o %s
-link-library-command:           ar qc %s %s
-link-executable-command: 	$(LIBTOOL) --mode=link gcc -o %s %s %s
-link-shared-executable-command: $(LIBTOOL) --mode=link gcc -o %s %s %s
-link-executable-flags:          
-path-separator:        		/
-
-platform-name:			mac-cw
-default-features:		C-compiler-is-GCC
-compile-c-command:              gcc $(CCFLAGS) -c %s -o %s
-compile-c-for-shared-command:   $(LIBTOOL) --mode=compile gcc $(CCFLAGS) -c %s -o %s
-default-c-compiler-flags:	-I. -I%s -g -O4 -finline-functions
-default-c-compiler-debug-flags:	-I. -I%s -g -O -fno-inline-functions
-default-c-compiler-profile-flags: -I. -I%s -pg -g -O -fno-inline-functions
-assembler-command:		gcc $(CCFLAGS) -c %s -o %s
-link-library-command:           ar qc %s %s
-link-executable-command: 	$(LIBTOOL) --mode=link gcc -o %s %s %s
-link-shared-executable-command: $(LIBTOOL) --mode=link gcc -o %s %s %s
-link-executable-flags:          $(GC_LIBS) -lm
-path-separator:        		:
-
-platform-name:			egcs
-default-features:		C-compiler-is-EGCS
-compile-c-command:              cc $(CCFLAGS) -c %s -o %s
-compile-c-for-shared-command:   $(LIBTOOL) --mode=compile cc $(CCFLAGS) -c %s -o %s
-default-c-compiler-flags:	-I. -I%s -O2 -fomit-frame-pointer
-default-c-compiler-debug-flags:	-I. -I%s -g -O -fno-inline-functions
-default-c-compiler-profile-flags: -I. -I%s -pg -g -O -fno-inline-functions
-assembler-command:		cc $(CCFLAGS) -c %s -o %s
-link-library-command:           ar qc %s %s
-link-executable-command: 	$(LIBTOOL) --mode=link cc -o %s %s %s
-link-shared-executable-command: $(LIBTOOL) --mode=link cc -o %s %s %s
-link-executable-flags:          $(GC_LIBS) -multiply_defined suppress         
-path-separator:        		/
-
-
-// FIXME:  Temporary measure until gcc-3.0 is the default
-//
-// Beware: some versions of gcc 3 have an optimizer bug,
-// which requires -fno-strict-aliasing be active. Might be
-// fixed as of 3.2.3, or not.
-//
-
-
-// Combinations:
-
-platform-name:                 ppc-gcc30
-default-features:              C-compiler-is-GCC
-compile-c-command:              gcc-3.0 $(CCFLAGS) -c %s -o %s
-compile-c-for-shared-command:   $(LIBTOOL) --mode=compile gcc-3.0 $(CCFLAGS) -c %s -o %s
-default-c-compiler-flags:      -I. -I%s -O2 -fomit-frame-pointer -fno-strict-aliasing
-default-c-compiler-debug-flags:        -I. -I%s -g -O -fno-inline-functions
-default-c-compiler-profile-flags:      -I. -I%s -pg -g -O -fno-inline-functions
-assembler-command:             gcc-3.0 $(CCFLAGS) -c %s -o %s
-link-library-command:           ar qc %s %s
-link-executable-command: 	$(LIBTOOL) --mode=link gcc-3.0 -o %s %s %s
-link-shared-executable-command: $(LIBTOOL) --mode=link gcc-3.0 -o %s %s %s
-link-executable-flags:          $(GC_LIBS) -lm
-link-profile-flags:            -pg
-path-separator:                        /
-
-platform-name:			  ppc-gcc32
-default-features:		  C-compiler-is-GCC
-compile-c-command:		  gcc-3.2 $(CCFLAGS) -c %s -o %s
-compile-c-for-shared-command:	  $(LIBTOOL) --mode=compile gcc-3.2 $(CCFLAGS) -c %s -o %s
-default-c-compiler-flags:	  -I. -I%s -O2 -fomit-frame-pointer  -fno-strict-aliasing
-default-c-compiler-debug-flags:	  -I. -I%s -g -O -fno-inline-functions
-default-c-compiler-profile-flags: -I. -I%s -pg -g -O -fno-inline-functions
-assembler-command:		  gcc-3.2 $(CCFLAGS) -c %s -o %s
-link-library-command:		  ar qc %s %s
-link-executable-command:	  $(LIBTOOL) --mode=link gcc-3.2 -o %s %s %s
-link-shared-executable-command:	  $(LIBTOOL) --mode=link gcc-3.2 -o %s %s %s
-link-executable-flags:		  $(GC_LIBS) -lm
-link-profile-flags:		  -pg
-path-separator:			  /
-
-/// x86
-platform-name:			x86-gcc32
-inherit-from:			x86 gcc
-default-c-compiler-flags:	-I. -I%s -O2 -fomit-frame-pointer -fno-strict-aliasing
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
-
-platform-name:			x86-gcc33
-inherit-from:			x86 gcc
-default-c-compiler-flags:	-I. -I%s -O
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
-link-executable-command: 	$(LIBTOOL) --mode=link gcc -static -o %s %s %s
-
-/// sparc
-platform-name:			sparc-gcc30
-inherit-from:			sparc gcc
-default-c-compiler-flags:	-I. -I%s -O1
-default-c-compiler-debug-flags: -I. -I%s -g -O0 -fno-inline-functions
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
-long-long-alignment:	8
-
-
-// Fully supported platforms (i.e., we use these):
-platform-name:			x86-linux-gcc
-inherit-from:			gcc linux x86
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
-link-executable-command: 	$(LIBTOOL) --mode=link gcc -static -o %s %s %s
-
-platform-name:			x86-linux-gcc32
-inherit-from:			linux x86-gcc32
-
-platform-name:			x86-linux-gcc33
-inherit-from:			linux x86-gcc33
-
-platform-name:			x86-bsdi-gcc
-inherit-from:			gcc bsdi x86
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
-
-platform-name:			x86-netbsd-gcc
-inherit-from:			gcc netbsd x86
-default-c-compiler-flags:       -I. -I%s -I/usr/X11R6/include -fomit-frame-pointer -fno-strict-aliasing
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
-
-platform-name:			x86-beos-gcc
-// Note:  These rules depend on the presence of the MingW utilities in your
-// system PATH.  You may elect to build using Microsoft's compiler, but
-// you will have a bear of a time getting things to work without some
-// UNIX-alike commands like "mv", "cmp", and GNU make.
-inherit-from:			beos-gcc beos x86
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
-
-platform-name:			ppc-linux
-inherit-from:			linux ppc
-double-alignment:		8
-long-double-alignment:		8
-
-platform-name:			ppc-linux-gcc
-inherit-from:			gcc ppc-linux
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
-
-platform-name:                 ppc-linux-gcc30
-inherit-from:                  ppc-gcc30 ppc-linux
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc-3.0 -o %s %s -rpath %s
-
-platform-name:			ppc-linux-gcc32
-inherit-from:			ppc-gcc32 ppc-linux
-link-shared-library-command:	$(LIBTOOL) --mode=link gcc-3.2 -o %s %s -rpath %s
-
-// FreeBSD 2.x
-platform-name:			x86-freebsd-aout-gcc
-inherit-from:			gcc freebsd x86
-
-// FreeBSD 3.x and above
-platform-name:			x86-freebsd-elf-gcc
-inherit-from:			gcc freebsd x86
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
-
-platform-name:			x86-freebsd-elf-gcc32
-inherit-from:			freebsd x86-gcc32
-
-platform-name:			x86-freebsd-elf-gcc33
-inherit-from:			freebsd x86-gcc33
-
-platform-name:			alpha-linux-gcc
-inherit-from:			gcc linux alpha
-big-endian?:			#f
-assembler-command:		gcc $(CCFLAGS) -x assembler-with-cpp -c %s -o %s
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
-
-platform-name:			sparc-linux-gcc
-inherit-from:			gcc linux sparc
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
-
-platform-name:			s390-linux-gcc
-inherit-from:			gcc linux s390
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
-
-platform-name:			MacOS-ppc
-inherit-from:			mac-cw macintosh ppc
-
-platform-name:			ppc-macos-egcs
-inherit-from:			egcs macintosh ppc
-long-long-alignment:	4
-long-double-size:		8
-long-double-alignment:	4
-
-platform-name:			ppc-darwin-gcc
-inherit-from:			gcc darwin ppc
-default-c-compiler-flags:	-I. -I%s -O2 -fomit-frame-pointer -no-cpp-precomp -Wno-long-double
-default-c-compiler-debug-flags:	-I. -I%s -g -O -fno-inline-functions -no-cpp-precomp -Wno-long-double
-default-c-compiler-profile-flags:	-I. -I%s -pg -g -O -fno-inline-functions -no-cpp-precomp -Wno-long-double
-link-executable-flags:          $(GC_LIBS) -multiply_defined suppress         
-long-long-alignment:	4
-long-double-size:		8
-long-double-alignment:	4
-
-// x86 cygwin gcc port
-// Tested on x86-32, cygwin 1.5.10-3, gcc 3.3.3 by Peter Hinely
-// Known problems:
-//   * cygwin 1.5.11-1 has a problem affecting the boehm gc
-//   * gcc 3.3.1 has a problem affecting compiling with -O2
-platform-name:                   x86-cygwin-gcc
-default-features:                compiled-for-cygnus
-                                 newlines-are-CRLF
-inherit-from:                    x86 linux gcc
-long-long-alignment:             8
-double-alignment:                8
-executable-filename-suffix:      .exe
-default-c-compiler-flags:        -I. -I%s -O2 -fomit-frame-pointer
-default-c-compiler-debug-flags:	 -I. -I%s -g -O -fno-inline-functions
-link-shared-library-command:     $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
-link-executable-command:         $(LIBTOOL) --mode=link gcc -o %s %s %s
-
-// Mingwin Port
-platform-name:			x86-mingw32-gcc32
-inherit-from:			gcc x86 mingw32
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
-
-// Solaris support maintained by Tom Emerson, tree@tiac.net
-// Need to define default-features: below since all three of our
-// inherited 'platforms' also define a default-features. But later on
-// code relies on features that otherwise get stomped.
-
-platform-name:			sparc-solaris-gcc30
-inherit-from:			solaris sparc-gcc30
-default-features:               compiled-for-solaris compiled-for-sparc C-compiler-is-GCC
-long-double-size:               16
-long-double-alignment:          8
-long-double-mantissa-digits:	113
-minimum-long-double-float-exponent: -16381
-maximum-long-double-float-exponent: 16384
-
-platform-name:			sparc-solaris-gcc
-inherit-from:			gcc solaris sparc
-default-features:               compiled-for-solaris compiled-for-sparc C-compiler-is-GCC
-default-c-compiler-debug-flags: -I. -I%s -g -O0 -fno-inline-functions
-double-alignment:               8
-long-double-size:               16
-long-double-alignment:          8
-long-long-alignment:            8
-long-double-mantissa-digits:	113
-minimum-long-double-float-exponent: -16381
-maximum-long-double-float-exponent: 16384
-
-// Doug Auclair's taken over Solaris support ... here's a Solaris-x86 port:
-platform-name:			x86-solaris-gcc
-inherit-from:			gcc solaris x86
-
-// MIPS support maintained by David Lichteblau, lichteblau@fhtw-berlin.de
-// This is supposed to work, but I don't use it extensively. 
-platform-name:			mips-irix-gcc
-inherit-from:			gcc irix mips
-default-features:               compiled-for-irix compiled-for-mips C-compiler-is-GCC
-link-shared-library-command:    $(LIBTOOL) --mode=link cc -n32 -Wl,-woff,85 -o %s %s -rpath %s
-
-// This is untested. 
-platform-name:			sparc-openbsd-gcc
-inherit-from:			gcc openbsd sparc
-default-features:               compiled-for-openbsd compiled-for-sparc C-compiler-is-GCC
-default-c-compiler-debug-flags: -I. -I%s -g -O0 -fno-inline-functions
-
-
-// Other platforms:
-//   These all worked at one point, but since none of the development team 
-//   members use them, we can't be too sure...
 platform-name:			x86-win32-vc
 inherit-from:			vc x86 win32
 long-double-mantissa-digits:	53
 minimum-long-double-float-exponent: -1021
 maximum-long-double-float-exponent: 1024
-
-// Bruce Hoult made this work on HP/UX 10.20
-// HP/UX 11 not tried yet
-// Shared libraries disabled for now so we can get 2.3.11 out.
-// The problem is the -lm, which is required by recent FP routine changes
-platform-name:				hppa-hpux-gcc
-inherit-from:				gcc hpux hppa
-default-features:               	compiled-for-hpux compiled-for-hppa C-compiler-is-GCC
-library-filename-suffix:        	.a .sl
-link-library-command:           	/bin/ar qc %s %s
-link-executable-command:        	$(LIBTOOL) --mode=link gcc -o %s %s %s
-//link-shared-library-command:    	$(LIBTOOL) --mode=link gcc -o %s %s -L/lib/pa1.1 -lm -rpath %s
-link-executable-flags:          	$(GC_LIBS) -L/lib/pa1.1 -lm
-double-alignment:                       8
-long-long-alignment:                    8
-long-double-size:                       8
-long-double-alignment:                  8

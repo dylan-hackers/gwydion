@@ -87,44 +87,34 @@ AC_PROG_CC			# Specify when cross-compiling.
 
 AC_DEFUN(GD_D2C_SYSTEM,[
 case $1 in
-    i*86-*-linux-gnu*)
-        case `gcc -dumpversion` in
-	     3.3*) $2=x86-linux-gcc33 ;;
-	     3.2*) $2=x86-linux-gcc32 ;;
-	     *)    $2=x86-linux-gcc ;;
-        esac ;;
-    i*86-pc-bsdi*) $2=x86-bsdi-gcc ;;
-    powerpc-*-linux-gnu*) $2=ppc-linux-gcc32 ;;
-    alpha*-*-linux-gnu*) $2=alpha-linux-gcc ;;
-    sparc*-*-linux-gnu*) $2=sparc-linux-gcc ;;
-    s390*-*-linux-gnu*) $2=s390-linux-gcc ;;
-    hppa*-hp-hpux*) $2=hppa-hpux-gcc ;;
-    sparc*-solaris*)
-        case `gcc -dumpversion` in
-	     3.0*) $2=sparc-solaris-gcc30 ;;
-	     *)    $2=sparc-solaris-gcc ;;
-        esac ;;
-    sparc*-openbsd*) $2=sparc-openbsd-gcc ;;
-    i*86-*-solaris*) $2=x86-solaris-gcc ;;
-    i*86-*-l4*) $2=x86-l4-gcc ;;
+    # does-work stuff
     i*86-*-freebsd2.*) $2=x86-freebsd-aout-gcc ;;
-    i*86-*-freebsd*)
-        case `gcc -dumpversion` in
-	     3.3*) $2=x86-freebsd-elf-gcc33 ;;
-	     3.2*) $2=x86-freebsd-elf-gcc32 ;;
-	     *)    $2=x86-freebsd-elf-gcc ;;
-        esac ;;
+    i*86-*-freebsd*)   $2=x86-freebsd-elf-gcc ;;
+    i*86-*-linux-gnu*) $2=x86-linux-gcc ;;
+
+    # might-work stuff
+    i*86-*-solaris*) $2=x86-solaris-gcc ;;
+    powerpc-apple-darwin*) $2=ppc-darwin-gcc ;;
+    powerpc-*-linux-gnu*)  $2=ppc-linux-gcc ;;
+    s390*-*-linux-gnu*) $2=s390-linux-gcc ;;
+    sparc*-*-linux-gnu*) $2=sparc-linux-gcc ;;
+    sparc*-solaris*)     $2=sparc-solaris-gcc ;;
+
+    # experimental stuff
+    i*86-*-l4*) $2=x86-l4-gcc ;;
+
+    # old stuff
+    i*86-pc-bsdi*) $2=x86-bsdi-gcc ;;
+    alpha*-*-linux-gnu*) $2=alpha-linux-gcc ;;
+    hppa*-hp-hpux*) $2=hppa-hpux-gcc ;;
+    sparc*-openbsd*) $2=sparc-openbsd-gcc ;;
     i*86-pc-cygwin*) $2=x86-cygwin-gcc ;;
-    i*86-pc-mingw32*) $2=x86-mingw32-gcc32 ;;
+    i*86-pc-mingw32*) $2=x86-mingw32-gcc ;;
     i*86-pc-none) $2=x86-win32-vc ;;
     i*86-pc-beos) $2=x86-beos-gcc ;;
-    powerpc-apple-darwin*) $2=ppc-darwin-gcc ;;
     mips-sgi-irix*) $2=mips-irix-gcc ;;
-    i*86-*-netbsd*)
-        case `gcc -dumpversion` in
-	     3.3*) $2=x86-netbsd-gcc33 ;;
-	     *)    $2=x86-netbsd-gcc ;;
-        esac ;;
+    i*86-*-netbsd*) $2=x86-netbsd-gcc ;;
+
     *) $2=unknown-unix ;;
 esac])
 
