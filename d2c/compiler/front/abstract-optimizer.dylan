@@ -41,7 +41,7 @@ define abstract open primary class <abstract-optimizer> (<object>)
   // Should we print debugging output after each optimization stage?
   // (If this is true, subclasses should call dump-fer frequently.)
   // the higher the value, the more to print
-  slot debug-optimizer :: false-or(<integer>) = #f,
+  slot debug-optimizer :: <integer> = 0,
     init-keyword: debug-optimizer:;
   slot optimizer-options :: <table> = make(<table>),
     init-keyword: options:

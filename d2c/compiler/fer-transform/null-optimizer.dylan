@@ -86,7 +86,7 @@ define function debug-message
     (optimizer :: <abstract-optimizer>,
      message :: <string>)
  => ()
-  if (debug-optimizer(optimizer))
+  if (optimizer.debug-optimizer > 0)
     dformat("\n******** %s\n\n", message);
   end;
 end;
