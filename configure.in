@@ -114,12 +114,7 @@ case $1 in
 	     3.2*) $2=x86-freebsd-elf-gcc32 ;;
 	     *)    $2=x86-freebsd-elf-gcc ;;
         esac ;;
-    i*86-pc-cygwin*)
-        case `$CC -dumpversion` in
-	     3.3*) $2=x86-cygnus-gcc33 ;;
-	     3.2*) $2=x86-cygnus-gcc32 ;;
-	     *)    $2=x86-cygnus-gcc ;;
-        esac ;;
+    i*86-pc-cygwin*) $2=x86-cygwin-gcc ;;
     i*86-pc-mingw32*) $2=x86-mingw32-gcc32 ;;
     i*86-pc-none) $2=x86-win32-vc ;;
     i*86-pc-beos) $2=x86-beos-gcc ;;
@@ -157,15 +152,15 @@ AC_MSG_RESULT($d2c_target)
 AC_SUBST(d2c_target)
 
 #----------------------------------------------------------
-# Now that I know the build version, and particularly, if it's cygnus
-# I can add executable endings to those filenames
+# Now that I know the build version, and particularly, if
+# it's cygwin, I can add executable endings to those filenames
 # Douglas M. Auclair, doug@cotilliongroup.com
 #----------------------------------------------------------
 AC_MSG_CHECKING(executable endings)
 exe_ext=""
 cygnus_line_hack=""
 case $d2c_build in
-    x86-cygnus*|x86-mingw*)
+    *cygwin*|x86-mingw*)
     	exe_ext=".exe"
         cygnus_line_hack="\$_ =~ s/\r//;"
 	;;

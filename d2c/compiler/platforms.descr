@@ -1,6 +1,6 @@
 // A description of all target platforms we support. We use this in d2c as well as in the build scripts.
 // Remember, blank links separate the platforms.
-// $Header: /scm/cvs/src/d2c/compiler/platforms.descr,v 1.92 2004/05/23 08:38:03 bruce Exp $
+// $Header: /scm/cvs/src/d2c/compiler/platforms.descr,v 1.93 2004/09/16 04:11:30 phinely Exp $
 
 // A target description is a description of the target-environment we
 // are compiling for.  This includes information such as what files
@@ -248,19 +248,6 @@ makefiles-can-rebuild-themselves?:      #t
 make-jobs-flag:				-j
 recursive-make-command:         	$(MAKE) -C %s %s
 libtool-command:			libtool
-
-// Cygwin (automake, autoconf, libtool installed)
-// added by Douglas M. Auclair (dauclair@hotmail.com)
-platform-name:				cygnus
-default-features:			compiled-for-cygnus
-					newlines-are-CRLF
-inherit-from:				generic-unix
-make-command:				make
-use-dbclink?:				#t
-executable-filename-suffix:		.exe
-long-double-mantissa-digits:		53
-minimum-long-double-float-exponent:	-1021
-maximum-long-double-float-exponent:	1024
 
 // Mingwin (automake, autoconf, libtool installed)
 // added by Douglas M. Auclair (dauclair@hotmail.com)
@@ -663,22 +650,22 @@ long-long-alignment:	4
 long-double-size:		8
 long-double-alignment:	4
 
-// Douglas M. Auclair's cygnus port (doug@cotilliongroup.com)
-platform-name:			x86-cygnus-gcc
-inherit-from:			gcc x86 cygnus
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
-
-platform-name:			x86-cygnus-gcc32
-inherit-from:			x86-gcc32 cygnus
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
-long-long-alignment:		4
-double-alignment:		4
-
-platform-name:			x86-cygnus-gcc33
-inherit-from:			x86-gcc33 cygnus
-link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
-long-long-alignment:		8
-double-alignment:		8
+// x86 cygwin gcc port
+// Tested on x86-32, cygwin 1.5.10-3, gcc 3.3.3 by Peter Hinely
+// Known problems:
+//   * cygwin 1.5.11-1 has a problem affecting the boehm gc
+//   * gcc 3.3.1 has a problem affecting compiling with -O2
+platform-name:                   x86-cygwin-gcc
+default-features:                compiled-for-cygnus
+                                 newlines-are-CRLF
+inherit-from:                    x86 linux gcc
+long-long-alignment:             8
+double-alignment:                8
+executable-filename-suffix:      .exe
+default-c-compiler-flags:        -I. -I%s -O2 -fomit-frame-pointer
+default-c-compiler-debug-flags:	 -I. -I%s -g -O -fno-inline-functions
+link-shared-library-command:     $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
+link-executable-command:         $(LIBTOOL) --mode=link gcc -o %s %s %s
 
 // Mingwin Port
 platform-name:			x86-mingw32-gcc32
