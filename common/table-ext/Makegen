@@ -3,6 +3,6 @@
 $D2CFLAGS = $d2c_runtime;
 
 do emit_library_rule(
-    'TableExt', '$(BUILDROOT)/force.timestamp', '', 'compile', 
+    'table-extensions', '$(BUILDROOT)/force.timestamp', '', 'compile', 
     'install'
 );
