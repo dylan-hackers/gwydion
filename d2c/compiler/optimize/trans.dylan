@@ -854,7 +854,7 @@ define method build-instance?
 		 find-direct-classes(class));
       if (empty?(direct-classes))
 	error("None of the direct classes intersect the derived type but we "
-		"didn't optimize the test away?");
+		"didn't optimize the test away?  %=  --->  %=", class, value);
       elseif (class.subclass-id-range-min & direct-classes.size > 2)
 	// There is a range we can check the unique-id against.
 	let id-temp = make-local-var(builder, #"unique-id", object-ctype());

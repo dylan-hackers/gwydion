@@ -1675,8 +1675,8 @@ define method optimize-slot-ref
     let guaranteed-initialized?	// remove this altogether???
       = slot-guaranteed-initialized?(meta-slot, meta-instance /* instance.derived-type */);
 
-    guaranteed-initialized?
-      & error("A class slot that is guaranteed initialized?");
+///    guaranteed-initialized?
+///      & error("A class slot that is guaranteed initialized?");
 
     if (init?-slot & ~guaranteed-initialized?)
       let init?-offset = find-slot-offset(init?-slot, meta-instance /* instance.derived-type */);
@@ -1707,6 +1707,7 @@ define method optimize-slot-ref
             make-literal-constant(builder, format-to-string("%=", source))));
       end-body(builder);
     end;
+
     let value = make-local-var(builder, getter-name,
 			       meta-slot.slot-type);
     build-assignment

@@ -347,7 +347,7 @@ define abstract class <slot-info> (<abstract-slot-info>)
   // The getter generic function definition.  Used for slot identity.  If #f,
   // that means that the slot is an auxiliary slot hung off some other slot,
   // and therefore doesn't need additional identity information.
-  slot slot-getter :: false-or(<variable>),
+  constant slot slot-getter :: false-or(<variable>),
     required-init-keyword: getter:;
   //
   // True if the slot is read-only (i.e. no setter), False otherwise.
@@ -369,6 +369,9 @@ end;
 
 define sealed domain make (singleton(<slot-info>));
 define sealed domain initialize (<slot-info>);
+
+define sealed generic slot-type (info :: <slot-info>) => type :: <ctype>;
+define sealed generic slot-type-setter (new-type :: <ctype>, info :: <slot-info>) => type :: <ctype>;
 
 define method ct-value-slot(ctv :: <slot-info>, slot == #"slot-init-value")
  => res :: false-or(<ct-value>);
@@ -487,6 +490,16 @@ end;
 define method slot-init-function-setter (new-init :: <init-entity>, info :: <meta-slot-info>)
  => init :: <init-entity>; // never returns TODO
   "Must not set init-function via meta-slot!".error;
+end;
+
+define method slot-type (info :: <meta-slot-info>)
+ => type :: <ctype>;
+  info.referred-slot-info.slot-type
+end;
+
+define method slot-type-setter (new-type :: <ctype>, info :: <meta-slot-info>)
+ => type :: <ctype>;
+  "Must not set slot-type via meta-slot!".error;
 end;
 
 

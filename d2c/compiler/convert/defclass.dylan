@@ -1291,19 +1291,6 @@ define method finalize-slot
     end if;
   end if;
 
-  // Fill in the type for meta slot too.
-  if (instance?(info, <indirect-slot-info>))
-    let meta :: <meta-slot-info> = info.associated-meta-slot;
-    meta.slot-type := slot-type;
-/* not yet    
-    // We can also reuse non-sideeffecting init-values.
-    // All other cases should be handled via deferred-evaluations.
-    if (info.slot-init-value ~== #t & info.slot-init-value)
-      meta.slot-init-value := info.slot-init-value;
-    end if;
-*/
-  end if;
-
   // Define the accessor methods.
   unless (slot.slot-definition-allocation == #"virtual")
     //
@@ -1372,14 +1359,14 @@ end method finalize-slot;
 define method maybe-define-init-function
     (expr :: <expression-parse>, getter-name :: false-or(<basic-name>),
      tlf :: <define-class-tlf>)
-    => (ctv :: false-or(<ct-value>), change-to-init-value? :: <boolean>);
+    => (ctv :: type-union(<ct-value>, singleton(#t)), change-to-init-value? :: <boolean>);
   let init-val = ct-eval(expr, #f);
   if (init-val)
     if (cinstance?(init-val, function-ctype()))
-      values(init-val, #f);
+      init-val;
     else
       compiler-error-location(expr, "Invalid init-function: %s.", init-val);
-      values(#f, #f);
+      #t;
     end if;
   else
     let method-ref = expand-until-method-ref(expr);
@@ -1389,7 +1376,7 @@ define method maybe-define-init-function
         = compute-signature(method-parse.method-parameters,
                             method-parse.method-returns);
       if (anything-non-constant?)
-        values(#f, #f);
+        #t;
       else
         let result-type = first(signature.returns.positional-types,
                                 default: signature.returns.rest-value-type);
@@ -1433,11 +1420,11 @@ define method maybe-define-init-function
                    signature: new-signature,
                    method-parse: new-method-parse);
           add!(tlf.tlf-init-function-defns, init-func-defn);
-          values(init-func-defn.ct-value, #f);
+          init-func-defn.ct-value;
         end if;
       end if;
     else
-      values(#f, #f);
+      #t;
     end if;
   end if;
 end method maybe-define-init-function;
