@@ -28,9 +28,6 @@ module: dylan-viscera
 //
 //======================================================================
 
-// This is a dummy implementation of the FD threading interface,
-// to be renamed to thread-single.dylan in SVN. -prom
-
 // some dummy priority values
 define constant $low-priority         = -2;
 define constant $background-priority  = -1;

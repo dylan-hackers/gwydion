@@ -42,7 +42,7 @@ nlx.dylan
 output.dylan
 condition.dylan
 debug.dylan
-thread.dylan
+thread-single.dylan
 synchronization.dylan
 synchronization-single.dylan
 system.dylan
