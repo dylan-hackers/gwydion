@@ -103,7 +103,7 @@ define method c-arguments(progname :: <string>, arguments)
        arg in arguments)
     argv[i] := arg;
   end for;
-  as(<c-pointer-vector>, argv)[argc] := null-pointer;
+  as(<c-pointer-vector>, argv)[argc] := $null-pointer;
   let pargc = make(<int*>);
   pointer-value(pargc) := argc;
   let pargv = make(<char***>);

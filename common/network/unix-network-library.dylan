@@ -18,7 +18,7 @@ end;
 define module C-FFI
   use common-dylan;
   use machine-words;
-  use melange-support, exclude: { null-pointer };
+  use melange-support;
 
   export
     <C-char*>,
@@ -41,7 +41,7 @@ define module unix-sockets
     exclude: { close };
   use C-FFI;
   use machine-words;
-  use melange-support, exclude: { null-pointer };
+  use melange-support;
 
   // Misc
   export
@@ -200,7 +200,7 @@ end module sockets;
 
 define module sockets-internals
   use common-dylan, exclude: { format-to-string };
-  use melange-support, exclude: { null-pointer };
+  use melange-support;
   use system, import: { vector-elements-address };
   use machine-words;
   use C-FFI;

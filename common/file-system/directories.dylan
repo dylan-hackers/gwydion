@@ -40,7 +40,7 @@ define function do-directory(fn :: <function>, dir-name :: <pathname>) => ()
 #else
   // ooOOoOOoh!  This gets weird quickly! -- melange to the rescue!
   let dir* = open-dir(dir-name);
-  if(dir* = null-pointer) file-signal("opendir", dir-name); end if;
+  if(dir* = $null-pointer) file-signal("opendir", dir-name); end if;
   block()
     while(#t)
       let (name, type) = dir-element(dir*, dir-name);
@@ -76,9 +76,9 @@ end function end-of-directory;
 
 define function dir-element(dir :: <machine-pointer>, path :: <pathname>)
  => (name :: <string>, type :: <file-type>)
-  if(dir = null-pointer) end-of-directory(); end if;
+  if(dir = $null-pointer) end-of-directory(); end if;
   let file = gd-readdir(dir);
-  if(file = null-pointer) end-of-directory(); end if;
+  if(file = $null-pointer) end-of-directory(); end if;
 
   let name = convert-to-string(gd-dirent-name(file));
   let stat = with-pointer(path = concatenate(as-dir(path), name))

@@ -24,7 +24,7 @@ define method %expand-pathname
                      copy-sequence(first, start: 1)
                    end;
         let passwd = %getpwnam(name);
-        if (passwd ~= null-pointer)
+        if (passwd ~= $null-pointer)
           let homedir = as(<native-directory-locator>, pw-dir(passwd));
           merge-locators(make(<native-directory-locator>,
                               path: copy-sequence(elements, start: 1),
@@ -230,7 +230,7 @@ define method %file-property
     unix-file-error("get the author of", "%s", file)
   end;
   let passwd = %getpwuid(st-uid(st));
-  if (passwd ~= null-pointer)
+  if (passwd ~= $null-pointer)
     as(<byte-string>, pw-name(passwd))
   else
     unix-file-error("get the author of", "%s", file)
@@ -373,15 +373,15 @@ end method %file-property-setter;
 define function %do-directory 
     (f :: <function>, directory :: <posix-directory-locator>) => ()
   let directory = %expand-pathname(directory);
-  let directory-fd :: <DIR*> = as(<DIR*>, null-pointer);
+  let directory-fd :: <DIR*> = as(<DIR*>, $null-pointer);
   block ()
     directory-fd := %opendir(as(<byte-string>, directory));
-    if (directory-fd = null-pointer)
+    if (directory-fd = $null-pointer)
       unix-file-error("start listing of", "%s", directory)
     end;
     unix-last-error() := 0;
     let dirent = %readdir(directory-fd);
-    while (dirent ~= null-pointer)
+    while (dirent ~= $null-pointer)
       let filename :: <byte-string> = dirent-name(dirent);
       let type :: <file-type>
 	= %file-type(make(<posix-file-locator>,
@@ -399,7 +399,7 @@ define function %do-directory
       unix-file-error("continue listing of", "%s", directory)
     end;
   cleanup
-    if (directory-fd ~= null-pointer)
+    if (directory-fd ~= $null-pointer)
       %closedir(directory-fd);
     end
   end
@@ -463,7 +463,7 @@ define function %working-directory
     let buffer :: <c-string> = make(<c-string>, size: bufsiz, fill: '\0');
     let result :: <c-string> = %getcwd(buffer, bufsiz);
 
-    if (result ~= null-pointer)
+    if (result ~= $null-pointer)
       as(<directory-locator>, buffer);
     elseif (unix-last-error() = $ERANGE)
       getcwd-with-size(bufsiz * 2);

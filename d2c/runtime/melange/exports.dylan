@@ -45,7 +45,7 @@ define module melange-support
   export
     //c-variable-ref, c-variable-ref-setter, // deprecated for new work, will be removed soon 
     c-variable, c-variable-setter, // use these for development
-    <statically-typed-pointer>, raw-value, null-pointer,
+    <statically-typed-pointer>, raw-value, $null-pointer,
     signed-byte-at, signed-byte-at-setter,
     unsigned-byte-at, unsigned-byte-at-setter, signed-short-at,
     signed-short-at-setter, unsigned-short-at, unsigned-short-at-setter,
@@ -59,7 +59,7 @@ define module melange-support
     structure-size, export-value, import-value, <machine-pointer>,
     <c-string>, <c-vector>, <function-pointer>,
 
-    $null-pointer, <void>,
+    <void>,
 
     c-struct-members;
 end module melange-support;

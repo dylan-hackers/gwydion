@@ -31,7 +31,7 @@ end function login-name;
 define function login-group () => (group :: false-or(<string>))
   let gid = %getgid();
   let gr-ent = %getgrgid(gid);
-  if (gr-ent = null-pointer)
+  if (gr-ent = $null-pointer)
     #f
   else
     gr-ent.gr-name
@@ -53,7 +53,7 @@ define constant $environment-variable-delimiter = ':';
 define function environment-variable
     (name :: <byte-string>) => (value :: false-or(<byte-string>))
   let v = %getenv(name);
-  if (v = null-pointer)
+  if (v = $null-pointer)
     #f
   else
     as(<byte-string>, v)

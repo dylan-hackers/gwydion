@@ -118,7 +118,7 @@ define method make
 			  unsigned-int:
 			    (content-size(cls) + extra-bytes) * element-count);
     let ptr = next(cls, pointer: rawptr);
-    if (ptr = null-pointer) error("Make failed to allocate memory.") end if;
+    if (ptr = $null-pointer) error("Make failed to allocate memory.") end if;
 
     apply(initialize, ptr, rest);
 
@@ -169,10 +169,8 @@ define sealed method as
   obj.raw-value;
 end method as;
 
-define constant null-pointer :: <statically-typed-pointer>
+define constant $null-pointer :: <statically-typed-pointer>
   = as(<statically-typed-pointer>, 0);
-
-define constant $null-pointer :: <statically-typed-pointer> = null-pointer;
 
 define sealed inline method signed-byte-at
     (ptr :: <statically-typed-pointer>, #key offset :: <integer> = 0)
@@ -483,7 +481,7 @@ define sealed inline method forward-iteration-protocol (str :: <c-string>)
   values(0, #f,
 	 method (str, state) state + 1 end method,
 	 method (str, state, limit)
-	   str = null-pointer | unsigned-byte-at(str, offset: state) == 0;
+	   str = $null-pointer | unsigned-byte-at(str, offset: state) == 0;
 	 end method,
 	 method (str, state) state end method,
 	 method (str, state)
@@ -513,13 +511,13 @@ end method content-size;
 define sealed  method size (string :: <c-string>)
  => result :: <integer>;
   case
-    (string = null-pointer) => 0;
+    (string = $null-pointer) => 0;
     otherwise => call-out("strlen", int:, ptr: string.raw-value);
   end case;
 end method size;
 
 define sealed  method empty? (string :: <c-string>) => (result :: <boolean>);
-  string = null-pointer | unsigned-byte-at(string) = 0;
+  string = $null-pointer | unsigned-byte-at(string) = 0;
 end method empty?;
 
 define constant space-byte = as(<integer>, ' ');
@@ -527,7 +525,7 @@ define sealed  method size-setter (value :: <integer>, string :: <c-string>)
  => value :: <integer>;
   let sz = string.size;
   case
-    value = null-pointer =>
+    value = $null-pointer =>
       error("Cannot set size of null <c-string>s");
     value == sz =>
       #f;
