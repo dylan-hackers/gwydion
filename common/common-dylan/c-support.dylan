@@ -3,11 +3,11 @@ module: c-support
 c-include(".//prototypes.h");
 
 define sealed method application-argc () => (result :: <integer>);
-  as(<integer>, c-variable-ref(int: "&application_argc"));
+  as(<integer>, c-variable(int: "&application_argc"));
 end method application-argc;
 
 define sealed method application-argc-setter (value :: <integer>) => (result :: <integer>);
-  c-variable-ref(int: "&application_argc") := value;
+  c-variable(int: "&application_argc") := value;
   value;
 end method application-argc-setter;
 
@@ -33,11 +33,11 @@ define method content-size (value :: subclass(<char**>)) => (result :: <integer>
 end method content-size;
 
 define sealed method application-argv-internal () => (result :: <char**>);
-  as(<char**>, c-variable-ref(ptr: "&application_argv"));
+  as(<char**>, c-variable(ptr: "&application_argv"));
 end method application-argv-internal;
 
 define sealed method application-argv-internal-setter (value :: <char**>) => (result :: <char**>);
-  c-variable-ref(ptr: "&application_argv") := value;
+  c-variable(ptr: "&application_argv") := value;
   value;
 end method application-argv-internal-setter;
 
@@ -76,4 +76,4 @@ define function application-argv
  => (string :: <byte-string>)
   pointer-value(application-argv-internal(), index: index);
 end function application-argv;
-  
+

@@ -50,7 +50,7 @@ define macro c-variable-setter
 			      c-expr(ptr: ?expression), 0) }
 end;
 
-
+/*
 // Usage: c-variable-ref(int: "&variable") { := expression }
 // implementation same as above but this spelling is deprecated
 // and will be wiped soon    
@@ -71,6 +71,7 @@ define macro c-variable-ref-setter
                               c-expr(ptr: ?expression), 0) }
 end;
 // deprecated end /////////////////////////////////////////////
+*/
 
 define open primary functional class <statically-typed-pointer> (<object>)
   slot raw-value :: <raw-pointer>, required-init-keyword: #"pointer";

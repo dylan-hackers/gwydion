@@ -43,7 +43,7 @@ define module melange-support
   use machine-words;
 
   export
-    c-variable-ref, c-variable-ref-setter, // deprecated for new work, will be removed soon 
+    //c-variable-ref, c-variable-ref-setter, // deprecated for new work, will be removed soon 
     c-variable, c-variable-setter, // use these for development
     <statically-typed-pointer>, raw-value, null-pointer,
     signed-byte-at, signed-byte-at-setter,
