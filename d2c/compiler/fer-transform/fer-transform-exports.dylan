@@ -1,11 +1,10 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/fer-transform/fer-transform-exports.dylan,v 1.8 2003/06/24 21:00:07 andreas Exp $
 copyright: see below
 
 
 //======================================================================
 //
-// Copyright (c) 2000, 2001  Gwydion Dylan Maintainers
+// Copyright (c) 2000 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -40,6 +39,7 @@ define library compiler-fer-transform
 end library compiler-fer-transform;
 
 define module fer-transform
+  use extensions, import: {subclass};
   use common;
   use utils;
   use compile-time-values;

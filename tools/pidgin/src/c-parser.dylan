@@ -566,7 +566,8 @@ end method add-declaration;
 
 // Main parser routine:
 define function parse-c-file
-    (repository :: <c-type-repository>, filename :: <string>,
+    (repository :: <c-type-repository>,
+     filename :: type-union(<string>, <locator>),
      #key platform :: <c-platform>, include-path :: <c-include-path>)
  => (c-file :: <c-file>)
   // XXX - We ignore typedefs and structs already in the repository.

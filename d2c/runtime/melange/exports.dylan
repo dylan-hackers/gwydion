@@ -1,5 +1,4 @@
 module: dylan-user
-RCS-header: $Header: /scm/cvs/src/d2c/runtime/melange/exports.dylan,v 1.12 2003/01/30 12:17:55 andreas Exp $
 
 //======================================================================
 //

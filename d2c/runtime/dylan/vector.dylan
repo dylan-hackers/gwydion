@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/vector.dylan,v 1.5 2003/06/11 18:17:20 housel Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -30,12 +29,19 @@ module: dylan-viscera
 //
 //======================================================================
 
+// Vectors
+//
+// Seals for most collection operations on the built-in collections can be
+// found in seals.dylan.  Some exceptions apply, such as "make" and "as".
+// See seals.dylan for more info.
+//
+
 // Abstract vector stuff.
 
 define open abstract class <vector> (<array>)
 end;
 
-define inline sealed method make (class == <vector>, #key size = 0, fill)
+define sealed inline method make (class == <vector>, #key size = 0, fill)
     => res :: <simple-object-vector>;
   make(<simple-object-vector>, size: size, fill: fill);
 end;
@@ -56,26 +62,26 @@ end;
 // out of line error functions, to minimize calling code size
 // element-error is actually used throughout the runtime library
 
-define constant element-error = method (coll :: <collection>, index :: <integer>)
+define function element-error (coll :: <collection>, index :: <integer>)
  => res :: <never-returns>;
   error("No element %d in %=", index, coll);
-end method;
+end function;
 
-define constant row-major-index-error = method (index :: <integer>)
+define function row-major-index-error (index :: <integer>)
  => res :: <never-returns>;
   error("Vector index out of bounds: %=", index);
-end method;
+end function;
 
-define constant vector-rank-error = method (indices)
+define function vector-rank-error (indices)
  => res :: <never-returns>;
   error("Number of indices not equal to rank. Got %=, wanted one index",
 	indices);
-end method;
+end function;
 
 
 
 
-define inline method dimensions (vec :: <vector>) => res :: <sequence>;
+define inline method dimensions (vec :: <vector>) => res :: <simple-object-vector>;
   vector(vec.size);
 end;
 
@@ -101,7 +107,7 @@ end;
 define sealed abstract class <simple-vector> (<vector>)
 end;
 
-define inline sealed method make
+define sealed inline method make
     (class == <simple-vector>, #key size = 0, fill)
     => res :: <simple-object-vector>;
   make(<simple-object-vector>, size: size, fill: fill);
@@ -122,7 +128,7 @@ end;
 
 // <simple-object-vector>s
 
-define  inline method vector (#rest args) => res :: <simple-object-vector>;
+define inline function vector (#rest args) => res :: <simple-object-vector>;
   args;
 end;
 
@@ -137,7 +143,7 @@ define sealed domain make (singleton(<simple-object-vector>));
 define sealed inline method element
     (vec :: <simple-object-vector>, index :: <integer>,
      #key default = $not-supplied)
-    => element :: <object>;
+    => elt :: <object>;
   if (index >= 0 & index < vec.size)
     %element(vec, index);
   elseif (default == $not-supplied)
@@ -163,7 +169,7 @@ end;
 // make a general change, you should probably grep for "outlined-iterator" 
 // and change all matching locations.
 //
-define inline method forward-iteration-protocol
+define sealed inline method forward-iteration-protocol
     (array :: <simple-object-vector>)
     => (initial-state :: <integer>,
 	limit :: <integer>,
@@ -216,9 +222,9 @@ define sealed inline method fill!
 end method fill!;
 
 define sealed inline method as
-    (class == <simple-object-vector>, vector :: <simple-object-vector>)
+    (class == <simple-object-vector>, vec :: <simple-object-vector>)
     => res :: <simple-object-vector>;
-  vector;
+  vec;
 end;
 
 // Perhaps this should be inlined eventually, but at present it
@@ -228,8 +234,8 @@ define sealed method as
     (class == <simple-object-vector>, collection :: <collection>)
     => res :: <simple-object-vector>;
   let res = make(<simple-object-vector>, size: collection.size);
-  for (index :: <integer> from 0, element in collection)
-    res[index] := element;
+  for (index :: <integer> from 0, elt in collection)
+    res[index] := elt;
   end;
   res;
 end method as;
@@ -237,18 +243,20 @@ end method as;
 // This method looks to be unduly specific, but the compiler will
 // generate this case whenever you "apply" a function to a list
 //
-define sealed method as
+define sealed inline method as
     (class == <simple-object-vector>, collection :: <list>)
     => res :: <simple-object-vector>;
   let res = make(<simple-object-vector>, size: collection.size);
-  for (index :: <integer> from 0, element in collection)
-    res[index] := element;
+  for (index :: <integer> from 0, elt in collection)
+    res[index] := elt;
   end;
   res;
 end method as;
 
 // This method looks to be unduly specific, but the compiler will
 // generate this case whenever you "apply" a function to a strechy vector
+// Perhaps this should be inlined eventually, but at present it
+// tickles a bug in stack analysis
 //
 define sealed method as
     (class == <simple-object-vector>, collection :: <stretchy-object-vector>)
@@ -277,6 +285,7 @@ define macro limited-vector-class
 	       size-init-value: 0, size-init-keyword: size:;
 	   end class;
            define sealed domain make (singleton(?name));
+           define sealed domain initialize (?name);
 	   define sealed inline method element-type
 	       (class :: subclass(?name))
 	    => (type :: <type>, indefinite? :: <false>);

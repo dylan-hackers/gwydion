@@ -4,7 +4,6 @@ copyright: see below
 	   This code was produced by the Gwydion Project at Carnegie Mellon
 	   University.  If you are interested in using this code, contact
 	   "Scott.Fahlman@cs.cmu.edu" (Internet).
-rcs-header: $Header: /scm/cvs/src/tools/lisp2dylan/library.dylan,v 1.2 2000/01/24 04:58:46 andreas Exp $
 
 //======================================================================
 //
@@ -43,23 +42,19 @@ rcs-header: $Header: /scm/cvs/src/tools/lisp2dylan/library.dylan,v 1.2 2000/01/2
 
 define library lisp2dylan
   use dylan;
-  use streams;
-  use print;
-  use format;
+  use io;
+  use system;
   use string-extensions;
   use regular-expressions;
-  use standard-io;
 end library lisp2dylan;
 
 define module lisp2dylan
   use dylan;
   use streams;
+  use file-system;
   use print;
   use format;
-  use extensions, exclude: { assert }; // we write our own assert
-#if (~mindy)
-  use system;
-#endif
+  use extensions, exclude: { \assert }; // we write our own assert
   use standard-io;
   use character-type;
   use string-hacking;

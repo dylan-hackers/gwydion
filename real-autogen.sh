@@ -46,7 +46,7 @@ if test "$DIE" -eq 1; then
         exit 1
 fi
 
-(test -d $srcdir/d2c && test -d $srcdir/mindy) || {
+(test -d $srcdir/d2c && test -d $srcdir/common) || {
         echo "I can't find the Gwydion Dylan source directory in $srcdir"
         exit 1
 }

@@ -5,7 +5,6 @@ copyright: see below
 	   This code was produced by the Gwydion Project at Carnegie Mellon
 	   University.  If you are interested in using this code, contact
 	   "Scott.Fahlman@cs.cmu.edu" (Internet).
-rcs-header: $Header: 
 
 //======================================================================
 //
@@ -51,7 +50,7 @@ rcs-header: $Header:
 
 // Designates an "optional" string.
 //
-define constant <string?> = type-union(<string>, <false>);
+define constant <string?> = false-or(<string>);
 
 // Undefined values are useful for values that may need to be defaulted.  This
 // is superious do simply filling in the default value at the start, since it

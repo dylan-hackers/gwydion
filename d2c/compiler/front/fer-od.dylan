@@ -1,12 +1,11 @@
 Module: fer-od
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/fer-od.dylan,v 1.5 2003/06/24 21:00:08 andreas Exp $
 copyright: see below
 
 
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -56,11 +55,13 @@ define variable *dump-component* = #f;
 // Convert a depends-on thread back into a list of leaf objects, as used by the
 // builder.
 //
-define method depends-list (x :: <dependent-mixin>)
+define function depends-list (x :: <dependent-mixin>)
  => res :: type-union(<expression>, <list>);
   let dep-on = x.depends-on;
   if (~dep-on)
     #();
+  elseif (~dep-on.dependent-next)
+    dep-on.source-exp
   else
     for (cur = dep-on then cur.dependent-next,
 	 res = #() then pair(cur.source-exp, res),
@@ -68,7 +69,7 @@ define method depends-list (x :: <dependent-mixin>)
     finally reverse!(res)
     end for;
   end if;
-end method;
+end function;
 
 
 // Regions:
@@ -317,7 +318,10 @@ define method fer-dump-od
 	  defs.head;
 	end if;
     end for,
-    obj.depends-list.head
+    begin
+      let source-exp :: <expression> = obj.depends-list;
+      source-exp
+    end
   );
 end method;
 
@@ -330,7 +334,7 @@ for (name in #(#"set-assignment", #"let-assignment"),
       let policy = load-object-dispatch(state);
       let source = load-object-dispatch(state);
       let target-vars = load-object-dispatch(state);
-      let source-exp = load-object-dispatch(state);
+      let source-exp :: <expression> = load-object-dispatch(state);
       assert-end-object(state);
       buildfn(builder, policy, source, target-vars, source-exp);
     end method

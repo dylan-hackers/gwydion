@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/list.dylan,v 1.6 2002/11/20 04:25:01 housel Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -28,6 +27,31 @@ module: dylan-viscera
 // Also, see http://www.gwydiondylan.org/ for updates and documentation. 
 //
 //======================================================================
+
+// Lists and pairs
+//
+// Seals for most collection operations on the built-in collections can be
+// found in seals.dylan.  Some exceptions apply, such as "make" and "as".
+// See seals.dylan for more info.
+//
+
+/*
+  Warning:  Though a <pair> is a <list>, many of the methods applicable to 
+  lists expect a proper list, i.e. a list terminated by #(). These methods
+  may work incorrectly for non-proper lists (may or may not causing an 
+  error).
+
+  Non-proper lists include:
+    * a linked-list of one or more pairs where the tail of the last pair is 
+      not an instance of <list>, i.e. not a <pair> or #()
+    * a circular list: i.e. a linked-list of one or more pairs where the
+      tail of the "last" pair is a previous pair (or the "last" pair itself)
+
+  The DRM does not touch on the expected behavior of methods such as
+  \=, add!, remove!, or size for non-proper lists (except that size is
+  defined for circular lists). The whole <list>, <pair>, <empty-list>
+  heirarchy is perhaps unfortunate.
+*/
 
 define abstract class <list> (<mutable-sequence>)
   sealed slot head :: <object>, setter: %head-setter,
@@ -60,11 +84,11 @@ end;
 
 define sealed domain make (singleton(<pair>));
 
-define inline method head-setter (new, pair :: <pair>) => new;
+define inline function head-setter (new, pair :: <pair>) => new;
   pair.%head := new;
 end;
 
-define inline method tail-setter (new, pair :: <pair>) => new;
+define inline function tail-setter (new, pair :: <pair>) => new;
   pair.%tail := new;
 end;
 
@@ -146,16 +170,18 @@ define sealed method element-setter
   end if;
 end method element-setter;
 
-define flushable inline method pair (head, tail)
+define flushable inline function pair (head, tail)
     => res :: <pair>;
   make(<pair>, head: head, tail: tail);
 end;
 
-define flushable method list (#rest args)
+define flushable inline function list (#rest args)
     => res :: <list>;
   as(<list>, args);
 end;
 
+// Warning: This method will blow the stack for circular lists
+//
 define method shallow-copy (list :: <list>) => res :: <list>;
   local method dup-if-pair (object) => res;
 	  if (instance?(object, <pair>))
@@ -263,7 +289,7 @@ define sealed method concatenate!
 end method concatenate!;
 
 define method size (list :: <list>)
-    => res :: type-union(<false>, <integer>);
+    => res :: false-or(<integer>);
   if (list == #())
     0;
   elseif (list.tail == #())

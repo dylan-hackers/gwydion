@@ -1,5 +1,4 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/heap.dylan,v 1.38 2003/10/04 00:48:23 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -705,7 +704,8 @@ end method defer-for-global-heap?;
 // when originally defined must be deferred because we *must* not ever dump
 // more than one copy.
 // 
-// New: dump all the classes to global heap.
+// New: dump all the classes to global heap, until we compute type inclusion 
+// matrix at program startup time.
 define method defer-for-global-heap?
     (object :: <cclass>, state :: <local-heap-file-state>)
     => defer? :: <boolean>;
@@ -1312,8 +1312,12 @@ define method callback-signature-key (type :: <values-ctype>)
       *double-rep* => 'd';
       *long-double-rep* => 'D';
       otherwise =>
-	error("Couldn't find a callback signature key for representation %=",
-	      rep);
+        if(rep.representation-name == #"ptr")
+          'p'
+        else
+          error("Couldn't find a callback signature key for representation %=",
+                rep);
+        end if;
     end;
   end;
 end;

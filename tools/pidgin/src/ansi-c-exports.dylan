@@ -2,7 +2,7 @@ Module: dylan-user
 
 define library ansi-c
   use dylan;
-  use format;
+  use io;
   use parser-utilities;
   use table-extensions;
 

@@ -14,13 +14,13 @@ define generic print-sheet-layout (sheet, #key, #all-keys) => ();
 define method print-sheet-layout
     (sheet :: <sheet>, #key indentation = "") => ()
   let (left, top, right, bottom) = sheet-edges(sheet);
-  format-out("\n%s%=: %dx%d at %d,%d %s",
-             indentation, sheet, right - left, bottom - top, left, top,
-             case
-               sheet-withdrawn?(sheet) => "[withdrawn]";
-               sheet-mapped?(sheet)    => "[mapped]";
-               otherwise               => "[unmapped]";
-             end);
+  debug-message("%s%=: %dx%d at %d,%d %s",
+                indentation, sheet, right - left, bottom - top, left, top,
+                case
+                  sheet-withdrawn?(sheet) => "[withdrawn]";
+                  sheet-mapped?(sheet)    => "[mapped]";
+                  otherwise               => "[unmapped]";
+                end);
   do(rcurry(print-sheet-layout, indentation: concatenate(indentation, "  ")),
      sheet-children(sheet))
 end method print-sheet-layout;

@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/stretchy.dylan,v 1.10 2002/11/20 04:25:01 housel Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -29,7 +28,12 @@ module: dylan-viscera
 //
 //======================================================================
 
-//  This file implements stretchy-vectors.
+// Stretchy-vectors
+//
+// Seals for most collection operations on the built-in collections can be
+// found in seals.dylan.  Some exceptions apply, such as "make" and "as".
+// See seals.dylan for more info.
+//
 
 
 // <stretchy-vector>
@@ -50,7 +54,7 @@ define open generic ssv-data (sv :: <builtin-stretchy-vector>);
 define open generic ssv-data-setter
     (value :: <object>, sv :: <builtin-stretchy-vector>);
 
-define sealed method make
+define sealed inline method make
     (class == <stretchy-vector>, #key size :: <integer> = 0, fill = #f)
     => res :: <stretchy-object-vector>;
   make(<stretchy-object-vector>, size: size, fill: fill);

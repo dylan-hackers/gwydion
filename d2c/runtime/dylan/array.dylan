@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/array.dylan,v 1.3 2001/03/14 23:34:29 bruce Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -29,6 +28,13 @@ module: dylan-viscera
 // Also, see http://www.gwydiondylan.org/ for updates and documentation. 
 //
 //======================================================================
+
+// Arrays
+//
+// Seals for most collection operations on the built-in collections can be
+// found in seals.dylan.  Some exceptions apply, such as "make" and "as".
+// See seals.dylan for more info.
+//
 
 // <array> and generics
 
@@ -91,24 +97,21 @@ define open generic dimension (array :: <array>, axis :: <integer>)
     => dimension :: <integer>;
 
 
-define constant rank-error =
-  method (indices, n :: <integer>)
-   => res :: <never-returns>;
-    error("Number of indices not equal to rank. Got %=, wanted %d indices",
-	  indices, n);
-  end;
+define function rank-error (indices, n :: <integer>)
+    => res :: <never-returns>;
+  error("Number of indices not equal to rank. Got %=, wanted %d indices",
+	indices, n);
+end;
 
-define constant index-error =
-  method(index :: <integer>, indices)
-   => res :: <never-returns>;
-      error("Array index out of bounds: %= in %=", index, indices);
-  end;
+define function index-error (index :: <integer>, indices)
+    => res :: <never-returns>;
+  error("Array index out of bounds: %= in %=", index, indices);
+end;
 
-define constant axis-error =
-  method (array :: <simple-object-array>, axis :: <integer>)
-   => res :: <never-returns>;
-    error("Invalid axis in %=: %=", array, axis);
-  end;
+define function axis-error (array :: <simple-object-array>, axis :: <integer>)
+    => res :: <never-returns>;
+  error("Invalid axis in %=: %=", array, axis);
+end;
 
 
 // Default methods.

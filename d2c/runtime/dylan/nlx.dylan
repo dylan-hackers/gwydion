@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/nlx.dylan,v 1.3 2001/05/14 23:31:15 gabor Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -85,12 +84,12 @@ define function make-exit-function (catcher :: <catcher>) => res :: <function>;
   end;
 end;
 
-define function disable-catcher (catcher :: <catcher>) => ();
+define inline function disable-catcher (catcher :: <catcher>) => ();
   catcher.disabled := #t;
 end;
 
 
-define function catch (saved-state :: <raw-pointer>, thunk :: <function>)
+define inline function catch (saved-state :: <raw-pointer>, thunk :: <function>)
   thunk(saved-state);
 end;
 

@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/condition.dylan,v 1.16 2004/04/09 15:28:39 andreas Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -186,13 +185,6 @@ define sealed method condition-force-output (stream :: <symbol>) => ();
   cheap-force-output(stream);
 end;
 
-
-// *warning-output* -- exported from Extensions
-//
-// The ``stream'' to which warnings report when signaled (and not handled).
-//
-define variable *warning-output* :: <object> = #"Cheap-Err";
-
 
 // Condition reporting.
 
@@ -348,7 +340,7 @@ end method error;
 //
 // Signals and error after first establishing a handler for <simple-error>s.
 //
-define method cerror
+define function cerror
     (restart-description :: <string>,
      condition-or-string :: type-union(<string>, <condition>),
      #rest arguments)
@@ -360,7 +352,7 @@ define method cerror
 				  format-arguments: arguments))
     #f;
   end block;
-end method cerror;
+end function cerror;
 
 // check-type -- exported from Dylan
 //
@@ -396,14 +388,14 @@ end;
 // signal a type-error if not.  Calls to this are inserted by the compiler
 // to type-check #rest result types.
 // 
-define method check-types
+define function check-types
     (objects :: <simple-object-vector>, type :: <type>)
     => checked :: <simple-object-vector>;
   for (object in objects)
     check-type(object, type);
   end for;
   objects;
-end method check-types;
+end function check-types;
 
 // type-error -- internal.
 //
@@ -455,11 +447,10 @@ end method default-handler;
 
 // default-handler(<warning>) -- exported gf method.
 //
-// Report the warning and then just return nothing.
+// Invoke the debugger.
 // 
 define method default-handler (condition :: <warning>)
-  condition-format(*warning-output*, "%s\n", condition);
-  #f;
+  invoke-debugger(*debugger*, condition);
 end method default-handler;
 
 // default-handler(<restart>) -- exported gf method.
@@ -513,7 +504,7 @@ end method return-allowed?;
 // in order to get a description of what returning will do.
 //
 define open generic return-description (cond :: <condition>)
-    => res :: type-union(<false>, <string>, <restart>);
+    => res :: false-or(type-union(<string>, <restart>));
 
 
 // return-query -- exported from Dylan.
@@ -535,6 +526,8 @@ define open generic return-query (condition :: <condition>);
 define class <breakpoint> (<simple-warning>)
 end class <breakpoint>;
 
+define sealed domain make (singleton(<breakpoint>));
+// initialize is already sealed on superclass
 
 // return-allowed?(<breakpoint>) -- gf method.
 //
@@ -568,13 +561,13 @@ end method return-description;
 // Cause a breakpoint.  Split into two functions so the first argument can be
 // optional and dispatched off of if supplied.
 // 
-define method break (#rest arguments) => res :: <false>;
+define function break (#rest arguments) => res :: <false>;
   if (empty?(arguments))
     %break("Break.");
   else
     apply(%break, arguments);
   end if;
-end method break;
+end function break;
 //
 define method %break (string :: <string>, #rest arguments) => res :: <false>;
   %break(make(<breakpoint>,
@@ -604,7 +597,7 @@ end method %break;
 // actually happen.  But that would be assuming that we don't have any bugs
 // in our code.
 // 
-define method lose
+define function lose
     (str :: <byte-string>, #rest args) => res :: <never-returns>;
   fputs("internal error: ", #"Cheap-Err");
   apply(cheap-format, #"Cheap-Err", str, args);
@@ -742,58 +735,3 @@ define function select-error
   error("select error: %= does not match any of the keys, at\n%s", 
         target, source-location);
 end;
-
-
-
-// GDB debugging hooks.
-// These are included in this file, because they will thus be more or
-// less guaranteed to be linked in, and because we are bootstrapping
-// off of the "condition-format" stuff.
-//
-// Note that these routines rely upon a magical knowledge of compiler
-// internals.  There is no guarantee that they will continue to work
-// in the future.
-
-// XXX - *gdb-output* is evil and should go away when we get a new
-// streams-protocol. It should be bound to whatever the current program
-// is using for standard output.
-//
-define variable *gdb-output* = #"Cheap-IO";
-
-define method gdb-print-object (obj :: <object>) => ();
-  block ()
-  condition-format(*gdb-output*, "%=\n", obj);
-  condition-force-output(*gdb-output*);
-  exception (error :: <error>)
-    #f;
-  end block;
-end method gdb-print-object;
-
-// WRETCHED HACK: By putting the function in an <object> variable, we
-// guarantee that it will be dumped on the heap and that it will have a
-// general representation.
-//
-define variable apply-safely-fun :: <object> = apply-safely;
-
-// This debugging support routine does a normal apply, but also traps
-// all errors (sending the error message to the standard error
-// output).  The debugger can thus call this function without worrying
-// about an unexpected error messing up the call stack.  
-//
-define method apply-safely (fun :: <function>, #rest arguments)
-  block ()
-    apply(fun, arguments);
-  exception (error :: <error>)
-    condition-format(*gdb-output*, "%s\n", error);
-    condition-force-output(*gdb-output*);
-  end block;
-end method apply-safely;
-
-define function seg-fault-error () => res :: <never-returns>;
-  error("GDB encountered a seg fault -- invalid data.");
-end;
-
-// WRETCHED HACK: We put this in an <object> variable so that we will have a
-// sample of an integer in the general representation.
-//
-define variable gdb-integer-value :: <object> = 1;

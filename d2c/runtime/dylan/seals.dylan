@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/seals.dylan,v 1.5 2004/08/21 01:38:08 bruce Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -30,6 +29,13 @@ module: dylan-viscera
 //
 //======================================================================
 
+// This file seals the domains for most methods applicable to the built-in 
+// collections.  There are some exceptions, however, such as the methods 
+// "make" and "as" for which sealed domains are specified in the files
+// implementing the particular collection.
+// Note:  Obviously unless a generic function is declared as open, there is
+// no reason to seal a domain of it.
+
 define constant <builtin-string>
   = type-union(<byte-string>, <unicode-string>);
 
@@ -42,7 +48,8 @@ define sealed domain as-uppercase! (<builtin-string>);
 define sealed domain as (singleton(<symbol>), <builtin-string>);
 
 define constant <builtin-vector>
-  = type-union(<simple-vector>, <stretchy-object-vector>, <builtin-string>);
+  = type-union(<simple-vector>, <stretchy-object-vector>, <byte-vector>, <buffer>, 
+               <builtin-string>, <entry-vector>);
 
 define constant <builtin-array>
   = type-union(<builtin-vector>, <simple-object-array>);
@@ -62,8 +69,13 @@ define sealed domain second-setter (<object>, <builtin-mutable-sequence>);
 define sealed domain third-setter (<object>, <builtin-mutable-sequence>);
 define sealed domain last-setter (<object>, <builtin-mutable-sequence>);
 
-define constant <builtin-mutable-explicit-key-collection>
+define constant <builtin-table>
   = type-union(<simple-object-table>, <equal-table>);
+
+define sealed domain table-protocol (<builtin-table>);
+
+define constant <builtin-mutable-explicit-key-collection>
+  = type-union(<builtin-table>, <object-set>);
 
 define constant <builtin-explicit-key-collection>
   = type-union(<builtin-mutable-explicit-key-collection>);

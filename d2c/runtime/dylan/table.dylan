@@ -1,6 +1,5 @@
 module:	    dylan-viscera
 Author:	    Nick Kramer (nkramer@cs.cmu.edu)
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/table.dylan,v 1.16 2004/08/25 06:12:35 bruce Exp $
 Synopsis:   Implements <table>, <object-table>, <equal-table>,
             and <value-table>.
 
@@ -31,6 +30,8 @@ Synopsis:   Implements <table>, <object-table>, <equal-table>,
 //
 //======================================================================
 
+// Tables
+//
 // This code is a more or less implementation independent.  Almost all
 // of the code that is implementation dependent is in the beginning of
 // the file; the rest can be found with a search for "mindy".
@@ -69,6 +70,12 @@ Synopsis:   Implements <table>, <object-table>, <equal-table>,
 // the instances is optimal within itself and is called either directly 
 // (if the table type and key type are statically known) or else via the
 // GF.  Either way, the table and key types are discovered early.
+//
+// Seals for most collection operations on the built-in collections can be
+// found in seals.dylan.  Some exceptions apply, such as "make" and "as".
+// See seals.dylan for more info.
+//
+
 
 // Exported interface.
 
@@ -147,12 +154,12 @@ define inline method merge-hash-ids
   end if;
 end method merge-hash-ids;
 
-define inline method merge-hash-states
+define inline function merge-hash-states
     (state1 :: <false>, state2 :: <false>) => (result :: <hash-state>);
   $permanent-hash-state;
-end method merge-hash-states;
+end function merge-hash-states;
 
-define inline method pointer-hash (object :: <object>)
+define inline function pointer-hash (object :: <object>)
  => (id :: <integer>, state :: <hash-state>);
   // Translate the address into an integer, and shift away two bits to account
   // for word alignment.
@@ -162,19 +169,19 @@ define inline method pointer-hash (object :: <object>)
 
   let id = ash(as(<integer>, %%primitive(object-address, object)), -2);
   values(id, $permanent-hash-state);
-end method pointer-hash;
+end function pointer-hash;
 
 // This function is slow, but should work reasonably.  Eventually, we probably
 // want to replace it with a clever bit manipulation instead.
 //
-define method float-hash (object :: <float>, initial-state :: <hash-state>)
+define function float-hash (object :: <float>, initial-state :: <hash-state>)
  => (id :: <integer>, state :: <hash-state>);
   let (int, fraction) = truncate(object);
   let (int-id, int-state) = object-hash(int, initial-state);
   let fract-id = as(<integer>, truncate(fraction * $really-big-prime));
   let id = merge-hash-ids(int-id, fract-id);
   values(id, int-state);
-end method float-hash;
+end function float-hash;
 
 // -------------------------------------------------------------------
 // Portable implementation
@@ -267,13 +274,13 @@ define sealed domain initialize (<equal-table>);
 define open abstract class <value-table> (<table>)
 end class <value-table>;
 
-define sealed method make
+define sealed inline method make
     (c == <table>, #rest key-value-pairs, #key, #all-keys)
  => table :: <simple-object-table>;
   apply(make, <simple-object-table>, key-value-pairs);
 end method make;
 
-define sealed method make
+define sealed inline method make
     (c == <object-table>, #rest key-value-pairs, #key, #all-keys)
  => table :: <simple-object-table>;
   apply(make, <simple-object-table>, key-value-pairs);
@@ -437,37 +444,37 @@ define inline method equal-hash
   collection-hash(equal-hash, equal-hash, col, initial-state);
 end method equal-hash;
 
-define inline sealed method value-hash
+define sealed inline method value-hash
     (key :: <general-integer>, initial-state :: <hash-state>)
  => (id :: <integer>, state :: <hash-state>);
   object-hash(key, initial-state);
 end method value-hash;
 
-define inline sealed method value-hash
+define sealed inline method value-hash
     (key :: <float>, initial-state :: <hash-state>)
  => (id :: <integer>, state :: <hash-state>);
   float-hash(key, initial-state);
 end method value-hash;
 
-define inline sealed method value-hash
+define sealed inline method value-hash
     (key :: <character>, initial-state :: <hash-state>)
  => (id :: <integer>, state :: <hash-state>);
   value-hash(as(<integer>, key), initial-state);
 end method value-hash;
 
-define inline sealed method value-hash
+define sealed inline method value-hash
     (key :: <symbol>, initial-state :: <hash-state>)
  => (id :: <integer>, state :: <hash-state>);
   string-hash(as(<string>, key), initial-state);
 end method value-hash;
 
-define inline sealed method value-hash
+define sealed inline method value-hash
     (key == #f, initial-state :: <hash-state>)
  => (id :: <integer>, state :: <hash-state>);
   values(0, initial-state);
 end method value-hash;
 
-define inline sealed method value-hash
+define sealed inline method value-hash
     (key == #t, initial-state :: <hash-state>)
  => (id :: <integer>, state :: <hash-state>);
   values(1, initial-state);
@@ -483,7 +490,7 @@ end method value-hash;
 // always put the element before the key when you merge hash codes,
 // you *can* use ordered: #t for merging them)
 //
-define method collection-hash
+define function collection-hash
     (key-hash :: <function>, element-hash :: <function>, col :: <collection>,
      initial-state :: <hash-state>, #key ordered :: <boolean> = #f)
  => (id :: <integer>, state :: <hash-state>);
@@ -504,7 +511,7 @@ define method collection-hash
     current-state := key-state;
   end for;
   values(current-id, current-state);
-end method collection-hash;
+end function collection-hash;
 
 // This is similar to an equal-hash, except that it hashes things with
 // ordered: #t and ignores the sequence keys. USE WITH CAUTION: This
@@ -531,9 +538,7 @@ define inline sealed method table-protocol (ht :: <object-table>)
   values(\==, object-hash);
 end method table-protocol;
 
-define sealed domain table-protocol (<simple-object-table>);
-
-define inline sealed method table-protocol (ht :: <equal-table>) 
+define sealed inline method table-protocol (ht :: <equal-table>) 
  => (key-test :: <function>, key-hash :: <function>);
   values(\=, equal-hash);
 end method table-protocol;
@@ -592,7 +597,7 @@ define function find-for-element
 end find-for-element;
 
 
-define inline sealed method element
+define sealed inline method element
     (ht :: <table>, key, #key default: default = $not-supplied)
  => (result :: <object>);
   let (key=, key-hash) = table-protocol(ht);
@@ -646,7 +651,7 @@ define function find-for-element-setter
 end find-for-element-setter;
 
 
-define inline sealed method element-setter
+define sealed inline method element-setter
     (value, ht :: <table>, key) 
  => value;
   let (key=, key-hash) = table-protocol(ht);
@@ -712,7 +717,7 @@ define function find-for-remove
 end find-for-remove;
 
 
-define inline sealed method remove-key! (ht :: <table>, key)
+define sealed inline method remove-key! (ht :: <table>, key)
  => (found :: <boolean>);
   let (key=, key-hash) = table-protocol(ht);
   let key-id :: <integer> = key-hash(key, $permanent-hash-state);
@@ -822,10 +827,10 @@ define class <table-iterator> (<object>)
   slot entries :: <entry-vector>, required-init-keyword: #"entries";
 end class <table-iterator>;
 
-define sealed domain make(singleton(<table-iterator>));
-define sealed domain initialize(<table-iterator>);
+define sealed domain make (singleton(<table-iterator>));
+define sealed domain initialize (<table-iterator>);
 
-define function make-initial-iteration-state(ht :: <table>)
+define function make-initial-iteration-state (ht :: <table>)
  => (initial-state :: <table-iterator>)
   let sz :: <integer> = ht.table-size;
   let vec = make(<entry-vector>, size: sz);
@@ -922,6 +927,6 @@ end method string-hash;
 
 // Moved from string-extensions to prevent a circular library definition.
 //
-define method uppercase? (c :: <character>) => answer :: <boolean>;
+define inline method uppercase? (c :: <character>) => answer :: <boolean>;
   c >= 'A' & c <= 'Z';
 end method uppercase?;

@@ -4,7 +4,6 @@ copyright: see below
 	   This code was produced by the Gwydion Project at Carnegie Mellon
 	   University.  If you are interested in using this code, contact
 	   "Scott.Fahlman@cs.cmu.edu" (Internet).
-rcs-header: $Header: /scm/cvs/src/tools/make-exports/library.dylan,v 1.2 2000/01/24 04:58:47 andreas Exp $
 
 //======================================================================
 //
@@ -43,10 +42,8 @@ rcs-header: $Header: /scm/cvs/src/tools/make-exports/library.dylan,v 1.2 2000/01
 
 define library make-exports
   use dylan;
-  use streams;
-  use standard-io;
-  use print;
-  use format;
+  use io;
+  use system;
   use table-extensions;
   use string-extensions;
   use regular-expressions;
@@ -55,10 +52,8 @@ end library make-exports;
 define module make-exports
   use dylan;
   use extensions;
-#if (~mindy)
-  use system; // for %main
-#endif
   use streams;
+  use file-system;
   use standard-io;
   use print;
   use pprint;

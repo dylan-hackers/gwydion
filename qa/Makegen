@@ -2,13 +2,14 @@
 
 @testdirs = ("../d2c/runtime/dylan/tests",
 	     "../common/tests",
-	     "../common/collections/tests");
+	     "../common/collections/tests",
+	     "../common/io/tests",
+	     "../common/system/tests");
 
 foreach $testdir (@testdirs) {
     if ($features{'compiled_for_win32'}) {
 	$testdir =~ s|/|\\|;
     }
-
     push(@compile_commands,
 	 sprintf($host_platform{'recursive_make_command'}, $testdir, ""));
     push(@clean_commands,

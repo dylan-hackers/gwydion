@@ -211,27 +211,32 @@ end function native-color->color;
 
 define method convert-ink-to-drawable-components 
     (medium :: <vanilla-medium>, drawable, brush :: <foreground>)
+ => (pixel, fill-style, operation, image :: false-or(<image>));
   convert-ink-to-drawable-components(medium, drawable, medium-foreground(medium))
 end method convert-ink-to-drawable-components;
 
 define method convert-ink-to-drawable-components 
     (medium :: <vanilla-medium>, drawable, brush :: <background>)
+ => (pixel, fill-style, operation, image :: false-or(<image>));
   convert-ink-to-drawable-components(medium, drawable, medium-background(medium))
 end method convert-ink-to-drawable-components;
 
 define method convert-ink-to-drawable-components 
     (medium :: <vanilla-medium>, drawable, brush :: <color>)
+ => (pixel, fill-style, operation, image :: false-or(<image>));
   values(color->native-color(brush, drawable), #"solid", $boole-1, #f)
 end method convert-ink-to-drawable-components;
 
 define method convert-ink-to-drawable-components
     (medium :: <vanilla-medium>, drawable, brush :: <contrasting-color>)
+ => (pixel, fill-style, operation, image :: false-or(<image>));
   convert-ink-to-drawable-components(medium, drawable, contrasting-color->color(brush)) //* , brush
 end method convert-ink-to-drawable-components;
 
 //--- You might want to handle general <image> objects, too
 define method convert-ink-to-drawable-components
     (medium :: <vanilla-medium>, drawable, brush :: <stencil>)
+ => (pixel, fill-style, operation, image :: false-or(<image>));
   let cache = medium-drawable(medium).%ink-cache;    // mirror.%ink-cache;
   let pattern
     = gethash(cache, brush)
@@ -262,12 +267,14 @@ end method convert-ink-to-drawable-components;
 
 define method convert-ink-to-drawable-components
     (medium :: <vanilla-medium>, drawable, brush :: <pixmap>)
+ => (pixel, fill-style, operation, image :: false-or(<image>));
   //--- You might be able to draw directly with a pixmap...
   values(convert-color(medium, #"white"), #"solid", $boole-1, brush) //* convert-color( rep
 end method convert-ink-to-drawable-components;
 
 define method convert-ink-to-drawable-components
     (medium :: <vanilla-medium>, drawable, brush :: <standard-brush>)
+ => (pixel, fill-style, operation, image :: false-or(<image>));
   let (pixel, fill-style, operation, pattern)
     = case
 	brush-tile(brush) =>
@@ -621,7 +628,8 @@ end method draw-text;
 
 define method draw-text
     (medium :: <vanilla-medium>, character :: <character>, x, y,
-     #key align-x = #"left", align-y = #"baseline", do-tabs? = #f,
+     #key start: _start = 0, end: _end = 0,
+          align-x = #"left", align-y = #"baseline", do-tabs? = #f,
           towards-x, towards-y, transform-glyphs?) => (record)
   let transform = sheet-device-transform(medium-sheet(medium));
   let text-style = medium-merged-text-style(medium);

@@ -34,8 +34,7 @@ define module gtk
     // c-callable-wrapper-definer, 
     \with-c-string,
     \with-stack-structure,
-    \C-callable-wrapper-definer,
-    \%wrapper-callback, \%wrapper-aux;
+    \C-callable-wrapper-definer;
 
   export gtk-signal-connect*,
          gtk-signal-connect-object*,

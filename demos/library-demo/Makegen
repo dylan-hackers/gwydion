@@ -3,9 +3,9 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L.';
 
 do emit_library_rule(
-    'fact', '$(BUILDROOT)/force.timestamp', '', 'compile', 'compile-mindy',
+    'fact', '$(BUILDROOT)/force.timestamp', '', 'compile'
 );
 
 do emit_library_rule(
-    'library-demo', '$(BUILDROOT)/force.timestamp', '', 'compile', 'compile-mindy',
+    'library-demo', '$(BUILDROOT)/force.timestamp', '', 'compile'
 );

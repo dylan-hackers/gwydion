@@ -1,11 +1,10 @@
 module: lexenv
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/lexenv.dylan,v 1.3 2001/05/26 18:49:09 gabor Exp $
 copyright: see below
 
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -37,11 +36,12 @@ define abstract class <general-lexenv> (<object>)
   sealed slot lexenv-bindings :: <list>, init-value: #();
 end;
 
-// <top-level-lexenv>  --  Internal
+// <top-level-lexenv>  --  Exported
 //
 // Concrete class providing access to module bindings.
 //
 define class <top-level-lexenv> (<general-lexenv>)
+  sealed constant slot lexenv-tlf :: <top-level-form>, required-init-keyword: tlf:;
 end;
 
 // <lexenv>  --  Exported
@@ -49,7 +49,7 @@ end;
 // Concrete class providing access to enclosing local and module bindings.
 //
 define class <lexenv> (<general-lexenv>)
-  constant slot lexenv-parent :: <general-lexenv> = make(<top-level-lexenv>), init-keyword: inside:;
+  constant slot lexenv-parent :: <general-lexenv>, required-init-keyword: inside:;
   slot lexenv-policy :: <policy>, init-value: $Default-Policy, init-keyword: policy:;
   slot lexenv-method-name :: <name>, init-keyword: method-name:;
 end;
@@ -57,7 +57,7 @@ end;
 define method initialize (lexenv :: <lexenv>, #next next-method, #key inside)
     => ();
   next-method();
-  if (inside)
+  if (inside & instance?(inside, <lexenv>))
     lexenv.lexenv-policy := inside.lexenv-policy;
     lexenv.lexenv-method-name := inside.lexenv-method-name;
   end if;
@@ -71,7 +71,8 @@ end;
 //
 define function lexenv-for-tlf (tlf :: <top-level-form>) => res :: <lexenv>;
   make(<lexenv>,
-       method-name: make(<anonymous-name>, location: tlf.source-location));
+       method-name: make(<anonymous-name>, location: tlf.source-location),
+       inside: make(<top-level-lexenv>, tlf: tlf) /* GGR: d2c bug: commenting this keyword-value pair out should give us an error!!! */);
 end function;
 
 
@@ -173,6 +174,7 @@ define method find-binding (lexenv :: <general-lexenv>, name :: <identifier-toke
   end;
 end;
 
+
 define method find-binding (lexenv :: <top-level-lexenv>, name :: <identifier-token>, #next search-my-bindings)
  => res :: false-or(<top-level-binding>);
   search-my-bindings()
@@ -180,6 +182,22 @@ define method find-binding (lexenv :: <top-level-lexenv>, name :: <identifier-to
       let var = find-variable(name.id-name);
       if (var)
       	add-binding(lexenv, name, var);
+      	let variable-tlf = var.variable-tlf;
+      	let lexenv-tlf = lexenv.lexenv-tlf;
+      	if (variable-tlf
+      	    & variable-tlf ~= lexenv-tlf)
+      	  add-tlf-dependency(variable-tlf, lexenv-tlf);
+/*      	  block (return)
+      	    for (dep = lexenv-tlf.depends-on then dep.dependent-next, while: dep)
+      	      dep.source-tlf == variable-tlf
+      	        & return();
+      	    end for;
+      	    lexenv-tlf.depends-on
+      	      := make(<tlf-dependency>, source: variable-tlf, dependent: lexenv-tlf,
+      	             dependent-next: lexenv-tlf.depends-on, source-next: variable-tlf.tlf-dependents);
+      	    variable-tlf.tlf-dependents := lexenv-tlf.depends-on;
+      	  end block;*/
+      	end;
       	search-my-bindings();
       end if;
     end;

@@ -5,6 +5,6 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../streams';
 
 do emit_library_rule(
-    'print', '$(BUILDROOT)/force.timestamp', '', 'compile', 'compile-mindy',
+    'print', '$(BUILDROOT)/force.timestamp', '', 'compile',
     'install'
 );

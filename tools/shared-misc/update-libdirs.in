@@ -279,7 +279,7 @@ sub use_library {
 
 ########################################################################
 
-# update_directory_makegen($makegendir)
+# Update_directory_makegen($makegendir)
 #
 # Updates the $D2CFLAGS variable assignment in the Makegen file found
 # in the given directory.  Adds an -Ldir argument (with a relative
@@ -319,7 +319,7 @@ sub update_directory_makegen {
 	    }
 	    print MAKEGEN_TMP "\$D2CFLAGS         # added by update-libdirs\n";
 	    print MAKEGEN_TMP "    = \$d2c_runtime";
-	    foreach my $dir (@libdirs) {
+	    foreach my $dir (sort @libdirs) {
 		$dir = File::Spec->abs2rel($dir, $makegendir);
 		if($dir eq '') { $dir = '.'; }
 		print MAKEGEN_TMP "\n    . ' -L$dir'";

@@ -1,5 +1,4 @@
 module: define-macros
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/defmacro.dylan,v 1.5 2003/07/02 16:20:12 housel Exp $
 copyright: see below
 
 
@@ -59,7 +58,7 @@ end method process-top-level-form;
 // process-top-level-form{<definition-macro-call-parse>} -- method on imported GF.
 //
 // Parse the expansion as a source-record, which will call
-// process-top-level-from() on each of the resulting parsed forms.
+// process-top-level-form() on each of the resulting parsed forms.
 // 
 //
 define method process-top-level-form
@@ -75,8 +74,10 @@ end method process-top-level-form;
 // 
 define method process-top-level-form (defmacro :: <define-macro-parse>)
     => ();
-  let defn = make(<macro-definition>, module: *Current-Module*,
-		  library: *Current-Library*, defmacro: defmacro);
+  let module = defmacro.defmacro-name.token-module;
+  let library = module.module-home;
+  let defn = make(<macro-definition>, module: module,
+		  library: library, defmacro: defmacro);
   note-variable-definition(defn);
   add!(*Top-Level-Forms*, make(<define-macro-tlf>,
                                defn: defn,

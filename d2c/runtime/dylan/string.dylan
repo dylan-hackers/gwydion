@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/string.dylan,v 1.5 2003/09/14 19:44:50 andreas Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -29,6 +28,13 @@ module: dylan-viscera
 // Also, see http://www.gwydiondylan.org/ for updates and documentation. 
 //
 //======================================================================
+
+// Strings
+//
+// Seals for most collection operations on the built-in collections can be
+// found in seals.dylan.  Some exceptions apply, such as "make" and "as".
+// See seals.dylan for more info.
+//
 
 // General string stuff.
 

@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/exports.dylan,v 1.40 2004/08/21 01:38:08 bruce Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -132,7 +131,7 @@ define module Dylan
 	     // Definitions
 	     variable-definer, constant-definer, domain-definer,
 	     function-definer, generic-definer, method-definer, class-definer,
-	     module-definer, library-definer,
+	     module-definer, library-definer, copy-down-method-definer,
 
 	     // Statements
 	     \if, \unless, \case, \select, \while, \until, \for, \begin,
@@ -197,6 +196,9 @@ define module Extensions
              // Sets
              <set>, <object-set>,
 
+             // value cells
+	     <value-cell>, value,
+
 	     // Misc other stuff.
 	     $not-supplied, ignore, functional-==, key-exists?, assert,
              debug-assert,
@@ -213,7 +215,7 @@ define module Cheap-IO
   use Dylan-Viscera,
     import: {
 	     // Cheap-IO stuff.
-	     format, print-message, print, write-integer, puts
+	     print-message, print, write-integer, puts
 
     },
     export: all;
@@ -231,9 +233,6 @@ define module System
 	     // Designator-class (C-FFI) stuff.
 	     <designator-class>, \designator-class-definer,
 	     size-of, alignment-of, referenced-type,
-
-	     // Nasty debugging hooks.
-	     *gdb-output*,
 
 	     // Raw pointer stuff.
 	     <raw-pointer>, pointer-deref, pointer-deref-setter,
@@ -305,7 +304,6 @@ define module magic
 	     %make-next-method-cookie,
 	     %object-class,
 	     ambiguous-method-error,
-	     apply-safely,
 	     catch,
 	     check-types,
 	     class-all-slot-descriptors,

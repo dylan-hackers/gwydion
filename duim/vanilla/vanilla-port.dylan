@@ -26,12 +26,14 @@ define /*sideways*/ method class-for-make-port
   values(<vanilla-port>, #f)
 end method class-for-make-port;
 
+/*
 // #"local" is the 'default' port type used if none is specified
 define /*sideways*/ method class-for-make-port
     (type == #"local", #rest initargs, #key)
  => (class :: <class>, initargs :: false-or(<sequence>))
   apply(class-for-make-port, #"vanilla", initargs)
 end method class-for-make-port;
+*/
 
 define method port-type (_port :: <vanilla-port>) => (type :: <symbol>)
   #"vanilla"
@@ -41,6 +43,9 @@ define method port-name (_port :: <vanilla-port>) => (name :: false-or(<string>)
   ignoring("port-name");
   #f
 end method port-name;
+
+register-port-class(#"vanilla", <vanilla-port>, default?: #t);
+
 
 
 /// Beeping, etc

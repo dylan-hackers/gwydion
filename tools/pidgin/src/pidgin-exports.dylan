@@ -4,10 +4,8 @@ define library pidgin
   use common-dylan;
   use collection-extensions;
   use io;
+  use system;
   use dylan;
-  use streams;
-  use format;
-  use standard-io;
   use string-extensions;
   use parse-arguments;
   use parser-utilities;
@@ -21,7 +19,8 @@ define module pidgin
   use format-out;
   use dylan;
   use streams;
-  use piped-exec;
+  use file-system;
+  use locators;
   use format;
   use standard-io;
   use parse-arguments;

@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bignum.dylan,v 1.10 2003/05/28 20:42:17 housel Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -81,7 +80,7 @@ define sealed domain \< (<object>, <digit>);
 //
 // Make a digit from the low bits of a fixed integer.
 // 
-define inline method make-digit
+define inline function make-digit
     (num :: type-union(<integer>, <double-integer>))
  => (res :: <digit>);
   make(<digit>, value: logand(num, $digit-mask));
@@ -91,7 +90,7 @@ end;
 //
 // Make a fixed integer from a sign extended digit.
 //
-define inline method as-signed (digit :: <digit>)
+define inline function as-signed (digit :: <digit>)
     => res :: <integer>;
   ash(ash(digit.value,
           $fixed-integer-bits - $digit-bits),
@@ -102,7 +101,7 @@ end;
 //
 // Make a fixed integer by sign extendeding two digits.
 //
-define inline method as-signed-2 (digit-a :: <digit>, digit-b :: <digit>)
+define inline function as-signed-2 (digit-a :: <digit>, digit-b :: <digit>)
     => res :: <integer>;
   let raw = logior(ash(digit-a.value, $digit-bits), digit-b.value);
   // Note: this is a no-op when $digit-bits is half of $fixed-integer-bits
@@ -115,7 +114,7 @@ end;
 //
 // Make a fixed integer from a digit treating it as an unsigned quantity.
 //
-define inline method as-unsigned (digit :: <digit>)
+define inline function as-unsigned (digit :: <digit>)
     => res :: <integer>;
   digit.value;
 end;
@@ -125,7 +124,7 @@ end;
 // Return a digit of all zeros or all ones based on the sign bit of the
 // argument.
 //
-define inline method sign-extend-digit (digit :: <digit>)
+define inline function sign-extend-digit (digit :: <digit>)
     => res :: <digit>;
   if (digit-sign-bit-set?(digit))
     make-digit($digit-mask);
@@ -138,7 +137,7 @@ end;
 //
 // Return #t if the sign bit is set, and #f if not.
 //
-define inline method digit-sign-bit-set? (digit :: <digit>)
+define inline function digit-sign-bit-set? (digit :: <digit>)
     => res :: <boolean>;
   logbit?($digit-bits - 1, digit.value);
 end;
@@ -154,7 +153,7 @@ define constant $no-carry = 0;
 // Add the two digits and the carry in to produce a single digit and a carry
 // out.
 //
-define inline method digit-add
+define inline function digit-add
     (digit1 :: <digit>, digit2 :: <digit>, carry :: <integer>)
     => (res :: <digit>, carry :: <integer>);
   let sum = digit1.value + digit2.value + carry;
@@ -173,7 +172,7 @@ define constant $no-borrow = 0;
 // Subtract digit2 and the borrow in from digit1 to produce a single digit
 // and a borrow out.
 //
-define inline method digit-subtract
+define inline function digit-subtract
     (digit1 :: <digit>, digit2 :: <digit>, borrow :: <integer>)
     => (res :: <digit>, borrow :: <integer>);
   let sum = digit1.value - digit2.value - borrow;
@@ -185,7 +184,7 @@ end;
 //
 // Multiply the two digits producing a two-digit result.
 //
-define inline method digit-multiply (digit1 :: <digit>, digit2 :: <digit>)
+define inline function digit-multiply (digit1 :: <digit>, digit2 :: <digit>)
     => (low :: <digit>, high :: <digit>);
   let prod = digit1.value * digit2.value;
   values(make-digit(prod),
@@ -196,7 +195,7 @@ end;
 //
 // Shift high up by shift digits, taking the new bits from the top of low.
 // 
-define inline method digit-shift
+define inline function digit-shift
     (high :: <digit>, low :: <digit>, shift :: <integer>)
     => res :: <digit>;
   make-digit(logior(ash(low.value, shift - $digit-bits),
@@ -207,7 +206,7 @@ end;
 //
 // Divide high:low by div and return the quotient and remainder.
 // 
-define inline method digit-divide
+define inline function digit-divide
     (high :: <digit>, low :: <digit>, div :: <digit>)
     => (quo :: <digit>, rem :: <digit>);
   let (quo, rem) = floor/(logior(ash(high.value, $digit-bits), low.value),
@@ -215,22 +214,22 @@ define inline method digit-divide
   values(make-digit(quo), make-digit(rem));
 end;
 
-define inline method digit-logior (x :: <digit>, y :: <digit>)
+define inline function digit-logior (x :: <digit>, y :: <digit>)
     => res :: <digit>;
   make-digit(logior(x.value, y.value));
 end;
 
-define inline method digit-logxor (x :: <digit>, y :: <digit>)
+define inline function digit-logxor (x :: <digit>, y :: <digit>)
     => res :: <digit>;
   make-digit(logxor(x.value, y.value));
 end;
 
-define inline method digit-logand (x :: <digit>, y :: <digit>)
+define inline function digit-logand (x :: <digit>, y :: <digit>)
     => res :: <digit>;
   make-digit(logand(x.value, y.value));
 end;
 
-define inline method digit-lognot (x :: <digit>) => res :: <digit>;
+define inline function digit-lognot (x :: <digit>) => res :: <digit>;
   make-digit(lognot(x.value));
 end;
 
@@ -258,7 +257,7 @@ define sealed domain initialize (<extended-integer>);
 //
 // Shorthand constructor function.
 // 
-define inline method make-bignum (size :: <integer>)
+define inline function make-bignum (size :: <integer>)
     => res :: <extended-integer>;
   make(<extended-integer>, size: size, fill: make-digit(0));
 end;
@@ -268,7 +267,7 @@ end;
 // Change num's size to be new-size, throwing away any extra digits.  Note: it
 // is guarenteed that new-size will be less than or equal to the current size.
 //
-define method shrink-bignum
+define function shrink-bignum
     (num :: <extended-integer>, new-size :: <integer>)
     => new :: <extended-integer>;
   // %%primitive(shrink-bignum, num, new-size);
@@ -290,7 +289,7 @@ end;
 // as the sign extension of the previous digit.  Note: there has to be at least
 // one digit.
 //
-define method normalized-length (num :: <extended-integer>,
+define function normalized-length (num :: <extended-integer>,
 				 len :: <integer>)
     => res-len :: <integer>;
   if (len > 1)
@@ -312,7 +311,7 @@ end;
 // length because the bignum might have more digits than the length we were
 // originally passed.
 //
-define inline method normalize-bignum (num :: <extended-integer>,
+define inline function normalize-bignum (num :: <extended-integer>,
 				       len :: <integer>)
     => res :: <extended-integer>;
   if (num.bignum-size > 1)
@@ -477,7 +476,7 @@ define method as (class == <extended-float>, num :: <extended-integer>)
   bignum-as-float(class, num);
 end;
 
-define inline method bignum-as-float
+define inline function bignum-as-float
     (class :: <class>, num :: <extended-integer>)
     => res :: <float>;
   let len = bignum-size(num);
@@ -620,7 +619,7 @@ end;
 //
 // For a bignum to be even, the first digit must be even.
 //
-define inline sealed method even? (a :: <extended-integer>)
+define sealed inline method even? (a :: <extended-integer>)
     => res :: <boolean>;
   bignum-digit(a, 0).value.even?;
 end;
@@ -836,7 +835,7 @@ end;
 
 // Division.
 
-define method divide-by-digit (num :: <extended-integer>, digit :: <digit>)
+define function divide-by-digit (num :: <extended-integer>, digit :: <digit>)
     => (quo :: <extended-integer>, rem :: <extended-integer>);
   let len = num.bignum-size;
   let quo = make-bignum(len);
@@ -852,7 +851,7 @@ define method divide-by-digit (num :: <extended-integer>, digit :: <digit>)
   values(normalize-bignum(quo, len), big-rem);
 end;
 
-define method divisor-shift (num :: <extended-integer>)
+define function divisor-shift (num :: <extended-integer>)
     => res :: <integer>;
   for (top-digit :: <integer>
 	 = as-signed(bignum-digit(num, num.bignum-size - 1))
@@ -864,7 +863,7 @@ define method divisor-shift (num :: <extended-integer>)
   end;
 end;
 
-define method division-guess (x1 :: <digit>, x2 :: <digit>, x3 :: <digit>,
+define function division-guess (x1 :: <digit>, x2 :: <digit>, x3 :: <digit>,
 			      y1 :: <digit>, y2 :: <digit>)
     => res :: <digit>;
   block (return)
@@ -896,7 +895,7 @@ define method division-guess (x1 :: <digit>, x2 :: <digit>, x3 :: <digit>,
   end;
 end;
 
-define method shift-for-division
+define function shift-for-division
     (x :: <extended-integer>, shift :: <integer>)
     => res :: <extended-integer>;
   let len = x.bignum-size;
@@ -922,7 +921,7 @@ define method shift-for-division
 end;
 
 // This is only called with +ve arguments
-define method bignum-divide (x :: <extended-integer>, y :: <extended-integer>)
+define function bignum-divide (x :: <extended-integer>, y :: <extended-integer>)
     => (quo :: <extended-integer>, rem :: <extended-integer>);
   let x-len = x.bignum-size;
   let y-len = y.bignum-size;
@@ -1167,7 +1166,7 @@ end;
 //
 // Make a copy of x so that we can destructively modify it.
 //
-define method copy-bignum (x :: <extended-integer>)
+define function copy-bignum (x :: <extended-integer>)
     => res :: <extended-integer>;
   let len = x.bignum-size;
   let res = make-bignum(len);
@@ -1183,7 +1182,7 @@ end;
 // bits shifted.  X is guaranteed to be positive, so we don't have to worry
 // about sign extending it or trying to shift 0 until it becomes odd.
 // 
-define method shift-until-odd (x :: <extended-integer>, len :: <integer>)
+define function shift-until-odd (x :: <extended-integer>, len :: <integer>)
     => (new-len :: <integer>, shift :: <integer>);
   let digits = for (index :: <integer> from 0 below len,
 		    while: bignum-digit(x, index) == make-digit(0))
@@ -1226,7 +1225,7 @@ end;
 //
 // Do a three-way compare of x and y (which are guaranteed to be positive).
 // 
-define method three-way-compare
+define function three-way-compare
     (x :: <extended-integer>, x-len :: <integer>,
      y :: <extended-integer>, y-len :: <integer>)
     => res :: one-of(#"less", #"equal", #"greater");
@@ -1257,7 +1256,7 @@ end;
 // to be positive, so we don't have to worry about the result becoming
 // negative.
 //
-define method subtract-in-place (larger :: <extended-integer>,
+define function subtract-in-place (larger :: <extended-integer>,
 				 larger-len :: <integer>,
 				 smaller :: <extended-integer>,
 				 smaller-len :: <integer>)

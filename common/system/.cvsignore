@@ -1,5 +1,6 @@
 GNUmakefile
 os-constants.dylan
+architecture.dylan
 posix-os.c
 operatingsystem-init.c
 system-exports.c

@@ -1,5 +1,4 @@
 // File: GwydionPanel.cpp
-// RCS-header: $Header: /scm/cvs/src/d2c/compiler/Macintosh/GwydionPanel.cpp,v 1.2 2002/04/03 23:17:33 gabor Exp $
 // Purpose: implement the programmatic part of CW preference panel
 // Author: Gabor Greif <gabor@mac.com>
 // Todo:	AEErr and CWErr checks (throws)

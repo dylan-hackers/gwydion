@@ -3,7 +3,6 @@ author:     Nick Kramer (nkramer@cs.cmu.edu)
 synopsis:   Test out the thread features of Mindy by getting I/O on 
             multiple streams.
 copyright: see below
-rcs-header: $Header: /scm/cvs/src/tests/threaded-io-test.dylan,v 1.2 2000/01/24 04:58:42 andreas Exp $
 
 //======================================================================
 //
@@ -76,9 +75,7 @@ define module threaded-io-test
   use dylan;
   use extensions, import: { main };
   use threads;
-  use streams;
-  use standard-io;
-//  use format;
+  use io;
 end module threaded-io-test;
 
 define method echo-input (stream :: <stream>) => ();

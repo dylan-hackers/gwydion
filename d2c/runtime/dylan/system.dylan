@@ -1,5 +1,4 @@
 author: Nick Kramer
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/system.dylan,v 1.4 2000/01/24 04:56:49 andreas Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -33,7 +32,7 @@ module: dylan-viscera
 // Some of the functions that go in the System module.  Much of the
 // code was moved from the d2c Main module.
 
-define method import-string (ptr :: <raw-pointer>)
+define function import-string (ptr :: <raw-pointer>)
  => string :: <byte-string>;
   for (len :: <integer> from 0,
        until: zero?(pointer-deref(#"char", ptr, len)))
@@ -44,18 +43,18 @@ define method import-string (ptr :: <raw-pointer>)
     end for;
     res;
   end for;
-end method import-string;
+end function import-string;
 
-define method export-string (string :: <byte-string>)
+define function export-string (string :: <byte-string>)
  => ptr :: <raw-pointer>;
   let len = string.size;
   let buffer = make(<buffer>, size: len + 1);
   copy-bytes(buffer, 0, string, 0, len);
   buffer[len] := 0;
   buffer-address(buffer);
-end method export-string;
+end function export-string;
 
-define method getenv (name :: <byte-string>)
+define function getenv (name :: <byte-string>)
  => res :: false-or(<byte-string>);
   let ptr = call-out("getenv", #"ptr", #"ptr", export-string(name));
   if (zero?(as(<integer>, ptr)))
@@ -63,17 +62,17 @@ define method getenv (name :: <byte-string>)
   else
     import-string(ptr);
   end if;
-end method getenv;
+end function getenv;
 
-define method system (command :: <byte-string>)
+define inline function system (command :: <byte-string>)
  => res :: <integer>;
   call-out("system", #"int", #"ptr", export-string(command));
-end method system;
+end function system;
 
-define method exit (#key exit-code :: <integer> = 0)
+define inline function exit (#key exit-code :: <integer> = 0)
  => res :: <never-returns>;
   call-out("exit", void:, int:, exit-code);
-end method exit;
+end function exit;
 
 define variable *on-exit-functions* :: <list> = #();
 
@@ -84,12 +83,12 @@ define constant on-exit-handler
       end;
     end;
 
-define method on-exit(function :: <function>)
+define function on-exit(function :: <function>)
   if(empty?(*on-exit-functions*))
     call-out("atexit", int:, ptr: callback-entry(on-exit-handler));
   end if;
   *on-exit-functions* := add(*on-exit-functions*, function);
-end method;
+end function;
 
 // no-core-dumps
 //
@@ -99,12 +98,12 @@ end method;
 // On Windows machines, this does nothing because windows machines
 // don't dump core.
 //
-define method no-core-dumps () => ();
+define function no-core-dumps () => ();
   #if (~ compiled-for-win32)
    call-out("no_core_dumps", #"void");
   #endif
-end method no-core-dumps;
+end function no-core-dumps;
 
-define inline method get-time-of-day () => res :: <integer>;
+define inline function get-time-of-day () => res :: <integer>;
   call-out("time", int:, int: 0);
 end;

@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/macros.dylan,v 1.22 2003/06/11 18:17:20 housel Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -589,6 +588,26 @@ define macro define-generic
 		          ?movable:expression = #f,
 		          ?flushable:expression = #f) }
       => make-define-generic({ ?name }, { ?params }, { ?results}, { ?options })
+end;
+
+define macro copy-down-method-definer
+    { define ?adjectives:* copy-down-method ?:name ( ?params:* ) ?rest:* }
+      => { define ?adjectives method ?name ( ?params, #next next-method ) ?rest
+             next-method()
+         end }
+
+  adjectives:
+    { } => { }
+    { sealed ... } => { sealed ... }
+    { open ... } => { open ... }
+    { not-inline ... } => { not-inline ... }
+    { default-inline ... } => { default-inline ... }
+    { may-inline ... } => { may-inline ... }
+    { inline ... } => { inline ... }
+    { inline-only ... } => { inline-only ... }
+    { movable ... } => { movable ... }
+    { flushable ... } => { flushable ... }
+    { sideways ... } => { ... }
 end;
 
 define macro method-definer

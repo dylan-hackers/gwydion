@@ -14,11 +14,13 @@ define sealed class <vanilla-pixmap> (<pixmap>)
     init-keyword: medium:;
 end class <vanilla-pixmap>;
 
+/*
 //--- A little wierd that this is called 'medium-drawable', but what the heck
 define method medium-drawable
     (pixmap :: <vanilla-pixmap>) => (drawable)
   pixmap.%pixmap
 end method medium-drawable;
+*/
 
 define method image-width 
     (pixmap :: <vanilla-pixmap>) => (width :: <integer>)

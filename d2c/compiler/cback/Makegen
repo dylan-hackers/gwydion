@@ -1,23 +1,26 @@
-&makegen_include("../common-Makegen");
-
 $CPPFLAGS = "$CPPFLAGS -I../../runtime ";
 $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
-    . ' -L../../../common/streams'
-    . ' -L../../../common/stream-ext'
     . ' -L../../../common/collection-extensions'
-    . ' -L../../runtime/random'
-    . ' -L../../../common/standard-io'
-    . ' -L../../../common/print'
+    . ' -L../../../common/common-dylan'
     . ' -L../../../common/format'
-    . ' -L../../../common/table-ext'
+    . ' -L../../../common/format-out'
+    . ' -L../../../common/io'
+    . ' -L../../../common/print'
+    . ' -L../../../common/standard-io'
+    . ' -L../../../common/stream-ext'
+    . ' -L../../../common/streams'
     . ' -L../../../common/string-ext'
-    . ' -L../../../common/regular-expressions'
-    . ' -L../../../common/base-file-system'
+    . ' -L../../../common/system'
+    . ' -L../../../common/table-ext'
+    . ' -L../../../common/threads'
     . ' -L../base'
+    . ' -L../convert'
     . ' -L../front'
     . ' -L../parser'
-    . ' -L../convert';
+    . ' -L../../runtime/random';
 
-&d2c_library('Cback', '');
+do emit_library_rule('Cback', '$(BUILDROOT)/force.timestamp', '', 
+		     'compile', 'install');
+
 

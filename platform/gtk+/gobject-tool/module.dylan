@@ -10,6 +10,7 @@ end module;
 define module defs-file
   use common-dylan, exclude: { format-to-string };
   use streams;
+  use file-system;
   use standard-io;
   use format;
   use scheme-read;

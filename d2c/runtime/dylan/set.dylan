@@ -27,16 +27,21 @@ module: dylan-viscera
 //
 //======================================================================
 
-//  This file implements sets
+// Sets
+//
+// Seals for most collection operations on the built-in collections can be
+// found in seals.dylan.  Some exceptions apply, such as "make" and "as".
+// See seals.dylan for more info.
+//
 
 
 // <set>
 
-define open abstract primary class <set>  (<mutable-explicit-key-collection>)
+define open abstract primary class <set> (<mutable-explicit-key-collection>)
   // no slots
 end class <set>;
 
-define sealed method make
+define sealed inline method make
     (class == <set>, #rest key-value-pairs, #key, #all-keys)
  => (set :: <object-set>);
   apply(make, <object-set>, key-value-pairs);
@@ -49,18 +54,20 @@ define sealed primary class <object-set> (<set>)
   slot set-elements :: <object-table>;
 end class <object-set>;
 
-define sealed method key-test(set :: <object-set>) => (key-test :: <function>);
+define sealed domain make (singleton(<object-set>));
+
+define sealed inline method key-test (set :: <object-set>) => (key-test :: <function>);
   \==;
 end method;
 
-define sealed method remove-all-keys!
+define sealed inline method remove-all-keys!
     (set :: <object-set>)
  => (set :: <object-set>);
   remove-all-keys!(set.set-elements);
   set;
 end;
 
-define sealed method remove!
+define sealed inline method remove!
     (set :: <object-set>, object :: <object>, #key test, count)
  => (set :: <object-set>);
   ignore(test);
@@ -69,34 +76,34 @@ define sealed method remove!
   set;
 end method;
 
-define sealed method add!
+define sealed inline method add!
     (set :: <object-set>, object :: <object>)
  => (set :: <object-set>);
   set.set-elements[object] := object;
   set;
 end method;
 
-define sealed method element
+define sealed inline method element
     (set :: <object-set>, key :: <object>, #rest keys, #key default)
  => (object :: <object>);
   apply(element, set.set-elements, key, keys);
 end method;
 
-define sealed method element-setter
+define sealed inline method element-setter
     (value :: <object>, set :: <object-set>, key :: <object>)
  => (value :: <object>);
   ignore(key);
   set.set-elements[value] := value;
 end method;
 
-define sealed method member?
+define sealed inline method member?
     (object :: <object>, set :: <object-set>, #key test)
  => (bool :: <boolean>);
   ignore(test);
   element(set.set-elements, object, default: $not-supplied) == object;
 end method;
 
-define sealed method initialize
+define sealed inline method initialize
     (set :: <object-set>, #next next-method, #key size)
  => (#rest results);
   if(size)
@@ -106,7 +113,7 @@ define sealed method initialize
   end if;
 end method;
 
-define sealed method forward-iteration-protocol
+define sealed inline method forward-iteration-protocol
     (set :: <object-set>)
  => (initial-state :: <table-iterator>,
      limit :: <integer>,

@@ -3,12 +3,12 @@
 $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
     . ' -L../collection-extensions'
-    . ' -L../table-ext'
-    . ' -L../string-ext'
-    . ' -L../streams'
-    . ' -L../print'
     . ' -L../format'
+    . ' -L../print'
+    . ' -L../streams'
+    . ' -L../string-ext'
+    . ' -L../table-ext'
     . ' -L../time';
 
 &emit_library_rule("date", '$(BUILDROOT)/force.timestamp', '',
-		   'compile', 'no-mindy', 'install');
+		   'compile', 'install');

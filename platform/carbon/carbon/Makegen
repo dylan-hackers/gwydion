@@ -3,10 +3,10 @@
 $D2CFLAGS = $D2CFLAGS . ' -L../../../d2c/runtime/melange -L.';
 
 
-&emit_c_file_rule('call-by-value-wrappers') if ($enable_d2c);
+&emit_c_file_rule('call-by-value-wrappers');
 
 &emit_library_rule(
     'carbon', '$(BUILDROOT)/force.timestamp', '', 'compile',
-    'no-mindy', 'install'
+    'install'
 );
 

@@ -79,14 +79,13 @@ copyright: see below
 //======================================================================
 
 define library melange
-  use dylan;
+  use common-dylan;
   use table-extensions;
   use string-extensions;
   use collection-extensions;
   use regular-expressions;
-  use streams;
-  use standard-io;
-  use format;
+  use io;
+  use system;
   use parse-arguments;
   use melange-c;
   export
@@ -94,8 +93,9 @@ define library melange
 end library melange;
 
 define module int-lexer
-  use dylan;
-  use extensions, exclude: {value};
+  use common-dylan,
+    exclude: { format-to-string, position, split,
+               string-to-integer, integer-to-string };
   use self-organizing-list;
   use string-conversions;
   use regular-expressions;
@@ -126,8 +126,7 @@ define module int-lexer
 end module int-lexer;
 
 define module int-parse
-  use dylan;
-  use extensions, exclude: {value};
+  use common-dylan, exclude: { format-to-string, position };
   use table-extensions;
   use self-organizing-list;
   use c-lexer, import: {include-path, open-in-include-path};
@@ -155,9 +154,9 @@ end module name-mappers;
 
 define module define-interface
   // From Dylan
-  use dylan;
-  use extensions, exclude: {value};		// required for "main" (as well as key-exists?)
+  use common-dylan, exclude: { format-to-string, split, position };
   use table-extensions;
+/*
   use %hash-tables;
 #if (~mindy)
   use System,
@@ -165,20 +164,24 @@ define module define-interface
 	      copy-bytes, call-out, c-expr, buffer-address, <raw-pointer>,
 	      pointer-deref};
 #endif
+*/
 
   // From string-extensions
   use regular-expressions;
   use substring-search;
   use character-type;
 
-  // From streams
+  // From io
   use streams;
   
-  // From format
+  // From io
   use format;
 
-  // From standard-io
+  // From io
   use standard-io;
+
+  // From system
+  use file-system;
 
   // From parse-arguments
   use parse-arguments;

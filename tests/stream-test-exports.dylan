@@ -32,12 +32,15 @@ copyright: see below
 
 define library stream-test
   use dylan;
-  use streams;
+  use common-dylan;
+  use io;
+  use system;
 end library stream-test;
 
 define module stream-test
   use dylan;
   use extensions;
   use streams;
-  use cheap-io, import: {format};
+  use file-system;
+  use simple-io;
 end module stream-test;

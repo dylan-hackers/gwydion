@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/type.dylan,v 1.11 2003/09/30 17:49:01 gabor Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -71,12 +70,13 @@ define class <union> (<type>)
 end;
 
 define sealed domain make (singleton(<union>));
+define sealed domain initialize (<union>);
 
 // type-union -- exported from Dylan.
 //
 // N-ary constructor for <union> types.
 // 
-define method type-union (#rest types)
+define function type-union (#rest types) => (type :: <type>);
   //
   // First scan across the types using merge-type to build up the members
   // and singletons list.
@@ -218,7 +218,7 @@ end;
 // the object is a instance of any of the members or is already in the
 // singletons, blow it off.  Otherwise, add it.
 //
-define method merge-singleton
+define function merge-singleton
     (members :: <list>, singletons :: <list>, object :: <object>)
     => (members :: <list>, singletons :: <list>);
   if (any?(curry(instance?, object), members) | member?(object, singletons))
@@ -231,10 +231,15 @@ end;
 // false-or(<type>) -- exported from extensions.
 //
 // Shorthand for type-union(type, <false>).
+// This should probably be changed to accept any number of types as
+// arguments as Functional Developer does, and implemented as 
+// apply(type-union, <false>, types) but currently defining it that way
+// triggers a bug in the compiler if you try to set a constant to the 
+// results of false-or(<some-type>)
 //
-define inline method false-or (type :: <type>) => res :: <type>;
+define inline function false-or (type :: <type>) => res :: <type>;
   type-union(type, <false>);
-end method false-or;
+end function false-or;
 
 
 
@@ -252,15 +257,16 @@ define class <direct-instance> (<type>)
 end class <direct-instance>;
 
 define sealed domain make (singleton(<direct-instance>));
+define sealed domain initialize (<direct-instance>);
 
 // direct-instance -- exported.
 //
 // Construct and return a direct-instance type for the given class.
 // 
-define inline method direct-instance (of :: <class>)
+define inline function direct-instance (of :: <class>)
     => res :: <direct-instance>;
   make(<direct-instance>, of: of);
-end method direct-instance;
+end function direct-instance;
 
 
 // <subclass> -- internal
@@ -280,12 +286,13 @@ define class <subclass> (<type>)
 end;
 
 define sealed domain make (singleton(<subclass>));
+define sealed domain initialize (<subclass>);
 
 // subclass -- exported.
 //
 // Construct and return the corresponding subclass type.
 //
-define inline method subclass (of :: <class>) => res :: <subclass>;
+define inline function subclass (of :: <class>) => res :: <subclass>;
   make(<subclass>, of: of);
 end;
 
@@ -300,17 +307,18 @@ define class <singleton> (<type>)
 end;
 
 define sealed domain make (singleton(<singleton>));
+define sealed domain initialize (<singleton>);
 
 // singleton -- exported from Dylan.
 //
-define inline method singleton (object :: <object>)
+define inline function singleton (object :: <object>)
     => res :: <singleton>;
   make(<singleton>, object: object);
 end;
 
 // one-of -- exported from Extensions.
 //
-define method one-of (#rest things) => res :: <type>;
+define inline function one-of (#rest things) => res :: <type>;
   apply(type-union, map(singleton, things));
 end;
 
@@ -319,7 +327,7 @@ end;
 //
 // The superclass of all limited types (i.e. integer and collection)
 //
-define class <limited-type> (<type>)
+define abstract class <limited-type> (<type>)
   constant slot limited-integer-base-class :: <class>, 
     required-init-keyword: #"base-class";
 end class <limited-type>;
@@ -340,6 +348,7 @@ define class <limited-integer> (<limited-type>)
 end;
 
 define sealed domain make (singleton(<limited-integer>));
+define sealed domain initialize (<limited-integer>);
 
 // limited(<general-integer>,...), limited(<extended-integer>)
 //   -- exported gf methods
@@ -405,9 +414,9 @@ end;
 // Returns either a new limited integer type containing all elements common to
 // lim1 and lim2, or false if there are no common elements.
 //
-define method intersect-limited-ints
+define function intersect-limited-ints
     (lim1 :: <limited-integer>, lim2 :: <limited-integer>)
- => (res :: type-union(<false>, <limited-integer>));
+ => (res :: false-or(<limited-integer>));
   block (return)
     let base1 = lim1.limited-integer-base-class;
     let base2 = lim2.limited-integer-base-class;
@@ -440,7 +449,7 @@ define method intersect-limited-ints
       make(<limited-integer>, base-class: base, min: new-min, max: new-max);
     end if;
   end block;
-end method intersect-limited-ints;
+end function intersect-limited-ints;
 
 // restrict-limited-ints(<limited-integer>,<limited-integer>) -- internal.
 //
@@ -449,7 +458,7 @@ end method intersect-limited-ints;
 // "<general-integer>" class or a limited integer type.  We require, as a
 // precondition, that value not be an instance of lim2.
 //
-define method restrict-limited-ints
+define function restrict-limited-ints
     (value :: <general-integer>, lim1 :: <type>, lim2 :: <limited-integer>)
  => (res :: <limited-integer>);
   let (min1, max1)
@@ -476,7 +485,7 @@ define method restrict-limited-ints
 	    end if;
   make(<limited-integer>, base-class: lim2.limited-integer-base-class,
        min: min, max: max);
-end method restrict-limited-ints;
+end function restrict-limited-ints;
 
 // <bit> -- exported from Extensions
 
@@ -499,6 +508,7 @@ define class <limited-collection> (<limited-type>)
 end;
 
 define sealed domain make (singleton(<limited-collection>));
+define sealed domain initialize (<limited-collection>);
 
 define open generic element-type
     (object :: <object>) => (type :: <type>, indefinite? :: <boolean>);
@@ -514,17 +524,17 @@ define sealed inline method element-type
   values(<object>, #f);
 end method element-type;
 
-define method element-type
+define sealed inline method element-type
     (class :: <class>) => (type :: <type>, indefinite? :: <boolean>);
   values(<object>, #f);
 end method element-type;
 
-define method element-type
+define inline method element-type
     (class :: subclass(<range>)) => (type :: <type>, indefinite? :: <boolean>);
   values(<real>, #t);
 end method element-type;
 
-define method element-type
+define inline method element-type
     (class :: subclass(<string>))
  => (type :: <type>, indefinite? :: <boolean>);
   values(<character>, #t);
@@ -601,10 +611,10 @@ define sealed inline method limited
   make(<limited-collection>, base-class: class, of: of);
 end method limited;
 
-define constant size&dimensions-error =
-  method () => res :: <never-returns>;
-    error("limited(<array>, ...) can't specify both size and dimensions");
-  end;
+define function size&dimensions-error
+    () => res :: <never-returns>;
+  error("limited(<array>, ...) can't specify both size and dimensions");
+end function size&dimensions-error;
 
 define sealed inline method limited
     (class == <array>, #key of = <object>, size, dimensions)
@@ -656,6 +666,7 @@ define class <byte-character-type> (<type>)
 end;
 
 define sealed domain make (singleton(<byte-character-type>));
+define sealed domain initialize (<byte-character-type>);
 
 // <byte-character> -- exported from Extensions.
 //
@@ -705,6 +716,7 @@ define class <none-of> (<type>)
 end;
 
 define sealed domain make (singleton(<none-of>));
+define sealed domain initialize (<none-of>);
 
 // restrict-types -- internal.
 //
@@ -712,7 +724,8 @@ define sealed domain make (singleton(<none-of>));
 // is already a none_of type, simply extend it, else return a new <none-of>
 // type.
 // 
-define method restrict-type (base :: <type>, exclude :: <type>);
+define function restrict-type (base :: <type>, exclude :: <type>)
+    => type :: <type>;
   if (instance?(base, <none-of>))
     let old-excluded = base.excluded-types;
     let new-excluded = make(<type-vector>, size: old-excluded.size + 1,
@@ -726,7 +739,7 @@ define method restrict-type (base :: <type>, exclude :: <type>);
     make(<none-of>, base: base,
 	 excluded: make(<type-vector>, size: 1, fill: exclude));
   end if;
-end method restrict-type;
+end function restrict-type;
 
 
 // instance? -- exported from Dylan.
@@ -735,7 +748,7 @@ end method restrict-type;
 // to %instance? (or something better, if possible).  But we still need
 // a definition for instance? for uses in non-visible calls.
 //
-define movable method instance? (object :: <object>, type :: <type>)
+define movable function instance? (object :: <object>, type :: <type>)
     => res :: <boolean>;
   %instance?(object, type);
 end;
@@ -969,14 +982,14 @@ end;
 // for internal use by the compiler. Makes heavy assumptions on the
 // structure of classes.
 //
-define sealed movable flushable inline method fast-class-instance? (object :: <object>, class :: <class>)
+define movable inline function fast-class-instance? (object :: <object>, class :: <class>)
     => res :: <boolean>;
   let bucket = class.class-bucket;
 //  class1 == class2 |
    %%primitive(fixnum-=, 
 	       %element(object.object-class.class-row, bucket), 
 	       %element(class.class-row, bucket));
-end method fast-class-instance?;
+end function fast-class-instance?;
 
 
 
@@ -1398,7 +1411,7 @@ end method overlap?;
 //
 ////////////////////////////////////////////////////////////////////////////
 
-define constant <empty> = type-union();
+define constant <empty-type> = type-union();
 
 define class <limited-function> (<limited-type>)
   slot lf-specializers :: <simple-object-vector>,
@@ -1406,6 +1419,9 @@ define class <limited-function> (<limited-type>)
   slot lf-return-types :: <simple-object-vector>,
     required-init-keyword: return-types:;
 end class <limited-function>;
+
+define sealed domain make (singleton(<limited-function>));
+define sealed domain initialize (<limited-function>);
 
 define method limited(class == <function>,
 		      #key specializers :: <simple-object-vector>,

@@ -1,5 +1,4 @@
 module: front
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/fer-dump.dylan,v 1.6 2003/06/24 21:00:08 andreas Exp $
 copyright: see below
 
 
@@ -76,10 +75,80 @@ end;
 
 // Dump-fer itself.
 
-define method dump-fer (thing, #key stream = *debug-output*) => ();
+define function dump-fer (thing, dump-table :: <boolean>,
+                        #key stream = *debug-output*)
+ => ();
   pprint-logical-block(stream, body: curry(dump, thing));
   new-line(stream);
+
+  if (dump-table)
+    new-line(stream);
+    write(stream, "Dumping ID table");
+    new-line(stream);
+    for (thing keyed-by i in $id-vector)
+      print(i, stream);
+      write(stream, ": ");
+      describe-and-dump-chains(thing, stream);
+      new-line(stream);
+    end for;
+  end if;
 end;
+
+
+// prints a short description of the thing, possibly followed
+// by a dependents and/or dependencies chain
+
+define generic describe-and-dump-chains (thing, stream) => ();
+
+define method describe-and-dump-chains (thing, stream) => ();
+  new-line(stream);
+  describe(thing, stream);
+end;
+
+
+define method describe-and-dump-chains (expression :: <expression>, stream)
+ => ();
+  next-method();
+  describe-dependency-chain("Dependents", expression.dependents, stream);
+end;
+
+define method describe-and-dump-chains (depends :: <dependent-mixin>, stream)
+ => ();
+  next-method();
+  describe-dependency-chain("Depends on", depends.depends-on, stream);
+end;
+
+
+define function describe-dependency-chain
+    (label, chain :: false-or(<dependency>), stream)
+ => ();
+  new-line(stream);
+  format(stream, " %s: ", label);
+  for (dep = chain then dep.dependent-next,
+       first? = #t then #f,
+       while: dep)
+    unless (first?)
+      write(stream, ", ");
+    end;
+    format(stream, "(src-exp: %d, dependent: %d)",
+           dep.source-exp.id,
+           dep.dependent.id);
+  end;
+end describe-dependency-chain;
+
+
+// This is a version of dump, but intended to print just one or at
+// most several lines of information.
+// It defaults to the same as dump, but has a
+// specialized method for things that normally print
+// arbitrarily more, e.g. IF statements or blocks
+
+define generic describe (thing, stream) => ();
+
+define method describe (thing, stream) => ();
+  dump(thing, stream);
+end;
+
 
 define generic dump (thing, stream) => ();
 
@@ -99,6 +168,17 @@ define method dump (component :: <component>, stream :: <stream>) => ();
   end;
 end;
 
+define method describe (component :: <component>, stream :: <stream>) => ();
+  write(stream, "component containing: ");
+  for (func in component.all-function-regions,
+       first? = #t then #f)
+    unless (first?)
+      write(stream, ",");
+    end;
+    print(func.id, stream);
+  end;
+end;
+
 define method dump (region :: <simple-region>, stream :: <stream>) => ();
   for (assign = region.first-assign then assign.next-op,
        first? = #t then #f,
@@ -109,7 +189,19 @@ define method dump (region :: <simple-region>, stream :: <stream>) => ();
     dump(assign, stream);
   end;
 end;
-      
+
+define method describe (region :: <simple-region>, stream :: <stream>) => ();
+  write(stream, "region containing assignments: ");
+  for (assign = region.first-assign then assign.next-op,
+       first? = #t then #f,
+       while: assign)
+    unless (first?)
+      write(stream, ",");
+    end;
+    print(assign.id, stream);
+  end;
+end;
+
 define method dump (region :: <compound-region>, stream :: <stream>) => ();
   for (subregion in region.regions,
        first? = #t then #f)
@@ -117,6 +209,17 @@ define method dump (region :: <compound-region>, stream :: <stream>) => ();
       pprint-newline(#"mandatory", stream);
     end;
     dump(subregion, stream);
+  end;
+end;
+
+define method describe (region :: <compound-region>, stream :: <stream>) => ();
+  write(stream, "compound region containing regions: ");
+  for (subregion in region.regions,
+       first? = #t then #f)
+    unless (first?)
+      write(stream, ",");
+    end;
+    print(subregion.id, stream);
   end;
 end;
 
@@ -142,6 +245,13 @@ define method dump (region :: <if-region>, stream :: <stream>) => ();
 	   end);
 end;
 
+define method describe (region :: <if-region>, stream :: <stream>) => ();
+  format(stream, "IF (%d) %d ELSE %d END",
+         region.depends-on.source-exp.id,
+         region.then-region.id,
+         region.else-region.id);
+end;
+
 define method dump
     (region :: <unwind-protect-region>, stream :: <stream>) => ();
   pprint-logical-block
@@ -159,6 +269,13 @@ define method dump
 	   end);
 end;
 
+define method describe
+    (region :: <unwind-protect-region>, stream :: <stream>) => ();
+  format(stream, "UWP cleanup: %d, body: %d",
+	     region.uwp-region-cleanup-function.id,
+	     region.body.id);
+end;
+
 define method dump (region :: <block-region>, stream :: <stream>) => ();
   pprint-logical-block
     (stream,
@@ -173,6 +290,10 @@ define method dump (region :: <block-region>, stream :: <stream>) => ();
 	   end);
 end;
 
+define method describe (region :: <block-region>, stream :: <stream>) => ();
+  format(stream, "BLOCK body: %d", region.body.id);
+end;
+
 define method dump (region :: <loop-region>, stream :: <stream>) => ();
   pprint-logical-block
     (stream,
@@ -185,6 +306,10 @@ define method dump (region :: <loop-region>, stream :: <stream>) => ();
 	     pprint-newline(#"mandatory", stream);
 	     write(stream, "END");
 	   end);
+end;
+
+define method describe (region :: <loop-region>, stream :: <stream>) => ();
+  format(stream, "LOOP body: %d", region.body.id);
 end;
 
 define method dump (region :: <exit>, stream :: <stream>) => ();
@@ -247,6 +372,29 @@ define method dump
        end);
 end;
 
+define method describe
+    (func :: <fer-function-region>, stream :: <stream>) => ();
+  format(stream, "function region %= (", func.name);
+
+  let prologue-assign-dep = func.prologue.dependents;
+  for (arg-type in func.argument-types,
+       var = (prologue-assign-dep
+                & prologue-assign-dep.dependent.defines)
+         then var & var.definer-next,
+       first? = #t then #f)
+    unless (first?)
+      write(stream, ", ");
+    end;
+    if (var)
+      describe(var, stream);
+    else
+      write(stream, "???");
+    end;
+  end;
+  
+  format(stream, "), body: %d", func.body.id);
+end;
+
 define method dump (assignment :: <assignment>, stream :: <stream>) => ();
   pprint-logical-block
     (stream,
@@ -265,6 +413,16 @@ define method dump (assignment :: <assignment>, stream :: <stream>) => ();
 	   end);
 end;
 
+define method describe (assignment :: <assignment>, stream :: <stream>) => ();
+  if (instance?(assignment, <let-assignment>))
+    format(stream, "let ");
+  end;
+  dump-defines(assignment.defines, stream);
+  write-element(stream, ' ');
+  write(stream, ":= ");
+  describe(assignment.depends-on.source-exp, stream);
+end;
+
 define method dump (assignment :: <join-assignment>, stream :: <stream>) => ();
   pprint-logical-block
     (stream,
@@ -278,6 +436,12 @@ define method dump (assignment :: <join-assignment>, stream :: <stream>) => ();
 	     dump(assignment.depends-on.source-exp, stream);
 	     write-element(stream, ';');
 	   end);
+end;
+
+define method describe (assignment :: <join-assignment>, stream :: <stream>) => ();
+  dump-defines(assignment.defines, stream);
+  write(stream, " JOIN ");
+  describe(assignment.depends-on.source-exp, stream);
 end;
 
 define method dump-defines (defines :: false-or(<definition-site-variable>),
@@ -325,7 +489,7 @@ define method dump (op :: <operation>, stream :: <stream>) => ();
 end;
 
 define method kind (op :: <operation>) => res :: <string>;
-  let stream = make(<buffered-byte-string-output-stream>);
+  let stream = make(<byte-string-stream>, direction: #"output");
   write-class-name(op, stream);
   stream.stream-contents;
 end;

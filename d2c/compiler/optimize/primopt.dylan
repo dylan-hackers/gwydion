@@ -1,5 +1,4 @@
 module: cheese
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/optimize/primopt.dylan,v 1.8 2004/05/11 23:07:42 andreas Exp $
 copyright: see below
 
 
@@ -734,7 +733,7 @@ define method dylan-type-for-c-type (leaf :: <leaf>) => res :: <values-ctype>;
 	#"object" => object-ctype();
 	#"void" => make-values-ctype(#(), #f);
         // XXX Magic c-rep
-        otherwise => specifier-type(#"<raw-pointer>");      
+        otherwise => specifier-type(#"<raw-pointer>");
       end;
     else
       object-ctype();

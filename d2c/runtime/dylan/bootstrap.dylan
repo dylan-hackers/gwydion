@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/bootstrap.dylan,v 1.39 2004/08/21 01:38:08 bruce Exp $
 copyright: see below
 module: bootstrap
 
@@ -176,7 +175,7 @@ define module dylan-viscera
     // Definitions
     variable-definer, constant-definer, domain-definer, function-definer,
     generic-definer, method-definer, class-definer, designator-class-definer,
-    library-definer,
+    library-definer, copy-down-method-definer,
 
     // Statements
     \if, \unless, \case, \select, \while, \until, \for, \begin,
@@ -200,7 +199,7 @@ define module dylan-viscera
     <byte-character>, <true>, <false>,
     false-or, one-of, <never-returns>, subclass, direct-instance,
     report-condition, condition-format, condition-force-output,
-    *warning-output*, *gdb-output*,
+    *warning-output*,
     <debugger>, invoke-debugger, debugger-message, *debugger*, debug-message,
     <bit>, <byte>, <byte-vector>,
     <set>, <object-set>,
@@ -214,7 +213,7 @@ define module dylan-viscera
     <simple-object-table>, element-error,
 
     // Cheap IO
-    format, print-message, print, write-integer, puts,
+    print-message, print, write-integer, puts,
 
     // System stuff
     call-out, c-include, c-system-include, c-decl, c-local-decl,
@@ -263,6 +262,9 @@ define module dylan-viscera
     <value-table>, value-hash,
     string-hash, sequence-hash,
 
+    // value cells
+    <value-cell>, value,
+
     // Variables magically referenced by the compiler which we need to hang
     // around even though they aren't otherwise overtly exported.
     %check-type,
@@ -273,7 +275,6 @@ define module dylan-viscera
     %make-next-method-cookie,
     %object-class,
     ambiguous-method-error,
-    apply-safely,		 
     catch,
     check-types,
     class-all-slot-descriptors,

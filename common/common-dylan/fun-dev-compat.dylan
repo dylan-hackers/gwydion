@@ -9,6 +9,14 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 //	Utilities
 //
 
+// element-range-check
+//
+define inline method element-range-check
+    (index :: <integer>, limit :: <integer>)
+ => (res :: <boolean>);
+  0 <= index & index < limit;
+end method;
+
 // without-bounds-checks
 // Note: intentional violation of hygiene required
 
@@ -17,14 +25,8 @@ define macro without-bounds-checks
     => {without-bounds-checks ?body end}
 
   {without-bounds-checks ?:body end}
-    => {/* To get the real without-bounds-checks, submit three hand-written
-           copies of form 27B-6 to The Board. Please include a copy
-           of your automated theorem prover and its result output on
-           your code to show that the code indeed doesn't need bounds checks.
-
-
-        let ?=element = %element;
-        let ?=element-setter = %element-setter; */
+    => {let ?=element = %element;
+        let ?=element-setter = %element-setter;
         ?body}
 end;
 

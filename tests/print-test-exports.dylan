@@ -29,12 +29,13 @@ module: Dylan-User
 
 define library print-test
   use Dylan;
-  use Print;
+  use Common-Dylan;
+  use IO;
 end library print-test;
 
 define module print-test
   use Dylan;
   use Extensions;
   use Print;
-  use Cheap-io, exclude: {print};
+  use Simple-io;
 end module print-test;

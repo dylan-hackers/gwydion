@@ -2,9 +2,7 @@ Module: dylan-user
 
 define library ansi-c-test
   use dylan;
-  use streams;
-  use format;
-  use standard-io;
+  use io;
   use parse-arguments;
   use melange-support;
 

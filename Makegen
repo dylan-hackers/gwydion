@@ -25,8 +25,6 @@
 ##
 ######################################################################
 ##
-##  $Header: /scm/cvs/src/Makegen,v 1.26 2003/10/01 19:03:58 brent Exp $
-##
 ##  This is the makegen file for the entire Dylan tree.
 ##
 
@@ -63,39 +61,19 @@ if ($features{'compiled_for_unix'}) {
     &compile_subdirs('doc');
 }
 
-if ($enable_mindy) {
-    &compile_subdirs("mindy");
-}
 if ($enable_bootstrap) {
-    if ($bootstrap_compiler eq "mindy") {
-	print "BYTES_CONSED_BETWEEN_GCS=20000000\n";
-	push(@compile_commands, 
-	     sprintf($host_platform{'recursive_make_command'}, 
-		     "common", "dbc_only"));
-	&compile_subdirs("d2c", "common");
-	push(@compile_commands, 
-	     sprintf($host_platform{'recursive_make_command'}, 
-		     "d2c", "d2c-compile"));
-	&message("Bootstrap complete; now install d2c, remove config.cache,");
-	&message("re-run configure, and make again.");
-    } else {
-	&compile_subdirs("d2c");
-	# XXX - this directory name is confusing
-	push(@compile_commands, 'mkdir bootstrap_compiler');
-	push(@compile_commands, 'cp d2c/compiler/main/d2c' . $dot_exe . ' bootstrap_compiler');
-	push(@compile_commands, 'rm -f config.cache');
-	push(@compile_commands, $recheck);
-	push(@compile_commands, '$(MAKE) clean');
-	push(@compile_commands, '$(MAKE)');
-	&message("Bootstrap complete. After installing, type 'make bootstrap_clean'");
-	&message("to perform a regular build.");
-    }
-}
-else {
-    if ($enable_d2c) {
-	&compile_subdirs("d2c");
-    }
-    &compile_subdirs("common", "tools");
+    &compile_subdirs("d2c");
+    # XXX - this directory name is confusing
+    push(@compile_commands, 'mkdir bootstrap_compiler');
+    push(@compile_commands, 'cp d2c/compiler/main/d2c' . $dot_exe . ' bootstrap_compiler');
+    push(@compile_commands, 'rm -f config.cache');
+    push(@compile_commands, $recheck);
+    push(@compile_commands, '$(MAKE) clean');
+    push(@compile_commands, '$(MAKE)');
+    &message("Bootstrap complete. After installing, type 'make bootstrap_clean'");
+    &message("to perform a regular build.");
+} else {
+    &compile_subdirs("d2c", "common", "tools");
     if($enable_duim ne 'no') {
 	&compile_subdirs("duim");
     }

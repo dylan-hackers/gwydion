@@ -1,11 +1,10 @@
 module: macros
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/parser/macros.dylan,v 1.12 2003/07/11 03:13:08 housel Exp $
 copyright: see below
 
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -2769,7 +2768,7 @@ define method append-element!
          	   source-location: token.source-location,
          	   kind: token.token-kind,
          	   symbol: token.token-symbol,
-         	   module: *Current-Module*);
+         	   module: token.token-module);
   generate-token(generator, token, token.source-location);
 end method append-element!;
 
@@ -3332,160 +3331,3 @@ add-make-dumper
    <unhygienic-pattern-variable-reference>,
    $pattern-variable-reference-slots);
 
-
-
-// Testing code.
-
-#if (mindy)
-
-define open generic recursively-macro-expand (thing :: <object>)
-    => new-thing :: <object>;
-
-define method recursively-macro-expand
-    (thing :: <method-parse>) => replacement :: <method-parse>;
-  make(<method-parse>,
-       name: thing.method-name,
-       parameters: recursively-macro-expand(thing.method-parameters),
-       returns: recursively-macro-expand(thing.method-returns),
-       body: recursively-macro-expand(thing.method-body));
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <variable-list>) => replacement :: <variable-list>;
-  make(<variable-list>,
-       fixed: map(recursively-macro-expand, thing.varlist-fixed),
-       rest: (thing.varlist-rest
-		& recursively-macro-expand(thing.varlist-rest)));
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <parameter-list>) => replacement :: <parameter-list>;
-  make(<parameter-list>,
-       fixed: map(recursively-macro-expand, thing.varlist-fixed),
-       rest: thing.varlist-rest & recursively-macro-expand(thing.varlist-rest),
-       next: thing.paramlist-next,
-       keys: (thing.paramlist-keys
-		& map(recursively-macro-expand, thing.paramlist-keys)),
-       all-keys: thing.paramlist-all-keys?);
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <parameter>) => replacement :: <parameter>;
-  make(<parameter>,
-       name: thing.param-name,
-       type: thing.param-type & recursively-macro-expand(thing.param-type));
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <keyword-parameter>) => replacement :: <keyword-parameter>;
-  make(<keyword-parameter>,
-       name: thing.param-name,
-       type: thing.param-type & recursively-macro-expand(thing.param-type),
-       keyword: thing.param-keyword,
-       default: (thing.param-default
-		   & recursively-macro-expand(thing.param-default)));
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <definition-parse>) => thing :: <definition-parse>;
-  thing;
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <macro-call-parse>) => replacement :: <expression-parse>;
-  recursively-macro-expand(macro-expand(thing));
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <let-parse>) => replacement :: <let-parse>;
-  make(<let-parse>,
-       variables: recursively-macro-expand(thing.let-variables),
-       expression: recursively-macro-expand(thing.let-expression));
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <handler-parse>) => replacement :: <handler-parse>;
-  make(<handler-parse>,
-       type: recursively-macro-expand(thing.handler-type),
-       options: map(recursively-macro-expand, thing.handler-options),
-       handler: recursively-macro-expand(thing.handler-expression));
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <local-parse>) => replacement :: <local-parse>;
-  make(<local-parse>,
-       methods: map(recursively-macro-expand, thing.local-methods));
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <literal-ref-parse>) => replacement :: <literal-ref-parse>;
-  thing;
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <varref-parse>) => replacement :: <varref-parse>;
-  thing;
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <varset-parse>) => replacement :: <varset-parse>;
-  make(<varset-parse>, id: thing.varset-id,
-       value: recursively-macro-expand(thing.varset-value));
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <funcall-parse>) => replacement :: <funcall-parse>;
-  make(<funcall-parse>,
-       function: recursively-macro-expand(thing.funcall-function),
-       arguments: map(recursively-macro-expand, thing.funcall-arguments));
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <dot-parse>) => replacement :: <dot-parse>;
-  make(<dot-parse>,
-       operand: recursively-macro-expand(thing.dot-operand),
-       name: thing.dot-name);
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <body-parse>) => replacement :: <body-parse>;
-  make(<body-parse>,
-       parts: map(recursively-macro-expand, thing.body-parts));
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <bind-exit-parse>) => replacement :: <bind-exit-parse>;
-  make(<bind-exit-parse>,
-       name: thing.exit-name,
-       body: recursively-macro-expand(thing.exit-body));
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <if-parse>) => replacement :: <if-parse>;
-  make(<if-parse>,
-       condition: recursively-macro-expand(thing.if-condition),
-       consequent: recursively-macro-expand(thing.if-consequent),
-       alternate: recursively-macro-expand(thing.if-alternate));
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <method-ref-parse>) => replacement :: <method-ref-parse>;
-  make(<method-ref-parse>,
-       method: recursively-macro-expand(thing.method-ref-method));
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <primitive-parse>) => replacement :: <primitive-parse>;
-  make(<primitive-parse>,
-       name: thing.primitive-name,
-       operands: map(recursively-macro-expand, thing.primitive-operands));
-end method recursively-macro-expand;
-
-define method recursively-macro-expand
-    (thing :: <unwind-protect-parse>) => replacement :: <unwind-protect-parse>;
-  make(<unwind-protect-parse>,
-       body: recursively-macro-expand(thing.uwp-body),
-       cleanup: recursively-macro-expand(thing.uwp-cleanup));
-end method recursively-macro-expand;
-
-#endif

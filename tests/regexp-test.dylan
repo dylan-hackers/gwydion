@@ -2,7 +2,6 @@ module: regexp-test
 author: Nick Kramer (nkramer@cs.cmu.edu)
 copyright: see below
 synopsis: A regression test for the regexp library.
-rcs-header: $Header: /scm/cvs/src/tests/regexp-test.dylan,v 1.3 2000/01/24 04:58:41 andreas Exp $
 
 //======================================================================
 //
@@ -34,7 +33,7 @@ rcs-header: $Header: /scm/cvs/src/tests/regexp-test.dylan,v 1.3 2000/01/24 04:58
 define variable has-errors = #f;
 
 define method main (argv0, #rest ignored)
-  format("\nRegression test for the regular-expressions library.\n\n");
+  format-out("\nRegression test for the regular-expressions library.\n\n");
   run-several-tests("regexp-positioner", positioner-test);
   run-several-tests("regexp-replace", replace-test);
   run-several-tests("make-regexp-replacer", make-replacer-test);
@@ -47,20 +46,20 @@ define method main (argv0, #rest ignored)
 //  case-insensitive-equal-test();   // Takes a really long time
 
   if (has-errors)
-    format("\n********* Warning!  Regression test failed! ***********\n");
+    format-out("\n********* Warning!  Regression test failed! ***********\n");
   else
-    format("All regular expression tests pass.\n");
+    format-out("All regular expression tests pass.\n");
   end if;
 end method main;
 
 define method run-several-tests (test-name :: <string>, 
 				 test :: <function>) => ();
-  format("%s ... ", test-name);
+  format-out("%s ... ", test-name);
   let temp-has-errors = has-errors;
   has-errors := #f;
   test();
   if (has-errors == #f)
-    format("ok.\n");
+    format-out("ok.\n");
   end if;
   has-errors := temp-has-errors | has-errors;
 end method run-several-tests;
@@ -70,9 +69,9 @@ define method run-test (input, expected-result, test-name :: <string>)
  => passed? :: <boolean>;
   if (input ~= expected-result)
     has-errors := #t;
-    format("Failed!\n", test-name);
-    format("     Got %=\n", input);
-    format("     when we expected %=\n", expected-result);
+    format-out("Failed!\n", test-name);
+    format-out("     Got %=\n", input);
+    format-out("     when we expected %=\n", expected-result);
     #f;
   else
     #t;
@@ -92,7 +91,7 @@ end method join-test;
 // case-insensitive-equal works.
 //
 define method case-insensitive-equal-test ()
-  format("Case insensitive equal");
+  format-out("Case insensitive equal");
   for (c1 = as(<character>, 0) then successor(c1), 
        until: c1 = as(<character>, 255))
     for (c2 = as(<character>, 0) then successor(c2), 
@@ -267,7 +266,7 @@ define method positioner-test ();
   block ()
     test-regexp("((a*)|(b*))*c", "aaabbabbacbork", 
 		#[0, 10, 8, 9, 8, 9, 6, 8]);
-    format("Failed! %s terminated, but it should have signaled an error!\n",
+    format-out("Failed! %s terminated, but it should have signaled an error!\n",
 	   "((a*)|(b*))*c");
   exception (<illegal-regexp>)
     #f;  // This is what it should do
@@ -314,12 +313,12 @@ define method test-regexp(regexp :: <string>, input :: <string>,
   if (marks = right-marks | answer = right-marks)
     #f;   // do nothing
   elseif (answer ~= #f & right-marks ~= #f)
-    format("Failed marks: regexp-position on\n");
-    format("     regexp=%=, big=%=\n", regexp, input);
-    format("     returned %=\n", marks);
+    format-out("Failed marks: regexp-position on\n");
+    format-out("     regexp=%=, big=%=\n", regexp, input);
+    format-out("     returned %=\n", marks);
   else
-    format("Failed both: regexp-position on\n");
-    format("     regexp=%=, big=%=\n", regexp, input);
-    format("     returned %=\n", marks);
+    format-out("Failed both: regexp-position on\n");
+    format-out("     regexp=%=, big=%=\n", regexp, input);
+    format-out("     returned %=\n", marks);
   end if;
 end method test-regexp;

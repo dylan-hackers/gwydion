@@ -105,7 +105,7 @@ define /* exported */ primary class <tokenizer> (<object>)
   slot unget-stack :: <deque>, init-function: curry(make, <deque>);
   /* exported */ slot cpp-table :: <table>;
   slot cpp-stack :: <list> = #();
-  /* exported */ slot cpp-decls :: type-union(<deque>, <false>) = #f;
+  /* exported */ slot cpp-decls :: false-or(<deque>) = #f;
   slot include-tokenizer :: false-or(<tokenizer>) = #f;
   slot typedefs :: <table>;
 end class <tokenizer>;
@@ -567,7 +567,7 @@ end method value;
 // Integer tokens can be in one of three different radices.  Figure out which
 // and then compute an integer value.
 //
-define method value (token :: <integer-token>) => (result :: <general-integer>);
+define method value (token :: <integer-token>) => (result :: <abstract-integer>);
   let string = token.string-value;
   // Strip trailing markers from string.
   while (member?(string.last, "uUlL"))
@@ -882,7 +882,7 @@ define method initialize (value :: <tokenizer>,
 	add!(components, read(source-stream, $long-string-component-size));
       end;
     exception (err :: <incomplete-read-error>)
-      add!(components, err.incomplete-read-sequence);
+      add!(components, err.stream-error-sequence);
     exception (err :: <end-of-stream-error>)
       #t;
     end block;
@@ -959,7 +959,7 @@ end method initialize;
 //
 define /* exported */ method unget-token
     (state :: <tokenizer>, token :: <token>)
- => (result :: <false>);
+ => (result :: singleton(#f));
   push(state.unget-stack, token);
   #f;
 end method unget-token;
@@ -969,16 +969,16 @@ end method unget-token;
 // Record the given name as a valid type specifier.
 //
 define /* exported */ generic add-typedef
-    (tokenizer :: <tokenizer>, name :: <object>) => (result :: <false>);
+    (tokenizer :: <tokenizer>, name :: <object>) => (result :: singleton(#f));
 
 define method add-typedef (tokenizer :: <tokenizer>, token :: <token>)
- => (result :: <false>);
+ => (result :: singleton(#f));
   tokenizer.typedefs[token.value] := <type-name-token>;
   #f;
 end method add-typedef;
 
 define method add-typedef (tokenizer :: <tokenizer>, name :: <string>)
- => (result :: <false>);
+ => (result :: singleton(#f));
   tokenizer.typedefs[name] := <type-name-token>;
   #f;
 end method add-typedef;
@@ -1143,7 +1143,7 @@ end function lex-identifier;
 //
 define function try-identifier
     (state :: <tokenizer>, position :: <integer>, #key expand = #t, cpp-line = #f)
- => (result :: type-union(<token>, <false>));
+ => (result :: false-or(<token>));
   let contents :: <long-byte-string> = state.contents;
 
   let pos = if (contents[position] == '#') position + 1 else position end if;
@@ -1180,7 +1180,7 @@ define constant match-punctuation
 // and #f otherwise.
 //
 define method try-punctuation (state :: <tokenizer>, position :: <integer>)
- => result :: type-union(<token>, <false>);
+ => result :: false-or(<token>);
   let contents :: <long-byte-string> = state.contents;
 
   if (punctuation?(contents[position]))
@@ -1213,7 +1213,7 @@ define method skip-whitespace
   let sz = contents.size;
 
   local method skip-comments (index :: <integer>)
-	 => end-index :: type-union(<integer>, <false>);
+	 => end-index :: false-or(<integer>);
 	  for (i from index,
 	       until: (i >= sz | ~whitespace?(contents[i])))
 	  finally
@@ -1257,7 +1257,7 @@ define method skip-cpp-whitespace
   let sz = contents.size;
 
   local method skip-comments (index :: <integer>)
-	 => end-index :: type-union(<integer>, <false>);
+	 => end-index :: false-or(<integer>);
 	  for (i from index,
 	       until: (i >= sz 
 			 | ~(whitespace?(contents[i]) & contents[i] ~== '\n')))

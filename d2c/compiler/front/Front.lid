@@ -1,8 +1,7 @@
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/Front.lid,v 1.5 2001/03/17 03:43:33 bruce Exp $
 library: compiler-front
 unit-prefix: front
 unique-id-base: 10250
-shared-library: no
+shared-library: yes
 
 front-exports.dylan
 primitives.dylan

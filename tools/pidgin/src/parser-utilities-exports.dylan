@@ -12,9 +12,7 @@ Module: dylan-user
 
 define library parser-utilities
   use dylan;
-  use streams;
-  use format;
-  use standard-io;
+  use io;
 
   export
     source-locations,

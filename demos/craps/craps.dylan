@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/demos/craps/craps.dylan,v 1.2 2000/01/24 04:56:54 andreas Exp $
 module: craps
 
 //======================================================================
@@ -34,21 +33,21 @@ end;
 
 define method craps () => ();
   let point = d6() + d6();
-  format("You started with a %d.\n", point);
+  format-out("You started with a %d.\n", point);
   if (point == 7 | point == 11)
-    format("good throw, you win!\n");
+    format-out("good throw, you win!\n");
   elseif (point == 2 | point == 3 | point == 12)
-    format("you lose, bummer.\n");
+    format-out("you lose, bummer.\n");
   else
     block (return)
       while (#t)
 	let roll = d6() + d6();
-	format("You rolled a %d.\n", roll);
+	format-out("You rolled a %d.\n", roll);
 	if (roll == 7)
-	  format("crapped out, you lose.\n");
+	  format-out("crapped out, you lose.\n");
 	  return();
 	elseif (roll == point)
-	  format("you made your point!\n");
+	  format-out("you made your point!\n");
 	  return();
 	end;
       end while;

@@ -1,5 +1,4 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/primemit.dylan,v 1.20 2003/07/18 10:31:19 bruce Exp $
 copyright: see below
 
 
@@ -34,7 +33,7 @@ define method default-primitive-emitter
     (results :: false-or(<definition-site-variable>),
      operation :: <primitive>, file :: <file-state>)
     => ();
-  let stream = make(<buffered-byte-string-output-stream>);
+  let stream = make(<byte-string-stream>, direction: #"output");
 
   let use-deliver-result?
     = if (results)
@@ -462,7 +461,7 @@ define-primitive-emitter
 	   operation :: <primitive>,
 	   file :: <file-state>)
        => ();
-     let stream = make(<buffered-byte-string-output-stream>);
+     let stream = make(<byte-string-stream>, direction: #"output");
      let temps = make-temp-locals-list();
 
      let func-dep = operation.depends-on;
@@ -730,7 +729,7 @@ define-primitive-emitter
      unless (instance?(lit, <literal-string>))
        error("argument to c-string isn't a string?");
      end;
-     let stream = make(<buffered-byte-string-output-stream>);
+     let stream = make(<byte-string-stream>, direction: #"output");
      write-element(stream, '"');
      for (char in lit.literal-value)
        let code = as(<integer>, char);

@@ -1,11 +1,10 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/base-exports.dylan,v 1.47 2004/05/11 21:54:04 andreas Exp $
 copyright: see below
 
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001, 2002  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -31,22 +30,18 @@ copyright: see below
 
 define library compiler-base
   use Dylan;
+  use Common-Dylan;
   use Collection-Extensions,
     import: {self-organizing-list}, export: all;
   use Random;
-  use Streams, export: all;
-  use Standard-IO, export: all;
-  use Print, export: all;
-  use Format, export: all;
+  use IO, export: all;
+  use System;
 #if (mindy)
   use Debugger-Format;
 #endif
   use String-extensions;
   use Table-extensions, export: all;
-  use base-file-system,
-    rename: { base-file-system => file-system },
-    export: all;
-  
+
   export c-representation;
   export classes;
   export common;
@@ -81,20 +76,23 @@ define module common
 	     $maximum-integer, ratio, integer-length,
 	     false-or, one-of, <false>, <true>, ignore,
 	     $minimum-integer, <byte-character>, $not-supplied,
-	     report-condition, condition-format,
              <format-string-condition>, <never-returns>,
              <ratio>, numerator, denominator, key-exists?, \assert,
+             <byte>, <byte-vector>,
 #if (mindy)
-             *debug-output*, main},
+             *debug-output*, main
 #else
              *warning-output*,
-             <debugger>, *debugger*, invoke-debugger},
+             <debugger>, *debugger*, invoke-debugger
 #endif
+     },
     export: all;
   use Table-Extensions,
     import: {<equal-table>, <string-table>, equal-hash},
     export: all;
   use Streams, export: all;
+  use File-System, export: all;
+  use Locators, export: all;
   use Print, export: all;
   use PPrint, export: all;
   use Format, export: all;
@@ -108,9 +106,10 @@ end;
 
 define module utils
   use common;
+  use common-dylan, exclude: {format-to-string};
   use standard-io;
   use Introspection, import: {object-address, class-name};
-  use System, import: {copy-bytes};
+  use byte-vector;
 #if (~mindy)
   use System, import: {\call-out};
 #endif
@@ -139,10 +138,7 @@ define module od-format
   use introspection, import: {function-name};
   use utils;
   use self-organizing-list;
-  use file-system, import: {find-and-open-file};
-#if (~mindy & ~bootstrap_hack)
   use Extensions, import: {<stretchy-object-vector>, <simple-object-table>};
-#endif
   export
     $odf-header-flag,
     $odf-etype-mask,
@@ -192,7 +188,7 @@ define module od-format
     find-data-unit,
     $end-object,
     load-object-dispatch,
-    fill-at-least,
+    buffer-at-least,
     load-raw-data,
     load-subobjects-vector,
     load-sole-subobject,
@@ -259,14 +255,14 @@ end;
 
 define module source
   use common;
-  use System, import: {copy-bytes};
+  use byte-vector;
 #if (~mindy)
   use System, import: {buffer-address};
 #endif
   use utils;
   use od-format;
   use compile-time-values;
-  use File-System, import: {pathless-filename};
+  // use File-System, import: {pathless-filename};
 
   export
     <source-location-mixin>, source-location,
@@ -276,7 +272,7 @@ define module source
     <unknown-source-location>,
 
     <source>,
-    <source-file>, contents, <file-contents>, full-file-name, 
+    <source-file>, contents, <file-contents>, source-locator,
     <source-buffer>, source-name,
 
     <known-source-location>, source,
@@ -366,6 +362,7 @@ define module tokens
 
     <token>, token-kind, 
     <symbol-token>, token-symbol, 
+    <left-bracket-token>,
     <identifier-token>, token-module, token-uniquifier,
     <uniquifier>, same-id?,
     <operator-token>, operator-precedence, operator-associativity,
@@ -379,7 +376,7 @@ end;
 
 define module header
   use common;
-  use System, import: {copy-bytes};
+  use byte-vector;
   use character-type;
 
   use utils;
@@ -395,7 +392,8 @@ define module platform
   use common;
   use header;
   use source;
-  use streams, import: { <file-stream> };
+  use streams;
+  use file-system, import: { <file-stream> };
   use substring-search, import: { substring-replace };
   use string-conversions, import: { string-to-integer };
 
@@ -550,10 +548,11 @@ define module variables
 
   use forwards, import: {<library>, <module>}, export: all;
   export
-    $Dylan-Library, $Dylan-Module, *Current-Library*, *Current-Module*,
+    $Dylan-Library, $Dylan-Module,
 
     $Bootstrap-Module, add-bootstrap-export, define-bootstrap-module,
 
+    $Libraries, exported-names, namespace-name,
     find-library, library-name, note-library-definition, do-exported-modules,
     find-module, module-name, module-syntax-table,
     note-module-definition, deferred-importers, do-exported-variables,
@@ -561,11 +560,14 @@ define module variables
     variable-transformers, variable-transformers-setter,
     variable-ct-evaluator, variable-ct-evaluator-setter,
     variable-fragment-expander, variable-fragment-expander-setter,
+    variable-tlf, variable-tlf-setter,
     note-variable-definition, note-variable-referencing-macro,
     <use>, <all-marker>, <renaming>, renaming-orig-name, renaming-new-name,
 
     module-home, variable-home,
     name-inherited-or-exported?,
+
+    assure-loaded, broken?,
 
     dylan-var, dylan-defn, dylan-value;
 end;
@@ -855,6 +857,7 @@ define module flow
     reoptimize-queue, reoptimize-queue-setter,
     add-to-queue, all-function-regions,
 
+    <general-dependency>,
     <expression>, <dependency>, <queueable-mixin>, <dependent-mixin>,
     <leaf>, <variable-info>, <definition-site-variable>,
     <ssa-variable>, <initial-definition>, <multi-definition-variable>,

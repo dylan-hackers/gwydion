@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/handler.dylan,v 1.3 2001/05/14 23:27:49 gabor Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -56,7 +55,7 @@ define class <handler> (<object>)
     required-init-keyword: init-arguments:;
 
   // The previous handler in the chain of handers.
-  constant slot handler-prev :: type-union(<handler>, <false>),
+  constant slot handler-prev :: false-or(<handler>),
     required-init-keyword: prev:;
 end;
 

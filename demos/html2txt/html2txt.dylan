@@ -414,7 +414,7 @@ define method html2text(file :: <string>) => ();
 end method html2text;
 
 define method html2text(file == #t) => ();
-  html2text(make(<fd-stream>, fd: 0));
+  html2text(*standard-input*);
 end method html2text;
 
 // Trivial main program -- just invokes "html2text" which in turn invokes

@@ -21,6 +21,7 @@ define method do-compose-space
   //--- Compute the space requirements of all of the backend gadgets
 end method do-compose-space;
 
+/*
 define method note-gadget-enabled
     (client, gadget :: <vanilla-pane-mixin>) => ()
   //--- Enable the gadget mirror
@@ -30,6 +31,7 @@ define method note-gadget-disabled
     (client, gadget :: <vanilla-pane-mixin>) => ()
   //--- Enable the gadget mirror
 end method note-gadget-disabled;
+*/
 
 define method port-handles-repaint?
     (_port :: <vanilla-port>, sheet :: <vanilla-pane-mixin>) => (true? :: <boolean>)
@@ -99,6 +101,7 @@ end method do-compose-space;
 
 define method allocate-space
     (pane :: <vanilla-button-mixin>, width :: <integer>, height :: <integer>)
+ => ()
 end method allocate-space;
 
 

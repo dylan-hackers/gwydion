@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/Dylan.lid,v 1.5 2003/03/28 00:30:37 housel Exp $
 library: Dylan
 unique-id-base: 0
 
@@ -14,6 +13,7 @@ class.dylan
 designator-class.dylan
 copy.dylan
 func.dylan
+activation-record.dylan
 num.dylan
 bignum.dylan
 ratio.dylan

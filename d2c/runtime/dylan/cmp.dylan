@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/cmp.dylan,v 1.2 2000/01/24 04:56:44 andreas Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -73,7 +72,7 @@ end;
 //
 // The complement of ==.  And implemented just as such.
 // 
-define inline method \~== (x :: <object>, y :: <object>) => res :: <boolean>;
+define inline function \~== (x :: <object>, y :: <object>) => res :: <boolean>;
   ~(x == y);
 end;
 
@@ -86,7 +85,7 @@ end;
 // the specific functional-== method.  The compiler doesn't do it all in one
 // step because it is a bit easier to do it in two stages like this.
 //
-define method slow-functional-== (x :: <object>, y :: <object>)
+define function slow-functional-== (x :: <object>, y :: <object>)
     => answer :: <boolean>;
   let x-class :: <class> = x.object-class;
   if (~(x-class == y.object-class))
@@ -94,7 +93,7 @@ define method slow-functional-== (x :: <object>, y :: <object>)
   else
     functional-==(x-class, x, y);
   end if;
-end method slow-functional-==;
+end function slow-functional-==;
 
 // functional-== -- exported from extensions.
 //
@@ -168,19 +167,19 @@ end method;
 //
 // Just defined in terms of <=.
 // 
-define inline method \>= (x :: <object>, y :: <object>)
+define inline function \>= (x :: <object>, y :: <object>)
     => answer :: <boolean>;
   y <= x;
-end method;
+end function;
 
 // > -- exported from Dylan.
 //
 // Just defined in terms of <.
 // 
-define inline method \> (x :: <object>, y :: <object>)
+define inline function \> (x :: <object>, y :: <object>)
     => answer :: <boolean>;
   y < x;
-end method;
+end function;
 
 
 
@@ -190,7 +189,7 @@ end method;
 //
 // Return the minimum of a bunch of objects.
 // 
-define inline method min (object :: <object>, #rest more-objects)
+define inline function min (object :: <object>, #rest more-objects)
     => res :: <object>;
   reduce(binary-min, object, more-objects);
 end;
@@ -199,7 +198,7 @@ end;
 // inside of min so that when min gets inlined each reference to binary-min
 // will get independently inlined.
 // 
-define inline method binary-min (x :: <object>, y :: <object>)
+define inline function binary-min (x :: <object>, y :: <object>)
     => res :: <object>;
   if (x < y) x else y end;
 end;	  
@@ -208,7 +207,7 @@ end;
 //
 // Return the maximum of a bunch of objects.
 // 
-define inline method max (object :: <object>, #rest more-objects)
+define inline function max (object :: <object>, #rest more-objects)
     => res :: <object>;
   reduce(binary-max, object, more-objects);
 end;
@@ -217,7 +216,7 @@ end;
 // inside of max so that when max gets inlined each reference to binary-min
 // will get independently inlined.
 // 
-define inline method binary-max (x :: <object>, y :: <object>)
+define inline function binary-max (x :: <object>, y :: <object>)
     => max :: <object>;
   if (x < y) y else x end;
 end;	  

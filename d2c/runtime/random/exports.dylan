@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/random/exports.dylan,v 1.3 2001/09/01 23:20:46 andreas Exp $
 module: Dylan-User
 
 //======================================================================

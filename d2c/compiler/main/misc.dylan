@@ -1,5 +1,4 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/misc.dylan,v 1.1 2001/09/08 23:34:54 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -30,40 +29,18 @@ copyright: see below
 //======================================================================
 
 define method file-tokenizer
-    (lib :: <library>, name :: <byte-string>)
+    (lib :: <library>, name :: <file-locator>)
     => (tokenizer :: <tokenizer>, module :: <module>);
-  let source = make(<source-file>, name: name);
+  let source = make(<source-file>, locator: name);
   let (header, start-line, start-posn) = parse-header(source);
+  let module = find-module(lib, as(<symbol>, header[#"module"]));
   values(make(<lexer>,
+              module: module,
 	      source: source,
 	      start-posn: start-posn,
 	      start-line: start-line),
-	 find-module(lib, as(<symbol>, header[#"module"])));
+	 module);
 end;
-
-/* This looks like some leftover debugging code
-
-define method test-lexer (file :: <byte-string>) => ();
-  block ()
-    let (tokenizer, module) = file-tokenizer($dylan-library, file);
-    block (return)
-      *Current-Module* := module;
-      while (#t)
-	let token = get-token(tokenizer);
-	if (token.token-kind == $eof-token)
-	  return();
-	else
-	  format(*debug-output*, "%=\n", token);
-	end if;
-      end while;
-    cleanup
-      *Current-Module* := #f;
-    end block;
-  exception (<fatal-error-recovery-restart>)
-    #f;
-  end block;
-end method test-lexer;
-
 
 define method set-module (module :: type-union(<false>, <module>)) => ();
   *current-module* := module;
@@ -90,37 +67,12 @@ define method set-library (library :: <symbol>) => ();
   end block;
 end method set-library;
 
-define method test-parse
-    (parser :: <function>, file :: <byte-string>,
-     #key debug: debug? :: <boolean>)
-    => result :: <object>;
-  block ()
-    let (tokenizer, module) = file-tokenizer($dylan-library, file);
-    let orig-library = *current-library*;
-    let orig-module = *current-module*;
-    block ()
-      *current-library* := $dylan-library;
-      *current-module* := module;
-      parser(tokenizer, debug: debug?);
-    cleanup
-      *current-library* := orig-library;
-      *current-module* := orig-module;
-    end block;
-  exception (<fatal-error-recovery-restart>)
-    #f;
-  end block;
-end method test-parse;
-
-*/
 
 // The identifier for the current directory
 // Used in searching for files
 
-define constant $this-dir = #if (macos)
-			       "";
-			    #else
-			       ".";
-			    #endif
+define constant $this-dir
+  = make(<directory-locator>, path: vector(#"self"), relative?: #t);
 
 define function translate-abstract-filename (abstract-name :: <byte-string>)
  => (physical-name :: <byte-string>)
@@ -169,6 +121,16 @@ define method split-at (test :: <function>, string :: <byte-string>)
 end method split-at;
 
 
+define method strip-dot (extension :: <byte-string>)
+    => res :: <byte-string>;
+  if (extension[0] == '.')
+    copy-sequence(extension, start: 1);
+  else
+    extension;
+  end;
+end method;
+
+
 define method process-feature (feature :: <byte-string>) => ();
   if (feature.empty? | feature[0] ~== '~')
     add-feature(as(<symbol>, feature));
@@ -193,11 +155,22 @@ define method pick-which-file
     delete-file(new-filename);
     #f;
   else
-    rename-file(new-filename, old-filename);
+    rename-file(new-filename, old-filename, if-exists: #"replace");
     #t;
   end if;
 end method pick-which-file;
      
+// Returns false if one of the files isn't there
+//
+define function files-identical? 
+    (filename1 :: <string>, filename2 :: <string>)
+ => answer :: <boolean>;
+  let cmp-command = concatenate("cmp -s ", filename1, " ", filename2);
+  // cmp will return non-zero if they are different, if a file's not
+  // found, or if cmp somehow fails to execute.
+  system(cmp-command) == 0;
+end function files-identical?;
+
 // Look up a header element with a boolean default.  If specified, the option
 // must be "yes" or "no".
 //
@@ -252,4 +225,19 @@ define constant $search-path-seperator =
      ':';
   #endif
 #endif
+
+define function find-file
+    (pathless-name :: <file-locator>, dir-sequence :: <sequence>)
+ => filename :: false-or(<file-locator>);
+  block (return)
+    for (dir :: <directory-locator> in dir-sequence)
+      let merged = merge-locators(pathless-name, dir);
+      if (file-exists?(merged))
+        return(merged);
+      end if;
+    end for;
+    #f
+  end
+end function;
+
 

@@ -266,7 +266,6 @@ end class <better-debugger>;
 define method invoke-debugger
     (debugger :: <better-debugger>, condition :: <condition>)
  => res :: <never-returns>;
-  //fresh-line(*warning-output*);
   condition-format(*warning-output*, "%s\n", condition);
   force-output(*warning-output*);
   call-out("abort", void:);

@@ -3,8 +3,7 @@
 use Cwd;
 
 # Authors: William Lott, Nick Kramer
-# rcs-header: $Header: /scm/cvs/src/tools/shared-misc/gen-makefile.in,v 1.52 2003/10/22 20:26:16 housel Exp $
-
+#
 # Usage: gen-makefile [-pplatforms.descr] directory
 #
 # gen-makefile turns a single Makegen file into a Makefile.
@@ -30,9 +29,6 @@ use Cwd;
 #    install($dest_subdir, @files)
 #    install_from_src($dest_subdir, @files)
 #    install_executable_from_src($dest_subdir, @files)
-#    emit_mindycomp_rule($dylan_source)
-#    emit_dbc_link_rule($libname, $dbc_files)
-#    emit_mindycomp_library_rule($libname, $source_files)
 #    makegen_include($include_file)
 #    unknown_platform_error()
 #    convert_path_separator($path)
@@ -103,11 +99,6 @@ use Cwd;
 #     $static
 #         True if static libraries will be built.
 #
-# In addition, the d2c Makegens use the following variables:
-#
-#     $enable_d2c
-#     $enable_mindy
-#     $enable_mindy_bootstrap
 
 
 # Top level code
@@ -154,7 +145,7 @@ use Cwd;
 $usage_message = "Usage: $0 [-pPlatforms.descr] [directory]\n";
 
 @ARGV <= 2 || die $usage_message;
-if ($ARGV[0] =~ /-p(.*)/) {
+if ($ARGV[0] =~ /^-p(.*)/) {
     $platforms_dot_descr = $1;
     shift(@ARGV);
 } else {
@@ -194,9 +185,6 @@ sub set_default_defaults {
     $CPPFLAGS = '-I$(DYLANDIR)/include';
     $MELANGE = 'melange' . $dot_exe;
     $PARSERGEN = 'parsergen' . $dot_exe;
-    $MC = 'mindycomp' . $dot_exe;
-    # There is no MINDYFLAGS, because that depends on the library name.
-    $MINDY = 'mindy' . $dot_exe;
     $gen_makefile = 'gen-makefile';
     $install_data = "cp";
     $install_program = "install";
@@ -334,8 +322,6 @@ sub read_Defaults_file {
     $includedir = &convert_path_separator($includedir);
     $sysconfdir = &convert_path_separator($sysconfdir);
 
-    $MC = &convert_path_separator($MC);
-    $MINDY = &convert_path_separator($MINDY);
     $D2C = &convert_path_separator($D2C);
     $MELANGE = &convert_path_separator($MELANGE);
     $PARSERGEN = &convert_path_separator($PARSERGEN);
@@ -400,9 +386,6 @@ sub do_Makegen_file {
     }
 
     &emit_rule('cc_files');
-    if ($enable_mindy) {
-        &emit_rule('dbc_only');
-    }
     close(MAKEFILE);
     rename(",$makefile", $makefile);
 }
@@ -503,7 +486,7 @@ sub maybe_emit_d2c_defines {
         if ($CC) {
             print("CC=$CC\n");
         }
-        if($enable_debug) {
+        if ($enable_debug) {
             $CFLAGS = $target_platform{'default_c_compiler_debug_flags'};
         } elsif ($enable_profiling) {
             $CFLAGS = $target_platform{'default_c_compiler_profile_flags'};
@@ -511,6 +494,11 @@ sub maybe_emit_d2c_defines {
             $CFLAGS = $target_platform{'default_c_compiler_flags'};
         }
         $CFLAGS =~ s/-I%s//;
+
+	if ($use_previous_melange) {
+	    $MELANGE = $PREVIOUS_MELANGE;
+	}
+
         print <<EOF;
 D2C = $D2C
 D2CFLAGS = $D2CFLAGS
@@ -519,8 +507,6 @@ CPPFLAGS = $CPPFLAGS $debug_platform_name
 COPTS = $COPTS
 MELANGE = $MELANGE
 PARSERGEN = $PARSERGEN
-MC = $MC
-MINDY = $MINDY
 
 EOF
         if ($host_platform{'environment_variables_can_be_exported?'}) {
@@ -533,11 +519,7 @@ EOF
                 print "$EXPORT LIBTOOL = $LIBTOOL\n\n";
             }
             if ($DYLANPATH) {
-		if ($enable_mindy_bootstrap) {
-		    print "$EXPORT DYLANPATH = $DYLANPATH\n\n";
-		} else {
 		    print "$EXPORT DYLANPATH =\n\n";
-		}
             };
             if ($DYLANDIR) {
                 print "$EXPORT DYLANDIR = $DYLANDIR\n\n";
@@ -747,19 +729,8 @@ sub compile_subdirs {
 #    'install' 
 #         Adds this library/executable to the list of files installed
 #         by the 'install' makefile target.
-#    'no-mindy'
-#         By default, a target is created for dbc_only; this target 
-#         is not added to any makefile targets, but it can be manually
-#         created by running "make dbc_only".  This makes for easy debugging.
-#         'no-mindy' suppresses the creation of this target, which is useful
-#         when the Mindy version of the library does not use the same source
-#         files as the d2c version.
-#    'compile-mindy'
-#         Add libname.dbc to the 'compile' makefile target (possibly in
-#         addition to the d2c version of the library.)  This flag does not make 
-#         much sense with 'no-mindy'.
 #    'no-d2c'
-#         Like no-mindy, only suppress emission of d2c rules.
+#         Suppress emission of d2c rules. Not very useful.
 #
 # The return value is a two element array.  The first element is the
 # target which would have been used if the 'compile' flag were
@@ -779,7 +750,6 @@ sub emit_library_rule {
     $library =~ tr/A-Z/a-z/;
     local($unit_prefix);
     if($enable_bootstrap
-       && $bootstrap_compiler eq "d2c"
        && $lid_format_version < 2) {
         $unit_prefix = $lidfile{'unit_prefix'} || "$library";
     } else {
@@ -792,83 +762,86 @@ sub emit_library_rule {
 
     local($d2c_target);
 
-    if ($enable_d2c) {
-        local($file);
-        for $file (split(' ', $lidfile{'files'})) {
-            $file =~ s/\.dylan$//;  # chop off ".dylan"
-			if ($&) {				# This was a "something.dylan"
-	            push(@files_to_clean, "$file.c", "$file$dot_obj");
-			} else {
-                # This is a *.o or something that is handled by the
-                # emit_c_file_rule ...
-				next;
-			}
-            if ($shared && $static) {
-                push(@files_to_clean, "$file$dot_static");
-            }
-        }
 
-        push(@files_to_clean,
-             "$unit_prefix-init.c", "$unit_prefix-init$dot_obj");
-        push(@files_to_clean,
-             "$unit_prefix-heap.c", "$unit_prefix-heap$dot_obj");
-
-        if($shared && $static) {
-            push(@files_to_clean, "$unit_prefix-init$dot_static");
-            push(@files_to_clean, "$unit_prefix-heap$dot_static");
-        }
-
-        if ($executable) {
-            push(@files_to_clean, $executable_filename, "$unit_prefix-global-heap.c", "$unit_prefix-global-inits.c");
-            if($shared && $static) {
-                push(@files_to_clean, "$unit_prefix-global-heap$dot_static", "$unit_prefix-global-inits$dot_static");
-            }
-            push(@files_to_clean, "$unit_prefix-global-heap$dot_obj", "$unit_prefix-global-inits$dot_obj");
-
-            if (grep(/^compile$/, @keywords)) {
-                push(@compile_dependencies, $executable_filename);
-                grep(/^install$/, @keywords)
-                    && do install_executable($bindir, $executable_filename);
-            }
-
-            $d2c_target = $executable_filename;
-        }
-        else {
-            local($foo_lib_du, $libfoo_a);
-
-            $foo_lib_du = "$library.lib.du";
-            $libfoo_a = "$lib_prefix$unit_prefix-dylan$dot_lib";
-
-            push(@files_to_clean, $foo_lib_du, $libfoo_a);
-
-            if($shared && $static) {
-                local($lib_static)
-                    = $target_platform{'library_filename_suffix'};
-                push(@files_to_clean, "$lib_prefix$unit_prefix-dylan$lib_static");
-            }
-
-            if (grep(/^compile$/, @keywords)) {
-                push(@compile_dependencies, $foo_lib_du);
-                if (grep(/^install$/, @keywords)) {
-                    do install($libdir, $foo_lib_du);
-                    do install_library($libdir, $libfoo_a, $shared_library);
-                }
-            }
-
-            $d2c_target = $foo_lib_du;
-        }
+    local($file);
+    for $file (split(' ', $lidfile{'files'})) {
+	$file =~ s/\.dylan$//;  # chop off ".dylan"
+	if ($&) {				# This was a "something.dylan"
+	    push(@files_to_clean, "$file.c", "$file$dot_obj");
+	} else {
+	    # This is a *.o or something that is handled by the
+	    # emit_c_file_rule ...
+	    next;
+	}
+	if ($shared && $static) {
+	    push(@files_to_clean, "$file$dot_static");
+	}
     }
 
+    push(@files_to_clean,
+	 "$unit_prefix-init.c", "$unit_prefix-init$dot_obj");
+    push(@files_to_clean,
+	 "$unit_prefix-heap.c", "$unit_prefix-heap$dot_obj");
+    push(@files_to_clean,
+	 "$unit_prefix-guts.c", "$unit_prefix-guts$dot_obj");
+
+
+    if($shared && $static) {
+	push(@files_to_clean, "$unit_prefix-init$dot_static");
+	push(@files_to_clean, "$unit_prefix-heap$dot_static");
+	push(@files_to_clean, "$unit_prefix-guts$dot_static"); 
+    }
+
+    if ($executable) {
+	push(@files_to_clean, $executable_filename, "$unit_prefix-global-heap.c", "$unit_prefix-global-inits.c");
+	if($shared && $static) {
+	    push(@files_to_clean, "$unit_prefix-global-heap$dot_static", "$unit_prefix-global-inits$dot_static");
+	}
+	push(@files_to_clean, "$unit_prefix-global-heap$dot_obj", "$unit_prefix-global-inits$dot_obj");
+
+	if (grep(/^compile$/, @keywords)) {
+	    push(@compile_dependencies, $executable_filename);
+	    grep(/^install$/, @keywords)
+		&& do install_executable($bindir, $executable_filename);
+	}
+
+	$d2c_target = $executable_filename;
+    }
+    else {
+	local($foo_lib_du, $libfoo_a);
+
+	$foo_lib_du = "$library.lib.du";
+	$libfoo_a = "$lib_prefix$unit_prefix-dylan$dot_lib";
+
+	push(@files_to_clean, $foo_lib_du, $libfoo_a);
+
+	if($shared && $static) {
+	    local($lib_static)
+		= $target_platform{'library_filename_suffix'};
+	    push(@files_to_clean, "$lib_prefix$unit_prefix-dylan$lib_static");
+	}
+
+	if (grep(/^compile$/, @keywords)) {
+	    push(@compile_dependencies, $foo_lib_du);
+	    if (grep(/^install$/, @keywords)) {
+		do install($libdir, $foo_lib_du);
+		do install_library($libdir, $libfoo_a, $shared_library);
+	    }
+	}
+
+	$d2c_target = $foo_lib_du;
+    }
+    
     if($extraflags ne '') {
 	print STDERR "gen-makefile: Makegen file contains extraflags: ";
 	print STDERR "'$extraflags'\n";
     }
 
-    if (! grep(/^no-d2c$/, @keywords) && $enable_d2c) {
+    if (! grep(/^no-d2c$/, @keywords)) {
         print "$d2c_target: $srcdir/$lidfilename.lid $extradeps\n";
         my $profile_flag = $enable_profiling ? "--profile" : "";
         if ($shared_library) {
-            print "\t\$(D2C) -M $profile_flag \$(D2CFLAGS) --rpath=$libdir $extraflags ",
+            print "\t\$(D2C) -T $target_name -M $profile_flag \$(D2CFLAGS) --rpath=$libdir $extraflags ",
                 "$srcdir/$lidfilename.lid\n";
             if ($static && !$executable) {
                 local ($dot_lib)
@@ -880,7 +853,7 @@ sub emit_library_rule {
                 push(@files_to_clean, " $lib_prefix$unit_prefix-dylan$dot_lib");
             }
         } else {
-            print "\t\$(D2C) -M $profile_flag \$(D2CFLAGS) --static $extraflags ",
+            print "\t\$(D2C) -T $target_name -M $profile_flag \$(D2CFLAGS) --static $extraflags ",
                 "$srcdir/$lidfilename.lid\n";
         }
         local ($make_name) = $host_platform{'make_command'};
@@ -897,21 +870,8 @@ sub emit_library_rule {
         }
     }
 
-    if (! grep(/^no-mindy$/, @keywords) && $enable_mindy) {
-        &emit_mindycomp_library_rule($library, $lidfile{'files'}, %lidfile);
-    }
-    if (grep(/^compile-mindy$/, @keywords) && $enable_mindy) {
-        push(@compile_dependencies, "$library-lib.dbc");
-        grep(/^install$/, @keywords)
-            && do install($libdir, "$library-lib.dbc");
-    }
     local(@return_val);
-    if ($enable_d2c) {
-        push(@return_val, $d2c_target);
-    }
-    if ($enable_mindy) {
-        push(@return_val, "$library-lib.dbc");
-    }
+    push(@return_val, $d2c_target);
     return @return_val;
 }
 
@@ -1053,7 +1013,10 @@ sub emit_melange_rule {
        print " \$(SRCDIR)/$header";
     }
     print "\n";
-    printf("\t$host_platform{'recursive_make_command'}\n", $MELANGE_DIR, "");
+    unless ($use_previous_melange) {
+	printf("\t$host_platform{'recursive_make_command'}\n",
+	       $MELANGE_DIR, "");
+    }
     print "\t\$(MELANGE) --d2c \$(CPPFLAGS) -I\$(SRCDIR) ";
     if($EXTRA_INCLUDE_DIR ne "") {
       print "-I$EXTRA_INCLUDE_DIR ";
@@ -1071,9 +1034,9 @@ sub emit_parsergen_rule {
     local ($basefile) = @_;
     do maybe_emit_d2c_defines();
 
-    print "$basefile.dylan: \$(SRCDIR)/$basefile.input\n";
-    printf("\t$host_platform{'recursive_make_command'}\n", $PARSERGEN_DIR, "");
-    print "\t\$(PARSERGEN) ";
+    print "$basefile.dylan: \$(SRCDIR)/$basefile.input $PARSERGEN_target\n\t";
+    printf($host_platform{'recursive_make_command'}, $PARSERGEN_DIR, "");
+    print "\n\t\$(PARSERGEN) ";
     print "\$(SRCDIR)/$basefile.input $basefile.dylan\n\n";
     push(@compile_dependencies, "$basefile.dylan");
     push(@files_to_clean, "$basefile.dylan");
@@ -1210,7 +1173,6 @@ sub install_library {
     print "\t$install_library $library $gnu_dest_dir/$library\n\n";
     push(@install_dependencies, "$gnu_dest_dir/$library");
 }
-
 
 # emit_mindycomp_rule($dylan_source) -- exported
 #

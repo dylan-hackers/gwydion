@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/func.dylan,v 1.14 2003/10/22 20:41:14 housel Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -46,7 +45,7 @@ define abstract class <function> (<object>)
   constant slot function-rest? :: <boolean>,
     required-init-keyword: rest?:;
   //
-  constant slot function-keywords :: type-union(<simple-object-vector>, <false>),
+  constant slot function-keywords :: false-or(<simple-object-vector>),
     required-init-keyword: keywords:;
   //
   constant slot function-all-keys? :: <boolean>,
@@ -243,7 +242,7 @@ define class <gf-cache> (<object>)
     init-value: #f;
   constant slot cached-classes :: <type-vector>,
     required-init-keyword: #"classes";
-  slot next :: type-union(<false>, <gf-cache>), init-value: #f;
+  slot next :: false-or(<gf-cache>), init-value: #f;
   slot call-count :: <integer>, init-value: 1;
 end class <gf-cache>;
 
@@ -255,7 +254,7 @@ define class <generic-function> (<function>)
   slot generic-function-methods :: <list> = #(),
     init-keyword: methods:;
   //
-  slot method-cache :: type-union(<false>, <gf-cache>) = #f;
+  slot method-cache :: false-or(<gf-cache>) = #f;
 end;
 
 define sealed domain make(singleton(<generic-function>));
@@ -269,8 +268,7 @@ define method make (class == <generic-function>, #next next-method,
 		         required :: type-union(<integer>, <sequence>),
 		         rest? :: <boolean>, key :: false-or(<collection>),
 		         all-keys? :: <boolean>, values :: <sequence> = #[],
-		         rest-value :: type-union(<type>, <false>)
-		           = <object>)
+		         rest-value :: false-or(<type>) = <object>)
     => res :: <generic-function>;
   let specializers
     = select (required by instance?)
@@ -325,7 +323,7 @@ end method make;
 
 // Runtime method construction and handling.
 
-define method %make-method
+define function %make-method
     (specializers :: <simple-object-vector>,
      fixed-values :: <simple-object-vector>,
      rest-value :: <type>,
@@ -350,25 +348,25 @@ define method %make-method
        rest-value: rest-value,
        generic-entry: %%primitive(main-entry, generic-call),
        real-method: function);
-end method %make-method;
+end function %make-method;
 
-define constant generic-call
-  = method (self :: <dynamic-method>, nargs :: <integer>, next-info :: <list>)
-      let arg-ptr :: <raw-pointer> = %%primitive(extract-args, nargs);
-      %%primitive(invoke-generic-entry, self.real-method, next-info,
-		  %%primitive(pop-args, arg-ptr));
-    end method;
+define function generic-call
+    (self :: <dynamic-method>, nargs :: <integer>, next-info :: <list>)
+  let arg-ptr :: <raw-pointer> = %%primitive(extract-args, nargs);
+  %%primitive(invoke-generic-entry, self.real-method, next-info,
+  %%primitive(pop-args, arg-ptr));
+end function;
 
 
 // Function information routines.
 
-define inline method generic-function-mandatory-keywords
+define inline function generic-function-mandatory-keywords
     (gf :: <generic-function>)
     => keywords :: false-or(<simple-object-vector>);
   gf.function-keywords;
-end method generic-function-mandatory-keywords;
+end function generic-function-mandatory-keywords;
 
-define inline method function-arguments (function :: <function>)
+define inline function function-arguments (function :: <function>)
     => (required :: <integer>, rest? :: <boolean>,
 	keywords :: type-union(<simple-object-vector>, one-of(#f, #"all")));
   values(function.function-specializers.size,
@@ -378,9 +376,9 @@ define inline method function-arguments (function :: <function>)
 	 else
 	   function.function-keywords;
 	 end);
-end method function-arguments;
+end function function-arguments;
 
-define inline method function-return-values (function :: <function>)
+define inline function function-return-values (function :: <function>)
     => (return-value-types :: <simple-object-vector>,
 	rest-return-value :: false-or(<type>));
   let type = function.function-rest-value;
@@ -390,7 +388,7 @@ define inline method function-return-values (function :: <function>)
 	 else
 	   type;
 	 end if);
-end method function-return-values;
+end function function-return-values;
 
 
 // Method adding, finding, and removing.
@@ -401,7 +399,7 @@ end method function-return-values;
 // any method we happened to displace.  Flames out if the method is not
 // congruent with the generic function.
 // 
-define method add-method
+define function add-method
     (gf :: <generic-function>, new :: <method>)
     => (new :: <method>, old :: false-or(<method>));
   //
@@ -567,13 +565,13 @@ define method add-method
   //
   // Return the new and old methods.
   values(new, old);
-end method add-method;
+end function add-method;
 
 // find-method -- exported from Dylan.
 //
 // Find the method matching the given signature and return it.
 // 
-define method find-method
+define function find-method
     (gf :: <generic-function>, specializers :: <sequence>)
     => meth :: false-or(<method>);
   //
@@ -591,7 +589,7 @@ define method find-method
   //
   // Find and return the method.
   internal-find-method(gf, specializers);
-end method find-method;
+end function find-method;
 
 // internal-find-method -- internal
 //
@@ -599,7 +597,7 @@ end method find-method;
 // given specialiers.  Returns that method and the previous pair so that
 // add-method can remove it.
 // 
-define method internal-find-method
+define function internal-find-method
     (gf :: <generic-function>, specializers :: <simple-object-vector>)
     => (result :: false-or(<method>), prev :: false-or(<pair>));
   block (return)
@@ -621,13 +619,13 @@ define method internal-find-method
     end for;
     values(#f, #f);
   end block;  
-end method internal-find-method;
+end function internal-find-method;
 
 // remove-method -- exported from Dylan.
 //
 // Remove the method from the generic function.  Flame out if it isn't there.
 // 
-define method remove-method
+define function remove-method
     (gf :: <generic-function>, meth :: <method>)
     => meth :: <method>;
   //
@@ -657,7 +655,7 @@ define method remove-method
     // It wasn't found, so flame out.
     error("%= does not contain %=", gf, meth);
   end block;
-end method remove-method;
+end function remove-method;
 
 
 // Function call related utilities.
@@ -667,9 +665,9 @@ end method remove-method;
 // The compiler produces references to this function when it needs to
 // convert a block of values on the values stack into a rest arg.
 //
-define constant make-rest-arg
-  = method (arg-ptr :: <raw-pointer>, count :: <integer>)
-	=> res :: <simple-object-vector>;
+define function make-rest-arg
+    (arg-ptr :: <raw-pointer>, count :: <integer>)
+    => res :: <simple-object-vector>;
       if (count == 0)
 	#[];
       else
@@ -679,7 +677,7 @@ define constant make-rest-arg
 	end;
 	res;
       end if;
-    end;
+end function make-rest-arg;
 
 // verify-keywords -- internal.
 //
@@ -722,7 +720,7 @@ end method verify-keywords;
 // Call the function with the arguments.  The last element of arguments is
 // itself a sequence of additional arguments.
 //
-define method apply (function :: <function>, #rest arguments)
+define function apply (function :: <function>, #rest arguments)
   if (empty?(arguments))
     error("Apply must be given at least one argument.");
   end;
@@ -741,12 +739,12 @@ end;
 // not need a general entry.  It works, but is slower than a custom built
 // general entry.
 // 
-define constant general-call
-  = method (self :: <method>, nargs :: <integer>)
-      let specializers = self.function-specializers;
-      let nfixed = specializers.size;
-      let keywords = self.function-keywords;
-      if (self.function-rest? | keywords)
+define function general-call
+    (self :: <method>, nargs :: <integer>)
+  let specializers = self.function-specializers;
+  let nfixed = specializers.size;
+  let keywords = self.function-keywords;
+  if (self.function-rest? | keywords)
 	if (nargs < nfixed)
 	  wrong-number-of-arguments-error(#f, nfixed, nargs);
 	end;
@@ -779,7 +777,7 @@ define constant general-call
       end if;
       %%primitive(invoke-generic-entry, self, #(),
 		  %%primitive(pop-args, arg-ptr));
-    end method;
+end function general-call;
 
 
 // Generic function dispatch.
@@ -852,7 +850,7 @@ define function gf-call-lookup
     ambiguous-method-error(next-info.first,
                            source-location: source-location);
   end if;
-end function;
+end function gf-call-lookup;
 
 // This now not usually used.  Instead inline C code with the same effect
 // is generated in emit-assignment in compiler/cback/chack.dylan
@@ -871,8 +869,8 @@ end function;
 // functions.  The functions must accept no keywords and take exactly one
 // argument.
 //
-define constant gf-call-one-arg
-  = method (self :: <generic-function>, nargs :: <integer>)
+define function gf-call-one-arg
+    (self :: <generic-function>, nargs :: <integer>)
       if (nargs ~= 1)
        wrong-number-of-arguments-error(#t, 1, nargs);
       end;
@@ -893,9 +891,9 @@ define constant gf-call-one-arg
 	// There is no unambiguous "first method"
 	ambiguous-method-error(next-info.first);
       end if;
-    end method;
+end function gf-call-one-arg;
 
-define method internal-sorted-applicable-methods
+define function internal-sorted-applicable-methods
     (gf :: <generic-function>, nargs :: <integer>,
      arg-ptr :: <raw-pointer>)
     => (meth :: false-or(<method>), next-method-info :: <list>, 
@@ -1067,19 +1065,19 @@ define method internal-sorted-applicable-methods
 
   values(cache.cached-method, cache.cached-next-info,
 	 cache.cached-valid-keywords);
-end;
+end function internal-sorted-applicable-methods;
 
 define variable *debug-generic-threshold* :: <integer> = -1;
 
-define inline method cached-sorted-applicable-methods
+define inline function cached-sorted-applicable-methods
     (gf :: <generic-function>, nargs :: <integer>,
      arg-ptr :: <raw-pointer>)
  => (function :: false-or(<method>),
      next-method-info :: <list>, 
      valid-keywords :: type-union(<simple-object-vector>, one-of(#f, #"all")));
   block (return)
-    for (prev :: type-union(<false>, <gf-cache>) = #f then cache,
-	 cache :: type-union(<false>, <gf-cache>) = gf.method-cache
+    for (prev :: false-or(<gf-cache>) = #f then cache,
+	 cache :: false-or(<gf-cache>) = gf.method-cache
 	   then cache.next,
 	 until: cache == #f)
       block (no-match)
@@ -1125,9 +1123,9 @@ define inline method cached-sorted-applicable-methods
     end for;
     internal-sorted-applicable-methods(gf, nargs, arg-ptr);
   end block;
-end method cached-sorted-applicable-methods;
+end function cached-sorted-applicable-methods;
 
-define inline method one-arg-sorted-applicable-methods
+define inline function one-arg-sorted-applicable-methods
     (gf :: <generic-function>, arg-ptr :: <raw-pointer>)
  => (function :: false-or(<method>),
      next-method-info :: <list>, 
@@ -1141,7 +1139,7 @@ define inline method one-arg-sorted-applicable-methods
   else
     block (return)
       for (prev :: <gf-cache> = cache then cache,
-          cache :: type-union(<false>, <gf-cache>) = cache.next
+          cache :: false-or(<gf-cache>) = cache.next
             then cache.next,
           until: cache == #f)
        block (no-match)
@@ -1159,9 +1157,9 @@ define inline method one-arg-sorted-applicable-methods
       internal-sorted-applicable-methods(gf, 1, arg-ptr);
     end block;
   end if;
-end method one-arg-sorted-applicable-methods;
+end function one-arg-sorted-applicable-methods;
 
-define method internal-applicable-method?
+define function internal-applicable-method?
     (meth :: <method>, arg-ptr :: <raw-pointer>, cache :: <gf-cache>)
  => (res :: <boolean>);
   block (return)
@@ -1224,9 +1222,9 @@ define method internal-applicable-method?
     end for;
     #t;
   end block;
-end;
+end function internal-applicable-method?;
 
-define method %compare-methods
+define function %compare-methods
     (meth1 :: <method>, meth2 :: <method>, arg-ptr :: <raw-pointer>)
     => res :: one-of(#"more-specific", #"less-specific", #"ambiguous",
 		     #"identical");
@@ -1289,12 +1287,12 @@ define method %compare-methods
     end for;
     result;
   end block;
-end method %compare-methods;
+end function %compare-methods;
 
 
 // This is the same as %compare-methods above except it uses a
 // sequence of arguments instead of a <raw-pointer>
-define method compare-methods
+define function compare-methods
     (meth1 :: <method>, meth2 :: <method>, arguments :: <sequence>)
     => res :: one-of(#"more-specific", #"less-specific", #"ambiguous",
 		     #"identical");
@@ -1357,7 +1355,7 @@ define method compare-methods
     end for;
     result;
   end block;
-end method compare-methods;
+end function compare-methods;
 
 define method compare-overlapping-specializers
     (spec1 :: <type>, spec2 :: <type>, arg :: <object>)
@@ -1395,8 +1393,8 @@ end method compare-overlapping-classes;
 
 // Accessor methods.
 
-define constant general-rep-getter
-  = method (self :: <accessor-method>, nargs :: <integer>, next-info :: <list>)
+define function general-rep-getter
+    (self :: <accessor-method>, nargs :: <integer>, next-info :: <list>)
       // We don't specify a return type because we want to use the
       // unknown-values convention.
       let arg-ptr :: <raw-pointer> = %%primitive(extract-args, 1);
@@ -1409,10 +1407,10 @@ define constant general-rep-getter
 	uninitialized-slot-error(slot, instance);
       end unless;
       result;
-    end;
+end function;
 
-define constant general-rep-setter
-  = method (self :: <accessor-method>, nargs :: <integer>, next-info :: <list>)
+define function general-rep-setter
+    (self :: <accessor-method>, nargs :: <integer>, next-info :: <list>)
       // We don't specify a return type because we want to use the
       // unknown-values convention.
       let arg-ptr :: <raw-pointer> = %%primitive(extract-args, 2);
@@ -1422,11 +1420,11 @@ define constant general-rep-setter
       let posn = find-slot-offset(instance.object-class, self.accessor-slot);
       %%primitive(set-slot, new-value, instance, #"general", posn);
       new-value;
-    end;
+end function;
 
 
-define constant heap-rep-getter
-  = method (self :: <accessor-method>, nargs :: <integer>, next-info :: <list>)
+define function heap-rep-getter
+    (self :: <accessor-method>, nargs :: <integer>, next-info :: <list>)
       // We don't specify a return type because we want to use the
       // unknown-values convention.
       let arg-ptr :: <raw-pointer> = %%primitive(extract-args, 1);
@@ -1439,10 +1437,10 @@ define constant heap-rep-getter
 	uninitialized-slot-error(slot, instance);
       end unless;
       result;
-    end;
+end function;
 
-define constant heap-rep-setter
-  = method (self :: <accessor-method>, nargs :: <integer>, next-info :: <list>)
+define function heap-rep-setter
+    (self :: <accessor-method>, nargs :: <integer>, next-info :: <list>)
       // We don't specify a return type because we want to use the
       // unknown-values convention.
       let arg-ptr :: <raw-pointer> = %%primitive(extract-args, 2);
@@ -1452,7 +1450,7 @@ define constant heap-rep-setter
       let posn = find-slot-offset(instance.object-class, self.accessor-slot);
       %%primitive(set-slot, new-value, instance, #"heap", posn);
       new-value;
-    end;
+end function;
 
 
 // Applicability predicates.
@@ -1506,7 +1504,7 @@ define method applicable-method?
       end if;
     end for;
   end block;
-end method;
+end method applicable-method?;
 
 define method applicable-method?
     (gf :: <generic-function>, #rest sample-arguments)
@@ -1514,12 +1512,12 @@ define method applicable-method?
 	   apply(applicable-method?, meth, sample-arguments);
        end,
        generic-function-methods(gf));
-end;
+end applicable-method?;
 
 // This is similar to internal-sorted-applicable-methods except that
 // it operates on a sequence rather than a <raw-pointer>.
 //
-define method sorted-applicable-methods
+define function sorted-applicable-methods
     (gf :: <generic-function>, #rest sample-arguments)
     => (sorted :: <list>, unsorted :: <list>);
 
@@ -1616,14 +1614,14 @@ define method sorted-applicable-methods
   end;
 
   values(ordered, ambiguous);
-end;
+end function sorted-applicable-methods;
 
 
 // #next method handling
 
-define movable method %make-next-method-cookie
+define movable function %make-next-method-cookie
     (next-method-info :: <list>, original-args :: <simple-object-vector>)
-    => (res :: type-union(<false>, <function>));
+    => (res :: false-or(<function>));
   if (next-method-info == #())
     #f;
   elseif (instance?(next-method-info.head, <pair>))
@@ -1643,52 +1641,52 @@ define movable method %make-next-method-cookie
 		  values-sequence(args));
     end method;
   end if;
-end method %make-next-method-cookie;
+end function %make-next-method-cookie;
 
 
 // Functional Operations
 
-define inline method compose (function :: <function>, #rest more-functions)
+define inline function compose (function :: <function>, #rest more-functions)
     => res :: <function>;
   reduce(binary-compose, function, more-functions);
 end;
 
-define inline method binary-compose
+define inline function binary-compose
     (function1 :: <function>, function2 :: <function>) => res :: <function>;
   method (#rest arguments)
     function1(apply(function2, arguments));
   end;
 end;
 
-define inline method complement (predicate :: <function>)
+define inline function complement (predicate :: <function>)
   compose(\~, predicate);
 end;
 
-define inline method disjoin (function :: <function>, #rest more-functions)
+define inline function disjoin (function :: <function>, #rest more-functions)
     => res :: <function>;
   reduce(binary-disjoin, function, more-functions);
 end;
 
-define inline method binary-disjoin
+define inline function binary-disjoin
     (function1 :: <function>, function2 :: <function>) => res :: <function>;
   method (#rest arguments)
     apply(function1, arguments) | apply(function2, arguments);
   end;
 end;
 
-define inline method conjoin (function :: <function>, #rest more-functions)
+define inline function conjoin (function :: <function>, #rest more-functions)
     => res :: <function>;
   reduce(binary-conjoin, function, more-functions);
 end;
 
-define inline method binary-conjoin 
+define inline function binary-conjoin 
     (function1 :: <function>, function2 :: <function>) => res :: <function>;
   method (#rest arguments)
     apply(function1, arguments) & apply(function2, arguments);
   end;
 end;
 
-define inline method curry (function :: <function>, #rest curried-args)
+define inline function curry (function :: <function>, #rest curried-args)
     => res :: <function>;
   method (#rest more-args)
     mv-call(function,
@@ -1697,7 +1695,7 @@ define inline method curry (function :: <function>, #rest curried-args)
   end;
 end;
 
-define inline method rcurry (function :: <function>, #rest curried-args)
+define inline function rcurry (function :: <function>, #rest curried-args)
     => res :: <function>;
   method (#rest more-args)
     mv-call(function,
@@ -1706,7 +1704,7 @@ define inline method rcurry (function :: <function>, #rest curried-args)
   end;
 end;
 
-define inline method always (object :: <object>) => res :: <function>;
+define inline function always (object :: <object>) => res :: <function>;
   method (#rest ignore) => object :: <object>;
     object;
   end;

@@ -2,15 +2,10 @@
 
 $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
-    . ' -L../streams'
-    . ' -L../print';
+    . ' -L../print'
+    . ' -L../streams';
 
 &emit_library_rule(
-    'Format', '$(BUILDROOT)/force.timestamp', '', 'compile', 'compile-mindy',
+    'Format', '$(BUILDROOT)/force.timestamp', '', 'compile',
     'install'
-);
-
-&emit_library_rule(
-    'Debugger-Format', '$(BUILDROOT)/force.timestamp', '', 'no-d2c',
-    'compile-mindy', ''
 );

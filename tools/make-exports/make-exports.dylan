@@ -4,7 +4,6 @@ copyright: see below
 	   This code was produced by the Gwydion Project at Carnegie Mellon
 	   University.  If you are interested in using this code, contact
 	   "Scott.Fahlman@cs.cmu.edu" (Internet).
-rcs-header: $Header: /scm/cvs/src/tools/make-exports/make-exports.dylan,v 1.3 2002/12/03 21:51:00 robmyers Exp $
 
 //======================================================================
 //
@@ -333,7 +332,7 @@ define method main (ignored, #rest filenames) => ();
     format(*standard-error*,
 	   "Command line usage:\n"
 	     "  make-exports library.input file1.dylan"
-	     "file2.dylan ...\n");
+	     " file2.dylan ...\n");
     force-output(*standard-error*);
     exit(exit-code: 1);
   end if;

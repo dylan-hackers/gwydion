@@ -1,5 +1,4 @@
 module: dylan-dump
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/dylan-dump.dylan,v 1.4 2001/08/01 15:02:52 dauclair Exp $
 copyright: see below
 
 //======================================================================
@@ -99,12 +98,10 @@ end method;
 add-od-loader(*default-dispatcher*, #"fixed-integer", 
   method (state :: <load-state>)
    => res :: <integer>;
-    state.od-next := state.od-next + $word-bytes; // skip count word
-    let res =
-      as(<integer>,
-         sign-extend(buffer-word(state.od-buffer,
-       			         fill-at-least($word-bytes, state))));
-    state.od-next := state.od-next + $word-bytes; // skip data word
+    let (buf, index) = buffer-at-least($word-bytes * 2, state);
+    // skip count word
+    let res = as(<integer>,
+                 sign-extend(buffer-word(buf, index + $word-bytes)));
     res;
   end method
 );
@@ -138,13 +135,11 @@ end method;
 add-od-loader(*default-dispatcher*, #"extended-integer", 
   method (state :: <load-state>)
    => res :: <extended-integer>;
-    let buffer = state.od-buffer;
-    let next = state.od-next;
+    let (buffer, next) = buffer-at-least($word-bytes, state);
     let len = buffer-word(buffer, next); // count word
     let bsize = $word-bytes * len;
-    state.od-next := next + $word-bytes;
 
-    let next = fill-at-least(bsize, state);
+    let (buffer, next) = buffer-at-least(bsize, state);
     let res
       = sign-extend(buffer-word(buffer, next + ((len - 1) * $word-bytes)));
 
@@ -154,7 +149,6 @@ add-od-loader(*default-dispatcher*, #"extended-integer",
 		    ash(res, $word-bits));
     end for;
 
-    state.od-next := next + bsize;
     res;
   end method
 );
@@ -177,6 +171,26 @@ add-od-loader(*default-dispatcher*, #"ratio",
     let dpart = load-object-dispatch(state);
     assert-end-object(state);
     ratio(npart, dpart);
+  end method
+);
+
+// Locator methods:
+
+define method dump-od(obj :: <file-locator>, buf :: <dump-buffer>) => ();
+  dump-definition-header(#"file-locator", buf,
+  			 raw-data: $odf-byte-raw-data-format);
+  let obj = as(<byte-string>, obj);
+  dump-raw-data(obj, obj.size, buf);
+end method;
+
+add-od-loader(*default-dispatcher*, #"file-locator", 
+  method (state :: <load-state>)
+   => res :: <file-locator>;
+    let (buffer, next) = buffer-at-least($word-bytes, state);
+    let bsize = buffer-word(buffer, next);
+    let res = make(<byte-string>, size: bsize);
+    load-raw-data(res, bsize, state);
+    as(<file-locator>, res);
   end method
 );
 
@@ -243,9 +257,8 @@ end method;
 add-od-loader(*default-dispatcher*, #"byte-string", 
   method (state :: <load-state>)
    => res :: <byte-string>;
-    let next = state.od-next;
-    let bsize = buffer-word(state.od-buffer, next);
-    state.od-next := next + $word-bytes;
+    let (buffer, next) = buffer-at-least($word-bytes, state);
+    let bsize = buffer-word(buffer, next);
     let res = make(<byte-string>, size: bsize);
     load-raw-data(res, bsize, state);
     res;
@@ -267,9 +280,8 @@ end method;
 
 add-od-loader(*default-dispatcher*, #"byte-symbol", 
   method (state :: <load-state>) => res :: <symbol>;
-    let next = state.od-next;
-    let bsize = buffer-word(state.od-buffer, next);
-    state.od-next := state.od-next + $word-bytes;
+    let (buf, next) = buffer-at-least($word-bytes, state);
+    let bsize = buffer-word(buf, next);
     let res = make(<byte-string>, size: bsize);
     load-raw-data(res, bsize, state);
     as(<symbol>, res);
@@ -291,10 +303,8 @@ end method;
 
 add-od-loader(*default-dispatcher*, #"byte-character", 
   method (state :: <load-state>) => res :: <byte-character>;
-    let res = make(<byte-string>, size: 1);
-    state.od-next := state.od-next + $word-bytes; // skip count
-    load-raw-data(res, 1, state);
-    res[0];
+    let (buf, index) = buffer-at-least($word-bytes * 2, state);
+    as(<character>, buf[index + $word-bytes]);
   end method
 );
 

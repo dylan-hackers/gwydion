@@ -1,7 +1,6 @@
 module: dylan-user
 author: gabor@mac.com
 synopsis: This file provides exports for standard I/O stuff for the CodeWarrior IDE.
-rcs-header: $Header:
 copyright: (c) Gabor Greif 2000
 
 define library standard-io

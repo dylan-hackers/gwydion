@@ -1,6 +1,5 @@
 // File: GwydionPanel.r
 // Purpose: define necessary resources for CW preference panel
-// RCS-header: $Header: /scm/cvs/src/d2c/compiler/Macintosh/GwydionPanel.r,v 1.2 2002/04/03 23:11:55 gabor Exp $
 // Author: Gabor Greif <gabor@mac.com>
 
 //======================================================================

@@ -5,7 +5,6 @@ define library gtk-2-internal
   use io;
   use dylan; // for extensions
   use melange-support;
-  
+
   export gtk-internal-all;
 end library gtk-2-internal;
-

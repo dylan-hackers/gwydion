@@ -41,13 +41,13 @@ copyright: see below
 
 define library melange-c
   use dylan;
+  use common-dylan;
   use string-extensions;
   use collection-extensions;
   use regular-expressions;
   use table-extensions;
-  use streams;
-  use standard-io;
-  use format;
+  use system;
+  use io;
 
   // General purpose utility modules.
   export
@@ -63,8 +63,7 @@ define library melange-c
 end library melange-c;
 
 define module source-locations
-  use dylan;
-  use extensions;
+  use common-dylan, exclude: { format-to-string };
   use streams;
   use format;
   use standard-io;
@@ -79,8 +78,7 @@ define module source-locations
 end module source-locations;
 
 define module parse-conditions
-  use dylan;
-  use extensions;
+  use common-dylan, exclude: { format-to-string };
   use source-locations;
   use streams;
   use format;
@@ -104,8 +102,7 @@ define module parse-conditions
 end module;
 
 define module multistring-match
-  use dylan;
-  use extensions;
+  use common-dylan;
   export
 #if (~mindy)
     multistring-checker-definer, multistring-positioner-definer,
@@ -114,8 +111,8 @@ define module multistring-match
 end module multistring-match;
 
 define module c-lexer
-  use dylan;
-  use extensions, exclude: {value};
+  use common-dylan,
+    exclude: { string-to-integer, integer-to-string, split, position };
   use table-extensions;
   use self-organizing-list;
   use string-conversions;
@@ -123,8 +120,7 @@ define module c-lexer
   use substring-search;
   use character-type;
   use streams;
-  use format;
-  use standard-io;
+  use file-system;
   use source-locations;
   use parse-conditions,
     // XXX - These should probably go away.
@@ -165,8 +161,8 @@ define module portability
 end module portability;
 
 define module c-parse
-  use dylan;
-  use extensions, exclude: {value};
+  use common-dylan, exclude: { format-to-string };
+  use extensions, import: { <extended-integer> };
   use self-organizing-list;
   use c-lexer;
   use streams;
@@ -190,11 +186,11 @@ define module c-parse
 end module c-parse;
 
 define module c-declarations
-  use dylan;
-  use extensions, exclude: {format, value};
+  use common-dylan, exclude: { format-to-string, split };
   use table-extensions;
   use regular-expressions;
   use streams;
+  use file-system;
   use format;
   use standard-io;
 

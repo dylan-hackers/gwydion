@@ -1,5 +1,4 @@
 module: classes
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/cclass.dylan,v 1.26 2003/07/11 03:36:50 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -951,6 +950,9 @@ define method inherit-slots () => ();
 		   end method);
   //
   // Now propagate slots down to each subclass.
+  for (cls in *All-Classes*)
+    cls.layout-computed? := #f;
+  end;
   do(inherit-slots-for, *All-Classes*);
 end;
 
@@ -1701,7 +1703,7 @@ define method layout-slots-for (class :: <cclass>) => ();
     // We are done.
     class.layout-computed? := #t;
   elseif (class.layout-computed? == #"computing")
-    error("Someone left %s.layout-computed? as #\"computing\".", class);
+    error("Someone left %=.layout-computed? as #\"computing\".", class);
   end if;
 end method layout-slots-for;
 

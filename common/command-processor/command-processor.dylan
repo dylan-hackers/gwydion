@@ -39,7 +39,15 @@ end class <command>;
 
 define method make( cmd == <command>, #key, #all-keys) => (res :: <command>)
   let result = next-method();
-  add!(*command-table*, result);
+  block (done)
+    for (cmd keyed-by i in *command-table*)
+      if (cmd.name = result.name)
+        *command-table*[i] := result;
+        done();
+      end;
+    end;
+    add!(*command-table*, result);
+  end block;
   result;
 end method make;
 
@@ -123,17 +131,32 @@ define method self-insert-command(c)
 end method self-insert-command;
 
 define method run-command(c)
-  complete-command(c);
+  let co = find-command-by-prefix(*command-line*);
+  complete-command-aux(co);
   format-out("\r\n");
   let commands = find-prefixing-command(*command-line*);
   if(commands.size = 0)
     format-out("Unknown command. Try Help.\r\n");
-  elseif(commands.size > 1)
+  elseif(co.size > 1)
     format-out("Ambiguous command. Try Help.\r\n");
   else
+    let parameter = copy-sequence(*command-line*, 
+                                  start: commands[0].name.size + 1);
+    if(parameter.size < 0) // XXX evil bug in copy-sequence, fix there!
+      parameter := "";
+    end if;
+
+    force-output(*standard-output*);
     to-cooked();
-    commands[0].command(copy-sequence(*command-line*, 
-                                      start: commands[0].name.size + 1));
+
+    block()
+      commands[0].command(parameter);
+    exception (condition :: <condition>)
+      format(*standard-output*, "%s\r\n", condition);
+      #f
+    end block;
+
+    force-output(*standard-output*);
     to-raw();
   end if;
 
@@ -172,26 +195,71 @@ define method delete-char-backwards(c)
   end if;
 end method delete-char-backwards;
 
-define method complete-command-aux()
-  for(i in *command-table*)
-    if(case-insensitive-equal(*command-line*, 
-                              subsequence(i.name, end: *command-line*.size)))
-      *command-line* := copy-sequence(i.name);
-      *buffer-pointer* := i.name.size;
-    end if;
-  end for;
+define function longest-common-prefix(strings :: <collection>)
+ => (<string>)
+  local method all-equal? (characters :: <collection>) => (result :: <boolean>)
+          every?(curry(\=, characters[0]), characters)
+        end method all-equal?;
+
+  let first-mismatch = 0;
+  block ()
+    while(all-equal?(map(rcurry(element, first-mismatch), strings)))
+      first-mismatch := first-mismatch + 1;
+    end while;
+  exception (<object>)
+  end;
+  copy-sequence(strings[0], end: first-mismatch);
+end function longest-common-prefix;
+  
+  
+define method complete-command-aux(commands) 
+ => (could-not-improve :: <boolean>)
+  let oldsize = *command-line*.size;
+  if(commands.size = 1)
+    *command-line* := copy-sequence(commands[0].name);
+    *buffer-pointer* := *command-line*.size;
+  elseif(commands.size > 1)
+    *command-line* := longest-common-prefix(map(name, commands));
+    *buffer-pointer* := *command-line*.size;
+  end if;
+  oldsize = *command-line*.size;
 end method complete-command-aux;
 
+define function maybe-show-possible-completions(commands)
+  if(complete-command-aux(commands))
+    show-possible-completions(commands);
+  end if;
+end function maybe-show-possible-completions;
+    
 define method complete-command(c)
-  complete-command-aux();
+  let commands = find-command-by-prefix(*command-line*);
+  if(commands.size = 0)
+    format-out("\r\nNo completions found.\r\n");
+  else
+    maybe-show-possible-completions(commands);
+  end if;
+  if(commands.size = 1)
+    self-insert-command(' ');
+  end if;
   repaint-line();
 end method complete-command;
 
 define method complete-command-and-insert-space(c)
-  complete-command-aux();
-  self-insert-command(' ');
+  let commands = find-command-by-prefix(*command-line*);
+  maybe-show-possible-completions(commands);
+  if(*command-line*.size > 0 & *command-line*[*buffer-pointer* - 1] ~= ' ' & commands.size < 2)
+    self-insert-command(' ');
+  end if;
   repaint-line();
 end method complete-command-and-insert-space;
+
+define method show-possible-completions(commands)
+  format-out("\r\n");
+  for(i from 0 below commands.size)
+    format-out("%s\t", commands[i].name);
+  end for;
+  format-out("\r\n");
+end method show-possible-completions;
 
 define method beginning-of-line(c)
   *buffer-pointer* := 0;
@@ -217,15 +285,23 @@ define variable *key-bindings* = make(<simple-vector>,
                                       fill: self-insert-command);
 
 *key-bindings*[as(<integer>, '\r')] := run-command;
-*key-bindings*[2] := backward-char-command;
-*key-bindings*[6] := forward-char-command;
+//*key-bindings*[68] := backward-char-command;
+//*key-bindings*[67] := forward-char-command;
 *key-bindings*[8] := delete-char-backwards;
 *key-bindings*[127] := delete-char-backwards;
 *key-bindings*[9] := complete-command;
 *key-bindings*[as(<integer>, ' ')] := complete-command-and-insert-space;
 *key-bindings*[1] := beginning-of-line;
+//*key-bindings*[72] := beginning-of-line;
 *key-bindings*[5] := end-of-line;
+//*key-bindings*[70] := end-of-line;
 *key-bindings*[11] := kill-to-end-of-line;
+//*key-bindings*[91] := #f.always;
+//*key-bindings*[37] := #f.always;
+*key-bindings*[27] := #f.always;
+//*key-bindings*[65] := #f.always;
+//*key-bindings*[66] := #f.always;
+
 
 define variable to-raw    = identity;
 define variable to-cooked = identity;
@@ -241,16 +317,15 @@ define function run-command-processor()
        summary: "Exits the command loop.");
 
   let old-termios = make(<termios>);
-  tcgetattr(*standard-input*.file-descriptor, old-termios);
+  tcgetattr(0 /* *standard-input*.file-descriptor */, old-termios);
 
   let new-termios = make(<termios>);
-  #if (compiled-for-linux | compiled-for-freebsd | compiled-for-hpux)
+  tcgetattr(0 /* *standard-input*.file-descriptor */, new-termios);
   cfmakeraw(new-termios);
-  #endif
 
-  to-raw    := curry(tcsetattr, *standard-input*.file-descriptor, 
+  to-raw    := curry(tcsetattr, 0 /* *standard-input*.file-descriptor */, 
                      $TCSANOW, new-termios);
-  to-cooked := curry(tcsetattr, *standard-input*.file-descriptor, 
+  to-cooked := curry(tcsetattr, 0 /* *standard-input*.file-descriptor */, 
                      $TCSANOW, old-termios);
 
   to-raw();

@@ -1,49 +1,57 @@
 module: common-extensions
 
-
 //=========================================================================
-//  Unsupplied, unfound.
+//  unsupplied, unfound.
 //=========================================================================
 //  Unique objects which can be used as default values for keywords and
 //  passed to 'default:'. These cannot be confused with any other Dylan
 //  values.
 
-define method unsupplied?( object :: <object> )
-=> ( unsupplied? :: <boolean> )
-    object = $unsupplied;
-end method unsupplied?;
+//=========================================================================
+//  unsupplied? related functions.
+//=========================================================================
 
-define method supplied?( object :: <object> )
-=> ( unsupplied? :: <boolean> )
-    ~ unsupplied?( object );
-end method supplied?;
+define inline function unsupplied ()
+    => (unsupplied-marker :: <object>)
+  $unsupplied;
+end function unsupplied;
 
-define method unsupplied()
-=> ( unsupplied-marker :: <object> )
-    $unsupplied;
-end method unsupplied;
+define inline function unsupplied? (object :: <object>)
+    => (unsupplied? :: <boolean>)
+  object == unsupplied();
+end function;
 
-define class <not-found-marker> (<object>)
+define inline function supplied? (object :: <object>)
+    => (unsupplied? :: <boolean>)
+  ~unsupplied?(object);
+end function;
+
+//=========================================================================
+//  unfound? related functions.
+//=========================================================================
+
+define class <unfound-marker> (<object>)
 end;
 
-define constant $unfound = make(<not-found-marker>);
+define constant $unfound = make(<unfound-marker>);
 
-define function found?( object :: <object> )
-=> ( found? :: <boolean> )
-    ~ unfound?( object );
-end function found?;
+define inline function unfound ()
+    => (unfound-marker :: <unfound-marker>)
+  $unfound;
+end function;
 
-define function unfound?( object :: <object> )
-=> ( unfound? :: <boolean> )
-    object = $unfound;
-end function unfound?;
+define inline function unfound? (object :: <object>)
+ => (unfound? :: <boolean>)
+  object == unfound();
+end function;
 
-define function unfound()
-=> ( unfound-marker :: <object> )
-    $unfound;
-end function unfound;
+define inline function found? (object :: <object>)
+    => (found? :: <boolean>)
+  ~unfound?(object);
+end function;
 
 
+#if (~bootstrap)
 //=========================================================================
 //  Application environment functions.
 //=========================================================================
@@ -81,6 +89,7 @@ define function exit-application (exit-code :: <integer>) => ()
   exit(exit-code: exit-code);
 end;
 
+#endif
 
 //=========================================================================
 //  Ignore & ignorable
@@ -101,14 +110,14 @@ end;
 define constant $digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 define method integer-to-string
-    (integer :: <integer>,
+    (integer :: <general-integer>,
      #key base :: type-union(limited(<integer>, min: 2, max: 36)) = 10,
           size: desired-size :: false-or(<integer>),
           fill :: <character> = '0')
  => (string :: <byte-string>);
   local
     method collect
-        (value :: <integer>, digits :: <list>, count :: <integer>)
+        (value :: <general-integer>, digits :: <list>, count :: <integer>)
      => (digits :: <list>, count :: <integer>);
       let (quotient, remainder) = floor/(value, base);
       let digits = pair($digits[as(<integer>, remainder)], digits);
@@ -122,12 +131,11 @@ define method integer-to-string
   let (digits, count) =
     if (integer < 0)
       // strip off last digit to avoid overflow in $minimum-integer case
-      let (quotient :: <integer>, remainder :: <integer>)
-        = truncate/(integer, base);
+      let (quotient, remainder) = truncate/(integer, base);
       if (zero?(quotient))
-        values(list($digits[- remainder]), 1);
+        values(list($digits[- as(<integer>, remainder)]), 1);
       else
-        collect(- quotient, list($digits[- remainder]), 1);
+        collect(- quotient, list($digits[- as(<integer>, remainder)]), 1);
       end if;
     else
       collect(integer, #(), 0);
@@ -149,6 +157,7 @@ define method integer-to-string
   returned-string;
 end method integer-to-string;
 
+#if (~bootstrap)
 define constant $minimum-normalized-single-significand :: <extended-integer>
   = ash(#e1, float-digits(1.0s0) - 1);
 define constant $minimum-normalized-double-significand :: <extended-integer>
@@ -156,32 +165,92 @@ define constant $minimum-normalized-double-significand :: <extended-integer>
 define constant $minimum-normalized-extended-significand :: <extended-integer>
   = ash(#e1, float-digits(1.0x0) - 1);
 
-define method float-to-string 
+define method float-to-string
+    (v :: <float>)
+ => (string :: <byte-string>);
+  let s :: <stretchy-vector> = make(<stretchy-vector>);
+  let adds = curry(add!, s);
+  
+  let v = if (negative?(v)) add!(s, '-'); -v; else v end;
+
+  if (zero?(v))
+    do(adds, "0.0");
+  elseif (v ~= v)
+    do(adds, "{NaN}");
+  elseif (v + v = v)
+    do(adds, "{infinity}");
+  else
+    let (exponent :: <integer>, digits :: <list>) = float-decimal-digits(v);
+    
+    if (-3 <= exponent & exponent <= 0)
+      do(adds, "0.");
+      for (i from exponent below 0)
+        add!(s, '0');
+      end for;
+      for (digit in digits)
+        add!(s, $digits[as(<integer>, digit)]);
+      end for;
+    elseif (0 < exponent & exponent < 8)
+      for (digit in digits, place from exponent by -1)
+        if (place = 0)
+          add!(s, '.');
+        end;
+        add!(s, $digits[as(<integer>, digit)]);
+      finally
+        for (i from place above 0 by -1)
+          add!(s, '0');
+        end;
+        if (place >= 0)
+          do(adds, ".0");
+        end;
+      end for;
+    else
+      for (digit in digits, first? = #t then #f)
+        add!(s, $digits[as(<integer>, digit)]);
+        if (first?)
+          add!(s, '.')
+        end;
+      end;
+      if (digits.size = 1)
+        add!(s, '0');
+      end;
+      add!(s, 'e');
+      do(adds, integer-to-string(exponent - 1));
+    end if;
+  end if;
+  as(<byte-string>, s)
+end method;
+
+// Don't inline this. We are essentially doing manual copy-down.
+define method float-decimal-digits
     (v :: <single-float>)
- => (string :: <byte-string>);
-  float-to-string-aux(v, $minimum-single-float-exponent,
-                      $minimum-normalized-single-significand);
+ => (exponent :: <integer>, digits :: <list>);
+  float-decimal-digits-aux(v, $minimum-single-float-exponent,
+                           $minimum-normalized-single-significand)
 end method;
 
-define method float-to-string 
+// Don't inline this. We are essentially doing manual copy-down.
+define method float-decimal-digits
     (v :: <double-float>)
- => (string :: <byte-string>);
-  float-to-string-aux(v, $minimum-double-float-exponent,
-                      $minimum-normalized-double-significand);
+ => (exponent :: <integer>, digits :: <list>);
+  float-decimal-digits-aux(v, $minimum-double-float-exponent,
+                           $minimum-normalized-double-significand)
 end method;
 
-define method float-to-string 
+// Don't inline this. We are essentially doing manual copy-down.
+define method float-decimal-digits
     (v :: <extended-float>)
- => (string :: <byte-string>);
-  float-to-string-aux(v, $minimum-extended-float-exponent,
-                      $minimum-normalized-extended-significand);
+ => (exponent :: <integer>, digits :: <list>);
+  float-decimal-digits-aux(v, $minimum-extended-float-exponent,
+                           $minimum-normalized-extended-significand)
 end method;
 
-define inline method float-to-string-aux
+// The body of the manual copy-down.
+define inline-only method float-decimal-digits-aux
     (v :: <float>,
      minimum-exponent :: <integer>,
      minimum-normalized-significand :: <extended-integer>)
- => (string :: <byte-string>);
+ => (exponent :: <integer>, digits :: <list>);
   local
     // The following methods implement the free-format conversion
     // algorithm by Burger and Dybvig, as described in "Printing
@@ -275,74 +344,26 @@ define inline method float-to-string-aux
         end if;
       end if;
     end;
-  
-  let s :: <stretchy-vector> = make(<stretchy-vector>);
-  let adds = curry(add!, s);
-  
-  let v = if (negative?(v)) add!(s, '-'); -v; else v end;
 
-  if (zero?(v))
-    do(adds, "0.0");
-  elseif (v ~= v)
-    do(adds, "{NaN}");
-  elseif (v + v = v)
-    do(adds, "{infinity}");
-  else
-    let (f :: <extended-integer>, e :: <integer>, sign :: <integer>)
-      = integer-decode-float(v);
+  let (f :: <extended-integer>, e :: <integer>, sign :: <integer>)
+    = integer-decode-float(v);
 
-    let (exponent :: <integer>, digits :: <list>)
-      = initial(v, f, e);
-    
-    if (-3 <= exponent & exponent <= 0)
-      do(adds, "0.");
-      for (i from exponent below 0)
-        add!(s, '0');
-      end for;
-      for (digit in digits)
-        add!(s, $digits[as(<integer>, digit)]);
-      end for;
-    elseif (0 < exponent & exponent < 8)
-      for (digit in digits, place from exponent by -1)
-        if (place = 0)
-          add!(s, '.');
-        end;
-        add!(s, $digits[as(<integer>, digit)]);
-      finally
-        for (i from place above 0 by -1)
-          add!(s, '0');
-        end;
-        if (place >= 0)
-          do(adds, ".0");
-        end;
-      end for;
-    else
-      for (digit in digits, first? = #t then #f)
-        add!(s, $digits[as(<integer>, digit)]);
-        if (first?)
-          add!(s, '.')
-        end;
-      end;
-      if (digits.size = 1)
-        add!(s, '0');
-      end;
-      add!(s, 'e');
-      do(adds, integer-to-string(exponent - 1));
-    end if;
-  end if;
-  as(<byte-string>, s);
-end method;
+  initial(v, f, e)
+end method float-decimal-digits-aux;
+#endif
 
 define open generic number-to-string
     (number :: <number>) => (string :: <string>);
 
-define method number-to-string (integer :: <integer>) => (string :: <string>);
+define method number-to-string (integer :: <general-integer>) => (string :: <string>);
   integer-to-string(integer, base: 10);
 end method number-to-string;
 
+#if (~bootstrap)
 define method number-to-string (float :: <float>) => (string :: <string>);
   float-to-string(float);
 end method number-to-string;
+#endif
 
 define method string-to-integer
     (string :: <byte-string>,
@@ -452,79 +473,7 @@ define method string-to-integer
   end block;
 end method string-to-integer;
 
-//=========================================================================
-//  Macros
-//=========================================================================
-//  Miscellaneous macros exported from common-extensions. These are not
-//  available under Mindy.
-//
-//  XXX - table-definer conses excessively. With more macrology, it could
-//  run much faster.
-//  XXX - can the name bound by 'iterate' return?
-
-#if (~mindy)
-
-define macro table-definer
-  { define table ?:name ?eq:token { ?keys-and-values } }
-    => { define constant ?name :: <table> ?eq make(<table>);
-         fill-table!(?name, list(?keys-and-values)); }
-  { define table ?:name :: ?type:expression ?eq:token { ?keys-and-values } }
-    => { define constant ?name :: ?type ?eq make(?type);
-         fill-table!(?name, list(?keys-and-values)); }
-keys-and-values:
-  { ?key:expression => ?value:expression, ... } => { ?key, ?value, ... }
-  { } => { }
-end macro;
-
-define macro iterate
-  { iterate ?:name (?clauses:*) ?:body end }
-    => { %iterate-aux ?name
-	   %iterate-param-helper(?clauses)
-           %iterate-value-helper(?clauses)
-	   ?body
-         end }
-end;
-
-define macro %iterate-aux
-  { %iterate-aux ?:name
-      ?param-clauses:macro
-      ?value-clauses:macro
-      ?:body
-    end }
-    => { local method ?name (?param-clauses)
-                 ?body
-	       end;
-         ?name(?value-clauses) }
-end macro;
-
-define macro %iterate-param-helper
-  { %iterate-param-helper(?clauses) }
-    => { ?clauses }
-clauses:
-  { ?:name :: ?type:*, ... }
-    => { ?name :: ?type, ... }
-  { ?:name :: ?type:* = ?value:*, ... }
-    => { ?name :: ?type, ... }
-  { } => { }
-end;
-
-define macro %iterate-value-helper
-  { %iterate-value-helper(?clauses) }
-    => { ?clauses }
-clauses:
-  { ?:name :: ?type:*, ... }
-    => { #f, ... }
-  { ?:name :: ?type:* = ?value:*, ... }
-    => { ?value, ... }
-  { } => { }
-end;
-
-define macro when
-  { when (?:expression) ?:body end }
-    => { if (?expression) ?body end }
-end macro;
-
-#endif
+#if (~bootstrap)
 define method string-to-float
     (string :: <byte-string>,
      #key _start :: <integer> = 0, 
@@ -767,3 +716,93 @@ define method string-to-float
     integer-part(_start, #f, #e0);
   end if;
 end method;
+#endif
+
+//=========================================================================
+//  Macros
+//=========================================================================
+//  Miscellaneous macros exported from common-extensions. These are not
+//  available under Mindy.
+//
+//  XXX - table-definer conses excessively. With more macrology, it could
+//  run much faster.
+//  XXX - can the name bound by 'iterate' return?
+
+#if (~mindy)
+
+define macro table-definer
+  { define table ?:name ?eq:token { ?keys-and-values } }
+    => { define constant ?name :: <table> ?eq make(<table>);
+         fill-table!(?name, list(?keys-and-values)); }
+  { define table ?:name :: ?type:expression ?eq:token { ?keys-and-values } }
+    => { define constant ?name :: ?type ?eq make(?type);
+         fill-table!(?name, list(?keys-and-values)); }
+keys-and-values:
+  { ?key:expression => ?value:expression, ... } => { ?key, ?value, ... }
+  { } => { }
+end macro;
+
+define macro iterate
+  { iterate ?:name (?clauses:*) ?:body end }
+    => { %iterate-aux ?name
+	   %iterate-param-helper(?clauses)
+           %iterate-value-helper(?clauses)
+	   ?body
+         end }
+end;
+
+define macro %iterate-aux
+  { %iterate-aux ?:name
+      ?param-clauses:macro
+      ?value-clauses:macro
+      ?:body
+    end }
+    => { local method ?name (?param-clauses)
+                 ?body
+	       end;
+         ?name(?value-clauses) }
+end macro;
+
+define macro %iterate-param-helper
+  { %iterate-param-helper(?clauses) }
+    => { ?clauses }
+clauses:
+  { ?:name :: ?type:*, ... }
+    => { ?name :: ?type, ... }
+  { ?:name :: ?type:* = ?value:*, ... }
+    => { ?name :: ?type, ... }
+  { } => { }
+end;
+
+define macro %iterate-value-helper
+  { %iterate-value-helper(?clauses) }
+    => { ?clauses }
+clauses:
+  { ?:name :: ?type:*, ... }
+    => { #f, ... }
+  { ?:name :: ?type:* = ?value:*, ... }
+    => { ?value, ... }
+  { } => { }
+end;
+
+define macro when
+  { when (?:expression) ?:body end }
+    => { if (?expression) ?body end }
+end macro;
+
+#endif
+
+//=========================================================================
+//  Hacks for mindy
+//=========================================================================
+#if (mindy)
+
+define function subclass
+    (cls :: <class>)
+ => (subclass :: <type>);
+  limited(<class>, subclass-of: cls);
+end;
+
+define constant <stretchy-object-vector> = <stretchy-vector>;
+
+#endif

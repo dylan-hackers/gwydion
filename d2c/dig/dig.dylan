@@ -1,5 +1,4 @@
 module: d2c-gnu
-rcs-header: $Header: /scm/cvs/src/d2c/dig/dig.dylan,v 1.6 2000/12/12 00:23:01 andreas Exp $
 
 //======================================================================
 //

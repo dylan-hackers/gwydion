@@ -6,5 +6,5 @@ $D2CFLAGS         # added by update-libdirs
 
 do emit_library_rule(
     'standard-io', '$(BUILDROOT)/force.timestamp', '', 'compile', 
-    'compile-mindy', 'install'
+    'install'
 );

@@ -3,6 +3,6 @@
 $D2CFLAGS = $d2c_runtime;
 
 do emit_library_rule(
-    'CollExt', '$(BUILDROOT)/force.timestamp', '', 'compile', 'compile-mindy',
+    'CollExt', '$(BUILDROOT)/force.timestamp', '', 'compile',
     'install'
 );

@@ -2,7 +2,6 @@ module: matrix-test
 author: David Watson, Nick Kramer
 synopsis: Test for the matrix library.
 copyright: See below.
-rcs-header: $Header: /scm/cvs/src/tests/matrix-test.dylan,v 1.2 2000/01/24 04:58:38 andreas Exp $
 
 //======================================================================
 //
@@ -36,12 +35,12 @@ define variable has-errors = #f;
 define method run-several-tests (test-name :: <string>, 
                                  test :: <function>)
  => ();
-  format("%s ... ", test-name);
+  format-out("%s ... ", test-name);
   let temp-has-errors = has-errors;
   has-errors := #f;
   test();
   if (has-errors == #f)
-    format("ok.\n");
+    format-out("ok.\n");
   end if;
   has-errors := temp-has-errors | has-errors;
 end method run-several-tests;
@@ -50,9 +49,9 @@ define method run-test (input, expected-result, test-name :: <string>)
  => passed? :: <boolean>;
   if (input ~= expected-result)
     has-errors := #t;
-    format("Failed %s!\n", test-name);
-    format("     Got %=\n", input);
-    format("     when we expected %=\n", expected-result);
+    format-out("Failed %s!\n", test-name);
+    format-out("     Got %=\n", input);
+    format-out("     when we expected %=\n", expected-result);
     #f;
   else
     #t;
@@ -153,14 +152,13 @@ define method misc-test () => ();
 end method misc-test;
 
 define method main (argv0, #rest ignored)
-  format("\nRegression test for the matrix library.\n\n");
+  format-out("\nRegression test for the matrix library.\n\n");
   run-several-tests("Arithmetic", arith-test);
   run-several-tests("Linear Algebra", lin-alg-test);
   run-several-tests("Misc", misc-test);
   if (has-errors)
-    format("\n********* Warning!  Regression test failed! ***********\n");
+    format-out("\n********* Warning!  Regression test failed! ***********\n");
   else
-    format("All matrix tests pass.\n");
+    format-out("All matrix tests pass.\n");
   end if;
-  force-output(*standard-output*);
 end method main;

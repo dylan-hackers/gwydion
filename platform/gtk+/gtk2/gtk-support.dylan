@@ -120,18 +120,26 @@ define function g-value-to-dylan(instance :: <GValue>)
       make(dylan-type, pointer: instance.g-value-peek-pointer.raw-value)
     else
       select(g-type)
-        $G-TYPE-CHAR    => g-value-get-char;
-        $G-TYPE-UCHAR   => g-value-get-uchar;
-        $G-TYPE-INT     => g-value-get-int;
-        $G-TYPE-UINT    => g-value-get-uint;
-        $G-TYPE-LONG    => g-value-get-long;
-        $G-TYPE-ULONG   => g-value-get-ulong;
-        $G-TYPE-INT64   => g-value-get-int64;
-        $G-TYPE-UINT64  => g-value-get-uint64;
-        $G-TYPE-FLOAT   => g-value-get-float;
-        $G-TYPE-DOUBLE  => g-value-get-double;
-        $G-TYPE-STRING  => g-value-get-string;
-      end select (instance);
+        $G-TYPE-NONE    => #f;
+        $G-TYPE-CHAR    => g-value-get-char(instance);
+        $G-TYPE-UCHAR   => g-value-get-uchar(instance);
+        $G-TYPE-BOOLEAN => (g-value-get-boolean(instance) = 1);
+        $G-TYPE-INT     => g-value-get-int(instance);
+        $G-TYPE-UINT    => g-value-get-uint(instance);
+        $G-TYPE-LONG    => g-value-get-long(instance);
+        $G-TYPE-ULONG   => g-value-get-ulong(instance);
+        $G-TYPE-INT64   => g-value-get-int64(instance);
+        $G-TYPE-UINT64  => g-value-get-uint64(instance);
+        $G-TYPE-ENUM    => signal("Can't handle $G-TYPE-ENUM yet.");
+        $G-TYPE-FLAGS   => signal("Can't handle $G-TYPE-FLAGS yet.");
+        $G-TYPE-FLOAT   => g-value-get-float(instance);
+        $G-TYPE-DOUBLE  => g-value-get-double(instance);
+        $G-TYPE-STRING  => g-value-get-string(instance);
+        $G-TYPE-POINTER => g-value-get-pointer(instance);
+        $G-TYPE-BOXED   => #f;
+        $G-TYPE-PARAM   => #f;
+        $G-TYPE-OBJECT  => #f;
+      end select;
     end if;
   end if;
 end function g-value-to-dylan;

@@ -29,10 +29,8 @@ module: dylan-user
 
 define library parsergen
   use dylan;
-  use streams;
-  use print;
-  use format;
-  use standard-io;
+  use io;
+  use system;
   use string-extensions;
   use regular-expressions;
 end library parsergen;
@@ -58,10 +56,8 @@ define module parsergen
   use print;
   use format;
   use standard-io;
+  use file-system;
   use regular-expressions;
   use %hash-tables;
   use lisp-read, import: { lisp-read };
-#if (~mindy)
-  use system;
-#endif
 end module parsergen;

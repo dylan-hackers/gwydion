@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/Main.lid,v 1.8 2003/07/06 03:50:01 housel Exp $
 library: compiler-main
 unit-prefix: main
 unique-id-base: 12000
@@ -6,6 +5,7 @@ executable: d2c
 entry-point: main:%main
 
 main-exports.dylan
+progress-indicator.dylan
 file-locations.dylan
 version.dylan
 unit-info.dylan

@@ -1,8 +1,7 @@
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/Base.lid,v 1.7 2003/05/25 15:39:16 housel Exp $
 library: compiler-base
 unit-prefix: base
 unique-id-base: 10000
-shared-library: no
+shared-library: yes
 
 base-exports.dylan
 utils.dylan

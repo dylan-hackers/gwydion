@@ -1,6 +1,5 @@
 module: dylan-user
 author: Nick Kramer
-rcs-header: $Header: /scm/cvs/src/tools/synopsis/library.dylan,v 1.2 2000/01/24 04:59:13 andreas Exp $
 
 //======================================================================
 //
@@ -33,9 +32,8 @@ rcs-header: $Header: /scm/cvs/src/tools/synopsis/library.dylan,v 1.2 2000/01/24 
 
 define library synopsis
   use dylan;
-  use streams;
-  use standard-io;
-  use format;
+  use io;
+  use system;
   use regular-expressions;
   use table-extensions;
 end library synopsis;
@@ -43,10 +41,8 @@ end library synopsis;
 define module synopsis
   use dylan;
   use extensions;
-#if (~mindy)
-  use system; // for %main
-#endif
   use streams;
+  use file-system;
   use standard-io;
   use format;
   use regular-expressions;

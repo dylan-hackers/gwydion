@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/object.dylan,v 1.2 2000/01/24 04:56:48 andreas Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -44,7 +43,7 @@ end;
 // we don't want people outside the dylan module to be able to name the slot
 // (e.g. add their own override) which would just confuse the compiler.
 //
-define inline method object-class (thing :: <object>)
+define inline function object-class (thing :: <object>)
     => res :: <class>;
   %object-class(thing);
 end;

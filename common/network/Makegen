@@ -1,39 +1,31 @@
 &makegen_include("../common-Makegen");
 
-$plat = "unix";
-
 $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
-    . ' -L../threads'
-    . ' -L../streams'
-    . ' -L../table-ext'
-    . ' -L../../d2c/runtime/random'
     . ' -L../common-dylan'
-    . ' -L../print'
     . ' -L../format'
-    . ' -L../standard-io'
     . ' -L../format-out'
     . ' -L../io'
-    . ' -L.';
-$CPPFLAGS .= ' -I$(SRCROOT)/common/network';
+    . ' -L../print'
+    . ' -L../standard-io'
+    . ' -L../streams'
+    . ' -L../table-ext'
+    . ' -L../threads'
+    . ' -L../../d2c/runtime/random';
 
-# N.B.: The order of tests is important!  The cygnus
-# test MUST preceed the unix test.
+$CPPFLAGS = $CPPFLAGS . ' -I$(SRCDIR) -I$(top_builddir)';
 
-if ($features{'compiled_for_cygnus'}) {
-    $plat = "cygnus";
-} elsif ($features{'compiled_for_unix'}) {
-    # default
+if ($features{'compiled_for_unix'}) {
+    $plat = "unix";
 } elsif ($features{'compiled_for_win32'}) {
     $plat = "win32";
 } else {
     &unknown_platform_error();
 }
 
-&emit_melange_rule('sockets-api');
-&emit_melange_rule('gettimeofday');
+&emit_melange_rule("$plat-ffi", "$plat-portability.h");
 
-do emit_library_rule(
-    'network', '$(BUILDROOT)/force.timestamp', '', 'compile',
-	'no-mindy', 'install');
+#&emit_c_file_rule("$plat-portability");
 
+&emit_library_rule("$plat-network", '$(BUILDROOT)/force.timestamp', '',
+                   'compile', 'no-mindy', 'install');

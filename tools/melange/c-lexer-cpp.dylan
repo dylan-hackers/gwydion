@@ -214,7 +214,7 @@ define /* exported */ function check-cpp-expansion
  => (result :: <boolean>);
   let headless-string 
     = if (string.first == '#') copy-sequence(string, start: 1) else string end;
-  let token-list :: type-union(<sequence>, <false>)
+  let token-list :: false-or(<sequence>)
     = (element(parameter-table, headless-string, default: #f)
 	 | element(tokenizer.cpp-table, string, default: #f));
 

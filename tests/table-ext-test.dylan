@@ -2,7 +2,6 @@ module: table-ext-test
 author: David Watson, Nick Kramer
 synopsis: Test for the table-extensions library.
 copyright: See below.
-rcs-header: $Header: /scm/cvs/src/tests/table-ext-test.dylan,v 1.3 2000/01/24 04:58:42 andreas Exp $
 
 //======================================================================
 //
@@ -36,12 +35,12 @@ define variable has-errors = #f;
 define method run-several-tests (test-name :: <string>, 
                                  test :: <function>)
  => ();
-  format("%s ... ", test-name);
+  format-out("%s ... ", test-name);
   let temp-has-errors = has-errors;
   has-errors := #f;
   test();
   if (has-errors == #f)
-    format("ok.\n");
+    format-out("ok.\n");
   end if;
   has-errors := temp-has-errors | has-errors;
 end method run-several-tests;
@@ -50,9 +49,9 @@ define method run-test (input, expected-result, test-name :: <string>)
  => passed? :: <boolean>;
   if (input ~= expected-result)
     has-errors := #t;
-    format("Failed!\n", test-name);
-    format("     Got %=\n", input);
-    format("     when we expected %=\n", expected-result);
+    format-out("Failed!\n", test-name);
+    format-out("     Got %=\n", input);
+    format-out("     when we expected %=\n", expected-result);
     #f;
   else
     #t;
@@ -84,13 +83,13 @@ define method remove-all-keys-test () => ();
 end method remove-all-keys-test;
 
 define method main (argv0, #rest ignored)
-  format("\nRegression test for the table-extensions library.\n\n");
+  format-out("\nRegression test for the table-extensions library.\n\n");
   run-several-tests("string tables", string-table-test);
   run-several-tests("case-insensitive functions", case-ins-test);
   run-several-tests("remove-all-keys!", remove-all-keys-test);
   if (has-errors)
-    format("\n********* Warning!  Regression test failed! ***********\n");
+    format-out("\n********* Warning!  Regression test failed! ***********\n");
   else
-    format("All table-extension tests pass.\n");
+    format-out("All table-extension tests pass.\n");
   end if;
 end method main;

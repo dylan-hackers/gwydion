@@ -1,11 +1,10 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/front-exports.dylan,v 1.12 2003/06/24 21:00:08 andreas Exp $
 copyright: see below
 
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001, 2002  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -211,8 +210,8 @@ define module function-definitions
   use variables;
   use signature-interface;
   use transformers;
-
   use front;
+  use top-level-forms, import: {<loaded-define-tlf>};
 
   export
     <generic-definition>, generic-defn-sealed?, generic-defn-sealed?-setter,
@@ -245,7 +244,6 @@ end module function-definitions;
 
 define module top-level-forms
   use common;
-
   use utils;
   use od-format;
   use source;
@@ -254,13 +252,21 @@ define module top-level-forms
   use compile-time-values;
   use variables;
   use definitions;
+  use flow;
 
   use builder-interface, import: {<fer-builder>};
   use variable-definitions;
+  use flow, import: {<component>};
+  use compile-time-functions, import: {<ct-function>};
 
   export
     *Top-Level-Forms*,
-    <top-level-form>, finalize-top-level-form, convert-top-level-form,
+    <tlf-dependency>, source-tlf, source-tlf-setter,
+    add-tlf-dependency, tlf-depends-list,
+    <top-level-form>, tlf-component, tlf-component-setter,
+    tlf-init-function, tlf-init-function-setter,
+    tlf-dependents, tlf-dependents-setter,
+    finalize-top-level-form, convert-top-level-form,
 
     <define-tlf>, <simple-define-tlf>, tlf-defn, tlf-defn-setter,
 
@@ -272,7 +278,9 @@ define module top-level-forms
 
     <define-class-tlf>, tlf-init-function-defns,
 
-    <magic-interal-primitives-placeholder>;
+    <magic-internal-primitives-placeholder>,
+    
+    <loaded-define-tlf>;
 end;
 
 define module abstract-optimizer

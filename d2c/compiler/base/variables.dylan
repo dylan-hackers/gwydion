@@ -1,5 +1,4 @@
 module: variables
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/variables.dylan,v 1.11 2003/09/22 21:17:39 housel Exp $
 copyright: see below
 
 //======================================================================
@@ -533,7 +532,7 @@ end method namespace-kind;
 
 
 
-// $Libraries -- internal.
+// $Libraries -- exported.
 //
 // Hash table mapping names to <library> structures.
 //
@@ -619,6 +618,7 @@ define method assure-loaded (lib :: <library>) => ();
       find-data-unit(lib.library-name, $library-summary-unit-type,
 		     dispatcher: *compiler-dispatcher*);
     exception (<fatal-error-recovery-restart>)
+      break();
       #f;
     end block;
   end unless;
@@ -637,7 +637,7 @@ define method note-library-definition
      exports :: <simple-object-vector>)
     => ();
   let name = token.token-symbol;
-  let lib = *Current-Library*;
+  let lib = token.token-module.module-home;
   if (lib.library-name ~== name)
     compiler-error-location
       (token, "Defining strange library: %s isn't %s.",
@@ -842,6 +842,9 @@ define class <variable> (<namespace-constituent>)
   // Function to build some parse tree out of fragments.  Called because of
   // references in procedural macros.
   slot variable-fragment-expander :: false-or(<function>) = #f;
+  //
+  // Top level form that is the origin of this module variable
+  slot variable-tlf :: <object> = #f, init-keyword: tlf:;
 end class <variable>;
 
 define sealed domain make (singleton(<variable>));
@@ -867,7 +870,8 @@ define generic variable-definition (var :: <variable>)
 // already exist, either create it (if create is true) or return #f
 // (if create is false).
 //
-define method find-variable (name :: <basic-name>, #key create: create?)
+define method find-variable (name :: <basic-name>, 
+                             #key create: create?, tlf: tlf)
     => result :: false-or(<variable>);
   let mod = name.name-module;
   let sym = name.name-symbol;
@@ -875,7 +879,7 @@ define method find-variable (name :: <basic-name>, #key create: create?)
   if (entry)
     entry.entry-constituent;
   elseif (create?)
-    let new = make(<variable>, name: sym, home: mod);
+    let new = make(<variable>, name: sym, home: mod, tlf: tlf);
     add-entry(mod, sym,
 	      stringify("defined inside module ",
 			as(<byte-string>, mod.module-name)),
@@ -1101,10 +1105,8 @@ define method find-data-unit
   if (lib.defined?)
     next-method();
   else
-    let previous-library = *Current-Library*;
     let previous-depth = *load-depth*;
     block ()
-      *Current-Library* := lib;
       *load-depth* := previous-depth + 1;
       unless (zero?(previous-depth))
 	new-line(*debug-output*);
@@ -1132,7 +1134,6 @@ define method find-data-unit
 	new-line(*debug-output*);
       end if;
       force-output(*debug-output*);
-      *Current-Library* := previous-library;
       *load-depth* := previous-depth;
     end block;
   end if;
@@ -1141,14 +1142,6 @@ end method find-data-unit;
 
 
 // Initilization stuff.
-
-// *Current-Library* and *Current-Module* -- exported.
-// 
-// The Current Library and Module during a parse or load, or #f if we arn't
-// parsing or loading at the moment.
-// 
-define variable *Current-Library* :: false-or(<library>) = #f;
-define variable *Current-Module* :: false-or(<module>) = #f;
 
 // $Dylan-Library and $Dylan-Module -- exported.
 //
@@ -1271,10 +1264,30 @@ add-od-loader(*compiler-dispatcher*, #"module",
 );
 
 
+/*
 add-make-dumper(#"module-variable", *compiler-dispatcher*, <variable>,
-		list(variable-home, #f, #f,
-		     variable-name, #f, #f),
+                list(method(v) 
+                         make(<basic-name>, 
+                              symbol: v.variable-name, 
+                              module: v.variable-home) 
+                     end, #f, #f,
+                    variable-tlf, #f, #f),
 		dumper-only: #t);
+
+add-od-loader(*compiler-dispatcher*, #"module-variable", 
+  method (state :: <load-state>) => res :: <variable>;
+    let name = load-object-dispatch(state);
+    let tlf = load-object-dispatch(state);
+    assert-end-object(state);
+    find-variable(name, create: #t, tlf: tlf);
+  end method
+);
+*/
+
+add-make-dumper(#"module-variable", *compiler-dispatcher*, <variable>,
+                list(variable-home, #f, #f,
+                     variable-name, #f, #f),
+                dumper-only: #t);
 
 add-od-loader(*compiler-dispatcher*, #"module-variable", 
   method (state :: <load-state>) => res :: <variable>;

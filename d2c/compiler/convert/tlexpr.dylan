@@ -1,5 +1,4 @@
 module: top-level-expressions
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/tlexpr.dylan,v 1.5 2001/10/23 21:03:45 gabor Exp $
 copyright: see below
 
 //======================================================================
@@ -121,25 +120,25 @@ define method process-top-level-form
     => ();
   if (form.primitive-name.token-symbol
 	== #"magic-internal-primitives-placeholder")
-    add!(*Top-Level-Forms*, make(<magic-interal-primitives-placeholder>));
+    add!(*Top-Level-Forms*, make(<magic-internal-primitives-placeholder>));
   else
     next-method();
   end;
 end;
 
 define method finalize-top-level-form
-    (tlf :: <magic-interal-primitives-placeholder>) => ();
+    (tlf :: <magic-internal-primitives-placeholder>) => ();
   // Nothing to do.
 end;
 
 define method convert-top-level-form
-    (builder :: <fer-builder>, tlf :: <magic-interal-primitives-placeholder>)
+    (builder :: <fer-builder>, tlf :: <magic-internal-primitives-placeholder>)
     => ();
   // Nothing to do.
 end;
 
 define method dump-od
-    (tlf :: <magic-interal-primitives-placeholder>, state :: <dump-state>)
+    (tlf :: <magic-internal-primitives-placeholder>, state :: <dump-state>)
     => ();
   // Do nothing.
 end;

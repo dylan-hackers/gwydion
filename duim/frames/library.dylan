@@ -9,7 +9,6 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library duim-frames
   use dylan;
-  use format-out;
   use commands;
 
   use duim-utilities;

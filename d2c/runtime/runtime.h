@@ -123,5 +123,3 @@ float (powf)(float b, float x);
 float (sinhf)(float x);
 float (coshf)(float x);
 float (tanhf)(float x);
-
-#include <errno.h>

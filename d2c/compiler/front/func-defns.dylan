@@ -1,11 +1,10 @@
 module: function-definitions
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/front/func-defns.dylan,v 1.7 2002/05/13 19:43:34 gabor Exp $
 copyright: see below
 
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001, 2002  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -839,6 +838,12 @@ end method static-next-method-info;
 
 // Dumping stuff.
 
+define method loaded-tlf (defn :: <method-definition>) => tlf :: <loaded-define-tlf>;
+  let tlf = make(<loaded-define-tlf>,
+                 source-location: defn.source-location);
+  find-variable(defn.method-defn-of.defn-name).variable-tlf := tlf;
+end;
+
 define constant $function-definition-slots
   = concatenate($definition-slots,
 		list(function-defn-signature, signature:,
@@ -880,7 +885,7 @@ define /* exported */ method dump-queued-methods (buf :: <dump-buffer>)
   // flame out if that happened, because I'm not sure that should be supported.
   // Basically, I noticed that the way this code was written before it would
   // quietly ignore any additional methods, so I figured it would be an
-  // improvement to at least puke if that happens.  If it doens't puke, well,
+  // improvement to at least puke if that happens.  If it doesn't puke, well,
   // then there isn't any need for anything fancier.  If it does puke, then
   // we can easily change it again.  -William
   let methods = *queued-methods*;

@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/demos/craps/craps-exports.dylan,v 1.2 2000/01/24 04:56:53 andreas Exp $
 module: dylan-user
 
 //======================================================================
@@ -30,12 +29,12 @@ module: dylan-user
 
 define library craps
   use dylan;
-  use random;
+  use common-dylan;
 end;
 
 define module craps
   use dylan;
   use extensions;
-  use cheap-io;
-  use random;
+  use simple-io;
+  use simple-random;
 end;

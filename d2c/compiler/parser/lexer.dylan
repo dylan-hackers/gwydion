@@ -1,5 +1,4 @@
 module: lexer
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/parser/lexer.dylan,v 1.19 2004/08/18 13:09:52 gabor Exp $
 copyright: see below
 
 
@@ -44,7 +43,7 @@ define method make-binary-operator
        source-location: source-location,
        kind: $other-binary-operator-token,
        symbol: as(<symbol>, extract-string(source-location)),
-       module: *Current-Module*);
+       module: lexer.module);
 end method make-binary-operator;
 //
 define method make-tilde
@@ -54,7 +53,7 @@ define method make-tilde
        source-location: source-location,
        kind: $tilde-token,
        symbol: #"~",
-       module: *Current-Module*);
+       module: lexer.module);
 end method make-tilde;
 //
 define method make-minus
@@ -64,7 +63,7 @@ define method make-minus
        source-location: source-location,
        kind: $minus-token,
        symbol: #"-",
-       module: *Current-Module*);
+       module: lexer.module);
 end method make-minus;
 //
 define method make-equal
@@ -74,7 +73,7 @@ define method make-equal
        source-location: source-location,
        kind: $equal-token,
        symbol: #"=",
-       module: *Current-Module*);
+       module: lexer.module);
 end method make-equal;
 //
 define method make-double-equal
@@ -84,7 +83,7 @@ define method make-double-equal
        source-location: source-location,
        kind: $double-equal-token,
        symbol: #"==",
-       module: *Current-Module*);
+       module: lexer.module);
 end method make-double-equal;
 
 
@@ -101,7 +100,7 @@ define method make-quoted-name
        symbol: as(<symbol>,
 		  extract-string(source-location,
 				 start: source-location.start-posn + 1)),
-       module: *Current-Module*);
+       module: lexer.module);
 end method make-quoted-name;
 
 // make-identifier -- internal.
@@ -113,13 +112,27 @@ define method make-identifier
     (lexer :: <lexer>, source-location :: <known-source-location>)
     => res :: <identifier-token>;
   let name = as(<symbol>, extract-string(source-location));
-  let module = *Current-Module*;
   make(<identifier-token>,
        source-location: source-location,
-       kind: syntax-for-name(module.module-syntax-table, name),
+       kind: syntax-for-name(lexer.module.module-syntax-table, name),
        symbol: name,
-       module: module);
+       module: lexer.module);
 end method make-identifier;
+
+// make-left-bracket-token -- internal
+//
+// Make a magic left bracket token that holds the current module
+// to look up \element and \aref in.
+define method make-left-bracket-token
+    (lexer :: <lexer>, source-location :: <known-source-location>)
+    => res :: <left-bracket-token>;
+  make(<left-bracket-token>,
+       source-location: source-location,
+       kind: $left-bracket-token,
+       module: lexer.module);
+end method make-left-bracket-token;
+
+
 
 
 // make-constrainted-name -- internal.
@@ -621,7 +634,7 @@ define class <state> (<object>)
   slot name :: <symbol>, required-init-keyword: name:;
   //
   // The acceptance result if this state is an accepting state, or #f
-  // if it is not.  Symbols are used for magic interal stuff that never
+  // if it is not.  Symbols are used for magic internal stuff that never
   // makes it out of the lexer (e.g. whitespace), classes for simple
   // tokens that don't need any extra parsing, and functions for more
   // complex tokens.
@@ -948,7 +961,7 @@ define constant $Initial-State
 	     pair('=', #"cname-binop")),
        state(#"double-colon", $double-colon-token,
 	     pair('=', #"cname-binop")),
-       state(#"lbracket", $left-bracket-token),
+       state(#"lbracket", make-left-bracket-token),
        state(#"rbracket", $right-bracket-token),
        state(#"lbrace", $left-brace-token),
        state(#"rbrace", $right-brace-token),
@@ -1307,6 +1320,9 @@ end;
 //
 define class <lexer> (<tokenizer>)
 // define class <lexer> (<line-tokenizer>) // TODO
+  //
+  // The module we're lexing for
+  slot module :: <module>, required-init-keyword: module:;
   //
   // The source file we are currently tokenizing.
   slot lexer-source :: <source>, required-init-keyword: source:;

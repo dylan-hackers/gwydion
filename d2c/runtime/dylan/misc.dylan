@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/misc.dylan,v 1.10 2003/06/11 18:17:20 housel Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -63,6 +62,9 @@ end macro debug-assert;
 define class <not-supplied-marker> (<object>)
 end;
 
+define sealed domain make (singleton(<not-supplied-marker>));
+define sealed domain initialize (<not-supplied-marker>);
+
 // $not-supplied -- exported from Extensions.
 //
 // a magic marker used to flag unsupplied keywords.
@@ -76,44 +78,41 @@ define constant $not-supplied :: <not-supplied-marker>
 // The empty type.  When used as a function result type, it means the function
 // never returns.
 //
-define constant <never-returns> :: <type> = type-union();
+define constant <never-returns> :: <type> = <empty-type>;
 
 define flushable generic values-sequence (sequence :: <sequence>);
 
 define inline method values-sequence (sequence :: <sequence>)
-  let vec :: <simple-object-vector> = as(<simple-object-vector>, sequence);
-  values-sequence(vec);
+  values-sequence(as(<simple-object-vector>, sequence));
 end;
 
-define inline method values-sequence
+define sealed inline method values-sequence
     (vector :: <simple-object-vector>)
   %%primitive(values-sequence, vector);
 end;
 
 
-define movable generic values (#rest values);
-
-define inline method values (#rest values)
+define movable inline function values (#rest values)
   %%primitive(values-sequence, values);
 end;
 
 
-define inline method object-address (object :: <object>)
+define inline function object-address (object :: <object>)
     => res :: <raw-pointer>;
   %%primitive(object-address, object);
-end method object-address;
+end function object-address;
 
-define inline method heap-object-at (pointer :: <raw-pointer>)
+define inline function heap-object-at (pointer :: <raw-pointer>)
  => (object :: <object>);
   %%primitive(heap-object-at, pointer);
-end method heap-object-at;
+end function heap-object-at;
 
-define inline method general-object-at (pointer :: <raw-pointer>)
+define inline function general-object-at (pointer :: <raw-pointer>)
  => (object :: <object>);
   %%primitive(general-object-at, pointer);
-end method general-object-at;
+end function general-object-at;
 
-define inline method ignore (#rest noise) => ();
-end method ignore;
+define inline function ignore (#rest noise) => ();
+end function ignore;
 
 %%primitive(magic-internal-primitives-placeholder);

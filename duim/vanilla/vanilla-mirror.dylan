@@ -17,7 +17,8 @@ define sealed class <vanilla-mirror> (<mirror>)
 end class <vanilla-mirror>;
 
 define method do-make-mirror
-    (_port :: <vanilla-port>, sheet :: <sheet>) => (mirror)
+    (_port :: <vanilla-port>, sheet :: <sheet>) 
+ => (mirror :: <vanilla-mirror>)
   let (left, top, right, bottom) = sheet-native-edges(sheet);
   //--- Call compute-default-foreground/background/text-style to
   //--- figure out what characteristics the mirror should have

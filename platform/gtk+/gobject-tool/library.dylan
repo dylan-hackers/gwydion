@@ -5,10 +5,8 @@ define library gobject-tool
   use dylan;
   use common-dylan;
   use parse-arguments;
-  use streams;
-  use standard-io;
-  use format;
-  use format-out;
+  use io;
+  use system;
   use ansi-c;
   use c-parser;
   use regular-expressions;

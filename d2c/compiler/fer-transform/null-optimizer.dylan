@@ -1,5 +1,4 @@
 module: null-optimizer
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/fer-transform/null-optimizer.dylan,v 1.4 2003/06/24 21:00:07 andreas Exp $
 copyright: see below
 
 
@@ -75,8 +74,8 @@ define function debug-dump
     (optimizer :: <abstract-optimizer>,
      component :: <component>)
  => ()
-  if (debug-optimizer(optimizer) > 1)
-    dump-fer(component);
+  if (optimizer.debug-optimizer > 1)
+    dump-fer(component, optimizer.debug-optimizer > 10);
   end;
 end;
 

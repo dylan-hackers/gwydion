@@ -1,7 +1,6 @@
 module: standard-io
 author: gabor@mac.com
 synopsis: This file provides some standard I/O stuff for the CodeWarrior IDE.
-rcs-header: $Header:
 copyright: (c) Gabor Greif 2000
 
 define constant *standard-input* :: <fd-stream>

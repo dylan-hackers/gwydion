@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/random/random.dylan,v 1.6 2004/06/06 12:40:04 andreas Exp $
 module: Random
 author: Nick Kramer (nkramer@cs.cmu.edu)
 

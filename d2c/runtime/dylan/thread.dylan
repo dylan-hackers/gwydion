@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/thread.dylan,v 1.2 2000/01/24 04:56:49 andreas Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -39,6 +38,6 @@ define sealed domain initialize (<thread>);
 
 define constant $the-one-and-only-thread :: <thread> = make(<thread>);
 
-define method this-thread () => res :: <thread>;
+define inline function this-thread () => res :: <thread>;
   $the-one-and-only-thread;
 end;

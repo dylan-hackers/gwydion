@@ -1,5 +1,5 @@
 library: debugger
-executable: debugger
+executable-not: debugger
 linker-options: -Wl,-E
 files: exports
        introspection

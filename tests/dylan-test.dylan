@@ -5,7 +5,7 @@ synopsis: A regression test for core Dylan.
 //======================================================================
 //
 // Copyright (c) 1994  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2003  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -62,6 +62,8 @@ define method tautology(arg == #"booleans")
   (#T)				| signal("#T is not true!\n");
   (#f)				& signal("#f is not false!\n");
   (#F)				& signal("#F is not false!\n");
+  (~#t)				& signal("~#t is not false!\n");
+  (~#f)				| signal("~#f is not true!\n");
   (#t & #t)			| signal("#t & #t is not true!\n");
   (#t | #t)			| signal("#t | #t is not true!\n");
   (#f & #f)			& signal("#f & #f is not false!\n");
@@ -162,11 +164,11 @@ define method tautology(arg == #"numbers")
     (4 / 2 = 2)
       | signal("4 / 2 is not 2!\n");
     // No applicable methods for / with arguments #[4, 2]
-//    format("rationalize(1,2) is %=\n", rationalize(1,2));
+//    format-out("rationalize(1,2) is %=\n", rationalize(1,2));
     // Unbound variable: rationalize
-//    format("numerator(rationalize(1,2)) is %=\n", numerator(rationalize(1,2)));
+//    format-out("numerator(rationalize(1,2)) is %=\n", numerator(rationalize(1,2)));
     // Unbound variable: numerator
-//    format("denominator(rationalize(1,2)) is %=\n", denominator(rationalize(1,2)));
+//    format-out("denominator(rationalize(1,2)) is %=\n", denominator(rationalize(1,2)));
     // Unbound variable: denominator
   end;
 end method;
@@ -532,7 +534,7 @@ end method;
 define method tautology(arg == #"ranges")
   let a = make(<range>, from: 0, to: 10);
   let b = make(<range>, from: 5, to: 15);
-//  format("\na is %=\nb is %=\n", a.object-class, b.object-class);
+//  format-out("\na is %=\nb is %=\n", a.object-class, b.object-class);
   (first(a) = 0)	| signal("first(a) is not 0! It's %=\n", first(a));
   (first(b) = 5)	| signal("first(b) is not 5! It's %=\n", first(b));
   (last(a) = 10)	| signal("last(a) is not 10! It's %=\n", last(a));
@@ -542,14 +544,14 @@ define method tautology(arg == #"ranges")
   member?(3, b)		& signal("member?(3, b) is not false!\n");
   member?(12, b)	| signal("member?(12, b) is not true!\n");
   (size(a) = 11)	| signal("size(a) is not 11!  It's %=\n", size(a));
-//  format("checkpoint 1\n");
+//  format-out("checkpoint 1\n");
   (size(b) = 11)	| signal("size(b) is not 11!  It's %=\n", size(b));
   let c = intersection(a, b);
   (first(c) = 5)	| signal("first(c) is not 5!  It's %=\n", first(c));
   (last(c) = 10)	| signal("last(c) is not 10!  It's %=\n", last(c));
   member?(7, c)		| signal("member?(7, c) is not true!\n");
   member?(12, c)	& signal("member?(12, c) is not false!\n");
-//  format("checkpoint 2\n");
+//  format-out("checkpoint 2\n");
   (size(c) = 6)		| signal("size(c) is not 6!  It's %=\n", size(c));
   let d = reverse(c);
   (first(d) = 10)	| signal("first(d) is not 10!  It's %=\n", first(d));
@@ -579,28 +581,28 @@ end method;
 define method tautology(arg :: <sequence>) => <integer>;
   let warnings = 0;
   local method warning(e :: <simple-warning>, next-handler)
-	  apply(format, e.condition-format-string, e.condition-format-arguments);
+	  apply(format-out, e.condition-format-string, e.condition-format-arguments);
 	  warnings := warnings + 1;
 	  #f;
 	end method;
   let fatals = 0;
   local method fatal(e :: <simple-error>, next-handler)
-	  apply(format, e.condition-format-string, e.condition-format-arguments);
+	  apply(format-out, e.condition-format-string, e.condition-format-arguments);
 	  fatals := fatals + 1;
 	  #f;
 	end method;
   let handler <simple-warning> = warning;
   for (arg in arg)
     if (arg)
-      format("Tautologies on %s ... ", as(<string>, arg));
+      format-out("Tautologies on %s ... ", as(<string>, arg));
       let error-count = fatals;
       tautology(arg);
       if (error-count = fatals)    // last test had no errors
-	format("ok.\n");
+	format-out("ok.\n");
       end if;
     end if;
   end for;
-  format("Tautology completed with %d warnings and %d fatal errors\n",
+  format-out("Tautology completed with %d warnings and %d fatal errors\n",
 	 warnings, fatals);
   warnings + fatals;
 end method;
@@ -627,9 +629,9 @@ define method main(argv0, #rest args)
       tautology(args);
 #endif
     else
-      format("usage: tautologies [package ...]\n");
+      format-out("usage: tautologies [package ...]\n");
       for (arg in tautologies)
-	format("\t%s\n", as(<string>, arg));
+	format-out("\t%s\n", as(<string>, arg));
       end for;
 #if (mindy)
       exit(exit-code: -1);

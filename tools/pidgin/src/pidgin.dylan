@@ -13,20 +13,6 @@ format(*standard-error*, "-d, --debug: Print constructs as they are translated\n
   format(*standard-error*, "-r, --recursive: Recursively translate included headers one level\n");
 end function;
 
-// Is this defined somewhere else?
-// Returns a string representing a filename when given a path.
-define method filename
-    (path :: <string>)
- => (name :: <string>)
-  let lastpathsep :: <integer> = 0;
-  for (counter :: <integer> from 0 to size(path) - 1 )
-    if (as(<character>, path[counter]) = path-separator)
-      lastpathsep := counter;
-    end if;
-  end for;
-  as(<string>, subsequence(path, start: lastpathsep + 1, end: size(path)));
-end method;
-
 define function output-header
     (library :: <string>, modules :: <deque>)
  => (result :: <string>)
@@ -117,16 +103,20 @@ define function pidgin(name, arguments)
     if (option-present?-by-long-name(argp, "recursive"))
       recursive := #t;
     end if;
+
     let extra-includes = option-value-by-long-name(argp, "includedir");
     let include-path = construct-include-path(extra-includes);
     let modules = option-value-by-long-name(argp, "module");
     let library = option-value-by-long-name(argp, "library");
+
+    let locator = as(<file-locator>, argp.regular-arguments[0]);
+
     if (size(modules) = 0)
       modules := make(<deque>, size: 1);
-      modules[0] := substring-replace(filename(argp.regular-arguments[0]), ".h", "");
+      add!(modules, locator.locator-base);
     end if;
     if (~library)
-      library := substring-replace(filename(argp.regular-arguments[0]), ".h", "");
+      library := locator.locator-base;
     end if;
     output-interface(argp.regular-arguments[0], library, modules, include-path, recursive);
   end;

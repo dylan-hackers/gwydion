@@ -1,12 +1,11 @@
 module: define-constants-and-variables
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/convert/defconstvar.dylan,v 1.10 2002/02/23 04:21:38 andreas Exp $
 copyright: see below
 
 
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -249,9 +248,9 @@ define method process-aux(form :: <define-binding-parse>,
 	  let defn = make(defn-class,
 			  name: make(<basic-name>,
 				     symbol: name.token-symbol,
-				     module: *Current-Module*),
+				     module: name.token-module),
 			  source-location: source,
-			  library: *Current-Library*);
+			  library: name.token-module.module-home);
 	  note-variable-definition(defn);
 	  defn;
 	end;
@@ -265,6 +264,7 @@ define method process-aux(form :: <define-binding-parse>,
 		 required-defns: required-defns,
 		 rest-defn: rest-defn,
 		 source-location: source);
+  do(curry(variable-tlf-setter, tlf), map(compose(find-variable, defn-name), required-defns));
   add!(*Top-Level-Forms*, tlf);
 end;
 
@@ -289,9 +289,9 @@ define method process-aux(form :: <define-binding-parse>,
 	  let defn = make(defn-class,
 			  name: make(<basic-name>,
 				     symbol: name.token-symbol,
-				     module: *Current-Module*),
+				     module: name.token-module),
 			  source-location: source,
-			  library: *Current-Library*,
+			  library: name.token-module.module-home,
                           inline-type: inline-type | #"default-inline",
                           movable: movable?,
                           flushable: flushable? | movable?);
@@ -308,6 +308,7 @@ define method process-aux(form :: <define-binding-parse>,
 		 required-defns: required-defns,
 		 rest-defn: rest-defn,
 		 source-location: source);
+  do(curry(variable-tlf-setter, tlf), map(compose(find-variable, defn-name), required-defns));
   add!(*Top-Level-Forms*, tlf);
 end;
 
@@ -531,11 +532,13 @@ end;
 
 define method dump-od (tlf :: <define-bindings-tlf>, state :: <dump-state>)
     => ();
+  let depends-list = tlf.tlf-depends-list;
+
   for (defn in tlf.tlf-required-defns)
-    dump-simple-object(#"define-binding-tlf", state, defn);
+    dump-simple-object(#"define-binding-tlf", state, defn, depends-list);
   end;
   if (tlf.tlf-rest-defn)
-    dump-simple-object(#"define-binding-tlf", state, tlf.tlf-rest-defn);
+    dump-simple-object(#"define-binding-tlf", state, tlf.tlf-rest-defn, depends-list);
   end;
 end;
 

@@ -31,44 +31,34 @@ define constant \$bootstrap-counter = $bootstrap_counter;
 EOF
 close(VERSION);
 
-&makegen_include("../common-Makegen");
-
 $CPPFLAGS = "$CPPFLAGS -I../../runtime ";
 $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
     . ' -L../../../common/collection-extensions'
-    . ' -L../../../common/table-ext'
-    . ' -L../../../common/string-ext'
-    . ' -L../../runtime/random'
-    . ' -L../../../common/streams'
-    . ' -L../../../common/print'
+    . ' -L../../../common/command-processor'
+    . ' -L../../../common/common-dylan'
     . ' -L../../../common/format'
+    . ' -L../../../common/format-out'
     . ' -L../../../common/getopt'
+    . ' -L../../../common/io'
+    . ' -L../../../common/print'
     . ' -L../../../common/standard-io'
-    . ' -L../../../common/regular-expressions'
-    . ' -L../../../common/base-file-system'
+    . ' -L../../../common/stream-ext'
+    . ' -L../../../common/streams'
+    . ' -L../../../common/string-ext'
+    . ' -L../../../common/system'
+    . ' -L../../../common/table-ext'
+    . ' -L../../../common/threads'
     . ' -L../base'
-    . ' -L../front'
+    . ' -L../cback'
+    . ' -L../convert'
     . ' -L../fer-transform'
+    . ' -L../front'
     . ' -L../optimize'
     . ' -L../parser'
-    . ' -L../../../common/stream-ext'
-    . ' -L../convert'
-    . ' -L../cback';
+    . ' -L../../debugger'
+    . ' -L../../runtime/random';
 
-@potential_targets = &d2c_library('Main', '');
-
-&emit_dbc_link_rule
-    ('d2c.dbc', 
-     '../../../common/base-file-system/base-file-system-lib.dbc '
-     . '../base/compiler-base-lib.dbc ../front/compiler-front-lib.dbc'
-     . ' ../fer-transform/compiler-fer-transform-lib.dbc'
-     . ' ../optimize/compiler-optimize-lib.dbc '
-     . ' ../parser/compiler-parser-lib.dbc ../convert/compiler-convert-lib.dbc'
-     . ' ../cback/compiler-cback-lib.dbc compiler-main-lib.dbc');
-
-if ($enable_mindy_bootstrap) {
-    push(@compile_dependencies, 'd2c.dbc');
-}
-&install_executable($bindir, $potential_targets[0]);
+do emit_library_rule('Main', '$(BUILDROOT)/force.timestamp', '', 
+		     'compile', 'install');
 

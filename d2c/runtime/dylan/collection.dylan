@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/collection.dylan,v 1.14 2003/06/03 02:09:45 housel Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -181,16 +180,17 @@ end method type-for-copy;
 // Collection Methods.
 
 // default methods for %element and %element-setter just call through
-// to the standard element and element-setter.  If you don't know the
-// types of your collections then without-bounds-checks will be slower!
+// to the standard element and element-setter.  This is for the cases
+// where the without-bounds-checks macro is being used, but there is no
+// %element or %element-setter defined for the collection.
 
-define method %element
+define inline method %element
     (collection :: <collection>, key :: <object>)
  => (element :: <object>);
   element(collection, key);
 end method %element;
 
-define method %element-setter
+define inline method %element-setter
     (new-value :: <object>, collection :: <mutable-collection>,
      key :: <object>)
  => (element :: <object>);
@@ -211,7 +211,7 @@ define inline method empty? (coll :: <collection>) => res :: <boolean>;
   finished-state?(coll, state, limit);
 end method empty?;
 
-define method key-intersection
+define function key-intersection
     (collection :: <collection>, more-collections :: <simple-object-vector>)
     => res :: <sequence>;
   let test = key-test(collection);
@@ -224,7 +224,7 @@ define method key-intersection
     keys := intersection(keys, key-sequence(other-collection), test: test);
   end;
   keys;
-end;
+end function key-intersection;
 
 define method do
     (proc :: <function>, collection :: <collection>, #rest more-collections)
@@ -248,7 +248,7 @@ define inline method map
     => res :: <collection>;
   apply(map-as, type-for-copy(collection), proc, collection,
 	more-collections);
-end;
+end method map;
 
 define method map-as
     (type :: <type>, proc :: <function>, collection :: <collection>,
@@ -279,7 +279,7 @@ define method map-as
     end for;
     result;
   end;
-end;
+end method map-as;
 
 define method map-into
     (target :: <mutable-collection>, proc :: <function>,
@@ -393,7 +393,7 @@ define inline method choose
   finally
     as(type-for-copy(sequence), reverse!(result));
   end for;
-end choose;
+end method choose;
 
 define inline method choose-by
     (predicate :: <function>, test-seq :: <sequence>, value-seq :: <sequence>)
@@ -408,7 +408,7 @@ define inline method choose-by
   finally
     as(type-for-copy(value-seq), reverse!(result));
   end for;
-end method;
+end method choose-by;
 
 define inline method member?
     (value :: <object>, collection :: <collection>, #key test = \==)
@@ -910,7 +910,7 @@ define method map-into
 end method map-into;
 
 
-define method sequence-map-into
+define function sequence-map-into
     (target :: <mutable-sequence>, proc :: <function>,
      sequence :: <sequence>, #next next-method, #rest more-sequences)
     => res :: <mutable-sequence>;
@@ -991,7 +991,7 @@ define method sequence-map-into
     end until;
   end if;
   target;
-end method sequence-map-into;
+end function sequence-map-into;
 
 define method find-key
     (sequence :: <sequence>, proc :: <function>, #key skip, failure = #f)
@@ -1070,7 +1070,7 @@ define inline method concatenate!
   apply(concatenate, sequence, more-sequences);
 end method concatenate!;
 
-define method concatenate-as(type :: <type>, sequence :: <sequence>,
+define method concatenate-as (type :: <type>, sequence :: <sequence>,
 			     #rest more-sequences) => result :: <sequence>;
   local
     method int-size(seq) => size :: <integer>;

@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/class.dylan,v 1.7 2002/12/02 11:17:43 andreas Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -96,12 +95,12 @@ define class <class> (<type>)
 /*
   //
   // Layout of instance allocation slots.  #f until computed.
-  slot class-instance-layout :: type-union(<false>, <layout>),
+  slot class-instance-layout :: false-or(<layout>),
     init-value: #f;
   //
   // Layout of each-subclass allocation slots.  #f until computed or if there
   // are no each-subclass slots.
-  slot class-each-subclass-layout :: type-union(<false>, <layout>),
+  slot class-each-subclass-layout :: false-or(<layout>),
     init-value: #f;
   //
   // Vector of each-subclass allocation slots.  Filled in when the layout
@@ -115,6 +114,9 @@ define class <class> (<type>)
   // The row of the type inclusion test matrix for this class.
   slot class-row :: <simple-object-vector>, init-value: #[];
 end;
+
+define sealed domain make (singleton(<class>));
+define sealed domain initialize (<class>);
 
 /*
 define method initialize (class :: <class>, #key)
@@ -142,7 +144,7 @@ define class <slot-descriptor> (<object>)
 /*
   //
   // The function to compute the type when deferred.
-  slot slot-deferred-type :: type-union(<false>, <function>),
+  slot slot-deferred-type :: false-or(<function>),
     required-init-keyword: deferred-type:;
   //
 */
@@ -153,20 +155,20 @@ define class <slot-descriptor> (<object>)
 /*
   // The method added to that generic function, or #f if it either hasn't
   // beed added yet or isn't going to be added ('cause of virtual allocation).
-  slot slot-getter-method :: type-union(<false>, <method>),
+  slot slot-getter-method :: false-or(<method>),
     init-value: #f;
   //
   // the setter generic function, or #f if there isn't one.
-  constant slot slot-setter :: type-union(<false>, <generic-function>),
+  constant slot slot-setter :: false-or(<generic-function>),
     init-value: #f;
   //
   // The method added to the setter generic function if one had been added.
-  slot slot-setter-method :: type-union(<false>, <method>),
+  slot slot-setter-method :: false-or(<method>),
     init-value: #f;
 */
   //
   // The function to compute the initial value, or #f if there isn't one.
-  slot slot-init-function :: type-union(<false>, <function>),
+  slot slot-init-function :: false-or(<function>),
     init-value: #f;
   //
   // The init-value, or $not-supplied if there isn't one.
@@ -174,7 +176,7 @@ define class <slot-descriptor> (<object>)
     init-value: $not-supplied;
   //
   // The init keyword, if there is one.
-  constant slot slot-init-keyword :: type-union(<false>, <symbol>),
+  constant slot slot-init-keyword :: false-or(<symbol>),
     init-value: #f;
   //
   // #t if the init-keyword is required, #f if not.
@@ -206,16 +208,19 @@ define class <slot-descriptor> (<object>)
     init-value: #f;
 end;
 
+define sealed domain make (singleton(<slot-descriptor>));
+define sealed domain initialize (<slot-descriptor>);
+
 /*
 define method initialize
     (slot :: <slot-descriptor>,
-     #key setter :: type-union(<false>, <generic-function>),
-     type :: type-union(<false>, <type>),
-     deferred-type :: type-union(<false>, <function>),
+     #key setter :: false-or(<generic-function>),
+     type :: false-or(<type>),
+     deferred-type :: false-or(<function>),
      init-value = $not-supplied,
-     init-function :: type-union(<false>, <function>),
-     init-keyword :: type-union(<false>, <symbol>),
-     required-init-keyword :: type-union(<false>, <symbol>),
+     init-function :: false-or(<function>),
+     init-keyword :: false-or(<symbol>),
+     required-init-keyword :: false-or(<symbol>),
      allocation :: <slot-allocation> = #"instance")
     => res :: <slot-descriptor>;
 
@@ -425,7 +430,7 @@ end;
 // Calls to this are introduced by the compiler when it cannot statically
 // determine where a slot is located.
 // 
-define method find-slot-offset (class :: <class>, slot :: <slot-descriptor>)
+define function find-slot-offset (class :: <class>, slot :: <slot-descriptor>)
     => offset :: type-union(<integer>, singleton(#"data-word"));
   block (return)
     let cache = slot.slot-positions-cache;
@@ -462,7 +467,7 @@ define method find-slot-offset (class :: <class>, slot :: <slot-descriptor>)
     lose("Can't find the position for %s in %s.",
 	 slot, class.class-name);
   end block;
-end method find-slot-offset;
+end function find-slot-offset;
 
 // slot-initialized? -- exported.
 //
@@ -584,13 +589,13 @@ define method make (class :: <class>, #rest supplied-keys, #key, #all-keys)
   instance;
 end;
 
-define inline method maybe-do-deferred-evaluations (class :: <class>) => ();
+define inline function maybe-do-deferred-evaluations (class :: <class>) => ();
   if (class.class-deferred-evaluations)
     do-deferred-evaluations(class);
   end;
 end;
 
-define method do-deferred-evaluations (class :: <class>) => ();
+define function do-deferred-evaluations (class :: <class>) => ();
   let deferred-evaluations = class.class-deferred-evaluations;
   class.class-deferred-evaluations
     := method () => res :: <never-returns>;
@@ -605,6 +610,7 @@ end;
 define open generic initialize
     (instance :: <object>, #rest keys, #key, #all-keys);
 
+// The default initialize method which does nothing
 define inline method initialize (instance :: <object>, #key, #all-keys) => ();
 end;
 

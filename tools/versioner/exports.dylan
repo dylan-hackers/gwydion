@@ -1,6 +1,5 @@
 module: dylan-user
 library: versioner
-rcs-header: $header$
 
 //======================================================================
 //

@@ -40,10 +40,8 @@ define method do-dump-testworks-spec (state :: <lid-mode-state>) => ();
 
   format(spec, "Module: %s-test-suite\n\n", state.unit-mprefix);
 
-  for (tlfs in state.unit-tlf-vectors)
-    for (tlf in tlfs)
-      dump-spec(tlf, spec);
-    end;
+  for (tlf in state.unit-tlfs)
+    dump-spec(tlf, spec);
   end;
   
   close(spec);

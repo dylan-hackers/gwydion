@@ -1680,7 +1680,7 @@ define method parse
   let stream = make(<byte-string-stream>, contents: "",
                     direction: #"input-output");
   for (file in files)
-    format(stream, "#include \"%s\"\n", file);
+    format(stream, "#include \"%s\"\n", as(<string>, file));
   end for;
   stream.stream-position := #"start";
   let tokenizer = make(<tokenizer>,

@@ -31,12 +31,8 @@ $gen_makefile = "$buildroot/gen-makefile";
 $enable_debug = "@enable_debug@" eq "yes";
 $enable_profiling = "@enable_debug@" =~ /^profil/;
 $enable_mindy = "@enable_mindy@" eq "yes";
-$enable_d2c = "@enable_d2c@" eq "yes";
-$build_tools_with_d2c = "@build_tools_with_d2c@" eq "yes";
 $cross_compiling = "@d2c_cross_compiling@" eq "yes";
 $enable_bootstrap = "@enable_bootstrap@" eq "yes";
-$bootstrap_compiler = "@bootstrap_compiler@";
-$enable_mindy_bootstrap = $enable_bootstrap && $bootstrap_compiler eq "mindy";
 $recheck = "@recheck@";
 $shared = "@shared@" eq "yes";
 $static = "@static@" eq "yes";
@@ -68,9 +64,6 @@ if("@with_thread_count@" ne "no") {
     $D2C = $D2C . " -j @with_thread_count@";
 }
 
-$MC = '@MC@';
-$MINDY = '@MINDY@';
-$DYLANPATH = @DYLANPATH@;
 $CC = '@CC@';
 $EXTRA_INCLUDE_DIR = '@EXTRA_INCLUDE_DIR@';
 
@@ -79,12 +72,9 @@ $PARSERGEN = "$PARSERGEN_DIR/parsergen";
 $MELANGE_DIR = "$buildroot/tools/melange";
 $MELANGE = "$MELANGE_DIR/melange";
 
-if (!$build_tools_with_d2c) {
-    $PARSERGEN = "$MINDY -f $PARSERGEN-lib.dbc";
-    $MELANGE = "$MINDY -f $MELANGE.dbc";
-};
+$PREVIOUS_MELANGE = '@MELANGE@';
 
-if ($enable_bootstrap && $bootstrap_compiler eq "d2c") {
+if ($enable_bootstrap) {
     $CPPFLAGS = '-I@LOCAL_RUNTIME@';
     $d2c_runtime = '-L@LOCAL_RUNTIME@ ';
 } else {

@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/debug.dylan,v 1.4 2003/06/05 19:09:00 housel Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -68,26 +67,43 @@ define variable *debugger* :: <debugger> = make(<null-debugger>);
 define class <null-debugger> (<debugger>)
 end class <null-debugger>;
 
+define sealed domain make (singleton(<null-debugger>));
+define sealed domain initialize (<null-debugger>);
+
+// *warning-output* -- exported from Extensions
+//
+// The ``stream'' to which warnings report when signaled (and not handled).
+//
+define variable *warning-output* :: <object> = #"Cheap-Err";
+
 // invoke-debugger(<null-debugger>) -- exported gf method
 //
 // The null debugger doesn't do much: it just prints the condition and then
 // aborts.
 // 
 define sealed method invoke-debugger
-    (debugger :: <null-debugger>, condition :: <condition>)
-    => res :: <never-returns>;
-  condition-format(*gdb-output*, "%s\n", condition);
-  condition-force-output(*gdb-output*);
+    (debugger :: <null-debugger>, condition :: <serious-condition>)
+ => (res :: <never-returns>);
+  condition-format(*warning-output*, "%s\n", condition);
+  condition-force-output(*warning-output*);
   call-out("abort", void:);
+end;
+
+define sealed method invoke-debugger
+    (debugger :: <null-debugger>, condition :: <warning>)
+ => (res :: <false>);
+  condition-format(*warning-output*, "%s\n", condition);
+  condition-force-output(*warning-output*);
+  #f;
 end;
 
 // debugger-message(<null-debugger>) -- exported gf method
 //
 define sealed method debugger-message
     (debugger :: <null-debugger>, fmt :: <byte-string>, #rest args) => ();
-  apply(condition-format, *gdb-output*, fmt, args);
-  condition-format(*gdb-output*, "\n");
-  condition-force-output(*gdb-output*);
+  apply(condition-format, *warning-output*, fmt, args);
+  condition-format(*warning-output*, "\n");
+  condition-force-output(*warning-output*);
 end method;
 
 

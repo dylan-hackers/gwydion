@@ -1,5 +1,4 @@
 module: dylan-user
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-exports.dylan,v 1.17 2003/12/21 14:26:59 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -31,8 +30,13 @@ copyright: see below
 
 define library compiler-main
   use Dylan;
+  use Common-Dylan;
+  use IO;
+  use System;
   use String-extensions;
   use Random;
+  use debugger;
+  use command-processor;
   use parse-arguments;
   use compiler-base;
   use compiler-front;
@@ -43,17 +47,31 @@ define library compiler-main
   use compiler-convert;
 end;
 
+define module progress-indicator
+  use dylan;
+  use streams;
+  use format;
+  use utils;
+  use System, 
+     import: {get-time-of-day};
+  
+  export <progress-indicator>, increment-progress, report-progress,
+    increment-and-report-progress, 
+    <draw-dots-progress-indicator>, <n-of-k-progress-indicator>;
+  
+end module progress-indicator;
+
 define module main
   use common;
-  use Extensions, exclude: {element-type, value};
+  use byte-vector;
+  use Extensions, exclude: { element-type, value };
 #if (mindy)
-  use System, import: {system, copy-bytes, getenv, collect-garbage};
+  use System, import: {system, getenv, collect-garbage};
 #else
   use System, 
-     import: {system, copy-bytes, getenv, <raw-pointer>, import-string, 
+     import: {system, getenv, <raw-pointer>, import-string, 
               export-string, no-core-dumps,
-              c-include, c-expr, c-decl, pointer-deref, pointer-deref-setter, call-out,
-              get-time-of-day};
+              c-include, c-expr, c-decl, pointer-deref, pointer-deref-setter, call-out};
 #endif
   use string-conversions, import: {string-to-integer};
   use substring-search;
@@ -106,8 +124,12 @@ define module main
   use macros;
   use fragments;
   use parse-tree, exclude: {primitive-name};
+  use definitions;
   use platform;
   use platform-constants;
   use file-system;
   use extensions, import: {key-exists?};
+  use command-processor;
+  use debugger;
+  use progress-indicator;
 end;

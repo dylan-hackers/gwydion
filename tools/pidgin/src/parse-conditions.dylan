@@ -131,45 +131,26 @@ end function;
 //======================================================================
 //  Methods on <parse-condition>
 //======================================================================
-//  We define some methods related to the <condition> protocol in d2c.
-//  Note that these assume default-handler methods get passed a real
-//  <stream> and not #"Cheap-IO". To make these work, use the Dylan
-//  extensions and standard-io library and write:
-//    *warning-output* := *standard-output*;
-//
-//  Note: I've added back in Cheap-IO support, but now print warnings
-//  when I catch someone using it. There's too many codepaths in the
-//  Dylan libraries which might use it, and I want to find them all.
 
-define method report-condition
+define method print-message
     (parse-condition :: <format-string-parse-condition>,
-     stream,
+     stream :: <stream>,
      #next next-method)
  => ();
-
-  // Temporary debugging code. Warn me when someone pulls this
-  // stupid stunt.
-  if (~instance?(stream, <stream>))
-    format(*standard-error*, "Somebody's using #\"Cheap-IO\"!\n");
-    force-output(*standard-error*);
-  end if;
-
   describe-source-location(parse-condition.parse-condition-source-location,
 			   stream);
-  apply(condition-format, stream, parse-condition.condition-format-string,
+  apply(format, stream, parse-condition.condition-format-string,
 	parse-condition.condition-format-arguments);
-end method report-condition;
+end method print-message;
 
 define method default-handler(condition :: <parse-condition>)
-  report-condition(condition, *warning-output*);
-  condition-format(*warning-output*, "\n");
+  format(*warning-output*, "%s\n", condition);
   force-output(*warning-output*);
 end method default-handler;
 
 define method default-handler(condition :: <parse-progress-report>)
   if (*show-parse-progress?*)
-    report-condition(condition, *warning-output*);
-    condition-format(*warning-output*, "\n");
+    condition-format(*warning-output*, "%s\n", condition);
     force-output(*warning-output*);
   end;
 end method default-handler;

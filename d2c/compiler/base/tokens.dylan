@@ -1,5 +1,4 @@
 module: tokens
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/base/tokens.dylan,v 1.6 2001/05/26 16:52:17 gabor Exp $
 copyright: see below
 
 
@@ -148,6 +147,24 @@ define sealed method print-object
     (token :: <symbol-token>, stream :: <stream>) => ();
   pprint-fields(token, stream, kind: token.token-kind,
 		symbol: token.token-symbol);
+end method print-object;
+
+// <left-bracket-token> -- exported.
+//
+// The various tokens that have a symbol name.
+//
+define class <left-bracket-token> (<token>)
+  //
+  constant slot token-module :: <module>,
+    init-keyword: module:;
+end class <left-bracket-token>;
+
+define sealed domain make (singleton(<left-bracket-token>));
+
+define sealed method print-object
+    (token :: <left-bracket-token>, stream :: <stream>) => ();
+  pprint-fields(token, stream, kind: token.token-kind,
+		module: token.token-module);
 end method print-object;
 
 // <identifier-token> -- exported.
@@ -597,6 +614,10 @@ define constant $symbol-token-slots
   = concatenate($token-slots,
 		list(token-symbol, symbol:, #f));
 
+define constant $left-bracket-token-slots
+  = concatenate($token-slots,
+		list(token-module, module:, #f));
+
 define constant $identifier-token-slots
   = concatenate($symbol-token-slots,
 		list(token-module, module:, #f,
@@ -604,6 +625,9 @@ define constant $identifier-token-slots
 
 add-make-dumper(#"identifier-token", *compiler-dispatcher*, <identifier-token>,
 		$identifier-token-slots);
+
+add-make-dumper(#"left-bracket-token", *compiler-dispatcher*, 
+                <left-bracket-token>, $left-bracket-token-slots);
 
 add-make-dumper(#"uniquifier", *compiler-dispatcher*, <uniquifier>, #(),
 		load-external: #t);

@@ -3,10 +3,10 @@
 $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
     . ' -L../collection-extensions'
-    . ' -L../table-ext'
-    . ' -L../string-ext';
+    . ' -L../string-ext'
+    . ' -L../table-ext';
 
 do emit_library_rule(
-    'RegExp', '$(BUILDROOT)/force.timestamp', '', 'compile', 'compile-mindy', 
+    'RegExp', '$(BUILDROOT)/force.timestamp', '', 'compile',
     'install'
 );

@@ -1,5 +1,4 @@
 // File: inits.cpp
-// RCS-header: $Header: /scm/cvs/src/d2c/compiler/Macintosh/inits.cpp,v 1.6 2004/04/16 03:05:34 gabor Exp $
 // Purpose: present the correct interface to be a CW plugin
 // Author: Gabor Greif <gabor@mac.com>
 // Status: This version is is based on the Pro6 CW API, but sorely needs cleanup

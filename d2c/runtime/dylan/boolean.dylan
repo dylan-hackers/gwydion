@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/boolean.dylan,v 1.2 2000/01/24 04:56:41 andreas Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -55,6 +54,10 @@ end;
 
 // <false> -- exported from Extensions.
 //
+// We should probably explore changing <false> to
+// define constant <false> = singleton(#f);
+// or at least document why we created a class with only one instance.
+//
 define class <false> (<boolean>)
 end;
 
@@ -71,7 +74,7 @@ end;
 // We use the magic not primitive instead of ``if (thing) #f else #t end''
 // so that the compiler can more easily identify ~~x.
 //
-define inline method \~ (thing :: <object>) => res :: <boolean>;
+define inline function \~ (thing :: <object>) => res :: <boolean>;
   %%primitive(not, thing);
 end;
 

@@ -1,11 +1,10 @@
 module: cback
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/cback/cback.dylan,v 1.53 2004/05/11 21:54:06 andreas Exp $
 copyright: see below
 
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001, 2002  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2003  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -35,14 +34,14 @@ copyright: see below
 // emit-tlf-gunk and emit-prologue.  A few classes and accessors are also
 // exported, mostly for the benefit of the heap builder.
 //
-//   emit-tlf-gunk (tlf :: <top-level-form>, file :: <file-state>) => ();
+//   emit-tlf-gunk (backend == c:, tlf :: <top-level-form>, file :: <file-state>) => ();
 //      Basically, this converts Dylan "declarations" (definitions) into C
 //      declarations.  Actually, it writes arbitrary information about a given
 //      top-level-form.  This may be just a comment, or it may be a set of
 //      concrete declarations.  "Emit-tlf-gunk" also sometimes produces
 //      side-effects upon the current <file-state> -- i.e. adding a new "root".
 //
-//   emit-component (component :: <fer-component>, file :: <file-state>) => ();
+//   emit-component (backend == c:, component :: <fer-component>, file :: <file-state>) => ();
 //      Deal with translating executable Dylan into C procedures.  Many of the
 //      functions compiled are compiler generated functions such as "entry
 //      points", "makers", etc.
@@ -71,7 +70,7 @@ copyright: see below
 //      <file-state>").  As noted above, emit-tlf-gunk and emit-component are
 //      exported.  All others are internal and may have obscure side effects.
 //   make-indenting-stream-string(#rest keys)
-//      Wrapper function for "make(<buffered-byte-string-output-stream>)"
+//      Wrapper function for "make(<byte-string-stream>, direction: #"output")"
 //   get-string(stream :: <indenting-stream>)
 //      Equivalent to "stream-contents".  Only works on
 //      streams which wrap <string-stream>s.
@@ -126,7 +125,7 @@ define constant make-indenting-string-stream
   = method (#rest keys)
 	=> res :: <indenting-stream>;
       apply(make, <indenting-stream>,
-	    inner-stream: make(<buffered-byte-string-output-stream>),
+	    inner-stream: make(<byte-string-stream>, direction: #"output"),
 	    keys);
     end;
 
@@ -189,11 +188,11 @@ end class <root>;
 define class <file-state> (<object>)
   //
   // The unit info for this output info.
-  slot file-unit :: <unit-state>,
+  constant slot file-unit :: <unit-state>,
     required-init-keyword: unit:;
   //
   // Files we have already included.
-  slot file-includes-exist-for :: <string-table> = make(<string-table>);
+  constant slot file-includes-exist-for :: <string-table> = make(<string-table>);
   //
   // Things we have already spewed defns for.
   slot file-prototypes-exist-for :: <string-table> = make(<string-table>);
@@ -206,15 +205,15 @@ define class <file-state> (<object>)
   slot file-next-mv-result-struct :: <integer>, init-value: 0;
   //
   // The actual underlying output stream where all the output goes eventually.
-  slot file-body-stream :: <stream>,
+  constant slot file-body-stream :: <stream>,
     required-init-keyword: body-stream:;
   //
   // These two streams seperately collect the local variable declarations and
   // the function body so that we can emit variable declarations on the fly
   // during code generation.
-  slot file-vars-stream :: <stream>
+  constant slot file-vars-stream :: <stream>
   	    = make-indenting-string-stream(indentation: $indentation-step);
-  slot file-guts-stream :: <stream>
+  constant slot file-guts-stream :: <stream>
         = make-indenting-string-stream(indentation: $indentation-step);
   //
   // Whenever the guts stream buffer exceeds 64K, we push the contents here and
@@ -238,7 +237,7 @@ define class <file-state> (<object>)
   slot file-local-vars :: <string-table> = make(<string-table>);
   //
   // a list of local variables that are know to not be in use at a
-  // particular time, and therefor available for reuse
+  // particular time, and therefore available for reuse
   slot file-freed-locals :: false-or(<local-var>) = #f;
   //
   // we keep track of the components for all the xeps that we lazily generated
@@ -534,22 +533,75 @@ end method;
 // <known-source-location>s, this will be a #line directive.  For
 // other types of <source-location>, this will be a comment.
 
+
+/* FIXME
+define class <symbolic-c-preprocessor-stream>(<indenting-stream>)
+
+
+end;
+
+*/
+define constant <symbolic-c-preprocessor-stream> = <indenting-stream>;
+
+
+// FIXME should be slot
+define variable emitting-file-name :: false-or(<file-locator>) = #f;
+
+define function write-source-location
+  (stream :: <symbolic-c-preprocessor-stream>,
+   source-loc :: <known-source-location>,
+   line-getter :: <function>,
+   file :: <file-state>) => ();
+  if (emitting-file-name = source-loc.source.source-locator)
+    format(stream.inner-stream, "\n#line %d\nD__L(",
+           source-loc.line-getter);
+  else
+    emitting-file-name := source-loc.source.source-locator;
+    format(stream.inner-stream, "\n#line %d \"%s\"\nD__L(",
+           source-loc.line-getter, emitting-file-name);
+  end;
+end;
+
+
+define generic maybe-emit-source-location(source-loc :: <source-location>,
+				   file :: <file-state>, #key line-getter) => ();
+
+// FIXME should be slot
+define variable emitting-line :: <integer> = 0;
+
 define method maybe-emit-source-location(source-loc :: <known-source-location>,
-				   file :: <file-state>) => ();
+				   file :: <file-state>, #key line-getter = end-line) => ();
   if (file.file-source-location ~= source-loc)
-    format(file.file-guts-stream, "\n/* #line %d \"%s\" */\n",
-	   source-loc.end-line, source-loc.source.full-file-name); // FIXME
+    unless (emitting-line = source-loc.line-getter)
+        finish-source-location(file);
+        emitting-line := source-loc.line-getter;
+        write-source-location(file.file-guts-stream, source-loc, line-getter, file);
+    end;
     file.file-source-location := source-loc;
   end if;
 end method;
 
+define method maybe-emit-source-location(source-loc :: <macro-source-location>,
+				   file :: <file-state>, #key line-getter = end-line) => ();
+  maybe-emit-source-location(source-loc.macro-srcloc-source.source-location, file, line-getter: line-getter);
+end method;
+
 define method maybe-emit-source-location(source-loc :: <source-location>,
-				   file :: <file-state>) => ();
+				   file :: <file-state>, #key line-getter) => ();
   if (file.file-source-location ~= source-loc)
+    finish-source-location(file);
     format(file.file-guts-stream, "/* #line %= */\n", object-class(source-loc));
     file.file-source-location := source-loc;
   end if;
 end method;
+
+define function finish-source-location(file :: <file-state>) => ();
+  if (instance?(file.file-source-location, <known-source-location>))
+    format(file.file-guts-stream, ")");
+    file.file-source-location := make(<unknown-source-location>);
+    emitting-line := 0;
+  end;
+end;
 
 
 // New-{scope}
@@ -562,12 +614,13 @@ end method;
 
 define function contact-bgh() => ();
   dformat
-    ("\n\n\n\n%s\n%s\n%s\n%s\n%s\n\n\n\n",
-     "Could you please contact bruce@hoult.org and provide a copy of",
-     "the program you are compiling.  There is no problem with your",
-     "program but it is doing something that I didn't think could",
-     "happen, or don't have a test case for and I'd like to use it to",
-     "help improve the compiler.  Thank you!");
+    ("\n\n\n\n"
+     "Could you please contact bruce@hoult.org and provide a copy of\n"
+     "the program you are compiling.  There is no problem with your\n"
+     "program but it is doing something that I didn't think could\n"
+     "happen, or don't have a test case for and I'd like to use it to\n"
+     "help improve the compiler.  Thank you!"
+     "\n\n\n\n");
 end;
 
 define inline function contact-bgh-if(test :: <boolean>)
@@ -1292,13 +1345,18 @@ define method merge-ctv-infos
   if (old-info.const-info-dumped?)
     unless (new-info.const-info-dumped?
 	      | new-info.const-info-heap-labels.empty?)
-      error("Merging infos would drop some labels.");
+      error("Merging infos would drop some labels. old: %=, new: %=", 
+            old-info, new-info);
     end unless;
   else
     if (new-info.const-info-dumped?)
       old-info.const-info-dumped? := #t;
-      unless (old-info.const-info-heap-labels.empty?)
-	error("Merging infos would drop some labels.");
+      unless (old-info.const-info-heap-labels.empty?
+                | every?(rcurry(member?, old-info.const-info-heap-labels,
+                                test: \=),
+                         new-info.const-info-heap-labels))
+        error("Merging infos would drop some labels. (2) old: %=, new: %=", 
+              old-info, new-info);
       end unless;
     end if;
   end if;
@@ -1413,17 +1471,22 @@ end;
 define method emit-prologue
     (file :: <file-state>, other-units :: <simple-object-vector>)
     => ();
+  let stream = file.file-body-stream;
+
+  format(stream, "// This file is machine generated by d2c/mindy,\n"
+                 "// do not expect your changes to survive.\n\n");
+
   maybe-emit-include("stddef.h", file);
 //  maybe-emit-include("stdlib.h", file);
 
   if (instance?(*double-rep*, <c-data-word-representation>))
-    format(file.file-body-stream, "#define GD_DATAWORD_D\n");
+    format(stream, "#define GD_DATAWORD_D\n");
   end;
   if (instance?(*long-double-rep*, <c-data-word-representation>))
-    format(file.file-body-stream, "#define GD_DATAWORD_X\n");
+    format(stream, "#define GD_DATAWORD_X\n");
   end;
   if (*current-target*.long-long-size)
-    format(file.file-body-stream, "#define GD_HAVE_LONG_LONG\n");
+    format(stream, "#define GD_HAVE_LONG_LONG\n");
   end;
   
   maybe-emit-include("runtime.h", file, left: '"', right: '"');
@@ -1433,7 +1496,6 @@ define method emit-prologue
   // Transcendental library
 //  maybe-emit-include("math.h", file);
 
-  let stream = file.file-body-stream;
   format(stream, "#define obj_True %s.heapptr\n",
 	 c-expr-and-rep(as(<ct-value>, #t), *general-rep*, file));
   format(stream, "#define obj_False %s.heapptr\n\n",
@@ -1470,6 +1532,9 @@ define method emit-prologue
              rep.representation-c-type, rep.representation-alignment);
     end if;
   end for;
+
+  // FIXME only for <symbolic-c-preprocessor-stream>  
+  format(stream, "\n#define D__L(...) __VA_ARGS__\n");
 end;
 
 define method dylan-slot-offset (cclass :: <cclass>, slot-name :: <symbol>)
@@ -1497,15 +1562,15 @@ end;
 //   side-effects upon the current <file-state> -- i.e. adding a new
 //   "root".
 //
-define generic emit-tlf-gunk (tlf :: <top-level-form>, file :: <file-state>)
+define generic emit-tlf-gunk (backend == c:, tlf :: <top-level-form>, file :: <file-state>)
     => ();
 
-define method emit-tlf-gunk (tlf :: <top-level-form>, file :: <file-state>)
+define method emit-tlf-gunk (backend == c:, tlf :: <top-level-form>, file :: <file-state>)
     => ();
   format(file.file-body-stream, "\n/* %s */\n\n", tlf.clean-for-comment);
 end;
 
-define method emit-tlf-gunk (tlf :: <magic-interal-primitives-placeholder>,
+define method emit-tlf-gunk (backend == c:, tlf :: <magic-internal-primitives-placeholder>,
 			     file :: <file-state>)
     => ();
   let bstream = file.file-body-stream;
@@ -1540,11 +1605,12 @@ define method emit-tlf-gunk (tlf :: <magic-interal-primitives-placeholder>,
   begin
     let cclass = specifier-type(#"<double-integer>");
     let c-type = cclass.direct-speed-representation.representation-c-type;
+    let (expr, rep) = c-expr-and-rep(cclass, *heap-rep*, file);
+
     format(bstream, "heapptr_t make_double_integer(%s value)\n{\n", c-type);
     format(gstream, "heapptr_t res = allocate(%d);\n",
            cclass.instance-slots-layout.layout-length);
 
-    let (expr, rep) = c-expr-and-rep(cclass, *heap-rep*, file);
     let (c-code, temp?) = conversion-expr(*heap-rep*, expr, rep, file);
     format(gstream, "SLOT(res, heapptr_t, %d) = %s;\n",
            dylan-slot-offset(cclass, #"%object-class"),
@@ -1563,11 +1629,11 @@ define method emit-tlf-gunk (tlf :: <magic-interal-primitives-placeholder>,
 
   unless (instance?(*double-rep*, <c-data-word-representation>))
     let cclass = specifier-type(#"<double-float>");
+    let (expr, rep) = c-expr-and-rep(cclass, *heap-rep*, file);
     format(bstream, "heapptr_t make_double_float(double value)\n{\n");
     format(gstream, "heapptr_t res = allocate(%d);\n",
 	   cclass.instance-slots-layout.layout-length);
 
-    let (expr, rep) = c-expr-and-rep(cclass, *heap-rep*, file);
     let (c-code, temp?) = conversion-expr(*heap-rep*, expr, rep, file);
     format(gstream, "SLOT(res, heapptr_t, %d) = %s;\n",
 	   dylan-slot-offset(cclass, #"%object-class"),
@@ -1587,11 +1653,11 @@ define method emit-tlf-gunk (tlf :: <magic-interal-primitives-placeholder>,
 
   unless (instance?(*long-double-rep*, <c-data-word-representation>))
     let cclass = specifier-type(#"<extended-float>");
+    let (expr, rep) = c-expr-and-rep(cclass, *heap-rep*, file);
     format(bstream, "heapptr_t make_extended_float(long double value)\n{\n");
     format(gstream, "heapptr_t res = allocate(%d);\n",
 	   cclass.instance-slots-layout.layout-length);
 
-    let (expr, rep) = c-expr-and-rep(cclass, *heap-rep*, file);
     let (c-code, temp?) = conversion-expr(*heap-rep*, expr, rep, file);
     format(gstream, "SLOT(res, heapptr_t, %d) = %s;\n",
 	   dylan-slot-offset(cclass, #"%object-class"),
@@ -1613,7 +1679,7 @@ end;
 // This method does useful stuff to insure that heap dumping does the
 // right thing for generic functions.
 //
-define method emit-tlf-gunk (tlf :: <define-generic-tlf>, file :: <file-state>)
+define method emit-tlf-gunk (backend == c:, tlf :: <define-generic-tlf>, file :: <file-state>)
     => ();
   format(file.file-body-stream, "\n/* %s */\n\n", tlf.clean-for-comment);
   let defn = tlf.tlf-defn;
@@ -1672,13 +1738,13 @@ define method check-generic-method-xep
 end method check-generic-method-xep;
 
 define method emit-tlf-gunk
-    (tlf :: <define-method-tlf>, file :: <file-state>)
+    (backend == c:, tlf :: <define-method-tlf>, file :: <file-state>)
     => ();
   format(file.file-body-stream, "\n/* %s */\n\n", tlf.clean-for-comment);
   check-generic-method-xep(tlf.tlf-defn, file);
 end method emit-tlf-gunk;
       
-define method emit-tlf-gunk (tlf :: <define-class-tlf>, file :: <file-state>)
+define method emit-tlf-gunk (backend == c:, tlf :: <define-class-tlf>, file :: <file-state>)
     => ();
   format(file.file-body-stream, "\n/* %s */\n\n", tlf.clean-for-comment);
   // This class was obviously defined in this lib, so it is a local class.
@@ -1739,7 +1805,7 @@ define method emit-tlf-gunk (tlf :: <define-class-tlf>, file :: <file-state>)
 end method emit-tlf-gunk;
 
 define method emit-tlf-gunk
-    (tlf :: <define-bindings-tlf>, file :: <file-state>)
+    (backend == c:, tlf :: <define-bindings-tlf>, file :: <file-state>)
     => ();
   format(file.file-body-stream, "\n/* %s */\n\n", tlf.clean-for-comment);
   for (defn in tlf.tlf-required-defns)
@@ -1814,9 +1880,13 @@ end;
 
 
 // emit-component  --  exported interface
+//
+define generic emit-component
+    (backend == c:, component :: <fer-component>, file :: <file-state>) => ();
+
 
 define method emit-component
-    (component :: <fer-component>, file :: <file-state>) => ();
+    (backend == c:, component :: <fer-component>, file :: <file-state>) => ();
 
   // Do pre-pass over all function literals, allocating c-names for the entry
   // points that have already been created.  Later similar stuff is done on the
@@ -1868,7 +1938,7 @@ define method emit-component
   // between things, this is an excellent time to spew them.
   // Eventually, we'll run out and stop iterating.
   if (~file.file-deferred-xeps.empty?)
-    emit-component(pop(file.file-deferred-xeps), file);
+    emit-component(c: pop(file.file-deferred-xeps), file);
   end if;
 end;
 
@@ -1899,8 +1969,10 @@ define method emit-function
 	   i);
   end;
 
-  maybe-emit-source-location(function.source-location, file);
+  maybe-emit-source-location(function.source-location, file, line-getter: start-line);
+  finish-source-location(file);
   emit-region(function.body, file);
+  finish-source-location(file);
 
   let stream = file.file-body-stream;
   format(stream, "/* %s */\n", function.name.clean-for-comment);
@@ -1937,7 +2009,7 @@ define method compute-function-prototype
 	       else
 		 main-entry-c-name(function-info, file);
 	       end if;
-  let stream = make(<buffered-byte-string-output-stream>);
+  let stream = make(<byte-string-stream>, direction: #"output");
   let result-rep = function-info.function-info-result-representation;
   case
     (result-rep == #"doesn't-return") => write(stream, "GD_NORETURN void");
@@ -2047,11 +2119,10 @@ end;
 define method emit-region
     (region :: <simple-region>, file :: <file-state>)
     => ();
-  let byte-string :: <buffered-byte-string-output-stream>
+  let byte-string :: <byte-string-stream>
     = file.file-guts-stream.inner-stream;
   for (assign = region.first-assign then assign.next-op,
        while: assign)
-
     maybe-emit-source-location(assign.source-location, file);
 
     emit-assignment(assign.defines, assign.depends-on.source-exp, 
@@ -2432,7 +2503,7 @@ define method emit-assignment
 	       stringify(top, " - ", bot));
       else
 	let (args, sp) = cluster-names(call.info);
-	let setup-stream = make(<buffered-byte-string-output-stream>);
+	let setup-stream = make(<byte-string-stream>, direction: #"output");
 	for (arg-dep = arguments then arg-dep.dependent-next,
 	     count from 0,
 	     while: arg-dep)
@@ -2694,7 +2765,7 @@ define method emit-assignment
     => ();
   let function = call.depends-on.source-exp;
   let func-info = find-main-entry-info(function, file);
-  let stream = make(<buffered-byte-string-output-stream>);
+  let stream = make(<byte-string-stream>, direction: #"output");
   let c-name = main-entry-c-name(func-info, file);
   let (sp, new-sp) = cluster-names(call.info);
   let temps = make-temp-locals-list();
@@ -3564,7 +3635,7 @@ define method float-to-string (value :: <ratio>, digits :: <integer>)
   if (zero?(value))
     "0.0";
   else
-    let stream = make(<buffered-byte-string-output-stream>);
+    let stream = make(<byte-string-stream>, direction: #"output");
     if (negative?(value))
       value := -value;
       write-element(stream, '-');
@@ -3707,13 +3778,12 @@ define method emit-copy
     (target :: <string>, target-rep :: <c-data-word-representation>,
      source :: <string>, source-rep :: <magic-representation>,
      file :: <file-state>)
-    => ();
+ => ();
   let stream = file.file-guts-stream;
   let c-type-string = source-rep.representation-c-type;
-  format(stream, "%s = allocate(sizeof(%s)); *((%s*)%s) = %s;\n", 
+  format(stream, "%s = allocate(sizeof(%s)); *((%s*)%s) = %s;\n",
          target, c-type-string, c-type-string, target, source);
 end;
-
 
 
 // conversion-expr

@@ -1,8 +1,7 @@
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/Macintosh/Base-cw.lid,v 1.1 2002/03/12 22:00:50 gabor Exp $
 library: compiler-base
 unit-prefix: base
 unique-id-base: 10000
-shared-library: no
+shared-library: yes
 
 cw-base-exports.dylan
 utils.dylan

@@ -1,36 +1,27 @@
 ##
-##  $Header: /scm/cvs/src/common/Makegen,v 1.26 2003/07/17 19:05:53 housel Exp $
-##
 ##  This is the makegen file for the libraries shared between d2c and mindy.
 ##
 
 # the order is significant, since the d2c libraries must be compiled in
 # dependency order. 
 
-# These libraries are needed to compile d2c. They must compile against the
-# runtime that shipped with 2.2.0.
-@bootstrap_libraries =
-    ('streams', 'standard-io', 'print', 'format', 'collection-extensions',
-     'table-ext', 'string-ext', 'regular-expressions',
-     'stream-ext', 'transcendental', 'getopt', 'base-file-system');
-
-# These libraries have been introduced since 2.2.0. They may not be used by
-# d2c, parsergen or any of the above libraries. Once common-dylan stabilizes,
-# and most users can compile common-dylan programs, we'll drop backwards
-# compatibility with 2.2.0 and port everything to build against these
-# libraries.
-@non_bootstrap_libraries =
-    ('transcendental', 'threads', 'format-out', 'common-dylan', 'collections',
-     'io', 'file-system', 'time', 'date', 'system', 'locators', 'matrix');
-    #'network'
-    #'internal-time'
-
-&compile_subdirs(@bootstrap_libraries);
 unless ($enable_bootstrap) {
-  &compile_subdirs(@non_bootstrap_libraries);
+  &compile_subdirs('transcendental',
+		   'table-ext',
+		   'threads',
+		   'common-dylan',
+		   'collections',
+		   'matrix',
+		   'collection-extensions',
+		   'string-ext',
+		   'regular-expressions',
+		   'io',
+		   'system',
+		   'getopt',
+		   'stream-ext');
+
+  #&compile_subdirs('network');
   #if($features{'compiled_for_unix'}) {
   #  &compile_subdirs('command-processor');
   #}
 }
-
-

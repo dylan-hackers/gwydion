@@ -1,5 +1,4 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/evaluate.dylan,v 1.5 2003/03/16 08:43:28 brent Exp $
 copyright: see below
 
 //======================================================================
@@ -31,12 +30,86 @@ copyright: see below
 // This file contains an interpreter that can give back <ct-values> for
 // certain FER constructions.
 
+define variable debug-interpreter? = #f;
 
-define variable *interpreter-library* = #f;
+define inline function d(#rest args)
+  if(debug-interpreter?)
+    apply(format, *debug-output*, args);
+    force-output(*debug-output*);
+  end if;
+end function d;
 
-#if (~mindy)
+make(<command>, name: "Evaluate", 
+     command: method(expression)
+                  evaluate(expression, $empty-environment)
+              end,
+     summary: "Evaluate as Dylan expression.");
+
+make(<command>, name: "Set Library",
+     command: method(parameter)
+                  *current-library* := find-library(as(<symbol>, parameter), 
+                                                    create: #t);
+                  assure-loaded(*current-library*);
+                  if (*current-library*.broken?)
+                    format(*standard-output*, "Using broken library %s\r\n", 
+                           parameter);
+                  end if;
+              end method,
+     summary: "Set current library.");
+                               
+make(<command>, name: "Set Module",
+     command: method(parameter)
+                  *current-module*
+                    := find-module(*Current-Library* | $Dylan-library, 
+                                 as(<symbol>, parameter));
+              end method,
+     summary: "Set current module.");
+
+make(<command>, name: "Show Library",
+     command: method(parameter)
+                  let lib = find-library(as(<symbol>, parameter));
+                  assure-loaded(lib);
+                  format(*standard-output*, "%=\n", lib.exported-names);
+              end method,
+     summary: "Show modules in specified library.");
+                               
+make(<command>, name: "Show Module",
+     command: method(parameter)
+                  let mod = find-module(*Current-Library* | $Dylan-library, 
+                                        as(<symbol>, parameter));
+                  format(*standard-output*, "%=\n", mod.exported-names);
+              end method,
+     summary: "Show symbols in specified module.");
+                               
+make(<command>, name: "Show Libraries",
+     command: method(parameter)
+                  for(lib in $Libraries)
+                    format(*standard-output*, "%=\n", lib);
+                  end for;
+              end method,
+     summary: "Show all loaded libraries.");
+        
+make(<command>, name: "Find",
+     command: method(symbol)
+                  for(lib in $Libraries)
+                    for(mod in lib.exported-names)
+                      let the-mod = find-module(lib, mod);
+                      let found 
+                        = find-variable(make(<basic-name>, 
+                                             module: the-mod,
+                                             symbol: as(<symbol>, symbol)));
+                      if(found)
+                        format(*standard-output*, "%= => %=\n",
+                               lib, 
+                               mod);
+                      end if;
+                    end for;
+                  end for;
+              end method,
+     summary: "Search for named symbol in all modules.");
+
 define generic evaluate(expression, environment :: <interpreter-environment>)
- => val :: <ct-value>;
+ => val :: <object>;
 
 define constant $empty-environment 
   = curry(error, "trying to access %= in an empty environment");
@@ -49,6 +122,7 @@ end;
 
 define method evaluate(expression :: <string>, env :: <interpreter-environment> )
  => (val :: <ct-value>)
+/*
   if(~ *interpreter-library*)
     *interpreter-library* := find-library(#"foo", create: #t); // ### FIXME: arbitrary name
     seed-representations();
@@ -58,22 +132,22 @@ define method evaluate(expression :: <string>, env :: <interpreter-environment> 
   end if;
   *Current-Library* := *interpreter-library*;
   *Current-Module*  := find-module(*interpreter-library*, #"dylan-user");
+*/
   *top-level-forms* := make(<stretchy-vector>);
-  let tokenizer = make(<lexer>, 
+  let tokenizer = make(<lexer>,
+                       module: *Current-Module*,
                        source: make(<source-buffer>, 
                                     buffer: as(<byte-vector>, expression)),
                        start-line: 0,
                        start-posn: 0);
   parse-source-record(tokenizer);
   for(tlf in *top-level-forms*)
-    format(*debug-output*, "got tlf %=", tlf);
-    force-output(*debug-output*);
+    d("got tlf %=", tlf);
     
     select(tlf by instance?)
       <expression-tlf> =>
         let expression = tlf.tlf-expression;
-        format(*debug-output*, ", an expression \n%=\n", expression);
-        force-output(*debug-output*);
+        d(", an expression \n%=\n", expression);
         let component = make(<fer-component>);
         let builder = make-builder(component);
         let result-type = object-ctype();
@@ -95,12 +169,11 @@ define method evaluate(expression :: <string>, env :: <interpreter-environment> 
         
         end-body(builder);
         
-        format(*debug-output*, "\n\nBefore optimization:\n");
-        dump-fer(component);
+        d("\n\nBefore optimization:\n");
+        debug-interpreter? & dump-fer(component, #t);
         optimize-component(*current-optimizer*, component);
-        format(*debug-output*, "\n\nAfter optimization:\n");
-        dump-fer(component);
-        force-output(*debug-output*);
+        d("\n\nAfter optimization:\n");
+        debug-interpreter? & dump-fer(component, #t);
         
         let value
           = block (return)
@@ -120,8 +193,8 @@ define method evaluate(expression :: <string>, env :: <interpreter-environment> 
               ret.exit-result
             end;
     
-        format(*debug-output*, "\n\nevaluated expression: %=\n", value);
-        format(*debug-output*, "\n\nBinding of return variable: %=\n", result-var);
+        format(*debug-output*, "evaluated expression: %=\n", value);
+//        format(*debug-output*, "\n\nBinding of return variable: %=\n", result-var);
         force-output(*debug-output*);
       otherwise =>
         let component = make(<fer-component>);
@@ -145,12 +218,11 @@ define method evaluate(expression :: <string>, env :: <interpreter-environment> 
           let ctv = make(<ct-function>, name: name-obj, signature: sig);
           make-function-literal(builder, ctv, #"function", #"global",
                                 sig, init-function);
-          format(*debug-output*, "\n\nBefore optimization:\n");
-          dump-fer(component);
+          d("\n\nBefore optimization:\n");
+          debug-interpreter? & dump-fer(component, #t);
           optimize-component(*current-optimizer*, component);
-          format(*debug-output*, "\n\nAfter optimization:\n");
-          dump-fer(component);
-          force-output(*debug-output*);
+          d("\n\nAfter optimization:\n");
+          debug-interpreter? & dump-fer(component, #t);
           
           format(*debug-output*, "\n\nevaluated expression: %=\n",
                  evaluate(init-function.body,
@@ -223,7 +295,7 @@ end;
 
 
 define class <return-condition>(<exit-condition>)
-  constant slot exit-result :: <ct-value>, required-init-keyword: result:;
+  constant slot exit-result :: <object>, required-init-keyword: result:;
 end class <return-condition>;
 
 
@@ -244,10 +316,10 @@ define fer-evaluator if-region(environment)
   let test-value
     = evaluate(if-region.depends-on.source-exp,
                               environment);
-  if(test-value == as(<ct-value>, #f))
-    fer-evaluate(if-region.else-region, environment);
-  else
+  if(test-value)
     fer-evaluate(if-region.then-region, environment);
+  else
+    fer-evaluate(if-region.else-region, environment);
   end if;
 end;
 
@@ -326,10 +398,10 @@ end;
 define generic evaluate-call(func :: <abstract-function-literal>,
                                  operands :: false-or(<dependency>),
                                  callee-environment :: <interpreter-environment>)
- => result :: <ct-value>;
+ => result :: <object>;
 
-define method evaluate-call(func :: <method-literal>, operands :: false-or(<dependency>), callee-environment :: <interpreter-environment>)
- => result :: <ct-value>;
+define method evaluate-call(func :: <function-literal>, operands :: false-or(<dependency>), callee-environment :: <interpreter-environment>)
+ => result :: <object>;
 
 //  format(*debug-output*, "\n\n\n####### evaluate-call %= %= \n", func, operands);
 //  force-output(*debug-output*);
@@ -361,15 +433,33 @@ define method evaluate-call(func :: <method-literal>, operands :: false-or(<depe
   end block
 end;
 
-define method evaluate(expr :: <literal-constant>, environment :: <interpreter-environment>)
- => result :: <ct-value>;
+define method evaluate(expr :: <ct-value>, 
+                       environment :: <interpreter-environment>)
+ => result :: <object>;
+  expr;
+end;
+
+/*
+define method evaluate(expr :: <literal>,
+                       environment :: <interpreter-environment>)
+ => result :: <object>;
+  expr.literal-value;
+end method evaluate;
+*/
+
+define method evaluate(expr :: <literal-constant>, 
+                       environment :: <interpreter-environment>)
+ => result :: <object>;
   expr.value;
 end;
 
-define method evaluate(expr :: <method-literal>, environment :: <interpreter-environment>)
+// .info.const-info-heap-labels[0].find-runtime-object-from-heap-label
+
+define method evaluate(expr :: <definition-constant-leaf>,
+                       environment :: <interpreter-environment>)
  => result :: <ct-value>;
-  expr.ct-function
-end;
+  expr.const-defn.ct-value;
+end method evaluate;
 
 define method evaluate(expr :: <truly-the>, environment :: <interpreter-environment>)
  => result :: <ct-value>;
@@ -384,13 +474,16 @@ define method evaluate(expr :: <unknown-call>, environment :: <interpreter-envir
   evaluate-call(leaf, args, environment);
 end;
 
-define method evaluate(expr :: <known-call>, environment :: <interpreter-environment>)
+define method evaluate(expr :: <known-call>, 
+                       environment :: <interpreter-environment>)
  => result :: <ct-value>;
-  let func /* :: <method-literal> */ = expr.depends-on.source-exp;
-  if(instance?(func, <literal-constant>))
-    func := evaluate(func, environment);
-  end if;
+  let func = expr.depends-on.source-exp;
   let args = expr.depends-on.dependent-next;
+  if(~instance?(func, <function-literal>))
+    func := evaluate(func, environment);
+    let info = get-info-for(func, #f);
+    format(*debug-output*, "%=\r\n", info.const-info-heap-labels);
+  end if;
   evaluate-call(func, args, environment);
 end;
 
@@ -532,4 +625,3 @@ define function append-environment(prev-env :: <interpreter-environment>, new-bi
     end if;
   end method;
 end function;
-#endif

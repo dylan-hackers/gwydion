@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/symbol.dylan,v 1.5 2003/06/11 18:17:20 housel Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -29,8 +28,7 @@ module: dylan-viscera
 //
 //======================================================================
 
-//
-// Symbols.
+// Symbols
 //
 // This file defines the support code for symbols.
 //
@@ -39,6 +37,10 @@ module: dylan-viscera
 // the symbol-string directly in a vector slot instead of a seperate
 // string object.  Or at least copying the string before returning it in
 // as(<string>, symbol).
+//
+// Seals for most collection operations on the built-in collections can be
+// found in seals.dylan.  Some exceptions apply, such as "make" and "as".
+// See seals.dylan for more info.
 //
 
 
@@ -53,7 +55,7 @@ define class <symbol-table> (<object>)
   // table.
   slot sym-count :: <integer>, init-value: 0;
   //
-  // The length of the bucket vector.  Duplicated here for effeciency.
+  // The length of the bucket vector.  Duplicated here for efficiency.
   slot cell-count :: <integer>, required-init-keyword: #"size";
   //
   // The bucket vector.  Each element is a chain (though symbol-next) of
@@ -87,7 +89,7 @@ end method initialize;
 //
 // Grow the table and redistribute the symbols in the bucket vector.
 // 
-define method rehash-symbols (table :: <symbol-table>) => ();
+define function rehash-symbols (table :: <symbol-table>) => ();
   let new-size = table.cell-count * 2 - 1;
   let new-cells = make(<simple-object-vector>, size: new-size, fill: #f);
 
@@ -107,7 +109,7 @@ define method rehash-symbols (table :: <symbol-table>) => ();
   table.cell-count := new-size;
   table.cells := new-cells;
   table.resize-threshold := floor/(new-size * 3, 2);
-end method rehash-symbols;
+end function rehash-symbols;
 
 
 // <symbol> -- exported from Dylan.
@@ -193,7 +195,7 @@ define method symbol-equal
   if (str1.size == str2.size)
     block (return)
       for (char1 in str1, char2 in str2)
-	if (char1 ~== char2 & as-lowercase(char1) ~== as-lowercase(char2))
+	if ((char1 ~== char2) & (as-lowercase(char1) ~== as-lowercase(char2)))
 	  return(#f);
 	end if;
       end for;

@@ -1,5 +1,4 @@
 module: melange-support
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/melange/melange.dylan,v 1.15 2003/04/13 01:00:49 andreas Exp $
 
 //======================================================================
 //

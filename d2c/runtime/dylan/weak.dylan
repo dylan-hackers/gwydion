@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/weak.dylan,v 1.2 2000/01/24 04:56:50 andreas Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -32,12 +31,14 @@ module: dylan-viscera
 define class <weak-pointer> (<object>)
 end;
 
-define method make (class == <weak-pointer>,
+define sealed inline method make (class == <weak-pointer>,
 		    #key object = required-keyword(object:))
   %%primitive(make-weak-pointer, object);
 end;
 
-define method weak-pointer-object (weak-ptr :: <weak-pointer>)
+define sealed domain initialize (<weak-pointer>);
+
+define sealed inline function weak-pointer-object (weak-ptr :: <weak-pointer>)
     => (object :: <object>, broken :: <boolean>);
   %%primitive(weak-pointer-object, weak-ptr);
 end;
@@ -45,12 +46,13 @@ end;
 
 
 // Weak lists.
+// Note: currently not exported or used
 
 define class <weak-list> (<mutable-sequence>)
   slot contents :: <list>, required-init-keyword: contents:;
 end;
 
-define method make (class == <weak-list>, #key contents = $not-supplied,
+define sealed method make (class == <weak-list>, #key contents = $not-supplied,
 		    size = $not-supplied, fill)
   if (contents == $not-supplied)
     next-method(class,
@@ -69,19 +71,21 @@ define method make (class == <weak-list>, #key contents = $not-supplied,
   end;
 end;
 
-define method add (weak-list :: <weak-list>, element :: <object>)
+define sealed domain initialize (<weak-list>);
+
+define sealed method add (weak-list :: <weak-list>, element :: <object>)
     => res :: <weak-list>;
   make(<weak-list>, contents: pair(element, as(<list>, weak-list)));
 end;
 
-define method add! (weak-list :: <weak-list>, element :: <object>)
+define sealed method add! (weak-list :: <weak-list>, element :: <object>)
     => res :: <weak-list>;
   weak-list.contents := add!(make(<weak-pointer>, object: element),
 			     weak-list.contents);
   weak-list;
 end;
 
-define method remove (weak-list :: <weak-list>, element :: <object>,
+define sealed method remove (weak-list :: <weak-list>, element :: <object>,
 		      #key test = \==, count = $not-supplied)
   make(<weak-list>,
        contents: if (count == $not-supplied)
@@ -92,7 +96,7 @@ define method remove (weak-list :: <weak-list>, element :: <object>,
 		 end);
 end;
 
-define method remove! (weak-list :: <weak-list>, element :: <object>,
+define sealed method remove! (weak-list :: <weak-list>, element :: <object>,
 		       #key test = \==, count = $not-supplied)
   local method new-test (weak-ptr, element)
 	  let (object, broken?) = weak-pointer-object(weak-ptr);
@@ -109,17 +113,17 @@ define method remove! (weak-list :: <weak-list>, element :: <object>,
   weak-list;
 end;
 
-define method reverse (weak-list :: <weak-list>)
+define sealed inline method reverse (weak-list :: <weak-list>)
     => res :: <weak-list>;
   make(<weak-list>, contents: reverse(as(<list>, weak-list.contents)));
 end;
 
-define method reverse! (weak-list :: <weak-list>)
+define sealed inline method reverse! (weak-list :: <weak-list>)
   weak-list.contents := reverse!(weak-list.contents);
 end;
 
 
-define method forward-iteration-protocol (weak-list :: <weak-list>)
+define sealed inline method forward-iteration-protocol (weak-list :: <weak-list>)
   let list = as(<list>, weak-list);
   values(list,
 	 #(),

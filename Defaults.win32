@@ -28,22 +28,14 @@ $includedir = "${prefix}\\include";
 $gen_makefile = "${buildroot}\\gen-makefile";
 $enable_debug = "minimum" eq "yes";
 $enable_profiling = "minimum" eq "profiling";
-$enable_mindy = "no" eq "yes";
-$enable_d2c = "yes" eq "yes";
-$build_tools_with_d2c = "yes" eq "yes";
 $cross_compiling = "no" eq "yes";
 $enable_bootstrap = "no" eq "yes";
-$bootstrap_compiler = "none";
-$enable_mindy_bootstrap = $enable_bootstrap && $bootstrap_compiler eq "mindy";
 $recheck = ".\\configure ";
 $shared = "no" eq "yes";
 $static = "yes" eq "yes";
 #$INSTALL = "c:\\Fulgham\\Programs\\Msys\\bin\\sh \\usr\\bin\\install -c";
 $LIBTOOL = '';
 
-$MC = "$exec_prefix\\bin\\mindycomp.exe";
-$MINDY = "$exec_prefix\\bin\\interp.exe";
-$DYLANPATH = ";${srcroot}\\common\\collection-extensions;${srcroot}\\common\\format;${srcroot}\\common\\format-out;${srcroot}\\common\\internal-time;${srcroot}\\common\\matrix;${srcroot}\\common\\print;${srcroot}\\common\\regular-expressions;${srcroot}\\common\\standard-io;${srcroot}\\common\\stream-ext;${srcroot}\\common\\streams;${srcroot}\\common\\string-ext;${srcroot}\\common\\table-ext;${srcroot}\\common\\time;${srcroot}\\common\\transcendental;${srcroot}\\common\\getopt;${srcroot}\\mindy\\libraries\\random;${srcroot}\\mindy\\libraries\\dylan;${srcroot}\\mindy\\libraries\\inspector;${srcroot}\\mindy\\libraries\\tk;${srcroot}\\d2c\\runtime\\random";
 $CC = 'cl';
 $D2C = "$bindir\\d2c -T$target_name -Dcompiled-for-x86 -Dcompiled-for-win32 -Dnewlines-are-CRLF -DC-compiler-is-VC";
 if ($host_name ne $target_name) {
@@ -53,12 +45,7 @@ if ($host_name ne $target_name) {
 $PARSERGEN = "$buildroot\\tools\\parsergen\\parsergen";
 $MELANGE = "$buildroot\\tools\\melange\\melange";
 
-unless ($build_tools_with_d2c) {
-  $PARSERGEN = "$MINDY -f $PARSERGEN-lib.dbc";
-  $MELANGE = "$MINDY -f $MELANGE.dbc";
-};
-
-if ($enable_bootstrap && $bootstrap_compiler eq "d2c") {
+if ($enable_bootstrap) {
     $CPPFLAGS = '-I'.$srcroot.'\\previous_runtime';
     $d2c_runtime = '-L'.$buildroot.'\\previous_runtime ';
 } else {

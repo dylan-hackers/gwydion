@@ -371,16 +371,16 @@ define method c-rep (c-type :: <symbol>) => rep :: false-or(<representation>);
     #"void" => #f;
     otherwise =>
       // XXX Magic C type hack
-      let c-type-string = as(<string>, c-type);
-      make(<magic-representation>, name: c-type,
-           more-general: *ptr-rep*,
-           from-more-general: 
-             concatenate("(*((", c-type-string, "*)%s))"),
-           to-more-general:
-             "(&(%s))",
-           alignment: 0, size: 0,
-           c-type: as(<string>, c-type));
-//      error("unknown c-rep %=", c-type);
+      let c-type-string = as(<string>, c-type); 	 
+      make(<magic-representation>, name: c-type, 	 
+           more-general: *ptr-rep*, 	 
+           from-more-general: 	 
+             concatenate("(*((", c-type-string, "*)%s))"), 	 
+           to-more-general: 	 
+             "(&(%s))", 	 
+           alignment: 0, size: 0, 	 
+           c-type: as(<string>, c-type)); 	 
+//    error("unknown c-rep %=", c-type); 	 
   end;
 end method;
 

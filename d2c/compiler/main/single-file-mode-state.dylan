@@ -1,5 +1,4 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/single-file-mode-state.dylan,v 1.15 2003/10/01 18:05:18 andreas Exp $
 copyright: see below
 
 //======================================================================
@@ -30,13 +29,13 @@ copyright: see below
 //======================================================================
 
 define class <single-file-mode-state> (<main-unit-state>)
-  slot unit-source-file :: <byte-string>, required-init-keyword: source-file:;
+  slot unit-source-locator :: <file-locator>,
+    required-init-keyword: source-locator:;
   
   slot unit-name :: <byte-string>; // for single files, name == module == library == executable
   slot unit-lib :: <library>;
 
   slot unit-mprefix :: <byte-string>;
-  slot unit-tlf-vectors :: <stretchy-vector> = make(<stretchy-vector>);
   slot unit-modules :: <stretchy-vector> = make(<stretchy-vector>);
   slot unit-cback-unit :: <unit-state>;
   slot unit-other-cback-units :: <simple-object-vector>;
@@ -48,7 +47,7 @@ define class <single-file-mode-state> (<main-unit-state>)
 end class <single-file-mode-state>;
 
 define method parse-and-finalize-library (state :: <single-file-mode-state>) => ();
-  let source = make(<source-file>, name: state.unit-source-file);
+  let source = make(<source-file>, locator: state.unit-source-locator);
   let (header, start-line, start-posn) = parse-header(source);
 
   state.unit-header := header;
@@ -106,7 +105,10 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
     mod-string := concatenate(mod-string, format-to-string("use common-dylan; use format-out; end; "));
   end if;
     
-  let libmod-declaration = as(<byte-vector>, format-to-string("%s %s\n\n", lib-string, mod-string));
+  let libmod-declaration
+    = format-to-string("%s %s\n\n", lib-string, mod-string);
+  let libmod-buffer = make(<buffer>, size: libmod-declaration.size);
+  copy-bytes(libmod-declaration, 0, libmod-buffer, 0, libmod-declaration.size);
 
   // XXX these two look suspicious
   // second one is ok, default is now according to DRM
@@ -116,26 +118,16 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
 
   state.unit-mprefix := as-lowercase(lib-name);
 
-  //let libmod-declaration = as(<byte-vector>, format-to-string("define library %s use common-dylan; use io; end; define module %s use common-dylan; use format-out; end;\n\n", lib-name, lib-name));
-
   block ()
-    let tokenizer = make(<lexer>, 
+    let module = find-module(state.unit-lib, as(<symbol>, "dylan-user"));
+    let tokenizer = make(<lexer>,
+                         module: module,
                          source: make(<source-buffer>, 
-                                      buffer: libmod-declaration),
+                                      buffer: libmod-buffer),
                          start-line: 0,
                          start-posn: 0);
-    block ()
-      *Current-Library* := state.unit-lib;
-      *Current-Module*  := find-module(state.unit-lib, as(<symbol>, "dylan-user"));
-      let tlfs = make(<stretchy-vector>);
-      *Top-Level-Forms* := tlfs;
-      add!(state.unit-tlf-vectors, tlfs);
-      add!(state.unit-modules, *Current-Module*);
-      parse-source-record(tokenizer);
-    cleanup
-      *Current-Library* := #f;
-      *Current-Module* := #f;
-    end;
+    *Top-Level-Forms* := state.unit-tlfs;
+    parse-source-record(tokenizer);
   exception (<fatal-error-recovery-restart>)
     format(*debug-output*, "skipping rest of built-in init definition\n");
   end block;
@@ -143,55 +135,35 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
 
   let mod = find-module(state.unit-lib, as(<symbol>, lib-name));
 
+  format(*debug-output*, "Parsing %s\n", state.unit-source-locator);
   block ()
-    format(*debug-output*, "Parsing %s\n", state.unit-source-file);
     let tokenizer = make(<lexer>, 
+                         module: mod,
                          source: source,
                          start-line: start-line,
                          start-posn: start-posn);
-    block ()
-      *Current-Library* := state.unit-lib;
-      *Current-Module*  := mod;
-      let tlfs = make(<stretchy-vector>);
-      *Top-Level-Forms* := tlfs;
-      add!(state.unit-tlf-vectors, tlfs);
-      add!(state.unit-modules, mod);
-      parse-source-record(tokenizer);
-    cleanup
-      *Current-Library* := #f;
-      *Current-Module* := #f;
-    end;
+    *Top-Level-Forms* := state.unit-tlfs;
+    parse-source-record(tokenizer);
   exception (<fatal-error-recovery-restart>)
-    format(*debug-output*, "skipping rest of %s\n", state.unit-source-file);
+    format(*debug-output*, "skipping rest of %s\n", state.unit-source-locator);
   end block;
-  format(*debug-output*, "seeding representations\n");
-  seed-representations();
-  format(*debug-output*, "Finalizing definitions\n");
-  for(tlfs in state.unit-tlf-vectors)  
-    for (tlf in copy-sequence(tlfs))
-      note-context(tlf);
-      finalize-top-level-form(tlf);
-      end-of-context();
-    end for;
-  end for;
-  format(*debug-output*, "inheriting slots\n");
-  inherit-slots();
-  format(*debug-output*, "inheriting overrides\n");
-  inherit-overrides();
-  begin
-    let unique-id-base 
-      = element(state.unit-header, #"unique-id-base", default: #f);
-    if (unique-id-base)
-      format(*debug-output*, "assigning unique ids\n");
-      assign-unique-ids(string-to-integer(unique-id-base));
-    end;
-  end;
-  format(*debug-output*, "laying out instances\n");
-  layout-instance-slots();
+
+  finalize-library(state);
 end method parse-and-finalize-library;
 
 define method compile-file (state :: <single-file-mode-state>) => ();
-  format(*debug-output*, "Processing %s\n", state.unit-source-file);
+  let tlfs = state.unit-tlfs;
+
+  run-stage("Converting top level forms.",
+            method(tlf)
+                compile-1-tlf(tlf, state);
+            end method, tlfs);
+  
+  run-stage("Optimizing top level forms.",
+            method(tlf)
+                optimize-component(*current-optimizer*, tlf.tlf-component);
+            end method, tlfs);
+
   let c-name = concatenate(state.unit-name, ".c");
   let body-stream
      = make(<file-stream>, locator: c-name, direction: #"output");
@@ -201,20 +173,10 @@ define method compile-file (state :: <single-file-mode-state>) => ();
   state.unit-stream := body-stream;
   emit-prologue(file, state.unit-other-cback-units);
 
-  for (tlfs in state.unit-tlf-vectors,
-       module in state.unit-modules)
-      *Current-Module* := module;
-      for (tlf in tlfs)
-        block ()
-          compile-1-tlf(tlf, file, state);
-        cleanup
-          end-of-context();
-        exception (<fatal-error-recovery-restart>)
-          #f;
-        end block;
-      end for;
-  end for;
-  format(*debug-output*, "\n", state.unit-source-file);
+  run-stage("Emitting C code.",
+            method(tlf)
+                emit-1-tlf(tlf, file, state);
+            end method, tlfs);
 end method compile-file;
 
 
@@ -228,7 +190,6 @@ end method build-library-inits;
 
 define method build-local-heap-file (state :: <single-file-mode-state>) => ();
   format(*debug-output*, "Emitting Library Heap.\n");
-  let heap-stream = state.unit-stream;
   let prefix = state.unit-cback-unit.unit-prefix;
   let (undumped, extra-labels) = build-local-heap(state.unit-cback-unit, 
 						  state.unit-c-file);
@@ -242,7 +203,6 @@ end method build-local-heap-file;
 
 define method build-da-global-heap (state :: <single-file-mode-state>) => ();
   format(*debug-output*, "Emitting Global Heap.\n");
-  let heap-stream = state.unit-stream;
   build-global-heap(apply(concatenate, map(undumped-objects, *units*)),
 		    state.unit-c-file);
 end method;
@@ -258,13 +218,7 @@ define method build-inits-dot-c (state :: <single-file-mode-state>) => ();
   end;
   format(stream, "}\n");
   format(stream, "\nextern void real_main(int argc, char *argv[]);\n\n");
-#if (macos)
-  format(stream, "#include<console.h>\n");
-#endif
   format(stream, "int main(int argc, char *argv[]) {\n");
-#if (macos)
-  format(stream, "    argc = ccommand( &argv );\n");
-#endif
   format(stream, "    real_main(argc, argv);\n");
   format(stream, "    exit(0);\n");
   format(stream, "}\n");

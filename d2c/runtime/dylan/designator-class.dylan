@@ -1,4 +1,3 @@
-rcs-header: $Header: /scm/cvs/src/d2c/runtime/dylan/designator-class.dylan,v 1.5 2002/01/29 00:53:42 housel Exp $
 copyright: see below
 module: dylan-viscera
 
@@ -50,6 +49,9 @@ define class <designator-class> (<class>)
     init-keyword: class-struct-slot-descriptors:, init-value: #[];
 end class;
 
+define sealed domain make (singleton(<designator-class>));
+define sealed domain initialize (<designator-class>);
+
 // Descriptor information for FFI struct/union slots
 //
 define class <struct-slot-descriptor> (<object>)
@@ -58,6 +60,9 @@ define class <struct-slot-descriptor> (<object>)
   slot struct-slot-offset :: <integer>,
     required-init-keyword: offset:;
 end class;
+
+define sealed domain make (singleton(<struct-slot-descriptor>));
+define sealed domain initialize (<struct-slot-descriptor>);
 
 // Core defining macro for <designator-class> objects
 //
@@ -196,4 +201,4 @@ define macro designator-class-definer
 	   ?init-function:expression = #f,
 	   ?type:expression = #f }
       => {?all}
-end;
+end macro designator-class-definer;

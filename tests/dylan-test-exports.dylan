@@ -29,14 +29,11 @@ module: Dylan-user
 
 define library dylan-test
   use dylan;
-//  use streams;
-//  use standard-io;
+  use common-dylan;
 end library dylan-test;
 
 define module dylan-test
   use Dylan;
   use Extensions;
-  use Cheap-IO;
-//  use streams, import: {force-output};
-//  use standard-io;
+  use Simple-io;
 end module dylan-test;

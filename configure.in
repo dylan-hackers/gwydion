@@ -1,18 +1,11 @@
-dnl	$Header: /scm/cvs/src/configure.in,v 1.155 2004/08/23 21:01:22 gabor Exp $
 dnl
 dnl	The new and improved configure file for Gwydion Dylan!
 dnl	This is based on the old configure file, but rewritten to
 dnl	support our goals for maintaining and improving the compiler.
 dnl
 dnl	Rules are annotated with codes:
-dnl	  [M] Mindy-specific
 dnl	  [C] d2c-specific
 dnl	  [?] Might be specific to one or the other
-dnl
-dnl	One important restriction on this new configure file: we
-dnl	don't support building parts of the distribution with Mindy
-dnl	in the absense of d2c. If someone wants to reimplement those
-dnl	features so that they work, send us mail.
 dnl
 dnl	We don't support cross-compilation yet, but we're working on
 dnl	it.
@@ -46,7 +39,7 @@ AC_SUBST(VERSION)
 # $srcdir/version when incrementing this value.)
 #--------------------------------------------------------------------
 
-CURRENT_BOOTSTRAP_COUNTER=37
+CURRENT_BOOTSTRAP_COUNTER=1004
 AC_SUBST(CURRENT_BOOTSTRAP_COUNTER)
 
 #--------------------------------------------------------------------
@@ -86,8 +79,11 @@ fi
 # whether there's any cross-compiling going on.
 #--------------------------------------------------------------------
 
-AC_CANONICAL_SYSTEM		# Find the system type
+AC_CANONICAL_BUILD		# Find the system type
+AC_CANONICAL_HOST
+AC_CANONICAL_TARGET
 AC_ARG_PROGRAM			# Provide support for name prefixes
+AC_PROG_CC			# Specify when cross-compiling.
 
 AC_DEFUN(GD_D2C_SYSTEM,[
 case $1 in
@@ -110,6 +106,7 @@ case $1 in
         esac ;;
     sparc*-openbsd*) $2=sparc-openbsd-gcc ;;
     i*86-*-solaris*) $2=x86-solaris-gcc ;;
+    i*86-*-l4*) $2=x86-l4-gcc ;;
     i*86-*-freebsd2.*) $2=x86-freebsd-aout-gcc ;;
     i*86-*-freebsd*)
         case `gcc -dumpversion` in
@@ -118,7 +115,7 @@ case $1 in
 	     *)    $2=x86-freebsd-elf-gcc ;;
         esac ;;
     i*86-pc-cygwin*)
-        case `gcc -dumpversion` in
+        case `$CC -dumpversion` in
 	     3.3*) $2=x86-cygnus-gcc33 ;;
 	     3.2*) $2=x86-cygnus-gcc32 ;;
 	     *)    $2=x86-cygnus-gcc ;;
@@ -128,7 +125,11 @@ case $1 in
     i*86-pc-beos) $2=x86-beos-gcc ;;
     powerpc-apple-darwin*) $2=ppc-darwin-gcc ;;
     mips-sgi-irix*) $2=mips-irix-gcc ;;
-    i*86-*-netbsd*) $2=x86-netbsd-gcc ;;
+    i*86-*-netbsd*)
+        case `gcc -dumpversion` in
+	     3.3*) $2=x86-netbsd-gcc33 ;;
+	     *)    $2=x86-netbsd-gcc ;;
+        esac ;;
     *) $2=unknown-unix ;;
 esac])
 
@@ -145,6 +146,15 @@ AC_MSG_CHECKING(d2c host system type)
 GD_D2C_SYSTEM($host,d2c_host)
 AC_MSG_RESULT($d2c_host)
 AC_SUBST(d2c_host)
+
+AC_MSG_CHECKING(d2c target system type)
+if test "x$target_alias" != "x"; then
+  d2c_target=$target_alias
+else
+  GD_D2C_SYSTEM($target,d2c_target)
+fi
+AC_MSG_RESULT($d2c_target)
+AC_SUBST(d2c_target)
 
 #----------------------------------------------------------
 # Now that I know the build version, and particularly, if it's cygnus
@@ -163,11 +173,6 @@ esac
 AC_MSG_RESULT($exe_ext)
 AC_SUBST(exe_ext)
 AC_SUBST(cygnus_line_hack)
-
-AC_MSG_CHECKING(d2c target system type)
-GD_D2C_SYSTEM($target,d2c_target)
-AC_MSG_RESULT($d2c_target)
-AC_SUBST(d2c_target)
 
 AC_SUBST(host_cpu)
 
@@ -210,7 +215,6 @@ if test "$PERL" = no; then
 fi
 
 AC_PROG_INSTALL
-AC_PROG_CC			# Specify when cross-compiling.
 AC_PROG_LEX
 AC_PROG_YACC
 AC_PROG_LN_S
@@ -246,31 +250,6 @@ AC_MSG_RESULT($static)
 AC_SUBST(static)	
 
 #--------------------------------------------------------------------
-# Figure out what to do with Mindy.
-#--------------------------------------------------------------------
-
-# If self-compiling, always run mindy out of the build area, since the
-# installed version might be wrong.
-MINDY=$buildroot/mindy/interp/mindy
-MC=$buildroot/mindy/comp/mindycomp
-
-# Set DYLANPATH so that mindy can find the uninstalled libraries.
-DYLANPATH=""
-for dir in collection-extensions format format-out internal-time matrix print \
-    regular-expressions standard-io stream-ext streams string-ext table-ext time \
-    transcendental getopt network
-do DYLANPATH=${DYLANPATH}":"$buildroot/common/$dir
-done
-for dir in random dylan inspector tk;
-do DYLANPATH=${DYLANPATH}":"$buildroot/mindy/libraries/$dir
-done
-
-DYLANPATH='"'$DYLANPATH'"'
-AC_SUBST(DYLANPATH)
-AC_SUBST(MINDY)
-AC_SUBST(MC)
-
-#--------------------------------------------------------------------
 # Study our build environment carefully.
 #--------------------------------------------------------------------
 
@@ -278,34 +257,14 @@ AC_SUBST(MC)
 AC_PATH_PROG(D2C, d2c, no)
 d2c_path=`echo $ac_cv_path_D2C|sed -e 's|/bin/d2c||'`
 
-# Did the user try to disable d2c?
-AC_ARG_ENABLE(d2c,   [  --disable-d2c           Do not build d2c])
-enable_d2c=${enable_d2c:-yes}
-
 # Does the user explicitly want a bootstrap?
-AC_ARG_ENABLE(d2c-bootstrap,
-[  --enable-d2c-bootstrap  Force a two-stage d2c bootstrap even if the
-                          bootstrap counts match.  This saves hacking
-                          with main.dylan and configure.in every time
-                          you want to test some little change in the
-                          runtime system])
-enable_d2c_bootstrap=${enable_d2c_bootstrap:-no}
-
-# Did the user try to disable mindy?
-AC_ARG_ENABLE(mindy, [  --disable-mindy         Do not build Mindy])
-enable_mindy=${enable_mindy:-yes}
-
-# Did the user try to enable bootstrapping with Mindy?
-AC_ARG_ENABLE(mindy-bootstrap,
-[  --enable-mindy-bootstrap
-                          Force bootstrap with Mindy. This can easily
-                          take a few hours, or a day, and is normally
-                          done only when porting d2c to a new
-                          architecture for the first time.  You
-                          usually want to get precompiled d2c binaries
-                          if any are available for your system. See
-                          the README.])
-enable_mindy_bootstrap=${enable_mindy_bootstrap:-no}
+AC_ARG_ENABLE(bootstrap,
+[  --enable-bootstrap  Force a two-stage d2c bootstrap even if the
+            	      bootstrap counts match.  This saves hacking
+                      with main.dylan and configure.in every time
+                      you want to test some little change in the
+                      runtime system])
+enable_bootstrap=${enable_bootstrap:-no}
 
 # If d2c is present, try to ask it some questions.
 if test "$D2C" != no; then
@@ -326,100 +285,53 @@ fi
 lid_format_version=$_DCI_DYLAN_LID_FORMAT_VERSION
 AC_SUBST(lid_format_version)
 
-#--------------------------------------------------------------------
-# Determine our "build scenario". See BOOTSTRAP for a description of
-# how this works.
-#--------------------------------------------------------------------
+AC_PATH_PROG(MELANGE, melange, no)
 
-enable_bootstrap=no
-bootstrap_compiler=none
-
-if test "$D2C" = no -a "$enable_d2c=yes"; then
-    enable_mindy_bootstrap=yes
-fi
+#--------------------------------------------------------------------
+# Determine our "build scenario".
+#--------------------------------------------------------------------
 
 AC_MSG_CHECKING("which build scenario to use")
+
+if test $CURRENT_BOOTSTRAP_COUNTER -ne $_DCI_D2C_BOOTSTRAP_COUNTER; then
+    enable_bootstrap=yes
+fi
+
 if test -x "$buildroot/bootstrap_compiler/d2c"; then
     SCENARIO=SECOND_STAGE
-    build_tools_with_d2c=yes
-    enable_mindy_bootstrap=no
+    enable_bootstrap=no
     bootstrap_d2c="$buildroot/bootstrap_compiler/d2c"
     D2C="$bootstrap_d2c -p$srcdir/d2c/compiler/platforms.descr"
-elif test "$enable_mindy_bootstrap" = yes; then
-    SCENARIO=BOOTSTRAPPING_WITH_MINDY
-    build_tools_with_d2c=no
-    enable_mindy=yes
-    enable_d2c=yes
-    enable_bootstrap=yes
-    bootstrap_compiler=mindy
-    # Set D2C (for use with 'make test', I think).
-    d2c_dbc="$buildroot/d2c/compiler/main/d2c.dbc"
-    D2C="$MINDY -f $d2c_dbc -p$srcdir/d2c/compiler/platforms.descr"
-elif test "$enable_d2c" = no; then
-    SCENARIO=MINDY_BUILD
-    build_tools_with_d2c=no
-elif test "$D2C" != no; then
-    if test $CURRENT_BOOTSTRAP_COUNTER -ne $_DCI_D2C_BOOTSTRAP_COUNTER \
-	-o "$enable_d2c_bootstrap" = yes
-    then
-	SCENARIO=BOOTSTRAPPING_WITH_D2C
-	enable_mindy=no
-        build_tools_with_d2c=yes
-        enable_bootstrap=yes
-        bootstrap_compiler=d2c
-        shared=no
-    elif test "$d2c_cross_compiling" = yes; then
-	SCENARIO=CROSS_COMPILING
-        build_tools_with_d2c=yes # XXX - this won't work at all
-	enable_mindy=no
-    else
-	SCENARIO=REGULAR_BUILD
-        build_tools_with_d2c=yes
-    fi
+elif test "$enable_bootstrap" = yes; then
+    SCENARIO=BOOTSTRAPPING
+    shared=no
+elif test "$d2c_cross_compiling" = yes; then
+    SCENARIO=CROSS_COMPILING
 else
-    SCENARIO=MINDY_BUILD
-    build_tools_with_d2c=no
+    SCENARIO=REGULAR_BUILD
 fi
+
 AC_MSG_RESULT($SCENARIO)
 
 echo "Using the following build parameters:"
-echo "    Build Mindy:              $enable_mindy"
-echo "    Build d2c:                $enable_d2c"
-echo "    Build tools with d2c:     $build_tools_with_d2c"
 echo "    Cross compiling:          $d2c_cross_compiling"
 echo "    Bootstrapping:            $enable_bootstrap"
-echo "    Bootstrap compiler:       $bootstrap_compiler"
 
 #--------------------------------------------------------------------
-# Sanity-check our "build scenario". Certain combinations should never
-# appear.
+# Sanity-check our "build scenario".
 #--------------------------------------------------------------------
 
-if test "$enable_mindy" = "no" -a "$enable_d2c" = "no" ; then
-    AC_MSG_ERROR([\
-Not intending to build either mindy or d2c. Please check to see if
-your system is supported, or specify fewer --disable-FOO flags.])
-fi
-
-if test "$SCENARIO" != CROSS_COMPILING -a "$d2c_cross_compiling" = yes; then
-    AC_MSG_ERROR([\
-Cannot cross-compile. In particular, cross-compilation is
-incompatible with bootstrapping and Mindy-only builds. You need an up-to-date
-d2c binary installed somewhere in your path. Even then, cross-compilation
-will probably fail. See BOOTSTRAPPING for details.])
+if test "$SCENARIO" = CROSS_COMPILING -o "$d2c_cross_compiling" = yes; then
+    AC_MSG_WARN([\
+Cannot cross-compile.])
 fi
 
 #--------------------------------------------------------------------
 # Record our build parameters.
 #--------------------------------------------------------------------
 
-AC_SUBST(enable_mindy)
-AC_SUBST(enable_d2c)
-AC_SUBST(build_tools_with_d2c)
 AC_SUBST(d2c_cross_compiling)
 AC_SUBST(enable_bootstrap)
-AC_SUBST(bootstrap_compiler)
-AC_SUBST(enable_d2c_bootstrap)
 
 #--------------------------------------------------------------------
 # If we're bootstrapping with d2c, look for the installed runtime.
@@ -442,14 +354,14 @@ AC_ARG_WITH(existing-runtime,
                           Look for the d2c runtime libraries in a different
                           place when bootstrapping. Defaults to
                           {prefix}/lib/dylan. This is only applicable when
-			  building in BOOTSTRAPPING_WITH_D2C mode.])
+			  building in BOOTSTRAPPING mode.])
 with_existing_runtime=${with_existing_runtime:-no}
 if test "$with_existing_runtime" = yes; then
     with_existing_runtime=no
 fi
 
 # If we're bootstrapping with d2c, create local links to each runtime file.
-if test $SCENARIO = BOOTSTRAPPING_WITH_D2C; then
+if test $SCENARIO = BOOTSTRAPPING; then
     AC_MSG_CHECKING(for existing d2c runtime)
     if test "$with_existing_runtime" = no; then
         relative_runtime="lib/dylan/$_DCI_D2C_RUNTIME_SUBDIR"
@@ -665,7 +577,7 @@ gcc* | *-gcc*)
     else
  	CCOPTS="-O4"
     fi
-    EXTRA_INCLUDE_DIR="`gcc --print-file-name=include`"
+    EXTRA_INCLUDE_DIR="`$CC --print-file-name=include`"
     if test "X$EXTRA_INCLUDE_DIR" = Xinclude; then
 	EXTRA_INCLUDE_DIR=
     fi
@@ -727,6 +639,14 @@ AC_TRY_LINK([#include <time.h>], [int a = daylight; long b = timezone;],
      AC_TRY_LINK([#include <time.h>], [int a = _daylight; long b = _timezone;],
        [AC_MSG_RESULT(yes)
         AC_DEFINE(HAVE_CYGNUS_DAYLIGHT)])])])
+
+#--------------------------------------------------------------------
+#	Checks for the io and system libraries
+#--------------------------------------------------------------------
+
+AC_CHECK_FUNCS(localtime_r)
+AC_STRUCT_TIMEZONE
+AC_CHECK_MEMBERS([struct stat.st_blksize])
 
 #--------------------------------------------------------------------
 #	Find out if sigaction is available.
@@ -1023,6 +943,12 @@ AC_MSG_RESULT(yes)))
 AC_CHECK_FUNC(fsync, , AC_DEFINE(NO_FSYNC))
 
 #--------------------------------------------------------------------
+#	See if cfmakeraw() is already declared
+#--------------------------------------------------------------------
+
+AC_CHECK_DECLS([cfmakeraw],,,[#include <termios.h>])
+
+#--------------------------------------------------------------------
 #	Look for select() in various places.
 #	Tk adds all of these libraries that are found.
 #	Under Irix 5.2, all three are found, but none should be
@@ -1097,13 +1023,13 @@ AC_SUBST(little_endian)
 # create several directories which contain no Makefile.in.
 # Note that we should probably do this in config.status, not configure,
 # but since it's idempotent we can get away with doing it here.
-$srcdir/mkinstalldirs mindy tools
+$srcdir/mkinstalldirs tools
 
 # Make sure there are no *.dylan.in files in this list. They cause two
 # problems: d2c expects all sources to live in the srcdir (which is a problem
 # in and of itself) and configure tries to create the *.dylan files before
 # we build our buildroot tree causing things to flame out horribly.
-AC_OUTPUT(Defaults gwydion-dylan.spec mindy/comp/Makefile mindy/interp/Makefile mindy/compat/Makefile mindy/etc/Makefile mindy/etc/generate-depends mindy/interp/make-init.pl tools/shared-misc/gen-makefile tools/shared-misc/mk-build-tree tools/shared-misc/line-count tools/shared-misc/make-dylan-app tools/shared-misc/make-dylan-lib tools/shared-misc/update-libdirs tools/unix-misc/mk-rcs-links doc/Makefile doc/dylan.7 doc/gwydion.7 doc/d2c.1 doc/dybug.1 doc/mindy.1 doc/mindycomp.1 doc/mindyexec.1 doc/melange.1 doc/parsergen.1 doc/make-dylan-app.1 doc/gobject-tool.1 doc/platforms.descr.4,
+AC_OUTPUT(Defaults gwydion-dylan.spec tools/shared-misc/gen-makefile tools/shared-misc/mk-build-tree tools/shared-misc/line-count tools/shared-misc/make-dylan-app tools/shared-misc/make-dylan-lib tools/shared-misc/update-libdirs tools/unix-misc/mk-rcs-links doc/Makefile doc/dylan.7 doc/gwydion.7 doc/d2c.1 doc/dybug.1 doc/mindy.1 doc/mindycomp.1 doc/mindyexec.1 doc/melange.1 doc/parsergen.1 doc/make-dylan-app.1 doc/gobject-tool.1 doc/platforms.descr.4,
 	 [${INSTALL} -m uog+rx $buildroot/tools/shared-misc/mk-build-tree ./
 	  ${INSTALL} -m uog+rx $buildroot/tools/shared-misc/gen-makefile ./
 	  (PATH=$buildroot:$PATH; export PATH; perl mk-build-tree -p$srcdir/d2c/compiler/platforms.descr)
@@ -1122,55 +1048,21 @@ echo "Build scenario: $SCENARIO"
 echo
 case $SCENARIO in
     REGULAR_BUILD)
-	if test $enable_mindy = "yes"; then
-	   echo "Compiling Mindy and d2c. The installed version of d2c will be"
-	   echo "used to compile programs written in Dylan."
-	else
-	   echo "Compiling d2c. The installed version of d2c will be"
-	   echo "used to compile programs written in Dylan."
-	fi
+	echo "Compiling d2c. The installed version of d2c will be"
+	echo "used to compile programs written in Dylan."
 	;;
     SECOND_STAGE)
-	if test $enable_mindy = "yes"; then
-	   echo "Compiling Mindy and d2c. The recently compiled version of d2c"
-	   echo "will be used to compile programs written in Dylan."
-	else
-	   echo "Compiling d2c. The recently compiled version of d2c"
-	   echo "will be used to compile programs written in Dylan."
-	fi
+	echo "Compiling d2c. The recently compiled version of d2c"
+	echo "will be used to compile programs written in Dylan."
 	echo
 	echo "If you've already done a second stage build and installed"
 	echo "a working copy of d2c, you can try 'make bootstrap_clean'."
 	;;
-    MINDY_BUILD)
-	echo "Compiling Mindy and the standard libraries only--d2c will not"
-        echo "be built. Melange and parsergen will be built but not installed."
-        echo "Most of the other tools will not be built."
-	;;
-    BOOTSTRAPPING_WITH_D2C)
+    BOOTSTRAPPING)
 	echo "The installed version of d2c will be used to bootstrap this"
 	echo "version of d2c. Alternatively, you may want to download"
 	echo "up-to-date binaries for your platform. See the README for"
         echo "details."
-	;;
-    BOOTSTRAPPING_WITH_MINDY)
-	echo "configure didn't find a pre-installed Dylan-to-C compiler."
-	echo "This means we have to bootstrap using a Dylan interpreter"
-	echo "written in C. The interpreter is called mindy."
-	echo
-	echo "Bootstrapping is a lengthy process. You're definitely"
-	echo "encouraged to check whether there's a pre-built"
-	echo "Gwydion for your system, install that, and then re-run"
-	echo "configure here. If you have trouble with the pre-built"
-	echo "compiler, or if there's no pre-built compiler at all,"
-	echo "go on with the bootstrapping."
-	echo
-	echo "Of course, if you're too lazy to install the binary, and"
-	echo "don't mind waiting for up to a day, you can go on too."
-	echo
-	echo "If your platform isn't officially supported yet, you will want"
-	echo "to consult the porting and maintenance guide available at"
-	echo "<http://www.gwydiondylan.org/> before starting."
 	;;
     CROSS_COMPILING)
 	echo "You're trying to use d2c as a cross-compiler. You may encounter"

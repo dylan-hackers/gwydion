@@ -257,7 +257,6 @@ end module duim-frames;
 
 define module duim-frames-internals
   use dylan;
-  use format-out;
   use duim-imports;
   use duim-utilities;
   use duim-geometry-internals;

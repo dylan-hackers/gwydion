@@ -1,5 +1,4 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/main-unit-state.dylan,v 1.7 2003/07/16 15:03:36 scotek Exp $
 copyright: see below
 
 //======================================================================
@@ -63,6 +62,10 @@ define class <main-unit-state> (<object>)
   // how many threads do we want d2c to try to make use of
   constant slot unit-thread-count :: false-or(<integer>),
     init-keyword: thread-count:, init-value: #f;
+
+  slot progress-indicator :: false-or(<progress-indicator>) = #f;
+
+  slot unit-tlfs :: <stretchy-vector> = make(<stretchy-vector>);
 end class <main-unit-state>;
 
 // Find the library object file (archive) using the data-unit search path.
@@ -102,13 +105,19 @@ define method find-library-archive
 
   let find = method (suffixes)
 	       let found = #();
-	       for (suffix in suffixes)
-		 let suffixed = concatenate(libname, suffix);
-		 let path = find-file(suffixed, *data-unit-search-path*);
-		 if (path)
-		   found := pair(path, found);
-		 end if;
-	       end for;
+               for (suffix in suffixes)
+                 block (done)
+                   for (dir :: <directory-locator> in *Data-Unit-Search-Path*)
+                     let merged = make(<file-locator>,
+                                       directory: dir, base: libname,
+                                       extension: strip-dot(suffix));
+                     if (file-exists?(merged))
+                       found := add-new!(found, merged, test: \=);
+                       done();
+                     end if;
+                   end for;
+                 end block;
+               end for;
 	       found;
 	     end method;
 
@@ -131,49 +140,26 @@ define method find-library-archive
 	  unit-name,
 	  found);
   else
-    found.head;
+    as(<byte-string>, found.first);
   end if;
 end method find-library-archive;
 
 #endif
 
 
-// The actual meat of compilation.  Does FER conversion, optimizes and emits
-// output code.
-//
-#if (~mindy)
-define variable *last-time-flushed* :: <integer> = 0;
-#endif
-
+// FER conversion
 define method compile-1-tlf
-    (tlf :: <top-level-form>, file :: <file-state>, state :: <main-unit-state>) 
+    (tlf :: <top-level-form>, state :: <main-unit-state>) 
  => ();
-  let name = format-to-string("%s", tlf);
-  begin
-    let column = *debug-output*.current-column;
-    if (column & column > 75)
-      format(*debug-output*, "\n");
-    end if;
-  end;
-  format(*debug-output*, ".");
-#if (mindy)
-  force-output(*debug-output*);
-#else
-  let now :: <integer> = get-time-of-day();
-  if (now ~= *last-time-flushed*)
-    force-output(*debug-output*);
-    *last-time-flushed* := now;
-  end;
-#endif
-  note-context(name);
   let component = make(<fer-component>);
+  tlf.tlf-component := component;
   let builder = make-builder(component);
   convert-top-level-form(builder, tlf);
   let inits = builder-result(builder);
   let name-obj = make(<anonymous-name>, location: tlf.source-location);
   unless (instance?(inits, <empty-region>))
     let result-type = make-values-ctype(#(), #f);
-    let source = make(<source-location>);
+    let source = tlf.source-location;
     let init-function
       = build-function-body
           (builder, $Default-Policy, source, #f,
@@ -188,11 +174,16 @@ define method compile-1-tlf
     make-function-literal(builder, ctv, #"function", #"global",
 			  sig, init-function);
     add!(state.unit-init-functions, ctv);
+    tlf.tlf-init-function := ctv;
   end;
-  optimize-component(*current-optimizer*, component);
-  emit-tlf-gunk(tlf, file);
-  emit-component(component, file);
 end method compile-1-tlf;
+
+define method emit-1-tlf
+    (tlf :: <top-level-form>, file :: <file-state>, 
+     state :: <main-unit-state>) => ();
+  emit-tlf-gunk(c: tlf, file);
+  emit-component(c: tlf.tlf-component, file);
+end method emit-1-tlf;
 
 define constant $max-inits-per-function = 25;
 
@@ -200,7 +191,7 @@ define method emit-init-functions
     (prefix :: <byte-string>, init-functions :: <vector>,
      start :: <integer>, finish :: <integer>, stream :: <stream>)
     => body :: <byte-string>;
-  let string-stream = make(<buffered-byte-string-output-stream>);
+  let string-stream = make(<byte-string-stream>, direction: #"output");
   if (finish - start <= $max-inits-per-function)
     for (index from start below finish)
       let init-function = init-functions[index];
@@ -297,8 +288,51 @@ define method build-command-line-entry
   let ctv = make(<ct-function>, name: name-obj, signature: sig);
   make-function-literal(builder, ctv, #"function", #"global", sig, func);
   optimize-component(*current-optimizer*, component);
-  emit-component(component, file);
+  emit-component(c: component, file);
   ctv;
 end method build-command-line-entry;
 
+define method finalize-library(state :: <main-unit-state>) => ()
+  format(*debug-output*, "Finalizing library.\n");
+  seed-representations();
+  for (tlf in copy-sequence(state.unit-tlfs))
+    note-context(tlf);
+    finalize-top-level-form(tlf);
+    end-of-context();
+  end for;
+  inherit-slots();
+  inherit-overrides();
+  begin
+    let unique-id-base 
+      = element(state.unit-header, #"unique-id-base", default: #f);
+    if (unique-id-base)
+      assign-unique-ids(string-to-integer(unique-id-base));
+    end;
+  end;
+  layout-instance-slots();
+end method finalize-library;
+
+define method run-stage(message :: <string>, func :: <function>, 
+                        tlfs :: <collection>) => ()
+  format(*debug-output*, "%s\n", message);
+  let progress-indicator = make(<n-of-k-progress-indicator>,
+                                total: tlfs.size,
+                                stream: *debug-output*);
+  for (tlf in tlfs)
+    block ()
+      let name = format-to-string("%s", tlf);
+      increment-and-report-progress(progress-indicator);
+      note-context(name);
+      func(tlf);
+    cleanup
+      end-of-context();
+    exception (<fatal-error-recovery-restart>)
+      #f;
+    end block;
+  end for;
+end method run-stage;
+
+
+define variable *Current-Library* :: false-or(<library>) = #f;
+define variable *Current-Module* :: false-or(<module>) = #f;
 

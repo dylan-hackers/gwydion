@@ -12,18 +12,18 @@ if ($features{'compiled_for_unix'}) {
 
 $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
+    . ' -L../base-file-system'
     . ' -L../collection-extensions'
-    . ' -L../table-ext'
-    . ' -L../string-ext'
-    . ' -L../regular-expressions'
-    . ' -L../streams'
-    . ' -L../print'
     . ' -L../format'
-    . ' -L../standard-io'
     . ' -L../format-out'
-    . ' -L../base-file-system';
+    . ' -L../print'
+    . ' -L../regular-expressions'
+    . ' -L../standard-io'
+    . ' -L../streams'
+    . ' -L../string-ext'
+    . ' -L../table-ext';
 
 &emit_c_file_rule("dir-intr-impl");
 &emit_melange_rule('dir-intr');
 &emit_library_rule($system_lid_file, '$(BUILDROOT)/force.timestamp', '',
-                   'compile', 'no-mindy', 'install');
+                   'compile', 'install');

@@ -3,8 +3,6 @@
 #include <setjmp.h>
 
 /*
-$header$
-
 Changes:
 
 - portable version using setjmp/jongjmp (andreas)

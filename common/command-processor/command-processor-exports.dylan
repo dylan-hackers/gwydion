@@ -18,6 +18,7 @@ define module command-processor
   use melange-support;
   use subseq;
   use string-hacking;
+  use format, exclude: { format-to-string };
 
   export <command>, run-command-processor;
 end module;

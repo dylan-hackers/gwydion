@@ -1,6 +1,5 @@
 &compile_subdirs("cat", "craps", "diff", "hello-world",
-		 "html2txt", "library-demo",
-		 "minesweeper", "stream-demo", "tk-html2txt");
+		 "html2txt", "library-demo", "stream-demo");
 
 if($enable_duim ne 'no') {
     &compile_subdirs("duim");

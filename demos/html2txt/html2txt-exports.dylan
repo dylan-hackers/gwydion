@@ -1,10 +1,9 @@
 Module: dylan-user
-RCS-Header: $Header: /scm/cvs/src/demos/html2txt/html2txt-exports.dylan,v 1.1 1998/05/03 19:56:00 andreas Exp $
 
 define library html
   use dylan;
-  use streams;
-  use standard-io;
+  use io;
+  use system;
   use collection-extensions;
   use string-extensions;
 end library html;
@@ -25,6 +24,7 @@ define module html
   // I/O support from the "streams" and "standard-io" libraries
   use streams;
   use standard-io;
+  use file-system;
   
   export html2text;
 end module html;

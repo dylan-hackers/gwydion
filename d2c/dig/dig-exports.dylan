@@ -1,5 +1,4 @@
 module: dylan-user
-RCS-header: $Header: /scm/cvs/src/d2c/dig/dig-exports.dylan,v 1.2 2000/01/24 04:56:37 andreas Exp $
 
 //======================================================================
 //

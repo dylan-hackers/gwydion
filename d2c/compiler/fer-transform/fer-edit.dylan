@@ -1,5 +1,4 @@
 module: fer-transform
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/fer-transform/fer-edit.dylan,v 1.6 2003/06/24 21:00:07 andreas Exp $
 copyright: see below
 
 
@@ -109,7 +108,7 @@ end;
 // combine-regions -- external.
 //
 // Takes two subtrees of FER and combines them into one subtree.  The result
-// is interally consistent (i.e. the two input regions will have their
+// is internally consistent (i.e. the two input regions will have their
 // parent link updated if necessary).  This routine does NOT check the
 // first subregion to see if it exits or not (i.e. whether the second subregion
 // is actually reachable.

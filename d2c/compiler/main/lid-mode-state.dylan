@@ -1,11 +1,10 @@
 module: main
-rcs-header: $Header: /scm/cvs/src/d2c/compiler/main/lid-mode-state.dylan,v 1.25 2003/09/26 03:13:16 housel Exp $
 copyright: see below
 
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998 - 2003  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -30,7 +29,7 @@ copyright: see below
 //======================================================================
 
 define class <lid-mode-state> (<main-unit-state>)
-  slot unit-lid-file :: <byte-string>, required-init-keyword: lid-file:;
+  slot unit-lid-locator :: <file-locator>, required-init-keyword: lid-locator:;
   
   // A facility for hacking around C compiler bugs by using a different
   // command for particular C compilations.  cc-override is a format string
@@ -46,8 +45,6 @@ define class <lid-mode-state> (<main-unit-state>)
   slot unit-lib :: <library>;
   // unit-prefix already a <unit-state> accessor
   slot unit-mprefix :: <byte-string>;
-  slot unit-tlf-vectors :: <stretchy-vector> = make(<stretchy-vector>);
-  slot unit-modules :: <stretchy-vector> = make(<stretchy-vector>);
   slot unit-cback-unit :: <unit-state>;
   slot unit-other-cback-units :: <simple-object-vector>;
   
@@ -59,9 +56,9 @@ define class <lid-mode-state> (<main-unit-state>)
   slot unit-makefile-name :: <byte-string>;
   slot unit-temp-makefile-name :: <byte-string>;
   slot unit-makefile :: <file-stream>;
-  slot unit-objects-stream :: <buffered-byte-string-output-stream>;
-  slot unit-clean-stream :: <buffered-byte-string-output-stream>;
-  slot unit-real-clean-stream :: <buffered-byte-string-output-stream>;
+  slot unit-objects-stream :: <byte-string-stream>;
+  slot unit-clean-stream :: <byte-string-stream>;
+  slot unit-real-clean-stream :: <byte-string-stream>;
   
   slot unit-entry-function :: false-or(<ct-function>), init-value: #f;
   slot unit-unit-info :: <unit-info>;
@@ -96,7 +93,7 @@ define function escape-pounds (orig :: <string>) => result :: <string>;
 end function escape-pounds;
 
 define method parse-lid (state :: <lid-mode-state>) => ();
-  let source = make(<source-file>, name: state.unit-lid-file);
+  let source = make(<source-file>, locator: state.unit-lid-locator);
   let (header, start-line, start-posn) = parse-header(source);
 
   // We support two types of lid files: old "Gwydion LID" and new
@@ -130,7 +127,7 @@ define method parse-lid (state :: <lid-mode-state>) => ();
 	  let name-end = find-end-of-word(posn);
 	  let len = name-end - posn;
 	  let name = make(<byte-string>, size: len);
-	  copy-bytes(name, 0, contents, posn, len);
+	  copy-bytes(contents, posn, name, 0, len);
 	  add!(files, name);
 	  repeat(name-end);
 	end;
@@ -156,7 +153,8 @@ define method parse-lid (state :: <lid-mode-state>) => ();
   repeat(start-posn);
 
   state.unit-header := header;
-  state.unit-files := concatenate(files, ofiles);
+  state.unit-files := map(curry(as, <file-locator>),
+                          concatenate(files, ofiles));
   state.unit-executable := element(header, #"executable", default: #f);
   state.unit-embedded? := element(header, #"embedded?", default: #f) & #t;
 end method parse-lid;
@@ -243,36 +241,25 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
     end select;
   end if;
 
-  for (file in state.unit-files)
-    let extension = file.filename-extension;
-    if (extension = state.unit-target.object-filename-suffix)
-      // Add any random crap to the unit-tlf-vectors so that it will
-      // have as many elements as there are files mentioned in the
-      // .lid file
-      add!(state.unit-tlf-vectors, make(<stretchy-vector>));
-      add!(state.unit-modules, #f);
+  *Top-Level-Forms* := state.unit-tlfs;
 
+  for (file in state.unit-files)
+    let extension = file.locator-extension;
+    if (extension = strip-dot(state.unit-target.object-filename-suffix))
       unless (state.unit-no-makefile)
 	let object-file
 	  = if (state.unit-shared?)
-	      concatenate(file.extensionless-filename,
-			  state.unit-target.shared-object-filename-suffix)
+              make(<file-locator>,
+                   base: file.locator-base,
+                   extension: strip-dot(state.unit-target.shared-object-filename-suffix));
 	    else
 	      file
 	    end;
 	let prefixed-filename
-	  = find-file(object-file, vector($this-dir, state.unit-lid-file.filename-prefix));
-	if (prefixed-filename)
-	  log-dependency(prefixed-filename);
-	else
-	  #if (macos)
-	     #t;// Do nothing
-	  #else
-	     compiler-fatal-error("Can't find object file %=, and thus can't"
-				    " record dependency info.",
-				  file);
-	  #endif
-	end if;
+	  = find-file(object-file,
+                      vector($this-dir,
+                             state.unit-lid-locator.locator-directory));
+        log-dependency(prefixed-filename);
       end unless;
     else  // assumed a Dylan file, with or without a ".dylan" extension
       block ()
@@ -281,25 +268,16 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
         // used $this-dir, but that meant .du files contained library-relative
         // filenames, which didn't work when loaded elsewhere (i.e. always)
 	let prefixed-filename
-	  = find-file(file, vector(get-current-directory(), state.unit-lid-file.filename-prefix));
+	  = find-file(file,
+                      vector(working-directory(),
+                             state.unit-lid-locator.locator-directory));
 	if (prefixed-filename == #f)
 	  compiler-fatal-error("Can't find source file %=.", file);
 	end if;
 	log-dependency(prefixed-filename);
 	let (tokenizer, mod) = file-tokenizer(state.unit-lib, 
 					      prefixed-filename);
-	block ()
-	  *Current-Library* := state.unit-lib;
-	  *Current-Module* := mod;
-	  let tlfs = make(<stretchy-vector>);
-	  *Top-Level-Forms* := tlfs;
-	  add!(state.unit-tlf-vectors, tlfs);
-	  add!(state.unit-modules, mod);
-	  parse-source-record(tokenizer);
-	cleanup
-	  *Current-Library* := #f;
-	  *Current-Module* := #f;
-	end;
+        parse-source-record(tokenizer);
       exception (<fatal-error-recovery-restart>)
 	format(*debug-output*, "skipping rest of %s\n", file);
       end block;
@@ -308,31 +286,7 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
 #if (mindy)
   collect-garbage(purify: #t);
 #endif
-  format(*debug-output*, "seeding representations\n");
-  seed-representations();
-  format(*debug-output*, "Finalizing definitions\n");
-  for (tlfs in state.unit-tlf-vectors)
-    *Top-Level-Forms* := tlfs;
-    for (tlf in copy-sequence(tlfs))
-      note-context(tlf);
-      finalize-top-level-form(tlf);
-      end-of-context();
-    end for;
-  end;
-  format(*debug-output*, "inheriting slots\n");
-  inherit-slots();
-  format(*debug-output*, "inheriting overrides\n");
-  inherit-overrides();
-  begin
-    let unique-id-base 
-      = element(state.unit-header, #"unique-id-base", default: #f);
-    if (unique-id-base)
-      format(*debug-output*, "assigning unique ids\n");
-      assign-unique-ids(string-to-integer(unique-id-base));
-    end;
-  end;
-  format(*debug-output*, "laying out instances\n");
-  layout-instance-slots();
+  finalize-library(state);
 end method parse-and-finalize-library;
 
 
@@ -350,7 +304,7 @@ define method emit-make-prologue (state :: <lid-mode-state>) => ();
 			   end if,
 			   $runtime-include-dir);
 
-  cc-flags := concatenate(cc-flags, getenv("CCOPTS")|"");
+  cc-flags := concatenate(cc-flags, " ", getenv("CCOPTS")|"");
 
   state.unit-cback-unit := make(<unit-state>, prefix: state.unit-mprefix);
   state.unit-other-cback-units := map-as(<simple-object-vector>, unit-name, 
@@ -393,9 +347,12 @@ define method emit-make-prologue (state :: <lid-mode-state>) => ();
      // real-clean-stream is everything in clean plus *.c, *.s, and
      // cc-lib-files.mak.
      //
-     state.unit-objects-stream := make(<buffered-byte-string-output-stream>);
-     state.unit-clean-stream := make(<buffered-byte-string-output-stream>);
-     state.unit-real-clean-stream := make(<buffered-byte-string-output-stream>);
+     state.unit-objects-stream
+       := make(<byte-string-stream>, direction: #"output");
+     state.unit-clean-stream
+       := make(<byte-string-stream>, direction: #"output");
+     state.unit-real-clean-stream
+       := make(<byte-string-stream>, direction: #"output");
      format(state.unit-real-clean-stream, " %s", makefile-name);
    end;
  end method emit-make-prologue;
@@ -404,16 +361,15 @@ define method emit-make-prologue (state :: <lid-mode-state>) => ();
 // files and compiling each of them to an output file.
 //
 define method compile-all-files (state :: <lid-mode-state>) => ();
-  for (file in state.unit-files,
-       tlfs in state.unit-tlf-vectors,
-       module in state.unit-modules)
-    let extension = file.filename-extension;
-    if (extension = state.unit-target.object-filename-suffix)
+  for (file in state.unit-files)
+    let extension = file.locator-extension;
+    if (extension = strip-dot(state.unit-target.object-filename-suffix))
       unless (state.unit-no-makefile)
 	if (state.unit-shared?)
 	  let shared-file
-	    = concatenate(file.extensionless-filename,
-			  state.unit-target.shared-object-filename-suffix);
+            = make(<file-locator>,
+                   name: file.locator-base,
+                   extension: strip-dot(state.unit-target.shared-object-filename-suffix));
 	  format(*debug-output*, "Adding %s\n", shared-file);
 	  format(state.unit-objects-stream, " %s", shared-file);
 	else
@@ -421,62 +377,41 @@ define method compile-all-files (state :: <lid-mode-state>) => ();
 	  format(state.unit-objects-stream, " %s", file);
 	end;
       end unless;
-    else  // assumed a Dylan file, with or without a ".dylan" extension
-      block ()
-	format(*debug-output*, "Processing %s\n", file);
-	let base-name = file.base-filename;
-	let c-name = concatenate(base-name, ".c");
-        #if (macos)
-        let temp-c-name = concatenate(state.unit-lid-file.filename-prefix,
-				      c-name);
-        #else
-        let temp-c-name = concatenate(c-name, "-temp");
-        #endif
-	let body-stream
-	  = make(<file-stream>, locator: temp-c-name, direction: #"output");
-	block ()
-	  *Current-Module* := module;
-	  let file = make(<file-state>, unit: state.unit-cback-unit,
-			  body-stream: body-stream);
-	  emit-prologue(file, state.unit-other-cback-units);
-	  for (tlf in tlfs)
-	    block ()
-	      compile-1-tlf(tlf, file, state);
-	    cleanup
-	      end-of-context();
-	    exception (<fatal-error-recovery-restart>)
-	      #f;
-	    end block;
-	  end for;
-	cleanup
-	  close(body-stream);
-	  fresh-line(*debug-output*);
-	  *Current-Module* := #f;
-	end block;
-
-	pick-which-file(c-name, temp-c-name, state.unit-target);
-	let o-name
-	  = concatenate(base-name,
-			if (state.unit-shared?)
-			  state.unit-target.shared-object-filename-suffix;
-			else
-			  state.unit-target.object-filename-suffix;
-			end);
-	state.unit-all-generated-files
-	  := add!(state.unit-all-generated-files, c-name);
-	unless (state.unit-no-makefile)
-	     output-c-file-rule(state, c-name, o-name);
-	end;
-
-      exception (<fatal-error-recovery-restart>)
-	format(*debug-output*, "skipping rest of %s\n", file);
-      exception (<simple-restart>,
-		   init-arguments:
-		   vector(format-string: "Blow off compiling this file."))
-	#f;
-      end block;
     end if;
   end for;
+  block ()
+    let tlfs = state.unit-tlfs;
+
+    run-stage("Converting top level forms.",
+              method(tlf)
+                  compile-1-tlf(tlf, state);
+              end method, tlfs);
+                  
+    run-stage("Optimizing top level forms.",
+              method(tlf)
+                  optimize-component(*current-optimizer*, tlf.tlf-component);
+              end method, tlfs);
+    
+    do-with-c-file(state, concatenate(state.unit-mprefix, "-guts"), 
+                   method(body-stream)
+                       let file = make(<file-state>, 
+                                       unit: state.unit-cback-unit,
+                                       body-stream: body-stream);
+                       emit-prologue(file, state.unit-other-cback-units);
+
+                       run-stage("Emitting C code.",
+                                 method(tlf)
+                                     emit-1-tlf(tlf, file, state);
+                                 end method, tlfs);
+                   end method);
+
+  exception (<fatal-error-recovery-restart>)
+    format(*debug-output*, "skipping rest of library.\n");
+  exception (<simple-restart>,
+               init-arguments:
+               vector(format-string: "Blow off compiling this file."))
+    #f;
+  end block;
 end method compile-all-files;
 
 
@@ -497,82 +432,76 @@ define method build-library-inits (state :: <lid-mode-state>) => ();
 			     "executable.");
     end if;
 
-    begin
-      let c-name = concatenate(state.unit-mprefix, "-init.c");
-      #if (macos)
-      let temp-c-name = concatenate(state.unit-lid-file.filename-prefix,
-				    c-name);
-      #else
-      let temp-c-name = concatenate(c-name, "-temp");
-      #endif
-      let body-stream = make(<file-stream>, 
-			     locator: temp-c-name, direction: #"output");
-      let file = make(<file-state>, unit: state.unit-cback-unit,
-      		      body-stream: body-stream);
-      emit-prologue(file, state.unit-other-cback-units);
-      if (entry-point)
-        state.unit-entry-function
-	  := build-command-line-entry(state.unit-lib, entry-point, file);
-      end if;
-      build-unit-init-function(state.unit-mprefix, state.unit-init-functions,
-			       body-stream);
-      close(body-stream);
-
-      pick-which-file(c-name, temp-c-name, state.unit-target);
-      let o-name
-	= concatenate(state.unit-mprefix, "-init", 
-		      if (state.unit-shared?)
-			state.unit-target.shared-object-filename-suffix
-		      else
-			state.unit-target.object-filename-suffix
-		      end if);
-      unless (state.unit-no-makefile)
-	output-c-file-rule(state, c-name, o-name);
-      end;
-      state.unit-all-generated-files 
-	:= add!(state.unit-all-generated-files, c-name);
-    end;
+  do-with-c-file(state, concatenate(state.unit-mprefix, "-init"),
+                 method(body-stream)
+                     let file = make(<file-state>, unit: state.unit-cback-unit,
+                                     body-stream: body-stream);
+                     emit-prologue(file, state.unit-other-cback-units);
+                     if (entry-point)
+                       state.unit-entry-function
+                         := build-command-line-entry
+                         (state.unit-lib, entry-point, file);
+                     end if;
+                     build-unit-init-function
+                     (state.unit-mprefix, state.unit-init-functions,
+                      body-stream);
+                 end);
 end method build-library-inits;
 
-
-define method build-local-heap-file (state :: <lid-mode-state>) => ();
-  format(*debug-output*, "Emitting Library Heap.\n");
-  let c-name = concatenate(state.unit-mprefix, "-heap.c");
-  #if (macos)
-  let temp-c-name = concatenate(state.unit-lid-file.filename-prefix, c-name);
-  #else
+define method do-with-c-file(state :: <lid-mode-state>,
+                             base-name :: <string>,
+                             emitter :: <function>) => ();
+  let c-name = concatenate(base-name, ".c");
   let temp-c-name = concatenate(c-name, "-temp");
-  #endif
-  let heap-stream = make(<file-stream>, 
-			 locator: temp-c-name, direction: #"output");
-  let prefix = state.unit-cback-unit.unit-prefix;
-  let heap-state = make(<local-heap-file-state>, unit: state.unit-cback-unit,
-			body-stream: heap-stream, // target: state.unit-target,
-			id-prefix: stringify(prefix, "_L"));
+  let body-stream = make(<file-stream>, 
+                         locator: temp-c-name, direction: #"output");
 
-  let (undumped, extra-labels) = build-local-heap(state.unit-cback-unit, 
-						  heap-state);
-  close(heap-stream);
+  block()
+    emitter(body-stream);
+  cleanup
+    close(body-stream);
+  end block;
 
   pick-which-file(c-name, temp-c-name, state.unit-target);
-  let o-name = concatenate(state.unit-mprefix, "-heap", 
-			   if (state.unit-shared?)
-			     state.unit-target.shared-object-filename-suffix;
-			   else
-			     state.unit-target.object-filename-suffix
-			   end);
+  let o-name
+    = concatenate(base-name, 
+                  if (state.unit-shared?)
+                    state.unit-target.shared-object-filename-suffix
+                  else
+                    state.unit-target.object-filename-suffix
+                  end if);
   unless (state.unit-no-makefile)
     output-c-file-rule(state, c-name, o-name);
   end;
   state.unit-all-generated-files 
     := add!(state.unit-all-generated-files, c-name);
+end;
 
-  let linker-options = element(state.unit-header, #"linker-options", 
-			       default: #f);
-  state.unit-unit-info := make(<unit-info>, unit-name: state.unit-mprefix,
-			       undumped-objects: undumped,
-			       extra-labels: extra-labels,
-			       linker-options: linker-options);
+                
+
+define method build-local-heap-file (state :: <lid-mode-state>) => ();
+  format(*debug-output*, "Emitting Library Heap.\n");
+  do-with-c-file(state, concatenate(state.unit-mprefix, "-heap"),
+                 method(body-stream)
+                     let prefix = state.unit-cback-unit.unit-prefix;
+                     let heap-state = make(<local-heap-file-state>, 
+                                           unit: state.unit-cback-unit,
+                                           body-stream: body-stream, 
+                                           // target: state.unit-target,
+                                           id-prefix: stringify(prefix, "_L"));
+
+                     let (undumped, extra-labels) 
+                       = build-local-heap(state.unit-cback-unit, 
+                                          heap-state);
+                     let linker-options 
+                       = element(state.unit-header, #"linker-options", 
+                                 default: #f);
+                     state.unit-unit-info 
+                       := make(<unit-info>, unit-name: state.unit-mprefix,
+                               undumped-objects: undumped,
+                               extra-labels: extra-labels,
+                               linker-options: linker-options);
+                 end method);
 end method build-local-heap-file;
 
 
@@ -645,81 +574,58 @@ end method build-ar-file;
 
 define method build-da-global-heap (state :: <lid-mode-state>) => ();
   format(*debug-output*, "Emitting Global Heap.\n");
-  let c-name = concatenate(state.unit-mprefix, "-global-heap.c");
-  let o-name = concatenate(state.unit-mprefix, "-global-heap",
-                           if (state.unit-shared?)
-			     state.unit-target.shared-object-filename-suffix;
-			   else
-			     state.unit-target.object-filename-suffix
-			   end);
-
-  let heap-stream 
-  	= make(<file-stream>, locator: c-name, direction: #"output");
-  let heap-state = make(<global-heap-file-state>, unit: state.unit-cback-unit,
-			body-stream: heap-stream); //, target: state.unit-target);
-  build-global-heap(apply(concatenate, map(undumped-objects, *units*)),
-		    heap-state);
-  close(heap-stream);
-  unless (state.unit-no-makefile)
-    output-c-file-rule(state, c-name, o-name);
-  end;
-  state.unit-all-generated-files 
-    := add!(state.unit-all-generated-files, c-name);
+  do-with-c-file(state, concatenate(state.unit-mprefix, "-global-heap"),
+                 method(heap-stream)
+                     let heap-state = make(<global-heap-file-state>, 
+                                           unit: state.unit-cback-unit,
+                                           body-stream: heap-stream); 
+                     //, target: state.unit-target);
+                     build-global-heap(apply(concatenate, 
+                                             map(undumped-objects, *units*)),
+                                       heap-state);
+                 end method);
 end method;
 
 
 define method build-inits-dot-c (state :: <lid-mode-state>) => ();
   format(*debug-output*, "Building inits.c.\n");
-  let c-name = concatenate(state.unit-mprefix, "-global-inits.c");
-  let o-name = concatenate(state.unit-mprefix, "-global-inits",
-                           if (state.unit-shared?)
-			     state.unit-target.shared-object-filename-suffix;
-			   else
-			     state.unit-target.object-filename-suffix
-			   end);
-  let stream
-   = make(<file-stream>, locator: c-name, direction: #"output");
-  format(stream, "#include \"runtime.h\"\n\n");
-  format(stream, 
-	"/* This file is machine generated.  Do not edit. */\n\n");
-  let entry-function-name
-    = (state.unit-entry-function
-	 & (make(<ct-entry-point>, for: state.unit-entry-function,
-	 	 kind: #"main")
-	      .entry-point-c-name));
-  if (entry-function-name)
-    format(stream,
-	   "extern void %s(descriptor_t *sp, int argc, void *argv);\n\n",
-	   entry-function-name);
-  end if;
-  format(stream,
-         "void inits(descriptor_t *sp, int argc, char *argv[])\n{\n");
-  for (unit in *units*)
-    format(stream, "    %s_Library_init(sp);\n", string-to-c-name(unit.unit-name));
-  end;
-  if (entry-function-name)
-    format(stream, "    %s(sp, argc, argv);\n", entry-function-name);
-  end if;
-  format(stream, "}\n");
-  if(~state.unit-embedded?)
-    format(stream, "\nextern void real_main(int argc, char *argv[]);\n\n");
-#if (macos)
-   format(stream, "#include<console.h>\n");
-#endif
-   format(stream, "int main(int argc, char *argv[]) {\n");
-#if (macos)
-   format(stream, "    argc = ccommand( &argv );\n");
-#endif
-   format(stream, "    real_main(argc, argv);\n");
-   format(stream, "    exit(0);\n");
-   format(stream, "}\n");
- end if;
- close(stream);
- unless (state.unit-no-makefile)
-   output-c-file-rule(state, c-name, o-name);
- end;
- state.unit-all-generated-files 
-   := add!(state.unit-all-generated-files, c-name);
+  do-with-c-file(state, concatenate(state.unit-mprefix, "-global-inits"),
+                 method(stream)
+                     format(stream, "#include \"runtime.h\"\n\n");
+                     format(stream, 
+                            "/* This file is machine generated.  Do not edit. */\n\n");
+                     let entry-function-name
+                     = (state.unit-entry-function
+                          & (make(<ct-entry-point>, 
+                                  for: state.unit-entry-function,
+                                  kind: #"main")
+                               .entry-point-c-name));
+                     if (entry-function-name)
+                       format(stream,
+                              "extern void %s(descriptor_t *sp, int argc, void *argv);\n\n",
+                              entry-function-name);
+                     end if;
+                     format(stream,
+                            "void inits(descriptor_t *sp, int argc, char *argv[])\n{\n");
+                     for (unit in *units*)
+                       format(stream, 
+                              "    %s_Library_init(sp);\n", 
+                              string-to-c-name(unit.unit-name));
+                     end;
+                     if (entry-function-name)
+                       format(stream, 
+                              "    %s(sp, argc, argv);\n", 
+                              entry-function-name);
+                     end if;
+                     format(stream, "}\n");
+                     if(~state.unit-embedded?)
+                       format(stream, "\nextern void real_main(int argc, char *argv[]);\n\n");
+                       format(stream, "int main(int argc, char *argv[]) {\n");
+                       format(stream, "    real_main(argc, argv);\n");
+                       format(stream, "    exit(0);\n");
+                       format(stream, "}\n");
+                     end if;
+                 end method);
 end method;
 
 define method link-arguments (state :: <lid-mode-state>) 
@@ -763,7 +669,8 @@ define method link-arguments (state :: <lid-mode-state>)
   // If cross-compiling, throw in a bunch of -Ls that will probably help.
   if (state.unit-no-binaries)
     for (dir in *data-unit-search-path*)
-      dash-cap-ells := concatenate(dash-cap-ells, " -L", dir);
+      dash-cap-ells := concatenate(dash-cap-ells,
+                                   " -L", as(<byte-string>, dir));
     end for;
     dash-cap-ells
       := concatenate(" $(LDFLAGS)",
@@ -778,14 +685,38 @@ define method link-arguments (state :: <lid-mode-state>)
   concatenate(unit-libs, dash-cap-ells, dash-small-ells, " ", linker-args)
 end method link-arguments;
 
+define function library-dependencies (state :: <lid-mode-state>) 
+ => (deps :: <string>)
+  let target = state.unit-target;
+  let unit-libs = "";
+
+  local method add-archive (name :: <byte-string>) => ();
+	  unless (state.unit-no-binaries)
+	    let archive = find-library-archive(name, state);
+	    unit-libs := stringify(' ', archive, unit-libs);
+	  end unless;
+	end method add-archive;
+
+  for (unit in *units*)
+    unless (unit == state.unit-unit-info)
+      add-archive(concatenate(unit.unit-name, "-dylan"));
+    end unless;
+  end;
+
+  add-archive("runtime");
+
+  use-correct-path-separator(unit-libs, state.unit-target);
+end function library-dependencies;
+
+
 define method build-executable (state :: <lid-mode-state>) => ();
   let target = state.unit-target;
   let objects = stream-contents(state.unit-objects-stream);
   state.unit-objects := objects;
 
   // rule to link executable
-  format(state.unit-makefile, "\n%s : %s\n", 
-         state.unit-executable, state.unit-objects);
+  format(state.unit-makefile, "\n%s : %s%s\n", 
+         state.unit-executable, state.unit-objects, state.library-dependencies);
   let link-string
     = format-to-string(if(state.unit-link-static)
                          state.unit-target.link-executable-command
@@ -805,25 +736,18 @@ end method build-executable;
 
 
 define method dump-library-summary (state :: <lid-mode-state>) => ();
-  format(*debug-output*, "Dumping library summary.\n");
   let dump-buf
     = begin-dumping(as(<symbol>, state.unit-lib-name),
     		    $library-summary-unit-type);
 
-  for (tlfs in state.unit-tlf-vectors)
-    for (tlf in tlfs)
-      dump-od(tlf, dump-buf);
-    end;
-  end;
+  run-stage("Dumping library summary.", rcurry(dump-od, dump-buf),
+            state.unit-tlfs);
   dump-od(state.unit-unit-info, dump-buf);
   dump-queued-methods(dump-buf);
 
   end-dumping(dump-buf);
   unless (state.unit-no-makefile)
-    format(state.unit-makefile, "\nall-at-end-of-file : %s\n",
-	   state.unit-ar-name);
-    format(state.unit-clean-stream, " %s", state.unit-ar-name);
-    format(state.unit-real-clean-stream, " %s %s.lib.du", state.unit-ar-name, 
+    format(state.unit-real-clean-stream, " %s.lib.du",
 	   as-lowercase(state.unit-lib-name));
   end;
 end method;
@@ -904,8 +828,8 @@ define method compile-library (state :: <lid-mode-state>)
       unless (state.unit-no-makefile)
 	build-ar-file(state);
       end;
-      dump-library-summary(state);
     end if;
+    dump-library-summary(state);
 
     if (state.unit-log-dependencies)
       spew-dependency-log(concatenate(state.unit-mprefix, ".dep"));

@@ -1,19 +1,5 @@
 if (!$enable_bootstrap) {
-    do compile_subdirs('runtime', 'compiler', 'dig');
+    do compile_subdirs('runtime', 'debugger', 'compiler'); # 'dig'
 } else {
-    if ($enable_mindy_bootstrap) {
-	do compile_subdirs('compiler', 'runtime', 'dig');
-	print <<'EOF';
-.PHONY: d2c-compile d2c-install
-
-d2c-compile: compile
-	$(MAKE) -C compiler d2c-compile
-
-d2c-install: install
-	$(MAKE) -C compiler d2c-install
-
-EOF
-    } else {
-	do compile_subdirs('runtime', 'compiler');
-    }
+    do compile_subdirs('runtime', 'debugger', 'compiler');
 }

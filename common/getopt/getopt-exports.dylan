@@ -2,7 +2,6 @@ library: parse-arguments
 module: dylan-user
 author:  Eric Kidd
 copyright: Copyright 1998 Eric Kidd
-rcs-header: $Header: /scm/cvs/src/common/getopt/getopt-exports.dylan,v 1.10 2000/01/24 04:54:23 andreas Exp $
 
 //======================================================================
 //
@@ -32,8 +31,7 @@ define library parse-arguments
 
 #if (~mindy)
   // for argument-parser-definer
-  use streams;
-  use format;
+  use io;
 #endif
 
   export
