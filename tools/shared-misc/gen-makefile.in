@@ -557,7 +557,7 @@ sub parse_dylan_header {
         # Also, Perl handles all newline hassles by turning win32
         # style CRLFs into LFs (\n's) before it shows us the string.
 
-        if ( ($target_name =~ /x86-cygnus-gcc*/) || ($target_name eq 'x86-win32-vc') || ($target_name =~ /x86-mingw32-gcc*/)) {
+        if ( ($target_name =~ /cygwin/) || ($target_name eq 'x86-win32-vc') || ($target_name =~ /x86-mingw32-gcc*/)) {
             $_ =~ s/\r//g;      # Get rid of bogus carriage returns
         }
 
@@ -611,7 +611,7 @@ sub parse_lid_file {
     while (<LIDFILE>) {
         $lidfile_line = $lidfile_line + 1;
 
-        if ( ($target_name =~ /x86-cygnus-gcc*/) || ($target_name eq 'x86-win32-vc') || ($target_name =~ /x86-mingw32-gcc*/) ) {
+        if ( ($target_name =~ /cygwin/) || ($target_name eq 'x86-win32-vc') || ($target_name =~ /x86-mingw32-gcc*/) ) {
             $_ =~ s/\r//g;      # Get rid of bogus carriage returns
         }
 
