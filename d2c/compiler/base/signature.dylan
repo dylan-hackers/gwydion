@@ -112,7 +112,7 @@ define method key-needs-supplied?-var (key-info :: <key-info>)
     #f;
   else
     let rep = pick-representation(key-info.key-type, #"speed");
-    ~rep.representation-has-void-value?;
+    ~rep.representation-has-bottom-value?;
   end;
 end;
 
