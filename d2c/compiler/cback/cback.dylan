@@ -1477,7 +1477,7 @@ define method emit-prologue
                  "// do not expect your changes to survive.\n\n");
 
   maybe-emit-include("stddef.h", file);
-//  maybe-emit-include("stdlib.h", file);
+  maybe-emit-include("stdlib.h", file);
 
   if (instance?(*double-rep*, <c-data-word-representation>))
     format(stream, "#define GD_DATAWORD_D\n");
