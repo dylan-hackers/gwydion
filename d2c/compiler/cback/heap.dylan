@@ -299,8 +299,16 @@ define method spew-reference
     (object :: <literal-integer>, rep :: <immediate-representation>,
      tag :: <byte-string>, state :: <file-state>)
     => ();
-  format(state.file-guts-stream, "%d /* %s */", object.literal-value,
-	 tag.clean-for-comment)
+  let val = object.literal-value;
+  if (val == ash(as(<extended-integer>, -1),
+                 *current-target*.platform-integer-length - 1))
+    // Some compilers (gcc) warn about minimum-fixed-integer.  So we
+    // print it in hex (assuming 2's complement).
+    format(state.file-guts-stream, "0x%x /* %s */",
+           -val, tag.clean-for-comment)
+  else
+    format(state.file-guts-stream, "%d /* %s */", val, tag.clean-for-comment)
+  end if;
 end;
 
 define method spew-reference
@@ -355,8 +363,16 @@ define method spew-reference
   spew-heap-prototype(object-name, heapptr, state);
   select (object by instance?)
     <literal-integer> =>
-      format(state.file-guts-stream, "{ (heapptr_t) &%s, { %d } } /* %s */", 
-	     object-name, dataword, tag.clean-for-comment);
+      if (dataword == ash(as(<extended-integer>, -1),
+                          *current-target*.platform-integer-length - 1))
+        // Some compilers (gcc) warn about minimum-fixed-integer.  So we
+        // print it in hex (assuming 2's complement).
+        format(state.file-guts-stream, "{ (heapptr_t) &%s, { 0x%x } } /* %s */",
+               object-name, -dataword, tag.clean-for-comment);
+      else
+        format(state.file-guts-stream, "{ (heapptr_t) &%s, { %d } } /* %s */",
+               object-name, dataword, tag.clean-for-comment);
+      end if;
     <literal-single-float> =>
       format(state.file-guts-stream, "{ (heapptr_t) &%s, { %d } } /* %s */",
 	     object-name, single-float-bits(dataword),
