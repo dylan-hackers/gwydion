@@ -23,15 +23,13 @@ end method native-clock-to-tm;
 define method native-clock-to-tm
     (time :: <machine-word>)
  => (tm :: <tm>)
-  let (err?, tm, gmtoff, zone)
-    = %system-localtime(as(<timeval>, time).tv-sec);
+  let (err?, tm, gmtoff, zone) = %system-localtime(as(<timeval>, time).tv-sec);
   tm
 end method native-clock-to-tm;
 
 define function encode-native-clock-as-date (native-clock) => (date :: <date>)
   let timeval = as(<timeval>, native-clock);
-  let (err?, tm, gmtoff, zone)
-    = %system-localtime(timeval.tv-sec);
+  let (err?, tm, gmtoff, zone) = %system-localtime(timeval.tv-sec);
   make(<date>, year: tm-year(tm) + 1900,
                month: tm-mon(tm) + 1,
                day: tm-mday(tm),
@@ -67,14 +65,14 @@ define function current-timestamp () => (milliseconds :: <integer>, days :: <int
 end function current-timestamp;
 
 define function local-time-zone-offset () => (zone-offset :: <integer>)
-  let (err?, tm, gmtoff, zone)
-    = %system-localtime(as(<integer>, read-clock()));
+  let timeval = as(<timeval>, read-clock());
+  let (err?, tm, gmtoff, zone) = %system-localtime(timeval.tv-sec);
   truncate/(gmtoff, 60)
 end function local-time-zone-offset;
 
 define function local-time-zone-name () => (zone-name :: <string>)
-  let (err?, tm, gmtoff, zone)
-    = %system-localtime(as(<integer>, read-clock()));
+  let timeval = as(<timeval>, read-clock());
+  let (err?, tm, gmtoff, zone) = %system-localtime(timeval.tv-sec);
   zone
 end function local-time-zone-name;
 
