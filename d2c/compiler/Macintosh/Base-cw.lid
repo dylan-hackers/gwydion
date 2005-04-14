@@ -1,5 +1,4 @@
 library: compiler-base
-unit-prefix: base
 unique-id-base: 10000
 shared-library: yes
 

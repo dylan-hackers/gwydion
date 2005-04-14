@@ -1,5 +1,4 @@
 library: parsergen
-unit-prefix: parsergen
 unique-id-base: 5000
 executable: parsergen
 entry-point: parsergen:%main

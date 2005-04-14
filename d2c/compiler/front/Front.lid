@@ -1,5 +1,4 @@
 library: compiler-front
-unit-prefix: front
 unique-id-base: 10250
 shared-library: yes
 

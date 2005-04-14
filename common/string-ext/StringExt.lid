@@ -1,6 +1,5 @@
 library: String-extensions
 unique-id-base: 654
-unit-prefix: stringext
 
 library.dylan
 character-type.dylan

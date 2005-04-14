@@ -1,5 +1,4 @@
 library: compiler-parser
-unit-prefix: parser
 unique-id-base: 10500
 shared-library: yes
 

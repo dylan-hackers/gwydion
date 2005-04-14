@@ -1,6 +1,5 @@
 Library:        c-parser
 Unique-ID-Base: 11000
-Unit-Prefix:    c_parser
 
 c-parser-exports.dylan
 c-lexer.dylan

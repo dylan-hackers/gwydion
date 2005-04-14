@@ -1,5 +1,4 @@
 library: compiler-main
-unit-prefix: main
 unique-id-base: 12000
 executable: d2c
 entry-point: main:%main

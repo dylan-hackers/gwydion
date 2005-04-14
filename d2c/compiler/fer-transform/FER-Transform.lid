@@ -1,5 +1,4 @@
 library: compiler-fer-transform
-unit-prefix: ferxform
 unique-id-base: 11500
 shared-library: yes
 

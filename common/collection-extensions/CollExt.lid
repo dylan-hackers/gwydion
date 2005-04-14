@@ -1,6 +1,5 @@
 library: collection-extensions
 unique-id-base: 400
-unit-prefix: collext
 
 library.dylan
 solist.dylan
