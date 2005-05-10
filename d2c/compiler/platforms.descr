@@ -365,7 +365,11 @@ inherit-from:			gcc linux x86
 link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
 
 // Microsoft Win32 with Cygwin
-platform-name:                   x86-cygwin-gcc
+//
+// To be compatible with 2.4, 2.5 (that needs 2.4 to work for it to compile)
+// needs to use "cygnus" rather than "cygwin" in a name. (Alex Potanin)
+//
+platform-name:                   x86-cygnus-gcc
 default-features:                compiled-for-cygnus
                                  newlines-are-CRLF
 inherit-from:                    x86 linux gcc
