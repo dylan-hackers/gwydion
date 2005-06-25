@@ -36,6 +36,7 @@ define library regular-expressions
   use dylan;
   use collection-extensions;
   use string-extensions;
+  use table-extensions;
   export
     regular-expressions;
 end library regular-expressions;
@@ -50,6 +51,7 @@ define module regular-expressions
   use %do-replacement;
   use %parse-string;
   use substring-search;
+  use table-extensions, import: { string-hash };
   export
     regexp-position, make-regexp-positioner,
     regexp-replace, make-regexp-replacer,
