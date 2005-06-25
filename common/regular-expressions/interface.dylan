@@ -90,10 +90,9 @@ end class <cache-element>;
 // weak pointers to these strings.  In practice, however, most of the
 // regexp strings are literals, so this isn't usually a drawback.
 //
-// For speed, we compare strings with == rather than = (thus
-// object-table).  Again, because in practice we're dealing mostly
-// with literals, == and = should be almost identical.
-//
+// This used to compare strings with == rather than =, but this leaks
+// lots of memory
+// 
 define class <regexp-cache> (<table>) end;
 
 // table-protocol{<regexp-cache>} -- method on imported G.F.
