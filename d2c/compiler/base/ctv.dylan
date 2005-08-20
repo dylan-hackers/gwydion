@@ -571,6 +571,10 @@ define method as (class == <ct-value>, thing :: <pair>)
        tail: as(<ct-value>, thing.tail));
 end;
 
+define method literal-value (lit :: <literal-pair>) => (res :: <pair>);
+  pair(lit.literal-head.literal-value, lit.literal-tail.literal-value);
+end method;
+
 define class <literal-empty-list> (<literal-list>, <eql-literal>)
 end;
 

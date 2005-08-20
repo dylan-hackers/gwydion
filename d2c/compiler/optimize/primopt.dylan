@@ -261,6 +261,13 @@ define-primitive-transformer
 	   end;
 	 end;
        end;
+     elseif (instance?(leaf, <literal-constant>)
+               & instance?(leaf.value, <literal-sequence>)
+               & empty?(leaf.value.literal-value))
+       replace-expression
+         (component, primitive.dependents,
+          make-operation(make-builder(component), <primitive>,
+                         #(), name: #"values"));
      end;
    end);
 

@@ -248,13 +248,13 @@ end;
 
 define method extract-rest-arg (expr :: <literal-constant>)
     => res :: false-or(<list>);
-  if (expr.value = #() | expr.value = #[])
+  if (instance?(expr.value, <literal-sequence>)
+        & empty?(expr.value.literal-value))
     #();
   else
     #f;
   end;
 end;    
-
 
 // == stuff.
 
