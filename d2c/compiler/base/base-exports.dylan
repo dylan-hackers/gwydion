@@ -234,6 +234,7 @@ define module compile-time-values
     <literal-empty-list>,
     <literal-vector>,
     <literal-simple-object-vector>,
+    literal-sharable?,
     <literal-string>, concat-strings,
     *compiler-dispatcher*, merge-ctv-infos, merge-and-set-info;
 end;

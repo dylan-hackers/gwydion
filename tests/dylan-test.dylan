@@ -380,6 +380,7 @@ define method tautology(arg == #"sequences")
   let x = #("bim", "bam", "boom");
   (reverse(x) = #("boom", "bam", "bim"))
     | signal("reverse(x) is not #(\"boom\", \"bam\", \"bim\")! It's %=\n", reverse(x));
+  let x = shallow-copy(x);
   let y = reverse!(x);
   (y = #("boom", "bam", "bim"))
     | signal("reverse!(x) is not #(\"boom\", \"bam\", \"bim\")! It's %=\n", y);
@@ -389,7 +390,7 @@ define method tautology(arg == #"sequences")
   let y = sort!(numbers);
   (y = #(1, 1, 3, 4, 5, 9))
     | signal("sort!(numbers) is not #(1, 1, 3, 4, 5, 9)!  It's %=\n", y);
-  let numbers = #(3, 1, 4, 1, 5, 9);
+  let numbers = list(3, 1, 4, 1, 5, 9);
   (first(numbers) = 3)
     | signal("first(numbers) is not 3!  It's %=\n", first(numbers));
   (second(numbers) = 1)

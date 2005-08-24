@@ -762,14 +762,14 @@ define method spew-object
     (name :: <byte-string>,
      object :: <ct-not-supplied-marker>,
      state :: <file-state>) => ();
-  spew-instance(name, specifier-type(#"<not-supplied-marker>"), state);
+  spew-instance(name, specifier-type(#"<not-supplied-marker>"), #t, state);
 end;
 
 define method spew-object
     (name :: <byte-string>,
      object :: <literal-boolean>,
      state :: <file-state>) => ();
-  spew-instance(name, object.ct-value-cclass, state);
+  spew-instance(name, object.ct-value-cclass, #t, state);
 end;
 
 define method spew-object
@@ -793,7 +793,7 @@ define method spew-object
       end;
     end;
   repeat(object.literal-value);
-  spew-instance(name, specifier-type(#"<extended-integer>"), state,
+  spew-instance(name, specifier-type(#"<extended-integer>"), #t, state,
 		bignum-size: as(<ct-value>, digits.size),
 		bignum-digit: digits);
 end;
@@ -802,7 +802,7 @@ define method spew-object
     (name :: <byte-string>,
      object :: <literal-ratio>, state :: <file-state>) => ();
   let num = as(<ratio>, object.literal-value);
-  spew-instance(name, object.ct-value-cclass, state,
+  spew-instance(name, object.ct-value-cclass, #t, state,
 		numerator:
 		  make(<literal-extended-integer>, value: num.numerator),
 		denominator:
@@ -812,13 +812,13 @@ end;
 define method spew-object
     (name :: <byte-string>,
      object :: <literal-float>, state :: <file-state>) => ();
-  spew-instance(name, object.ct-value-cclass, state, value: object);
+  spew-instance(name, object.ct-value-cclass, #t, state, value: object);
 end;
 
 define method spew-object
     (name :: <byte-string>,
      object :: <literal-symbol>, state :: <file-state>) => ();
-  spew-instance(name, specifier-type(#"<symbol>"), state,
+  spew-instance(name, specifier-type(#"<symbol>"), #f, state,
 		symbol-string:
 		  as(<ct-value>, as(<string>, object.literal-value)),
 		symbol-next: state.symbols);
@@ -828,7 +828,8 @@ end;
 define method spew-object
     (name :: <byte-string>,
      object :: <literal-pair>, state :: <file-state>) => ();
-  spew-instance(name, specifier-type(#"<pair>"), state,
+  spew-instance(name, specifier-type(#"<pair>"), object.literal-sharable?,
+                state,
 		head: object.literal-head,
 		tail: object.literal-tail);
 end;
@@ -836,7 +837,7 @@ end;
 define method spew-object
     (name :: <byte-string>,
      object :: <literal-empty-list>, state :: <file-state>) => ();
-  spew-instance(name, specifier-type(#"<empty-list>"), state,
+  spew-instance(name, specifier-type(#"<empty-list>"), #t, state,
 		head: object, tail: object);
 end;
 
@@ -845,7 +846,8 @@ define method spew-object
      object :: <literal-simple-object-vector>,
      state :: <file-state>) => ();
   let contents = object.literal-value;
-  spew-instance(name, specifier-type(#"<simple-object-vector>"), state,
+  spew-instance(name, specifier-type(#"<simple-object-vector>"),
+                object.literal-sharable?, state,
 		size: as(<ct-value>, contents.size),
 		%element: contents);
 end;
@@ -932,8 +934,7 @@ define method spew-object
 	end select;
     end select;
   end for;
-  format(state.file-body-stream, "const ");
-  spew-layout(class, state, size: str.size);
+  spew-layout(class, #t, state, size: str.size);
   format(state.file-body-stream, " %s = {\n", name);
   write(state.file-body-stream, get-string(state.file-guts-stream));
   format(state.file-body-stream, "};\n");
@@ -952,7 +953,7 @@ define method spew-object
       mems := pair(member, mems);
     end;
   end;
-  spew-instance(name, specifier-type(#"<union>"), state,
+  spew-instance(name, specifier-type(#"<union>"), #t, state,
 		union-members: make(<literal-simple-object-vector>,
 				    contents: mems,
 				    sharable: #t),
@@ -978,7 +979,7 @@ define method spew-object
 	    end if;
 	  end if;
 	end method make-lit;
-  spew-instance(name, specifier-type(#"<limited-integer>"), state,
+  spew-instance(name, specifier-type(#"<limited-integer>"), #t, state,
 		limited-integer-base-class: object.base-class,
 		limited-integer-minimum: make-lit(object.low-bound),
 		limited-integer-maximum: make-lit(object.high-bound));
@@ -987,7 +988,7 @@ end;
 define method spew-object
     (name :: <byte-string>,
      object :: <limited-collection-ctype>, state :: <file-state>) => ();
-  spew-instance(name, specifier-type(#"<limited-collection>"), state,
+  spew-instance(name, specifier-type(#"<limited-collection>"), #t, state,
                 limited-integer-base-class: object.base-class,
 		limited-element-type: object.element-type,
                 limited-size-restriction: if (object.size-or-dimension)
@@ -1003,27 +1004,27 @@ end method spew-object;
 define method spew-object
     (name :: <byte-string>,
      object :: <singleton-ctype>, state :: <file-state>) => ();
-  spew-instance(name, specifier-type(#"<singleton>"), state,
+  spew-instance(name, specifier-type(#"<singleton>"), #t, state,
 		singleton-object: object.singleton-value);
 end;
 
 define method spew-object
     (name :: <byte-string>,
      object :: <direct-instance-ctype>, state :: <file-state>) => ();
-  spew-instance(name, specifier-type(#"<direct-instance>"), state,
+  spew-instance(name, specifier-type(#"<direct-instance>"), #t, state,
 		direct-instance-of: object.base-class);
 end;
 
 define method spew-object
     (name :: <byte-string>,
      object :: <byte-character-ctype>, state :: <file-state>) => ();
-  spew-instance(name, specifier-type(#"<byte-character-type>"), state);
+  spew-instance(name, specifier-type(#"<byte-character-type>"), #t, state);
 end;
 
 define method spew-object
     (name :: <byte-string>,
      object :: <subclass-ctype>, state :: <file-state>) => ();
-  spew-instance(name, specifier-type(#"<subclass>"), state,
+  spew-instance(name, specifier-type(#"<subclass>"), #t, state,
 		subclass-of: object.subclass-of);
 end;
 
@@ -1044,7 +1045,7 @@ define method spew-class
      state :: <file-state>,
      metaclass :: <meta-cclass>,
      slots :: <simple-object-vector>) => ();
-  apply(spew-instance, name, metaclass, state,
+  apply(spew-instance, name, metaclass, #f, state,
 	%object-class: class-ctype(),
 	slots);
 end;
@@ -1055,7 +1056,7 @@ define method spew-class
      state :: <file-state>,
      metaclass == #f,
      slots :: <simple-object-vector>) => ();
-  apply(spew-instance, name, class-ctype(), state, slots);
+  apply(spew-instance, name, class-ctype(), #f, state, slots);
 end;
 
 define method spew-object
@@ -1123,7 +1124,7 @@ end;
 define method spew-object
     (name :: <byte-string>,
      object :: <slot-info>, state :: <file-state>) => ();
-  spew-instance(name, specifier-type(#"<slot-descriptor>"), state,
+  spew-instance(name, specifier-type(#"<slot-descriptor>"), #f, state,
 		slot-name:
 		  as(<ct-value>,
 		     object.slot-getter
@@ -1174,7 +1175,7 @@ end method spew-object;
 define method spew-object
     (name :: <byte-string>,
      object :: <override-info>, state :: <file-state>) => ();
-  spew-instance(name, specifier-type(#"<override-descriptor>"), state,
+  spew-instance(name, specifier-type(#"<override-descriptor>"), #f, state,
 		slot-init-value:
 		  if (instance?(object.slot-init-value, <ct-value>))
 		    object.slot-init-value;
@@ -1189,7 +1190,7 @@ define method spew-object
     (name :: <byte-string>,
      object :: <defined-cdclass>, state :: <file-state>) => ();
   let defn = object.class-defn;
-  spew-instance(name, specifier-type(#"<designator-class>"), state,
+  spew-instance(name, specifier-type(#"<designator-class>"), #t, state,
 		class-name:
 		  make(<literal-string>,
 		       value: as(<byte-string>,
@@ -1202,8 +1203,8 @@ define method spew-object
 		       sharable: #t),
 		all-superclasses:
 		  make(<literal-simple-object-vector>,
-		       contents: object.precedence-list,
-		       sharable: #t),
+                       contents: object.precedence-list,
+                       sharable: #t),
 		closest-primary-superclass: object.closest-primary-superclass,
 		direct-subclasses:
 		  make(<literal-list>, contents: object.direct-subclasses),
@@ -1248,7 +1249,7 @@ end;
 define method spew-object
     (name :: <byte-string>,
      object :: <struct-slot-info>, state :: <file-state>) => ();
-  spew-instance(name, specifier-type(#"<struct-slot-descriptor>"), state,
+  spew-instance(name, specifier-type(#"<struct-slot-descriptor>"), #t, state,
 		c-type: object.struct-slot-c-type,
 		offset: as(<ct-value>, object.struct-slot-offset));
 end;
@@ -1418,7 +1419,7 @@ define method spew-function
   let returns = sig.returns;
   let positionals = returns.positional-types;
   let min-values = returns.min-values;
-  apply(spew-instance, name, func.ct-value-cclass, state,
+  apply(spew-instance, name, func.ct-value-cclass, #f, state,
 	function-name:
 	  make(<literal-string>, value:
 	       format-to-string("%s", func.ct-function-name)),
@@ -1458,7 +1459,8 @@ end;
 //
 define function spew-instance
     (name :: <byte-string>,
-     class :: <cclass>, state :: <file-state>, #rest slots) => ();
+     class :: <cclass>, read-only? :: <boolean>, state :: <file-state>,
+     #rest slots) => ();
   let stream = state.file-guts-stream;
   let vector-size = #f;
   for (field in get-class-fields(class))
@@ -1520,7 +1522,7 @@ define function spew-instance
 	end;
     end;
   end;
-  spew-layout(class, state, size: vector-size);
+  spew-layout(class, read-only?, state, size: vector-size);
   format(state.file-body-stream, " %s = {\n", name);
   write(state.file-body-stream, get-string(state.file-guts-stream));
   format(state.file-body-stream, "};\n");
@@ -1551,11 +1553,21 @@ define method spew-heap-prototype
   unless (element(state.file-prototypes-exist-for, name, default: #f))
     let stream = state.file-body-stream;
     let cclass = defn.layouter-cclass;
+    let read-only?
+      = select(defn by instance?)
+          <ct-not-supplied-marker>, <literal-boolean>,
+          <literal-number>, <literal-empty-list>, <literal-string>,
+          <union-ctype>, <limited-integer-ctype>, <limited-collection-ctype>,
+          <singleton-ctype>, <direct-instance-ctype>, <byte-character-ctype>,
+          <subclass-ctype>, <defined-cdclass>, <struct-slot-info>
+            => #t;
+          <literal-pair>, <literal-simple-object-vector>
+            => defn.literal-sharable?;
+          otherwise
+            => #f;
+        end select;
     format(stream, "extern ");
-    if(instance?(defn, <literal-string>))
-      format(stream, "const ");
-    end;
-    spew-layout(cclass, state, size: literal-vector-size(defn));
+    spew-layout(cclass, read-only?, state, size: literal-vector-size(defn));
     format(stream, " %s;\n\n", name);
     state.file-prototypes-exist-for[name] := #t;
   end unless;
@@ -1576,7 +1588,8 @@ end method;
 // layout for each distinct vector size.
 //
 define method spew-layout
-    (class :: <cclass>, state :: <file-state>, #key size)
+    (class :: <cclass>, read-only? :: <boolean>, state :: <file-state>,
+     #key size)
  => ();
   let stream = state.file-body-stream;
   let classname = class.cclass-name.c-name-global;
@@ -1585,7 +1598,8 @@ define method spew-layout
              else
                classname;
              end if;
-  if(element(state.file-layouts-exist-for, name, default: #f))
+  if (read-only?) format(stream, "const ") end;
+  if (element(state.file-layouts-exist-for, name, default: #f))
     format(stream, "struct %s", name);
   else
     format(stream, "struct %s {\n", name);
