@@ -162,7 +162,7 @@ define method dump (component :: <component>, stream :: <stream>) => ();
   for (func in component.all-function-regions,
        first? = #t then #f)
     unless (first?)
-      pprint-newline(#"mandatory", stream);
+      new-line(stream);
     end;
     dump(func, stream);
   end;
@@ -184,7 +184,7 @@ define method dump (region :: <simple-region>, stream :: <stream>) => ();
        first? = #t then #f,
        while: assign)
     unless (first?)
-      pprint-newline(#"mandatory", stream);
+      new-line(stream);
     end;
     dump(assign, stream);
   end;
@@ -206,7 +206,7 @@ define method dump (region :: <compound-region>, stream :: <stream>) => ();
   for (subregion in region.regions,
        first? = #t then #f)
     unless (first?)
-      pprint-newline(#"mandatory", stream);
+      new-line(stream);
     end;
     dump(subregion, stream);
   end;
@@ -483,7 +483,7 @@ end;
 define method dump (op :: <operation>, stream :: <stream>) => ();
   format(stream, "%s[%d]", op.kind, op.id);
   dump-operands(op.depends-on, stream);
-  pprint-newline(#"fill", stream);
+  new-line(stream);
   write(stream, " => ");
   print-message(op.derived-type, stream);
 end;
