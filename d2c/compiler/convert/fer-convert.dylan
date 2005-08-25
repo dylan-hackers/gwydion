@@ -823,7 +823,8 @@ define function fer-convert-method
 	build-assignment
 	  (body-builder, policy, source, orig-args-var,
 	   make-operation
-	     (body-builder, <primitive>, as(<list>, vars), name: #"vector"));
+	     (body-builder, <primitive>, as(<list>, vars),
+              name: #"immutable-vector"));
       end if;
 
       build-let
@@ -1064,8 +1065,8 @@ define function fer-convert-method
 	temp;
       end;
     build-call(#"%make-method",
-	       list(build-call(#"vector", specializer-leaves),
-		    build-call(#"vector", result-type-leaves),
+	       list(build-call(#"immutable-vector", specializer-leaves),
+		    build-call(#"immutable-vector", result-type-leaves),
 		    rest-type-leaf
 		      | make-literal-constant(builder, empty-ctype()),
 		    make-function-literal(builder, #f, #"method", #"local",

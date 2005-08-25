@@ -1414,12 +1414,8 @@ define method convert-to-known-call
       let rest-temp = make-local-var(builder, #"rest", object-ctype());
       build-assignment
 	(builder, assign.policy, assign.source-location, rest-temp,
-         if (empty?(rest-args))
-           make-literal-constant(builder, #[])
-         else
-           make-operation(builder, <primitive>, as(<list>, rest-args),
-                          name: #"vector")
-         end if);
+         make-operation(builder, <primitive>, as(<list>, rest-args),
+                        name: #"immutable-vector"));
       add!(new-ops, rest-temp);
     end;
     if (sig.key-infos)

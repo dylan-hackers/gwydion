@@ -165,7 +165,7 @@ define-primitive-transformer
 	       let fixed = copy-sequence(temps, end: nfixed);
 	       let rest = copy-sequence(temps, start: nfixed);
 	       let op = make-operation(builder, <primitive>, rest,
-				       name: #"vector");
+				       name: #"immutable-vector");
 	       let rest-temp
 		 = make-local-var(builder, #"temp", object-ctype());
 	       build-assignment(builder, orig-assign.policy,
@@ -222,7 +222,7 @@ define-primitive-transformer
        let assign = leaf.definer;
        let vec = assign.depends-on.source-exp;
        if (instance?(vec, <primitive>))
-	 if (vec.primitive-name == #"vector")
+         if (vec.primitive-name == #"immutable-vector")
 	   let ref-site = primitive.home-function-region;
 	   local method copy-arg (arg :: <leaf>) => copy :: <leaf>;
 		   maybe-copy(component, arg, assign, ref-site);
@@ -262,12 +262,14 @@ define-primitive-transformer
 	 end;
        end;
      elseif (instance?(leaf, <literal-constant>)
-               & instance?(leaf.value, <literal-sequence>)
-               & empty?(leaf.value.literal-value))
+               & instance?(leaf.value, <literal-sequence>))
+       let builder = make-builder(component);
        replace-expression
          (component, primitive.dependents,
-          make-operation(make-builder(component), <primitive>,
-                         #(), name: #"values"));
+          make-operation(builder, <primitive>,
+                         map-as(<list>, curry(make-literal-constant, builder),
+                                leaf.value.literal-value),
+                         name: #"values"));
      end;
    end);
 
@@ -344,6 +346,54 @@ define-primitive-transformer
 	 end;
        end method repeat;
      repeat(primitive.depends-on, #f, #t);
+   end method);
+
+// Vectors
+
+define-primitive-transformer
+  (#"immutable-vector",
+   method (component :: <component>, primitive :: <primitive>)
+     block (return)
+       let vals = make(<stretchy-vector>);
+       for (dep = primitive.depends-on then dep.dependent-next, while: dep)
+         let exp = dep.source-exp;
+         if (instance?(exp, <literal-constant>))
+           add!(vals, exp.value);
+         else
+           return();
+         end if;
+       finally
+         replace-expression
+           (component, primitive.dependents,
+            make-literal-constant(make-builder(component),
+                                  make(<literal-simple-object-vector>,
+                                       contents:
+                                         as(<simple-object-vector>, vals),
+                                       sharable: #t)));
+       end;
+     end block;
+   end method);
+
+define-primitive-transformer
+  (#"vector-element-size",
+   method (component :: <component>, primitive :: <primitive>)
+     let vec = primitive.depends-on.source-exp;
+     let classes = vec.derived-type.find-direct-classes;
+     assert(classes ~== #f & classes ~== #());
+     local
+       method vector-slot-size
+           (cclass :: <cclass>) => (res :: <integer>);
+         cclass.vector-slot.slot-representation.representation-size;
+       end;
+     let element-size = vector-slot-size(classes.first);
+     unless(every?(method(class) vector-slot-size(class) = element-size end,
+                   classes))
+       error("vector slot representation not consistent for "
+               "%%primitive vector-element-size");
+     end unless;
+       replace-expression
+	 (component, primitive.dependents,
+          make-literal-constant(make-builder(component), element-size));
    end method);
 
 

@@ -69,6 +69,7 @@ define module cheese
   use classes;
   use signature-interface;
   use source;
+  use representation;
   use builder-interface;
   use policy;
   use primitives;

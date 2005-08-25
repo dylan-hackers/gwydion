@@ -186,7 +186,8 @@ define method make-limited-collection-transformer
     local method give-up () return (#f) end;
     
     // Fetch our arguments.
-    let (okay?, type, init-keywords) = extract-args(call, 1, #f, #t, #f);
+    let (okay?, type, init-keywords)
+      = extract-args(component, call, 1, #f, #t, #f);
     unless (okay?) give-up() end;
     
     // Examine our first argument to see if we can do anything with it.
@@ -299,7 +300,7 @@ define method size-transformer
  => (did-anything? :: <boolean>)
   //dformat("We might be able to do something here.\n");
   block (return)
-    let (okay?, arg) = extract-args(call, 1, #f, #f, #f);
+    let (okay?, arg) = extract-args(component, call, 1, #f, #f, #f);
     if (okay?)
       let type = arg.derived-type;
       if (instance?(type, <limited-collection-ctype>))

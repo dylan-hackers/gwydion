@@ -1101,7 +1101,7 @@ define method replace-placeholder
     replace-placeholder(component, dep, dep.source-exp);
   end;
   select (op.primitive-name)
-    #"vector" => 
+    #"immutable-vector" => 
       let builder = make-builder(component);
       let assign = dep.dependent;
       let policy = assign.policy;
@@ -1137,6 +1137,27 @@ define method replace-placeholder
       insert-before(component, assign, builder-result(builder));
       replace-expression(component, dep, vec);
 
+    #"ensure-mutable" =>
+      let leaf = op.depends-on.source-exp;
+      if (instance?(leaf, <literal-constant>))
+        let builder = make-builder(component);
+        let assign = dep.dependent;
+        let policy = assign.policy;
+        let source = assign.source-location;
+        let vec = make-local-var(builder, #"vector",
+                                 specifier-type(#"<simple-object-vector>"));
+        build-assignment
+          (builder, policy, source, vec,
+           make-unknown-call
+             (builder,
+              ref-dylan-defn(builder, policy, source, #"shallow-copy"), #f,
+              list(leaf)));
+        insert-before(component, assign, builder-result(builder));
+        replace-expression(component, dep, vec);
+      else
+        replace-expression(component, dep, leaf);
+      end if;
+        
     #"make-next-method" =>
       let builder = make-builder(component);
       let assign = dep.dependent;

@@ -128,8 +128,14 @@ end;
 
 // <simple-object-vector>s
 
-define inline function vector (#rest args) => res :: <simple-object-vector>;
+define inline function immutable-vector
+    (#rest args)
+ => (res :: <simple-object-vector>);
   args;
+end;
+
+define inline function vector (#rest args) => res :: <simple-object-vector>;
+  %%primitive(ensure-mutable, args);
 end;
 
 define class <simple-object-vector> (<simple-vector>)
@@ -223,6 +229,18 @@ define sealed method as
   end;
   res;
 end;
+
+define inline method shallow-copy
+    (collection :: <simple-object-vector>)
+ => (result :: <simple-object-vector>);
+  c-system-include("string.h");
+  let result = make(<simple-object-vector>, size: collection.size);
+  call-out("memcpy", void:,
+           ptr: %%primitive(vector-elements, result),
+           ptr: %%primitive(vector-elements, collection),
+           int: %%primitive(vector-element-size, collection) * collection.size);
+  result;
+end method shallow-copy;
 
 
 define open generic %elem (vec :: <vector>, index :: <integer>) 

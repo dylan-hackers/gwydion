@@ -3585,6 +3585,17 @@ define method c-expr-and-rep
 end;
 
 define method c-expr-and-rep
+    (lit :: <literal-simple-object-vector>, rep-hint :: <c-representation>,
+     file :: <file-state>)
+ => (name :: <string>, rep :: <c-representation>);
+  // The same applies to <literal-simple-object-vector> instances.
+  for (elem in lit.literal-value)
+    maybe-emit-entries(elem, file);
+  end for;
+  aux-c-expr-and-rep(lit, file, modifier: "literal");
+end method c-expr-and-rep;
+
+define method c-expr-and-rep
     (lit :: <literal-symbol>, rep-hint :: <c-representation>,
      file :: <file-state>)
  => (name :: <string>, rep :: <c-representation>);

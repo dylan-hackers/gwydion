@@ -2469,6 +2469,7 @@ define constant $sequence-of-moveable-primitives
       #"pointer-=",
       #"pointer-deref",
       #"vector-elements",
+      #"vector-element-size",
       #"object-address",
       #"heap-object-at",
       #"general-object-at"];

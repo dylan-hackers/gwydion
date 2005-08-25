@@ -2579,7 +2579,8 @@ define method build-key-defaulter-function-body
 
   //
   // The optimizer will take care of this
-  let vector-leaf = ref-dylan-defn(builder, policy, source, #"vector");
+  let vector-leaf
+    = ref-dylan-defn(builder, policy, source, #"immutable-vector");
   let vec-var = make-local-var(builder, #"vec", sov-type);
   build-assignment
     (builder, policy, source, vec-var,

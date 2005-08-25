@@ -222,7 +222,11 @@ define-primitive
    side-effect-free: #t);
 
 define-primitive
-  (#"vector", #(rest:, #"<object>"), #"<simple-object-vector>",
+  (#"immutable-vector", #(rest:, #"<object>"), #"<simple-object-vector>",
+   pure: #t, cseable: #t, side-effect-free: #t);
+
+define-primitive
+  (#"ensure-mutable", #(#"<simple-object-vector>"), #"<simple-object-vector>",
    pure: #t);
 
 define-primitive
@@ -616,9 +620,11 @@ define-primitive
    #(values:));
 
 define-primitive
-  (#"vector-elements",
-   #(#"<vector>"),
-   #"<raw-pointer>",
+  (#"vector-elements", #(#"<vector>"), #"<raw-pointer>",
+   cseable: #t);
+
+define-primitive
+  (#"vector-element-size", #(#"<vector>"), #"<integer>",
    cseable: #t);
 
 define-primitive

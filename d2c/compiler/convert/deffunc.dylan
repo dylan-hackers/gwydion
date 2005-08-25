@@ -835,8 +835,9 @@ define function build-type-vector
     build-assignment
       (builder, policy, source, temp,
        make-unknown-call
-	 (builder, ref-dylan-defn(builder, policy, source, #"vector"), #f,
-	  as(<list>, leaves)));
+	 (builder,
+          ref-dylan-defn(builder, policy, source, #"immutable-vector"), #f,
+          as(<list>, leaves)));
     temp;
   end if;
 end function build-type-vector;
@@ -955,7 +956,8 @@ define method build-discriminator-tree
     => ();
   if (empty?(method-set.all-methods))
     let vec = make-local-var(builder, #"args", object-ctype());
-    let vector-leaf = ref-dylan-defn(builder, policy, source, #"vector");
+    let vector-leaf
+      = ref-dylan-defn(builder, policy, source, #"immutable-vector");
     build-assignment
       (builder, policy, source, vec,
        if (rest-var)

@@ -111,9 +111,9 @@ end;
 // Extracts the arguments from a call.
 // 
 define method extract-args
-    (call :: <known-call>, nfixed :: <integer>, want-next? :: <boolean>,
-     rest? :: <boolean>, keys :: false-or(<list>))
-    => (okay? :: <boolean>, #rest arg :: type-union(<leaf>, <list>));
+    (component :: <component>, call :: <known-call>, nfixed :: <integer>,
+     want-next? :: <boolean>, rest? :: <boolean>, keys :: false-or(<list>))
+ => (okay? :: <boolean>, #rest arg :: type-union(<leaf>, <list>));
   block (return)
     let sig = find-signature(call.depends-on.source-exp);
     unless (sig.specializers.size == nfixed)
@@ -153,7 +153,7 @@ define method extract-args
 	  error("Transformer inconsistent w/ function signature.");
 	end if;
 	if (rest?)
-	  let rest = extract-rest-arg(args.source-exp);
+	  let rest = extract-rest-arg(component, args.source-exp);
 	  unless (rest)
 	    return(#f);
 	  end unless;
@@ -167,9 +167,9 @@ end method extract-args;
 
 
 define method extract-args
-    (call :: <unknown-call>, nfixed :: <integer>, want-next? :: <boolean>,
-     rest? :: <boolean>, keys :: false-or(<list>))
-    => (okay? :: <boolean>, #rest arg :: type-union(<leaf>, <list>));
+    (component :: <component>, call :: <unknown-call>, nfixed :: <integer>,
+     want-next? :: <boolean>, rest? :: <boolean>, keys :: false-or(<list>))
+ => (okay? :: <boolean>, #rest arg :: type-union(<leaf>, <list>));
   let sig = find-signature(call.depends-on.source-exp);
   unless (sig.specializers.size == nfixed)
     error("Transformer inconsistent w/ function signature.");
@@ -223,18 +223,20 @@ define method find-signature (func :: <literal-constant>)
 end;
 
 
-define method extract-rest-arg (expr :: <expression>) => res :: <false>;
+define method extract-rest-arg (component :: <component>, expr :: <expression>)
+    => res :: <false>;
   #f;
 end;
 
-define method extract-rest-arg (expr :: <ssa-variable>)
-    => res :: false-or(<list>);
-  extract-rest-arg(expr.definer.depends-on.source-exp);
+define method extract-rest-arg
+    (component :: <component>, expr :: <ssa-variable>)
+ => (res :: false-or(<list>));
+  extract-rest-arg(component, expr.definer.depends-on.source-exp);
 end;
 
-define method extract-rest-arg (expr :: <primitive>)
+define method extract-rest-arg (component :: <component>, expr :: <primitive>)
     => res :: false-or(<list>);
-  if (expr.primitive-name == #"vector")
+  if (expr.primitive-name == #"immutable-vector")
     for (arg = expr.depends-on then arg.dependent-next,
 	 results = #() then pair(arg.source-exp, results),
 	 while: arg)
@@ -246,11 +248,12 @@ define method extract-rest-arg (expr :: <primitive>)
   end;
 end;
 
-define method extract-rest-arg (expr :: <literal-constant>)
-    => res :: false-or(<list>);
-  if (instance?(expr.value, <literal-sequence>)
-        & empty?(expr.value.literal-value))
-    #();
+define method extract-rest-arg
+    (component :: <component>, expr :: <literal-constant>)
+ => (res :: false-or(<list>));
+  if (instance?(expr.value, <literal-sequence>))
+    map-as(<list>, curry(make-literal-constant, make-builder(component)),
+           expr.value.literal-value);
   else
     #f;
   end;
@@ -262,7 +265,7 @@ define method generic-==-transformer
     (component :: <component>, call :: <unknown-call>)
     => did-anything? :: <boolean>;
   block (return)
-    let (okay?, x, y) = extract-args(call, 2, #f, #f, #f);
+    let (okay?, x, y) = extract-args(component, call, 2, #f, #f, #f);
     unless (okay?)
       return(#f);
     end unless;
@@ -432,7 +435,7 @@ define method object-==-transformer
     (component :: <component>, call :: <abstract-call>)
     => did-anything? :: <boolean>;
   block (return)
-    let (okay?, x, y) = extract-args(call, 2, #f, #f, #f);
+    let (okay?, x, y) = extract-args(component, call, 2, #f, #f, #f);
     unless (okay?)
       return(#f);
     end unless;
@@ -527,7 +530,7 @@ end;
 define method slow-functional-==-transformer
     (component :: <component>, call :: <abstract-call>)
     => did-anything? :: <boolean>;
-  let (okay?, x, y) = extract-args(call, 2, #f, #f, #f);
+  let (okay?, x, y) = extract-args(component, call, 2, #f, #f, #f);
   if (okay?)
     if (trivial-==-optimization(component, call, x, y))
       #t;
@@ -617,7 +620,7 @@ end method replace-with-functional-==;
 define method check-type-transformer
     (component :: <component>, call :: <abstract-call>)
     => (did-anything? :: <boolean>);
-  let (okay?, object, type) = extract-args(call, 2, #f, #f, #f);
+  let (okay?, object, type) = extract-args(component, call, 2, #f, #f, #f);
   if (okay?)
     let type = extract-constant-type(type);
     if (type)
@@ -654,7 +657,8 @@ end;
 define method instance?-transformer
     (component :: <component>, call :: <abstract-call>)
     => (did-anything? :: <boolean>);
-  let (okay?, value-leaf, type-leaf) = extract-args(call, 2, #f, #f, #f);
+  let (okay?, value-leaf, type-leaf)
+    = extract-args(component, call, 2, #f, #f, #f);
   if (okay?)
     let type = extract-constant-type(type-leaf);
     if (type)
@@ -1073,7 +1077,8 @@ define method slot-initialized?-transformer
     (component :: <component>, call :: <abstract-call>)
     => (did-anything? :: <boolean>);
   block (done)
-    let (okay?, instance, getter) = extract-args(call, 2, #f, #f, #f);
+    let (okay?, instance, getter)
+      = extract-args(component, call, 2, #f, #f, #f);
     unless (okay?) done(#f) end unless;
 
     let class = best-idea-of-class(instance.derived-type);
@@ -1175,7 +1180,7 @@ end method slot-from-getter;
 define method apply-transformer
     (component :: <component>, call :: <abstract-call>)
     => (did-anything? :: <boolean>);
-  let (okay?, function, args) = extract-args(call, 1, #f, #t, #f);
+  let (okay?, function, args) = extract-args(component, call, 1, #f, #t, #f);
   if (~okay?)
     #f;
   elseif (empty?(args))
@@ -1238,7 +1243,7 @@ define-transformer(#"apply", #f, apply-transformer);
 define method list-transformer
     (component :: <component>, call :: <abstract-call>)
     => (did-anything? :: <boolean>);
-  let (okay?, args) = extract-args(call, 0, #f, #t, #f);
+  let (okay?, args) = extract-args(component, call, 0, #f, #t, #f);
   if (okay?)
     let builder = make-builder(component);
     let assign = call.dependents.dependent;
@@ -1272,7 +1277,7 @@ define method make-transformer
   block (return)
     local method give-up () return(#f) end;
     let (okay?, cclass-leaf, init-keywords)
-      = extract-args(call, 1, #f, #t, #f);
+      = extract-args(component, call, 1, #f, #t, #f);
     unless (okay? & instance?(cclass-leaf, <literal-constant>))
       give-up();
     end;
@@ -1404,9 +1409,9 @@ define-transformer(#"make", #(#"<class>"), make-transformer);
 define method reduce-transformer
     (component :: <component>, call :: <known-call>)
     => (did-anything? :: <boolean>);
-  let (okay?, proc, init-val, collection) = extract-args(call, 3, #f, #f, #f);
+  let (okay?, proc, init-val, collection) = extract-args(component, call, 3, #f, #f, #f);
   if (okay?)
-    let elements = extract-rest-arg(collection);
+    let elements = extract-rest-arg(component, collection);
     if (elements)
       reduce-transformer-aux(component, call, proc, init-val, elements);
     end;
@@ -1419,9 +1424,9 @@ define-transformer(#"reduce", #(#"<function>", #"<object>", #"<collection>"),
 define method reduce1-transformer
     (component :: <component>, call :: <known-call>)
     => (did-anything? :: <boolean>);
-  let (okay?, proc, collection) = extract-args(call, 3, #f, #f, #f);
+  let (okay?, proc, collection) = extract-args(component, call, 3, #f, #f, #f);
   if (okay?)
-    let elements = extract-rest-arg(collection);
+    let elements = extract-rest-arg(component, collection);
     if (elements & ~empty?(elements))
       reduce-transformer-aux(component, call, proc,
 			     elements.head, elements.tail);
@@ -1462,7 +1467,7 @@ define method do-transformer
     (component :: <component>, call :: <known-call>)
     => (did-anything? :: <boolean>);
   let (okay?, proc, collection, more-collections)
-    = extract-args(call, 2, #f, #t, #f);
+    = extract-args(component, call, 2, #f, #t, #f);
   if (okay?
 	& every?(method (leaf)
 		   csubtype?(leaf.derived-type, specifier-type(#"<sequence>"));
