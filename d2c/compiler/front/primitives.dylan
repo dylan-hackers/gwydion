@@ -196,6 +196,11 @@ define-primitive
    #(values:, rest:, #"<object>"));
 
 define-primitive
+  (#"inline-unknown-call", #(#(union:, #"<false>", #"<function>"),
+                             rest:, #"<object>"),
+   #(values:, rest:, #"<object>"));
+
+define-primitive
   (#"invoke-generic-entry", #(#"<method>", #"<list>", #"cluster"),
    #(values:, rest:, #"<object>"));
 

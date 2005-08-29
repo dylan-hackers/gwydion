@@ -458,7 +458,8 @@ end method;
 define method make-unknown-call
     (builder :: <fer-builder>, function :: <leaf>,
      next-method-info :: false-or(<leaf>), arguments :: <list>,
-     #key ct-source-location :: false-or(<literal-constant>))
+     #key ct-source-location :: false-or(<literal-constant>),
+          want-inline :: <boolean>)
     => res :: <operation>;
   let operands = pair(function,
 		      if (next-method-info)
@@ -468,7 +469,8 @@ define method make-unknown-call
 		      end);
   make-operation(builder, <unknown-call>, operands,
                  use-generic-entry: next-method-info & #t,
-                 ct-source-location: ct-source-location);
+                 ct-source-location: ct-source-location,
+                 want-inline: want-inline);
 end;
 
 

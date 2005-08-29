@@ -135,7 +135,6 @@ define method parse-path
 end method parse-path;
 
 //---*** It is a pity that we need this for efficiency...
-/*
 define sealed copy-down-method parse-path
     (string :: <byte-string>,
      #key start :: <integer> = 0,
@@ -143,7 +142,6 @@ define sealed copy-down-method parse-path
           test :: <function> = curry(\==, $default-path-separator),
           separators :: <sequence> = #[])
  => (path :: <simple-object-vector>, relative? :: <boolean>);
-*/
 
 define method path-to-string
     (path :: <sequence>,

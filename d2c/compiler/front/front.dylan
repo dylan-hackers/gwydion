@@ -157,6 +157,8 @@ end;
 define abstract class <general-call> (<abstract-call>)
   constant slot use-generic-entry? :: <boolean>,
     required-init-keyword: use-generic-entry:;
+  constant slot want-inline? :: <boolean>,
+    init-value: #f, init-keyword: want-inline:;
 end;
 
 // An arbitrary function call where the function call might be computed and the

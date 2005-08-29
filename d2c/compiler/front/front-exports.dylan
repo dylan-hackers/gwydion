@@ -124,7 +124,8 @@ define module front
     <let-assignment>, let-next, <set-assignment>,
 
     <abstract-call>, <known-call>, <error-call>, <delayed-optimization-call>,
-    <general-call>, use-generic-entry?, ct-source-location, <unknown-call>, <mv-call>,
+    <general-call>, use-generic-entry?, want-inline?, ct-source-location,
+    <unknown-call>, <mv-call>,
     <primitive>, primitive-name, primitive-info,
     <prologue>, function, function-setter,
     preferred-names, preferred-names-setter,

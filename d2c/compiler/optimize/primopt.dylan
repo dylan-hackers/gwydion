@@ -72,6 +72,17 @@ define-primitive-transformer
    end method);
 
 define-primitive-transformer
+  (#"inline-unknown-call",
+   method (component :: <component>, primitive :: <primitive>) => ();
+     let dep = primitive.depends-on;
+     replace-expression
+       (component, primitive.dependents,
+        make-unknown-call(make-builder(component), dep.source-exp, #f,
+                          listify-dependencies(dep.dependent-next),
+                          want-inline: #t));
+   end method);
+
+define-primitive-transformer
   (#"invoke-generic-entry",
    method (component :: <component>, primitive :: <primitive>) => ();
      replace-expression

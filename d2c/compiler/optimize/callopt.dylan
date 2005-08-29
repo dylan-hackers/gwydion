@@ -57,7 +57,8 @@ define method optimize (component :: <component>, call :: <mv-call>) => ();
       end;
   if (maybe-expand-cluster(component, cluster))
     change-call-kind(component, call, <unknown-call>,
-		     use-generic-entry: call.use-generic-entry?);
+		     use-generic-entry: call.use-generic-entry?,
+                     want-inline: call.want-inline?);
   else
     optimize-general-call-leaf(component, call, call.depends-on.source-exp);
   end if;
@@ -107,7 +108,7 @@ define method optimize-general-call-leaf
 	& func.primitive-name == #"make-next-method")
     assert(~call.use-generic-entry?);
     expand-next-method-call-ref
-      (component, call.dependents,
+      (component, call,
        select (call by instance?)
 	 <unknown-call> =>
 	   listify-dependencies(call.depends-on.dependent-next);
@@ -765,7 +766,8 @@ about the argument types, so none will be restricted?
 	  let cluster = call.depends-on.dependent-next.source-exp;
 	  let new-call = make-operation(builder, <mv-call>,
 					list(new-func, next-leaf, cluster),
-					use-generic-entry: #t);
+					use-generic-entry: #t,
+                                        want-inline: call.want-inline?);
 	  replace-expression(component, call.dependents, new-call);
 	end unless;
 
@@ -1024,10 +1026,8 @@ define method inlining-candidate?
   select (defn.method-defn-inline-type)
     #"not-inline" =>
       #f;
-    #"default-inline" =>
-      #f;
-    #"may-inline" =>
-      #f;
+    #"default-inline", #"may-inline" =>
+      call.want-inline? & defn.method-defn-inline-function;
     #"inline", #"inline-only" =>
       defn.method-defn-inline-function;
   end select;
@@ -1521,7 +1521,8 @@ define method convert-to-known-call
   // Replace the call.
   replace-expression
     (component, call.dependents,
-     make-operation(builder, <known-call>, as(<list>, args)));
+     make-operation(builder, <known-call>, as(<list>, args),
+                    want-inline: call.want-inline?));
 end method convert-to-known-call;
     
 
@@ -1952,10 +1953,11 @@ end;
 // next-method invocation magic.
 
 define method expand-next-method-call-ref
-    (component :: <component>, dep :: <dependency>,
+    (component :: <component>, call :: <general-call>,
      new-args :: type-union(<list>, <abstract-variable>),
      next-method-maker :: <primitive>)
     => ();
+  let dep :: <dependency> = call.dependents;
   let builder = make-builder(component);
   let assign = dep.dependent;
   let source = assign.source-location;
@@ -2078,7 +2080,8 @@ define method expand-next-method-call-ref
 	  make-operation
 	    (builder, <mv-call>,
 	     list(func-leaf, remaining-infos-leaf, cluster),
-	     use-generic-entry: #t);
+	     use-generic-entry: #t,
+             want-inline: call.want-inline?);
 
 	else
 	  //
@@ -2087,7 +2090,8 @@ define method expand-next-method-call-ref
 	  make-operation
 	    (builder, <mv-call>,
 	     list(func-leaf, remaining-infos-leaf, new-args),
-	     use-generic-entry: #t);
+	     use-generic-entry: #t,
+             want-inline: call.want-inline?);
 
 	end if;
       else
@@ -2107,10 +2111,12 @@ define method expand-next-method-call-ref
 	  make-operation
 	    (builder, <mv-call>,
 	     list(func-leaf, remaining-infos-leaf, cluster),
-	     use-generic-entry: #t);
+	     use-generic-entry: #t,
+             want-inline: call.want-inline?);
 	else
 	  make-unknown-call
-	    (builder, func-leaf, remaining-infos-leaf, new-args);
+	    (builder, func-leaf, remaining-infos-leaf, new-args,
+             want-inline: call.want-inline?);
 	end if;
       end if;
   

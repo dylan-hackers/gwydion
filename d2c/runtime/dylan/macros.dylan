@@ -590,9 +590,14 @@ end;
 
 define macro copy-down-method-definer
     { define ?adjectives:* copy-down-method ?:name ( ?params:* ) ?rest:* }
-      => { define ?adjectives method ?name ( ?params, #next next-method ) ?rest
-             next-method()
-         end }
+      => { define ?adjectives method ?name ( ?params ) ?rest
+             %%primitive(inline-unknown-call, next-method);
+           end }
+
+  params:
+    { } => { #next next-method }
+    { ?:variable, ... } => { ?variable, ... }
+    { ?other:* } => { #next next-method, ?other }
 
   adjectives:
     { } => { }
