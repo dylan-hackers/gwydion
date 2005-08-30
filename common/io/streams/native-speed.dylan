@@ -27,7 +27,7 @@ define macro copy-down-stream-definer
 	 define sealed domain peek (?name);
 	 define sealed domain read (?name, <integer>);
 	 define sealed domain read-into!(?name, <integer>, ?seq);
-
+/*
 	 define sealed copy-down-method write-element
 	   (stream :: ?name, elt :: ?elt) => ();
 
@@ -71,7 +71,9 @@ define macro copy-down-stream-definer
 	 define sealed copy-down-method read-text-into!
 	     (stream :: ?name, n :: <integer>, seq :: ?seq,
 	      #key start :: <integer> = 0, on-end-of-stream = unsupplied())
-	  => (n-read) }
+	  => (n-read)
+*/
+                      }
 end macro;
 
 define copy-down-stream <byte-string-stream> 
