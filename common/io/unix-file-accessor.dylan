@@ -48,6 +48,9 @@ define method accessor-open
   let (preferred-size, positionable?) = unix-fd-info(initial-file-descriptor);
   accessor.accessor-preferred-buffer-size := preferred-size;
   accessor.accessor-positionable? := positionable?;
+  if (positionable? & ~initial-file-position)
+    accessor.file-position := unix-lseek(initial-file-descriptor, 0, $seek_cur);
+  end if;
   *open-accessors*[accessor] := #t;
 end method accessor-open;
 
