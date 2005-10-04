@@ -86,6 +86,7 @@ define sealed method invoke-debugger
  => (res :: <never-returns>);
   condition-format(*warning-output*, "%s\n", condition);
   condition-force-output(*warning-output*);
+  c-system-include("stdlib.h");
   call-out("abort", void:);
 end;
 

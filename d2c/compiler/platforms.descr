@@ -395,6 +395,13 @@ double-alignment:		4
 long-long-alignment:		4
 long-double-alignment:		4
 
+platform-name:                  ppc-darwin-gcc4
+inherit-from:                   ppc-darwin-gcc
+default-c-compiler-flags:       -I. -I%s -Os -fomit-frame-pointer -no-cpp-precomp
+long-double-size:               16
+long-double-alignment:          16
+
+
 // Linux
 platform-name:			ppc-linux-gcc
 inherit-from:			gcc linux ppc

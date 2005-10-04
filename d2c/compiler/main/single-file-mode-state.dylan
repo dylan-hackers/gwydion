@@ -211,6 +211,7 @@ end method;
 define method build-inits-dot-c (state :: <single-file-mode-state>) => ();
   format(*debug-output*, "Building inits.\n");
   let stream = state.unit-stream;
+  format(stream, "#include <stdlib.h>\n\n");
   format(stream,
 	 "void inits(descriptor_t *sp, int argc, char *argv[])\n{\n");
   for (unit in *units*)

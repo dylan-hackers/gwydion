@@ -1595,6 +1595,7 @@ define method emit-tlf-gunk (backend == c:, tlf :: <magic-internal-primitives-pl
   let sov-cclass = specifier-type(#"<simple-object-vector>");
   format(gstream, "long elements = SLOT(vector, long, %d);\n",
 	 dylan-slot-offset(sov-cclass, #"size"));
+  maybe-emit-include("string.h", file);
   format(gstream, "memcpy(sp, (char *)vector + %d, elements * "
 	   "sizeof(descriptor_t));\n",
 	 dylan-slot-offset(sov-cclass, #"%element"));
@@ -3005,9 +3006,11 @@ define method emit-assignment
     rep.representation-has-bottom-value? =>
       let c-type = rep.representation-c-type;
       let temp = new-local(file, modifier: "temp", wanted-rep: c-type);
+      maybe-emit-include("stdlib.h", file);
       format(stream, "if ((%s = %s).heapptr == NULL) abort();\n", temp, name);
       deliver-result(defines, temp, rep, #t, file);
     otherwise =>
+      maybe-emit-include("stdlib.h", file);
       format(stream, "if (!%s_initialized) abort();\n", name);
       deliver-result(defines, name, rep, #t, file);
   end;

@@ -32,6 +32,8 @@ module: melange-support
 // produced by Melange rather than being explicitly referenced by users.
 //
 
+c-system-include("string.h");
+
 // Usage: c-variable(int: "&variable") { := expression }
 //
 define macro c-variable

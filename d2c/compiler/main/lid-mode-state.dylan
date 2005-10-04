@@ -589,7 +589,8 @@ define method build-inits-dot-c (state :: <lid-mode-state>) => ();
   format(*debug-output*, "Building inits.c.\n");
   do-with-c-file(state, concatenate(state.unit-mprefix, "-global-inits"),
                  method(stream)
-                     format(stream, "#include \"runtime.h\"\n\n");
+                     format(stream, "#include \"runtime.h\"\n");
+                     format(stream, "#include <stdlib.h>\n\n");
                      format(stream, 
                             "/* This file is machine generated.  Do not edit. */\n\n");
                      let entry-function-name
