@@ -242,11 +242,11 @@ define variable *old-debugger* = *debugger*;
 define method main (argv0 :: <byte-string>, #rest args) => ();
   no-core-dumps();
 
-   // alter the GC params, if the user wants
+  // alter the GC params, if the user wants
   // This supports three levels:
   //   - small  : small initial heap, frequent GC
   //   - default: initial heap 25 MB
-  //   - big    : initial heap 25 M, infrequent G
+  //   - big    : initial heap 25 MB, infrequent GC
   c-decl("extern unsigned long GC_free_space_divisor;");
   c-decl("extern int GC_expand_hp(size_t number_of_bytes);");
   if (getenv("D2C_SMALL_MACHINE"))
