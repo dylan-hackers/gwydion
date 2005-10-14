@@ -2530,6 +2530,10 @@ define method emit-assignment
   let use-generic-entry?
     = instance?(call, <general-call>) & call.use-generic-entry?;
 
+  if (instance?(call, <general-call>) & call.want-inline?)
+    compiler-warning-location(source-location, "failed to inline call");
+  end;
+
   let (next-info, arguments, next-info-temp?)
     = if (use-generic-entry?)
 	let dep = call.depends-on.dependent-next;
