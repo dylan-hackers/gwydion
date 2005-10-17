@@ -923,7 +923,7 @@ end;
 
 define constant $limited-integer-table = make(<limited-integer-table>);
 
-define class <limited-integer-ctype> (<limited-ctype>, <ct-value>)
+define class <limited-integer-ctype> (<limited-ctype>, <eql-ct-value>)
   constant slot low-bound :: false-or(<extended-integer>), 
        required-init-keyword: low-bound:;
   constant slot high-bound :: false-or(<extended-integer>), 

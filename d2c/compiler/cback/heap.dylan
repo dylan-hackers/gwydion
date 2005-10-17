@@ -560,6 +560,17 @@ define method object-label
 		  "Z", getter-defn.defn-name.c-name-global, "_SLOT_HEAP");
 end;
 
+define method object-label
+    (object :: <limited-integer-ctype>)
+ => (label :: <byte-string>);
+  let bounds = format-to-string("%d$%d", object.low-bound, object.high-bound);
+  concatenate("LIMITED_",
+              object.base-class.class-defn.defn-name.c-name,
+              "Z",
+              bounds.string-to-c-name,
+              "_HEAP");
+end method;
+
 // entry-name -- internal.
 //
 // Return the name of the function that corresponds to this entry point.
@@ -705,6 +716,14 @@ define method defer-for-global-heap?
   #t;
 end method defer-for-global-heap?;
 
+// We also need to ensure that <literal-integer-ctype> instances are
+// unique at compile-time and run-time.
+//
+define method defer-for-global-heap?
+    (object :: <limited-integer-ctype>, state :: <local-heap-file-state>)
+    => defer? :: <boolean>;
+  #t;
+end method defer-for-global-heap?;
 
 // Open generic functions must be deferred, because they need to be populated
 // with any methods defined elsewhere.
