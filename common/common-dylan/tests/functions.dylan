@@ -26,10 +26,12 @@ define locators-protocol function-test list-locator ()
 end function-test list-locator;
 
 define common-extensions function-test concatenate! ()
+/*
   let my-list = #(3, 4);
   check("test concatenate! on a list", \=, concatenate!(my-list, #(5), #(6)),
 	#(3, 4, 5, 6));
   check("concatenate! should have not affected my-list", \=, my-list, #(3, 4));
+*/
   let my-stretchy-vector = make(<stretchy-vector>);
   add!(my-stretchy-vector, 3);
   add!(my-stretchy-vector, 4);
