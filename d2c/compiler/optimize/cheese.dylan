@@ -814,6 +814,35 @@ define method expand-next-method-if-ref
   empty?-var;
 end method expand-next-method-if-ref;
 
+
+// Slot reference optimizations
+
+define method optimize
+    (component :: <component>, ref :: <heap-slot-ref>)
+ => ();
+  let instance = ref.depends-on.source-exp;
+  if (instance?(instance, <literal-constant>))
+    let info = ref.slot-info;
+    let result = ct-value-slot(instance.value, info.slot-getter.variable-name);
+    if (result)
+      let builder = make-builder(component);
+      replace-expression(component, ref.dependents,
+                         make-literal-constant(builder, result));
+    end if;
+  end if;
+end method;
+
+define method optimize
+    (component :: <component>, ref :: <data-word-ref>)
+ => ();
+  let instance = ref.depends-on.source-exp;
+  if (instance.derived-type == make(<byte-character-ctype>))
+    let extent = make-canonical-limited-integer(specifier-type(#"<integer>"),
+                                                0, 255);
+    maybe-restrict-type(component, ref, extent);
+  end if;
+end method;
+
 
 
 // Type utilities.

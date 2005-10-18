@@ -986,6 +986,34 @@ define method print-message
   write-element(stream, ')');
 end;
 
+define method make-integer-literal
+    (x :: false-or(<general-integer>))
+ => (res :: <ct-value>);
+  if (x == #f)
+    as(<ct-value>, x);
+  else
+    let min-int = ash(as(<extended-integer>, -1),
+                      *current-target*.platform-integer-length - 1);
+    let max-int = lognot(min-int);
+    if (x < min-int | x > max-int)
+      make(<literal-extended-integer>, value: x);
+    else
+      make(<literal-integer>, value: x);
+    end if;
+  end if;
+end method make-integer-literal;
+
+define method ct-value-slot
+    (object :: <limited-integer-ctype>, slot == #"limited-integer-minimum")
+ => (res :: <ct-value>);
+  make-integer-literal(object.low-bound);
+end method;
+
+define method ct-value-slot
+    (object :: <limited-integer-ctype>, slot == #"limited-integer-maximum")
+ => (res :: <ct-value>);
+  make-integer-literal(object.high-bound);
+end method;
 
 // ctype-extent-dispatch{<limited-integer-ctype>}
 //
