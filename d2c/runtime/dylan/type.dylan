@@ -487,6 +487,17 @@ define function restrict-limited-ints
        min: min, max: max);
 end function restrict-limited-ints;
 
+define sealed inline method as (type :: <limited-integer>, value :: <integer>)
+    => res :: <integer>;
+  if(type.limited-integer-minimum <= value
+       & value <= type.limited-integer-maximum)
+    value;
+  else
+    error("%d is not between %d and %d (inclusive)",
+          value, type.limited-integer-minimum, type.limited-integer-maximum);
+  end if;
+end;
+
 // <bit> -- exported from Extensions
 
 define /* exported */ constant <bit>

@@ -100,7 +100,7 @@ end;
 
 define sealed inline method as (type :: <limited-integer>, char :: <character>)
     => res :: <integer>;
-  char.value;
+  as(type, char.value);
 end;
 
 // Seal = on characters.  But not yet.
