@@ -32,7 +32,7 @@ copyright:  See below.
 
 
 define library stream-extensions
-  use dylan;
+  use common-dylan;
   use io;
   use system;
   export
@@ -40,24 +40,20 @@ define library stream-extensions
 end library stream-extensions;
 
 define module stream-extensions
-  use dylan;
-  use extensions;
+  use common-dylan;
   use streams;
   export read-as-list;
 end module stream-extensions;
 
 define module indenting-streams
-  use dylan;
-  use extensions;
+  use common-dylan;
   use streams;
-  use system, import: {copy-bytes};
   export
     <indenting-stream>, indent;
 end module indenting-streams;
 
 define module concatenated-streams
-  use dylan;
-  use extensions;
+  use common-dylan;
   use streams;
   use file-system;
   export
