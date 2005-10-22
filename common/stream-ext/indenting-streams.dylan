@@ -126,7 +126,7 @@ end method write-element;
 
 define method write
     (stream :: <indenting-stream>, elements :: <sequence>,
-     #key start: _start = 0, end: _end = elements.size)
+     #key start: _start :: <integer> = 0, end: _end :: <integer> = elements.size)
  => ();
   let inner = stream.inner-stream;
   let tab-width = stream.is-input-tab-width;
