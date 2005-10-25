@@ -72,14 +72,13 @@ define-primitive-transformer
    end method);
 
 define-primitive-transformer
-  (#"inline-unknown-call",
+  (#"inline-mv-call",
    method (component :: <component>, primitive :: <primitive>) => ();
-     let dep = primitive.depends-on;
      replace-expression
        (component, primitive.dependents,
-        make-unknown-call(make-builder(component), dep.source-exp, #f,
-                          listify-dependencies(dep.dependent-next),
-                          want-inline: #t));
+        make-operation(make-builder(component), <mv-call>,
+                       listify-dependencies(primitive.depends-on),
+                       use-generic-entry: #f, want-inline: #t));
    end method);
 
 define-primitive-transformer
@@ -147,7 +146,7 @@ define-primitive-transformer
 	 end;
        end;
        assign.defines := #f;
-       // Insert the spred out assignments.
+       // Insert the spread-out assignments.
        insert-after(component, assign, builder.builder-result);
        // Nuke the original assignment.
        delete-and-unlink-assignment(component, assign);

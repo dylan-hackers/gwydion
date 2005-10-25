@@ -39,7 +39,7 @@ AC_SUBST(VERSION)
 # $srcdir/version when incrementing this value.)
 #--------------------------------------------------------------------
 
-CURRENT_BOOTSTRAP_COUNTER=1007
+CURRENT_BOOTSTRAP_COUNTER=1008
 AC_SUBST(CURRENT_BOOTSTRAP_COUNTER)
 
 #--------------------------------------------------------------------
@@ -278,7 +278,7 @@ AC_PATH_PROG(MELANGE, melange, no)
 # Determine our "build scenario".
 #--------------------------------------------------------------------
 
-AC_MSG_CHECKING("which build scenario to use")
+AC_MSG_CHECKING(which build scenario to use)
 
 if test $CURRENT_BOOTSTRAP_COUNTER -ne $_DCI_D2C_BOOTSTRAP_COUNTER; then
     enable_bootstrap=yes

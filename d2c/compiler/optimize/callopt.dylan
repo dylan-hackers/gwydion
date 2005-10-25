@@ -849,7 +849,8 @@ about the argument types, so none will be restricted?
 	let new-call
 	  = (make-unknown-call
 	       (builder, new-func, next-leaf,
-		listify-dependencies(call.depends-on.dependent-next)));
+                listify-dependencies(call.depends-on.dependent-next),
+                want-inline: call.want-inline?));
 	replace-expression(component, call.dependents, new-call);
       end if;
     end select;

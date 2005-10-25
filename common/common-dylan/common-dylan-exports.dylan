@@ -35,7 +35,9 @@ end module;
 
 define module functional-extensions
   use dylan;
-  use extensions, exclude: { position }, export: { element-range-error };
+  use extensions,
+    exclude: { position },
+    export: { element-range-error, \copy-down-method-definer };
   use Magic, import: {%element, %element-setter};
   use common-extensions, import: { find-element };
   export 

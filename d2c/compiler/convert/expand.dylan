@@ -320,6 +320,19 @@ define-procedural-expander
 	   source-location: generate-token-source-location(generator)));
    end method);
 
+define-procedural-expander
+  (#"make-copy-down-arguments",
+   method (generator :: <expansion-generator>, parameters-frag :: <fragment>)
+    => ();
+     generate-fragment
+       (generator,
+        make-parsed-fragment
+          (make(<copy-down-arguments-parse>,
+                parameters:
+                  parse-parameter-list(make(<fragment-tokenizer>,
+                                            fragment: parameters-frag))),
+           source-location: generate-token-source-location(generator)));
+   end method);
 
 
 // Assignment

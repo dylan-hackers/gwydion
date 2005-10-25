@@ -194,6 +194,8 @@ define module parse-tree
 
     <callback-method-ref-parse>,
 
+    <copy-down-arguments-parse>, copy-down-parameters,
+
     <primitive-parse>, primitive-name, primitive-operands,
 
     <unwind-protect-parse>, uwp-body, uwp-cleanup,

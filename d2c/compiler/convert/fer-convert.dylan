@@ -645,6 +645,38 @@ define method fer-convert
 end;
 
 define method fer-convert
+    (builder :: <fer-builder>, form :: <copy-down-arguments-parse>,
+     lexenv :: <lexenv>, want :: <result-designator>, datum :: <result-datum>)
+    => res :: <result>;
+  let arguments = make(<stretchy-vector>);
+  
+  let paramlist = form.copy-down-parameters;
+
+  for (param in paramlist.varlist-fixed)
+    let name = param.param-name;
+    let binding = find-binding(lexenv, name);
+    add!(arguments, binding.binding-var);
+  end for;
+
+  if (paramlist.paramlist-keys)
+    for (param in paramlist.paramlist-keys)
+      add!(arguments, make-literal-constant(builder, param.param-keyword));
+      let name = param.param-name;
+      let binding = find-binding(lexenv, name);
+      add!(arguments, binding.binding-var);
+    end for;
+  end if;
+
+  let arguments = as(<list>, arguments);
+  let source = form.source-location;
+  let temp = make-values-cluster(builder, #"arguments", wild-ctype());
+  build-assignment(builder, lexenv.lexenv-policy, source, temp,
+                   make-operation
+                     (builder, <primitive>, arguments, name: #"values"));
+  deliver-result(builder, lexenv.lexenv-policy, source, want, datum, temp);
+end;
+
+define method fer-convert
     (builder :: <fer-builder>, form :: <unwind-protect-parse>,
      lexenv :: <lexenv>, want :: <result-designator>, datum :: <result-datum>)
     => res :: <result>;

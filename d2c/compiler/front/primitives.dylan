@@ -196,8 +196,7 @@ define-primitive
    #(values:, rest:, #"<object>"));
 
 define-primitive
-  (#"inline-unknown-call", #(#(union:, #"<false>", #"<function>"),
-                             rest:, #"<object>"),
+  (#"inline-mv-call", #(#(union:, #"<false>", #"<function>"), #"cluster"),
    #(values:, rest:, #"<object>"));
 
 define-primitive
