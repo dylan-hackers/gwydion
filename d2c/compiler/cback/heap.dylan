@@ -435,7 +435,8 @@ define method spew-reference
     #"callback" => maybe-emit-prototype(name, info, state);
   end select;
 
-  format(state.file-guts-stream, "%s /* %s */", name, tag.clean-for-comment);
+  format(state.file-guts-stream, "(void *) %s /* %s */",
+         name, tag.clean-for-comment);
 end;
 
 // spew-reference{<ct-entry-point>,<general-representation>}
