@@ -1508,7 +1508,7 @@ define method emit-prologue
 	 dylan-slot-offset(specifier-type(#"<method>"), #"generic-entry"));
 
   format(stream, "#define GD_CTASSERT(name, x) \\\n"
-                 "    typedef char gd_assert_ ## name[(x) ? 1 : -1];\n");
+                 "    typedef char gd_assert_ ## name[(x) ? 1 : -1]\n");
 
   format(stream, "#define GD_VERIFY_SIZE_ASSUMPTION(name, type, size)\\\n");
   format(stream, "    GD_CTASSERT(size_ ## name, sizeof(type) == (size))\n");
