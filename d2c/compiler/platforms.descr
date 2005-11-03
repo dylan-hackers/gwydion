@@ -340,6 +340,21 @@ link-executable-flags:		$(GC_LIBS) -lm
 link-debug-flags:		-g
 link-profile-flags:		-pg -g
 
+platform-name:			sunpro
+default-features:		C-compiler-is-GCC
+compile-c-command:		cc $(CCFLAGS) -c %s -o %s
+compile-c-for-shared-command:	$(LIBTOOL) --tag=CC --mode=compile cc $(CCFLAGS) -c %s -o %s
+default-c-compiler-flags:		-I. -I%s
+default-c-compiler-debug-flags:		-I. -I%s -g
+default-c-compiler-profile-flags:	-I. -I%s -p -g
+assembler-command:		cc $(CCFLAGS) -c %s -o %s
+link-library-command:		ar qc %s %s
+link-executable-command:	$(LIBTOOL) --tag=CC --mode=link cc -o %s %s %s
+link-shared-executable-command:	$(LIBTOOL) --tag=CC --mode=link cc -o %s %s %s
+link-executable-flags:		$(GC_LIBS) -lm
+link-debug-flags:		-g
+link-profile-flags:		-p -g
+path-separator:			/
 
 // COMBINATION entries:
 //
@@ -599,6 +614,13 @@ platform-name:				solaris
 inherit-from:				generic-unix
 default-features:			compiled-for-solaris
 make-command:                   	gmake
+
+platform-name:			x86-solaris-sunpro
+inherit-from:			x86 solaris sunpro
+
+platform-name:			sparc-solaris-sunpro
+inherit-from:			sparc solaris sunpro
+long-double-alignment:		8
 
 platform-name:			x86-solaris-gcc
 inherit-from:			gcc solaris x86

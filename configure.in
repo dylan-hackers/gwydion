@@ -94,7 +94,10 @@ case $1 in
     i*86-pc-cygwin*) $2=x86-cygnus-gcc ;;
 
     # might-work stuff
-    i*86-*-solaris*) $2=x86-solaris-gcc ;;
+    i*86-*-solaris*)
+       if test "$CC" = "cc"; then $2=x86-solaris-sunpro
+       else $2=x86-solaris-gcc
+       fi ;;
     powerpc-apple-darwin*)
 	case `gcc -dumpversion` in
 	     4.*) $2=ppc-darwin-gcc4 ;;
@@ -103,7 +106,10 @@ case $1 in
     powerpc-*-linux-gnu*)  $2=ppc-linux-gcc ;;
     s390*-*-linux-gnu*) $2=s390-linux-gcc ;;
     sparc*-*-linux-gnu*) $2=sparc-linux-gcc ;;
-    sparc*-solaris*)     $2=sparc-solaris-gcc ;;
+    sparc*-solaris*)
+       if test "$CC" = "cc"; then $2=sparc-solaris-sunpro
+       else $2=sparc-solaris-gcc
+       fi ;;
 
     # experimental stuff
     i*86-*-l4*) $2=x86-l4-gcc ;;
