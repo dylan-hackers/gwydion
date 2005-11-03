@@ -78,11 +78,8 @@ define function join-thread(thread :: <thread>, #rest more-threads)
   error("Cannot join threads in a single-threaded dylan.");
 end function;
 
-define function thread-yield()
- => ();
-  // sched_yield() can, says the manpage, actually
-  // fail to yield. but we dont care.
-  call-out("sched_yield", int:);
+define function thread-yield() => ();
+  signal("thread-yield isn't really implemented");
 end function;
 
 define sealed domain make (singleton(<thread>));
