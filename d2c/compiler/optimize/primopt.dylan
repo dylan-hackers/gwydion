@@ -41,11 +41,50 @@ define method optimize (component :: <component>, primitive :: <primitive>)
      else
        info.priminfo-result-type;
      end if);
-  let transformer = info.priminfo-transformer;
-  if (transformer)
-    transformer(component, primitive);
-  end;
+
+  block (return)
+    block (give-up)
+      let constant-folder = info.priminfo-constant-folder;
+      if (constant-folder)
+        let args = make(<stretchy-vector>);
+        for (dep = primitive.depends-on then dep.dependent-next, while: dep)
+          let exp = dep.source-exp;
+          if (instance?(exp, <literal-constant>))
+            add!(args, exp.value);
+          else
+            give-up();
+          end if;
+        finally
+          let replacement = apply(constant-folder, args);
+          if (replacement)
+            replace-expression
+              (component, primitive.dependents,
+               make-literal-constant(make-builder(component), replacement));
+            return();
+          end if;
+        end for;
+      end if;
+    end block;
+    
+    let transformer = info.priminfo-transformer;
+    if (transformer)
+      transformer(component, primitive);
+    end;
+  end block;
 end;
+
+define function maybe-make-literal-integer
+    (x :: <extended-integer>)
+ => (res :: false-or(<literal-integer>));
+  let min-int = ash(as(<extended-integer>, -1),
+                    *current-target*.platform-integer-length - 1);
+  let max-int = lognot(min-int);
+  if (x < min-int | x > max-int)
+    #f;
+  else
+    make(<literal-integer>, value: x);
+  end if;
+end function;
 
 
 // magic debugging primitives.
@@ -409,6 +448,12 @@ define-primitive-transformer
 
 // Arithmetic optimizers.
 
+define-primitive-constant-folder
+  (#"fixnum-<",
+   method (x :: <literal-integer>, y :: <literal-integer>)
+     as(<ct-value>, x.literal-value < y.literal-value);
+   end method);
+
 define-primitive-transformer
   (#"fixnum-<",
    method (component :: <component>, primitive :: <primitive>)
@@ -427,6 +472,12 @@ define-primitive-transformer
      end if;
    end method);
 	 
+define-primitive-constant-folder
+  (#"fixnum-=",
+   method (x :: <literal-integer>, y :: <literal-integer>)
+     as(<ct-value>, x.literal-value = y.literal-value);
+   end method);
+
 define-primitive-transformer
   (#"fixnum-=",
    method (component :: <component>, primitive :: <primitive>)
@@ -497,7 +548,6 @@ define method compare-integer-types
 	   | intersection-low <= intersection-high,
 	 ~low2 | ~high1 | low2 < high1);
 end method compare-integer-types;
-
 
 define-primitive-type-deriver
   (#"fixnum-+",
@@ -581,6 +631,11 @@ define method type-negated
   make-canonical-limited-integer(ctype.base-class, high & -high, low & -low);
 end method type-negated;
 
+define-primitive-constant-folder
+  (#"fixnum-+",
+   method (x :: <literal-integer>, y :: <literal-integer>)
+     maybe-make-literal-integer(x.literal-value + y.literal-value);
+   end method);
 
 define-primitive-transformer
   (#"fixnum-+",
@@ -592,6 +647,12 @@ define-primitive-transformer
      elseif (instance?(y, <literal-constant>) & y.value.literal-value = 0)
        replace-expression(component, primitive.dependents, x);
      end if;
+   end method);
+
+define-primitive-constant-folder
+  (#"fixnum--",
+   method (x :: <literal-integer>, y :: <literal-integer>)
+     maybe-make-literal-integer(x.literal-value - y.literal-value);
    end method);
 
 define-primitive-transformer
@@ -673,6 +734,11 @@ define method type-from-sign-and-bits
   make-canonical-limited-integer(specifier-type(#"<integer>"), low, high);
 end method type-from-sign-and-bits;
 
+define-primitive-constant-folder
+  (#"fixnum-logior",
+   method (x :: <literal-integer>, y :: <literal-integer>)
+     maybe-make-literal-integer(logior(x.literal-value, y.literal-value));
+   end method);
 
 define-primitive-transformer
   (#"fixnum-logior",
@@ -687,6 +753,12 @@ define-primitive-transformer
 		    & y.value.literal-value = 0))
        replace-expression(component, primitive.dependents, x);
      end if;
+   end method);
+
+define-primitive-constant-folder
+  (#"fixnum-logxor",
+   method (x :: <literal-integer>, y :: <literal-integer>)
+     maybe-make-literal-integer(logxor(x.literal-value, y.literal-value));
    end method);
 
 define-primitive-transformer
@@ -711,6 +783,12 @@ define-primitive-transformer
 	    (make-builder(component), <primitive>, list(x),
 	     name: #"fixnum-lognot"));
      end if;
+   end method);
+
+define-primitive-constant-folder
+  (#"fixnum-logand",
+   method (x :: <literal-integer>, y :: <literal-integer>)
+     maybe-make-literal-integer(logand(x.literal-value, y.literal-value));
    end method);
 
 define-primitive-transformer
@@ -934,48 +1012,6 @@ define method ct-initialized?
     (expr :: <ssa-variable>) => res :: one-of(#t, #f, #"can't tell");
   ct-initialized?(expr.definer.depends-on.source-exp);
 end;
-
-
-// Fixnums.
-
-define-primitive-transformer
-  (#"fixnum-=",
-   method (component :: <component>, primitive :: <primitive>) => ();
-     let x = primitive.depends-on.source-exp;
-     let x-type = x.derived-type;
-     let y = primitive.depends-on.dependent-next.source-exp;
-     let y-type = y.derived-type;
-     if (~ctypes-intersect?(x-type, y-type))
-       replace-expression(component, primitive.dependents,
-			  make-literal-constant(make-builder(component), #f));
-     elseif (instance?(x-type, <limited-integer-ctype>)
-	       & x-type == y-type
-	       & x-type.low-bound = x-type.high-bound)
-       replace-expression(component, primitive.dependents,
-			  make-literal-constant(make-builder(component), #t));
-     end;
-   end);
-
-define-primitive-transformer
-  (#"fixnum-<",
-   method (component :: <component>, primitive :: <primitive>) => ();
-     let x = primitive.depends-on.source-exp;
-     let x-type = x.derived-type;
-     let y = primitive.depends-on.dependent-next.source-exp;
-     let y-type = y.derived-type;
-     if (instance?(x-type, <limited-integer-ctype>)
-	 & instance?(y-type, <limited-integer-ctype>))
-       if (x-type.high-bound & y-type.low-bound
-	   & x-type.high-bound < y-type.low-bound)
-	 replace-expression(component, primitive.dependents,
-			    make-literal-constant(make-builder(component), #t));
-       elseif (x-type.low-bound & y-type.high-bound
-	       & x-type.low-bound >= y-type.high-bound)
-	 replace-expression(component, primitive.dependents,
-			    make-literal-constant(make-builder(component), #f));
-       end;
-     end;
-   end);
 
 
 // raw pointer

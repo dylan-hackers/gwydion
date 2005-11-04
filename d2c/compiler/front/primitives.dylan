@@ -82,6 +82,11 @@ define class <primitive-info> (<identity-preserving-mixin>)
   // ignored.
   slot priminfo-transformer :: false-or(<function>) = #f;
   //
+  // Function to constant-fold uses of this primitive.  Gets passed
+  // the <literal-constant> arguments.  If the return value is not #f,
+  // it should be a <literal-constant> which will be used as a replacement.
+  slot priminfo-constant-folder :: false-or(<function>) = #f;
+  //
   // Function to spew the C code corresponding to the primitive.  Gets
   // passed the primitive and the file-state.
   slot priminfo-emitter :: false-or(<function>) = #f;
@@ -167,17 +172,38 @@ end;
 
 define method define-primitive-type-deriver
     (name :: <symbol>, func :: <function>) => ();
-  primitive-info-or-lose(name).priminfo-type-deriver := func;
+  let info = primitive-info-or-lose(name);
+  if (info.priminfo-type-deriver)
+    error("Primitive %s already has a type-deriver", name);
+  end if;
+  info.priminfo-type-deriver := func;
 end method define-primitive-type-deriver;
+
+define method define-primitive-constant-folder
+    (name :: <symbol>, func :: <function>) => ();
+  let info = primitive-info-or-lose(name);
+  if (info.priminfo-constant-folder)
+    error("Primitive %s already has a constant-folder", name);
+  end if;
+  info.priminfo-constant-folder := func;
+end;
 
 define method define-primitive-transformer
     (name :: <symbol>, func :: <function>) => ();
-  primitive-info-or-lose(name).priminfo-transformer := func;
+  let info = primitive-info-or-lose(name);
+  if (info.priminfo-transformer)
+    error("Primitive %s already has a transformer", name);
+  end if;
+  info.priminfo-transformer := func;
 end;
 
 define method define-primitive-emitter
     (name :: <symbol>, func :: <function>) => ();
-  primitive-info-or-lose(name).priminfo-emitter := func;
+  let info = primitive-info-or-lose(name);
+  if (info.priminfo-emitter)
+    error("Primitive %s already has an emitter", name);
+  end if;
+  info.priminfo-emitter := func;
 end;
 
 

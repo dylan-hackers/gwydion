@@ -73,11 +73,12 @@ define module primitives
     <primitive-info>, define-primitive, primitive-info-or-lose,
     priminfo-name, priminfo-arg-types, priminfo-result-type,
     priminfo-side-effect-free?, priminfo-pure?, priminfo-cseable?,
-    priminfo-type-deriver, priminfo-transformer, priminfo-emitter,
-
+    priminfo-type-deriver, priminfo-transformer, priminfo-constant-folder,
+    priminfo-emitter,
 
     define-primitive-type-deriver,
     define-primitive-transformer,
+    define-primitive-constant-folder,
     define-primitive-emitter;
 end;
 
