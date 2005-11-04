@@ -53,7 +53,7 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
   state.unit-header := header;
 
   do(process-feature,
-     split-at-whitespace(state.unit-target.default-features));
+     state.unit-target.default-features);
   do(process-feature,
      split-at-whitespace(element(state.unit-header, #"features",
 				 default: "")));

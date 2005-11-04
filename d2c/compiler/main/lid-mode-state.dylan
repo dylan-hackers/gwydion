@@ -195,7 +195,7 @@ end method output-c-file-rule;
 define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
   parse-lid(state);
   do(process-feature,
-     split-at-whitespace(state.unit-target.default-features));
+     state.unit-target.default-features);
   do(process-feature,
      split-at-whitespace(element(state.unit-header, #"features",
 				 default: "")));

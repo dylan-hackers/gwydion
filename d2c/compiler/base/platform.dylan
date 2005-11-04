@@ -68,7 +68,7 @@ define sealed /* exported */ class <platform> (<object>)
   constant slot platform-name :: <symbol>, 
     required-init-keyword: #"platform-name";
 
-  constant /* exported */ slot default-features :: <byte-string>,
+  constant /* exported */ slot default-features :: <list>,
     required-init-keyword: #"default-features";
 
   constant /* exported */ slot platform-integer-length :: <integer>,
@@ -383,8 +383,8 @@ define function add-platform! (header :: <header>)
   let local-platform-info :: <table> = make(<table>);
   let property-value-table :: <table> = make(<table>);
   
-  local-platform-info[#"default-features"] := "";
-  property-value-table[#"default-features"] := "";
+  local-platform-info[#"default-features"] := make(<list>);
+  property-value-table[#"default-features"] := make(<list>);
 
   for (val keyed-by key in header)
     let val = substring-replace(val, "\\t", "\t");
@@ -445,6 +445,8 @@ define function add-platform! (header :: <header>)
 	  local-platform-info[key] := string-to-integer(val);
 	#"path-separator" =>
           local-platform-info[key] := string-to-character(val);
+	#"default-features" =>
+	  local-platform-info[key] := split-at-whitespace(val);
 	otherwise =>
           local-platform-info[key] := val;
       end select;
