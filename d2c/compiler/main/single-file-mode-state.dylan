@@ -215,13 +215,15 @@ define method build-inits-dot-c (state :: <single-file-mode-state>) => ();
   format(stream,
 	 "void inits(descriptor_t *sp, int argc, char *argv[])\n{\n");
   for (unit in *units*)
-    format(stream, "    %s_Library_init(sp);\n", string-to-c-name(unit.unit-name));
+    format(stream, "{ extern void %s_Library_init(descriptor_t*);  %s_Library_init(sp); }\n",
+    string-to-c-name(unit.unit-name), string-to-c-name(unit.unit-name));
   end;
   format(stream, "}\n");
   format(stream, "\nextern void real_main(int argc, char *argv[]);\n\n");
   format(stream, "int main(int argc, char *argv[]) {\n");
   format(stream, "    real_main(argc, argv);\n");
   format(stream, "    exit(0);\n");
+  format(stream, "    return(0);\n");
   format(stream, "}\n");
 end method;
 

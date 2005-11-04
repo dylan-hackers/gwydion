@@ -608,8 +608,8 @@ define method build-inits-dot-c (state :: <lid-mode-state>) => ();
                             "void inits(descriptor_t *sp, int argc, char *argv[])\n{\n");
                      for (unit in *units*)
                        format(stream, 
-                              "    %s_Library_init(sp);\n", 
-                              string-to-c-name(unit.unit-name));
+                              "{ extern void %s_Library_init(descriptor_t*);  %s_Library_init(sp); }\n", 
+                              string-to-c-name(unit.unit-name), string-to-c-name(unit.unit-name));
                      end;
                      if (entry-function-name)
                        format(stream, 
@@ -622,6 +622,7 @@ define method build-inits-dot-c (state :: <lid-mode-state>) => ();
                        format(stream, "int main(int argc, char *argv[]) {\n");
                        format(stream, "    real_main(argc, argv);\n");
                        format(stream, "    exit(0);\n");
+                       format(stream, "    return(0);\n");
                        format(stream, "}\n");
                      end if;
                  end method);
