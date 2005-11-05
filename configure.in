@@ -94,6 +94,7 @@ case $1 in
     i*86-pc-cygwin*) $2=x86-cygnus-gcc ;;
 
     # might-work stuff
+    x86_64-*-linux-gnu*) $2=x86_64-linux-gcc ;;
     i*86-*-solaris*)
        if test "$CC" = "cc"; then $2=x86-solaris-sunpro
        else $2=x86-solaris-gcc
