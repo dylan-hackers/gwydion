@@ -83,7 +83,7 @@ define function write-indent
     end method;
 
   let tab-width = istream.is-output-tab-width;
-  if (tab-width & tab-width >= count)
+  if (tab-width & count >= tab-width)
     let (tabs, spaces) = truncate/(count, tab-width);
     write-tabs(tabs);
     write-spaces(spaces);
