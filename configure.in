@@ -90,7 +90,7 @@ case $1 in
     # does-work stuff
     i*86-*-freebsd2.*) $2=x86-freebsd-aout-gcc ;;
     i*86-*-freebsd*)   $2=x86-freebsd-elf-gcc ;;
-    i*86-*-linux-gnu*) $2=x86-linux-gcc ;;
+    i*86-*-linux*) $2=x86-linux-gcc ;;
     i*86-pc-cygwin*) $2=x86-cygnus-gcc ;;
 
     # might-work stuff
