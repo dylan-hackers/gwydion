@@ -43,44 +43,46 @@ copyright: see below
 // the compilation environment for a MacOS X Macintosh using the Darwin BSD layer.
 //======================================================================
 
+// Many of these can be found from
+// cpp -dM /dev/null
+
 define constant $default-defines
   = #[
       // Basics
       "const", "",
       "volatile", "",
-      //"__cdecl", "",
       
-      // cpp -dM /dev/null
       "GNUC", "(1)",
-      
-      // cc -E -dM -o - /dev/null
       "__GNUC__", "2",
       "__GNUC_MINOR__", "95",
+      "__STDC__", "",
+      "__STDC_VERSION__", "199901L",
+
+      "__APPLE__", "",
+      "__APPLE_CC__", "934",
       "__ppc__", "",
       "__NATURAL_ALIGNMENT__", "",
       "__MACH__", "",
       "__BIG_ENDIAN__", "",
-      "__APPLE__", "",
-      "__STDC__", "",
-      "__APPLE_CC__", "934",
       "__DYNAMIC__", "",
       "__signed__", "",
       "__signed", "",
       "__inline__", "",
       "__inline", "",
+      "__builtin_va_list", "void*",
       
       // Parameterized macros which remove various GCC extensions from our
       // source code. The last item in the list is the right-hand side of
       // the define; all the items preceding it are named parameters.
-      "__attribute__", #(#("x"), "")
+      "__attribute__", #(#("x"), ""),
+      "__asm", #(#("x"), "")
       ];
 
 // Set up the search path for .h files
 // cc -E -v /dev/null
 define constant macos-include-directories
   = #["/usr/local/include",
- 			"/usr/include/gcc/darwin/2.95.2/g++/..",
- 			"/usr/include"];
+      "/usr/include"];
 
 for (dir in macos-include-directories)
   push-last(include-path, dir);
