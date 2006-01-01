@@ -931,6 +931,9 @@ define method initialize (value :: <tokenizer>,
     // to a sequence of tokens.  Like all such sequences of "cpp"
     // tokens, this one will be in reverse order.
     for (cpp-value keyed-by key in defines)
+      parse-progress-report(value, "Initialize tokenizer defining %= = %=",
+                            key,
+                            cpp-value);
       value.cpp-table[key] := 
 	select (cpp-value by instance?)
 	  <integer> =>
