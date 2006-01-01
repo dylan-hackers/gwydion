@@ -536,20 +536,20 @@ AC_SUBST(EXTRA_INCLUDE_DIR)
 #      Determine whether the time library can be supported
 #--------------------------------------------------------------------
 
-AC_MSG_CHECKING([whether daylight and timezone are supported])
-AC_TRY_LINK([#include <time.h>], [int a = daylight; long b = timezone;],
+AC_MSG_CHECKING([whether struct tm has a tm_gmtoff field])
+AC_TRY_COMPILE([#include <time.h>], [struct tm t; long g = t.tm_gmtoff;],
   [AC_MSG_RESULT(yes)
-   AC_DEFINE(HAVE_DAYLIGHT)],
+   AC_DEFINE(HAVE_TM_GMTOFF)],
   [AC_MSG_RESULT(no)
-   AC_MSG_CHECKING([whether struct tm has a tm_gmtoff field])
-   AC_TRY_COMPILE([#include <time.h>], [struct tm t; long g = t.tm_gmtoff;],
+   AC_MSG_CHECKING([whether daylight and timezone are supported])
+   AC_TRY_LINK([#include <time.h>], [int a = daylight; long b = timezone;],
      [AC_MSG_RESULT(yes)
-     AC_DEFINE(HAVE_TM_GMTOFF)],
+      AC_DEFINE(HAVE_DAYLIGHT)],
      [AC_MSG_RESULT(no)
-     AC_MSG_CHECKING([whether _daylight and _timezone are supported])
-     AC_TRY_LINK([#include <time.h>], [int a = _daylight; long b = _timezone;],
-       [AC_MSG_RESULT(yes)
-        AC_DEFINE(HAVE_CYGNUS_DAYLIGHT)])])])
+      AC_MSG_CHECKING([whether _daylight and _timezone are supported])
+      AC_TRY_LINK([#include <time.h>], [int a = _daylight; long b = _timezone;],
+        [AC_MSG_RESULT(yes)
+         AC_DEFINE(HAVE_CYGNUS_DAYLIGHT)])])])
 
 #--------------------------------------------------------------------
 #	Checks for the io and system libraries
