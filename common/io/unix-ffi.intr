@@ -2,7 +2,7 @@ Module: io-internals
 
 define interface
   #include { "config.h", "unix-portability.h" },
-    define: { "_XOPEN_SOURCE" => "600" }, // SUSv3 (Issue 6)
+  //    define: { "_XOPEN_SOURCE" => "600" }, // SUSv3 (Issue 6)
     import: { "io_errno" => unix-last-error,
               "strerror" => %strerror,
               "close" => unix-close,

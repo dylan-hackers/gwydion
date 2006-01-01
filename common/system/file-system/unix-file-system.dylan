@@ -380,7 +380,7 @@ end method %file-property-setter;
 define function %do-directory 
     (f :: <function>, directory :: <posix-directory-locator>) => ()
   let directory = %expand-pathname(directory);
-  let directory-fd :: <DIR*> = as(<DIR*>, $null-pointer);
+  let directory-fd :: <DIR> = as(<DIR>, $null-pointer);
   block ()
     directory-fd := %opendir(as(<byte-string>, directory));
     if (directory-fd = $null-pointer)

@@ -8,7 +8,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define interface
   #include { "config.h", "unix-portability.h" },
-    define: { "_XOPEN_SOURCE" => "600" }, // SUSv3 (Issue 6)
+    //define: { "_XOPEN_SOURCE" => "600" }, // SUSv3 (Issue 6)
     import: { "system_errno" => unix-last-error,
               "system_errno_setter" => unix-last-error-setter,
               "ENOENT", "EACCES", "EINVAL", "ERANGE",
@@ -61,7 +61,7 @@ define interface
               "access" => %access,
               "R_OK" => $R_OK, "W_OK" => $W_OK, "X_OK" => $X_OK,
 
-              "DIR *" => <DIR*>,
+              "DIR *" => <DIR>,
               "opendir" => %opendir,
               "struct dirent", "readdir" => %readdir,
               "closedir" => %closedir,
