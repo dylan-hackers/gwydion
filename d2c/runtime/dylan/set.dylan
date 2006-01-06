@@ -96,11 +96,13 @@ define sealed inline method element-setter
   set.set-elements[value] := value;
 end method;
 
+define constant $unfound = pair(#f, #f);
+
 define sealed inline method member?
     (object :: <object>, set :: <object-set>, #key test)
  => (bool :: <boolean>);
   ignore(test);
-  element(set.set-elements, object, default: $not-supplied) == object;
+  element(set.set-elements, object, default: $unfound) == object;
 end method;
 
 define sealed inline method initialize
