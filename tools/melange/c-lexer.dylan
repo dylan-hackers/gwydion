@@ -544,8 +544,14 @@ end class;
 
 // string-value -- exported generic.
 //
+// define /* exported */ sealed generic string-value
+//   (token :: <token>) => (result :: <string>);
 define /* exported */ sealed generic string-value
-  (token :: <token>) => (result :: <string>);
+  (token :: <object>) => (result :: <string>);
+
+define method string-value (object) => (empty-string :: <string>);
+  format-to-string("%= is not a token", object);
+end method string-value;
 
 // value -- exported generic.
 //

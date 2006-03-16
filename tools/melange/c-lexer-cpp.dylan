@@ -657,8 +657,14 @@ define constant do-skip-matcher
 //
 
 // for debugging
-define function map-string-value(foo)
-  foo & map(string-value, foo)
+define method map-string-value
+    (foo) => (string-values :: <collection>)
+  #();
+end;
+
+define method map-string-value
+    (foo :: <collection>) => (string-values :: <collection>)
+  map(string-value, foo);
 end;
 
 
