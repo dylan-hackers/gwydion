@@ -1182,7 +1182,8 @@ define method spew-object
 		    as(<ct-value>, as(<list>, object.slot-positions));
 		  end if,
 		slot-representation:
-		  if (instance?(object, <instance-slot-info>))
+		  if (instance?(object, <instance-slot-info>)
+                        & object.slot-representation)
 		    as(<ct-value>,
 		       object.slot-representation.representation-name);
 		  end if,
