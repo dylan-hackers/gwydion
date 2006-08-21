@@ -3,7 +3,7 @@ module: dylan-user
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2006  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -39,12 +39,11 @@ define module melange-support
                        c-expr, c-struct-field, c-struct-field-setter,
                        callback-method, callback-entry};
 
-  use magic, exclude: {\without-bounds-checks };
+  use magic, exclude: { \without-bounds-checks };
   use machine-words;
 
   export
-    //c-variable-ref, c-variable-ref-setter, // deprecated for new work, will be removed soon 
-    c-variable, c-variable-setter, // use these for development
+    c-variable, c-variable-setter,
     <statically-typed-pointer>, raw-value, $null-pointer,
     signed-byte-at, signed-byte-at-setter,
     unsigned-byte-at, unsigned-byte-at-setter, signed-short-at,

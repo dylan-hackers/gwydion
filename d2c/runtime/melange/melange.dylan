@@ -3,7 +3,7 @@ module: melange-support
 //======================================================================
 //
 // Copyright (c) 1994  Carnegie Mellon University
-// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2006  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -51,29 +51,6 @@ define macro c-variable-setter
     => { pointer-deref-setter(?value, ?result-type,
 			      c-expr(ptr: ?expression), 0) }
 end;
-
-/*
-// Usage: c-variable-ref(int: "&variable") { := expression }
-// implementation same as above but this spelling is deprecated
-// and will be wiped soon    
-//
-define macro c-variable-ref
-  { c-variable-ref (?result-type:expression, ?:expression) }
-    => { pointer-deref(?result-type, c-expr(ptr: ?expression), 0) }
-  { c-variable-ref (?result-type:token ?:expression) }
-    => { pointer-deref(?result-type, c-expr(ptr: ?expression), 0) }
-end;
-
-define macro c-variable-ref-setter
-  { c-variable-ref-setter (?value:expression, ?result-type:expression, ?:expression) }
-    => { pointer-deref-setter(?value, ?result-type,
-                              c-expr(ptr: ?expression), 0) }
-  { c-variable-ref-setter (?value:expression, ?result-type:token ?:expression) }
-    => { pointer-deref-setter(?value, ?result-type,
-                              c-expr(ptr: ?expression), 0) }
-end;
-// deprecated end /////////////////////////////////////////////
-*/
 
 define open primary functional class <statically-typed-pointer> (<object>)
   slot raw-value :: <raw-pointer>, required-init-keyword: #"pointer";
@@ -523,6 +500,7 @@ define sealed  method empty? (string :: <c-string>) => (result :: <boolean>);
 end method empty?;
 
 define constant space-byte = as(<integer>, ' ');
+
 define sealed  method size-setter (value :: <integer>, string :: <c-string>)
  => value :: <integer>;
   let sz = string.size;

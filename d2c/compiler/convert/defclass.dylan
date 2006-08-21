@@ -7,7 +7,7 @@ encoding: utf-8
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998 - 2005  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2006  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -1977,38 +1977,38 @@ define method convert-top-level-form
       end method update-indirect-slot;
 
       local method convert-init-entities(info, getter, slot-specifier, make-init-value-var :: <function>, type)
-	      => (init-value-var, init-function-leaf);
+             => (init-value-var, init-function-leaf);
 
-	  let init-value = info.slot-init-value;
-	  let init-function = info.slot-init-function;
-          if (init-value == #t)
-            let var = make-init-value-var();
-            fer-convert(evals-builder, slot-specifier.slot-definition-init-value,
-                        lexenv, #"assignment", var);
-            build-assignment
-              (evals-builder, policy, source, #(),
-               make-unknown-call
-                 (evals-builder,
-                  ref-dylan-defn(evals-builder, policy, source,
-                                 #"slot-init-value-setter"),
-                  #f,
-                  list(var, make-literal-constant(evals-builder, info))));
-            var;
-          elseif (init-function == #t)
-            let leaf = convert-init-function(evals-builder, getter,
-                                             slot-specifier.slot-definition-init-function,
-                                             type, tlf);
-            build-assignment
-              (evals-builder, policy, source, #(),
-               make-unknown-call
-                 (evals-builder,
-                  ref-dylan-defn(evals-builder, policy, source,
-                                 #"slot-init-function-setter"),
-                  #f,
-                  list(leaf, make-literal-constant(evals-builder, info))));
-            values(#f, leaf);
-          end if;
-      end method convert-init-entities;
+              let init-value = info.slot-init-value;
+              let init-function = info.slot-init-function;
+              if (init-value == #t)
+                let var = make-init-value-var();
+                fer-convert(evals-builder, slot-specifier.slot-definition-init-value,
+                            lexenv, #"assignment", var);
+                build-assignment
+                  (evals-builder, policy, source, #(),
+                   make-unknown-call
+                     (evals-builder,
+                      ref-dylan-defn(evals-builder, policy, source,
+                                     #"slot-init-value-setter"),
+                      #f,
+                      list(var, make-literal-constant(evals-builder, info))));
+                var;
+              elseif (init-function == #t)
+                let leaf = convert-init-function(evals-builder, getter,
+                                                 slot-specifier.slot-definition-init-function,
+                                                 type, tlf);
+                build-assignment
+                  (evals-builder, policy, source, #(),
+                   make-unknown-call
+                     (evals-builder,
+                      ref-dylan-defn(evals-builder, policy, source,
+                                     #"slot-init-function-setter"),
+                      #f,
+                      list(leaf, make-literal-constant(evals-builder, info))));
+                values(#f, leaf);
+              end if;
+            end method convert-init-entities;
 
 
       for (slot-defn in defn.class-defn-slots,
