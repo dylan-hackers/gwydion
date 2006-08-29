@@ -274,6 +274,9 @@ if test "$D2C" != no; then
     echo "    LID format version:       $_DCI_DYLAN_LID_FORMAT_VERSION"
     echo "    d2c bootstrap counter:    $_DCI_D2C_BOOTSTRAP_COUNTER"
     echo "    d2c runtime subdirectory: $_DCI_D2C_RUNTIME_SUBDIR"
+else
+    AC_MSG_ERROR([Cannot find d2c in your PATH.  An existing d2c binary
+(version 2.4.0 or later) is required to build $PACKAGE-$VERSION])
 fi
 
 lid_format_version=$_DCI_DYLAN_LID_FORMAT_VERSION
