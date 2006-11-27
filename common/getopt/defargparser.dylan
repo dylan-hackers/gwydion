@@ -3,6 +3,13 @@ synopsis: Interface macros for parser definition and option access.
 authors: David Lichteblau <lichteblau@fhtw-berlin.de>
 copyright: see below
 
+// todo -- There is no error signalled if two options have the same short name
+//         (or long name, I assume).  --cgay 2006.11.27
+// todo -- There is no indication of default values in the generated synopsis,
+//         and the syntax for specifying "syntax" and docstring is bizarre at
+//         best.  --cgay 2006.11.27
+
+
 //======================================================================
 //
 //  Copyright (c) 1999-2001 David Lichteblau
@@ -149,8 +156,8 @@ copyright: see below
 //           synopsis print-synopsis,
 //             usage: "test [options] file...",
 //             description: "Stupid test program doing nothing with the args.";
-//        
-//           ...
+//           option verbose?, "", "Explanation", short: "v", long: "verbose";
+//           option other, "", "foo", long: "other-option";
 //         end argument-parser;
 //
 //    Then print-synopsis(parser, stream) will print something like:
