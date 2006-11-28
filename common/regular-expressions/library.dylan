@@ -55,6 +55,7 @@ define module regular-expressions
   export
     regexp-position, make-regexp-positioner,
     regexp-replace, make-regexp-replacer,
+    regexp-matches,
     translate, make-translator,
     split, make-splitter,
     join,

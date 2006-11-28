@@ -201,59 +201,37 @@ define inline function make-regexp-positioner
 end function make-regexp-positioner;
 
 
-#if (have-free-time)
 // regexp-matches -- exported
 //
-// A more convenient form of regexp-position.  Usually you want
-// substrings that were matched by a group rather than the marks for
-// the group.  How you use this is you give the group numbers you
-// want, and it'll give you the strings.  (#f if that group wasn't
-// matched)
+// A more convenient form of regexp-position. 
+// Usually you want substrings that were matched by a group rather than the marks for the group.  
 //
 define function regexp-matches
     (big :: <string>, regexp :: <string>,
      #key start: start-index :: <integer> = 0,
           end: end-index :: false-or(<integer>),
-          case-sensitive :: <boolean> = #f,
-          groups :: false-or(<sequence>))
- => (#rest group-strings :: false-or(<string>));
-  if (~groups)
-    error("Mandatory keyword groups: not used in call to regexp-matches");
-  end if;
-  let (#rest marks)
+          case-sensitive :: <boolean> = #f)
+
+  let (regexp-start, lemon, #rest marks)
     = regexp-position(big, regexp, start: start-index, end: end-index, 
 		      case-sensitive: case-sensitive);
-  let return-val = make(<vector>, size: groups.size, fill: #f);
-  for (index from 0 below return-val.size)
-    let group-start = groups[index] * 2;
-    let group-end = group-start + 1;
-    if (element(marks, group-start, default: #f))
-      return-val[index] := copy-sequence(big, start: 
 
-  let sz = floor/(marks.size, 2);
-  let return = make(<vector>, size: sz, fill: #f);
-  for (index from 0 below sz)
-    let pos = index * 2;
-    if (element(marks, pos, default: #f))
-      return[index] := copy-sequence(big, start: marks[pos],
-				     end: marks[pos + 1]);
-    end if;
-  end for;
-  if (matches)
-    let return = make(<vector>, size: matches.size * 2);
-    for (raw-pos in matches, index from 0)
-      let src-pos = raw-pos * 2;
-      let dest-pos = index * 2;
-      return[dest-pos] := element(marks, src-pos, default: #f);
-      return[dest-pos + 1] := element(marks, src-pos + 1, default: #f);
+  let return-size = floor/(marks.size, 2);
+  let return = make(<vector>, size: return-size, fill: #f);
+  if (regexp-start)
+    // all groups associate by index in the result
+
+    for (index from 0 below return-size)
+      let pos = index * 2;
+      if (element(marks, pos, default: #f))
+        // "14 0", "4 5", "7 8", "9 10" for "this is a test"
+        //return[index] := concatenate(integer-to-string(marks[pos]), concatenate(" ", integer-to-string(marks[pos + 1])));
+        return[index] := copy-sequence(big, start: marks[pos], end: marks[pos + 1]);
+      end if;
     end for;
-    apply(values, return);
-  else
-    
-    apply(values, marks);
   end if;
-
-#endif
+  apply(values, return);
+end function;
 
 
 // Functions based on regexp-position

@@ -34,6 +34,7 @@ define variable has-errors = #f;
 
 define method main (argv0, #rest ignored)
   format-out("\nRegression test for the regular-expressions library.\n\n");
+  run-several-tests("regexp-matches", matches-test);
   run-several-tests("regexp-positioner", positioner-test);
   run-several-tests("regexp-replace", replace-test);
   run-several-tests("make-regexp-replacer", make-replacer-test);
@@ -118,6 +119,28 @@ define method substring-search-test ()
 	   "make-substring-replacer");   
 end method substring-search-test;
 
+define method run-matches-test(big :: <string>, regexp :: <string>, expected-result, test-name)
+ => passed? :: <boolean>;
+  let (#rest matches) = regexp-matches(big, regexp);
+
+  if (matches ~= expected-result)
+    has-errors := #t;
+    format-out("Failed!\n", test-name);
+    format-out("     Got %=\n", matches);
+    format-out("     when we expected %=\n", expected-result);
+    #f;
+  else
+    #t;
+  end if;
+end method;
+
+define method matches-test()
+  /*run-test(regexp-matches("", ""), #(#f), "regexp-matches #1");*/
+  //run-test(regexp-matches("", "()"), #(#f), "regexp-matches #2");
+  run-matches-test("this is a test", "(this) (is) (a) (test)", #("this", "is", "a", "test"), "regexp-matches #3");
+  run-matches-test("this is a test", "(this) (is) (a) (x)", #(), "regexp-matches #4");
+
+end method matches-test;
 
 define method replace-test ()
   let big-string = "The rain in spain and some other text";
