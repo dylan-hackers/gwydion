@@ -5,7 +5,6 @@ $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
     . ' -L../common/collection-extensions'
     . ' -L../common/common-dylan'
-    . ' -L../common/getopt'
     . ' -L../common/io'
     . ' -L../common/matrix'
     . ' -L../common/regular-expressions'
@@ -51,9 +50,6 @@ do emit_library_rule(
 do emit_library_rule(
     'format-out-test', '$(BUILDROOT)/force.timestamp ' . $deps, '', 'compile'
 );
-do emit_library_rule(
-    'getopt-test', '$(BUILDROOT)/force.timestamp ' . $deps, '', 'compile'
-);
 
 unless (1 || $features{'no_time'}) { 
 	do emit_library_rule(
@@ -63,7 +59,7 @@ unless (1 || $features{'no_time'}) {
 
 print <<"EOF"
 
-DYLANPATH=../d2c/runtime/transcendental:../common/collection-extensions:../common/table-ext:../common/string-ext:../common/standard-io:../common/streams:../common/print:../common/format:../common/matrix:../common/format-out:../common/time:../common/regular-expressions:../common/getopt
+DYLANPATH=../d2c/runtime/transcendental:../common/collection-extensions:../common/table-ext:../common/string-ext:../common/standard-io:../common/streams:../common/print:../common/format:../common/matrix:../common/format-out:../common/time:../common/regular-expressions
 
 EOF
 ;
