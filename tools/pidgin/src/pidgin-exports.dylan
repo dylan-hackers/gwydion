@@ -7,7 +7,7 @@ define library pidgin
   use system;
   use dylan;
   use string-extensions;
-  use parse-arguments;
+  use getopt;
   use parser-utilities;
   use ansi-c;
   use c-parser;
@@ -23,12 +23,11 @@ define module pidgin
   use locators;
   use format;
   use standard-io;
-  use parse-arguments;
+  use getopt;
   use substring-search;
   use subseq;
   use parse-conditions;
   use ansi-c;
   use c-parser;
-use c-ffi-output;
-
+  use c-ffi-output;
 end module;

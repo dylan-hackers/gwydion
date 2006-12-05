@@ -86,7 +86,7 @@ define library melange
   use regular-expressions;
   use io;
   use system;
-  use parse-arguments;
+  use getopt;
   use melange-c;
   export
     name-mappers;
@@ -183,8 +183,8 @@ define module define-interface
   // From system
   use file-system;
 
-  // From parse-arguments
-  use parse-arguments;
+  // From getopt
+  use getopt;
   
   // local packages
   use int-lexer;

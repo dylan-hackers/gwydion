@@ -37,7 +37,7 @@ define library compiler-main
   use Random;
   use debugger;
   use command-processor;
-  use parse-arguments;
+  use getopt;
   use compiler-base;
   use compiler-front;
   use compiler-fer-transform;
@@ -73,7 +73,7 @@ define module main
   use substring-search;
   use character-type;
   use random;
-  use parse-arguments;
+  use getopt;
   use option-parser-protocol;
    
   use utils;
