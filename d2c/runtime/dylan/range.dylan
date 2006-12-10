@@ -693,7 +693,8 @@ end method;
 // supplied, and an unbounded range if not.
 //
 define sealed method copy-sequence
-    (source :: <bounded-range>, #key start: copy-start = 0, end: copy-end)
+    (source :: <bounded-range>,
+     #key start: copy-start = 0, end: copy-end = $not-supplied)
  => (result :: <bounded-range>);
    let r-size = source.size;
    let r-from = source.range-from;
@@ -703,7 +704,7 @@ define sealed method copy-sequence
 		    else
 		       0
 		    end if;
-   let copy-end = if (copy-end)
+  let copy-end = if (copy-end ~== $not-supplied)
 		     copy-end
 		  else
 		     r-size
@@ -725,7 +726,8 @@ define sealed method copy-sequence
 end method;
 //
 define sealed method copy-sequence
-    (source :: <unbounded-range>, #key start: copy-start = 0, end: copy-end)
+    (source :: <unbounded-range>,
+     #key start: copy-start = 0, end: copy-end = $not-supplied)
  => (result :: <builtin-range>);
    let r-from = source.range-from;
    let r-by = source.range-by;
@@ -734,7 +736,7 @@ define sealed method copy-sequence
 		    else
 		       0
 		    end if;
-   if (copy-end)
+  if (copy-end ~== $not-supplied)
       range (from: source[copy-start], by: r-by,
 	     size: copy-end - copy-start);
    else
