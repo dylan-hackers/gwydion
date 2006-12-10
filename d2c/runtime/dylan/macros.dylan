@@ -595,7 +595,7 @@ end;
 
 define macro copy-down-method-definer
     { define ?adjectives:* copy-down-method ?:name ( ?params:* ) ?rest:* }
-      => { define ?adjectives method ?name ( ?params ) ?rest
+      => { define ?adjectives method ?name ( ?params ) ?rest;
              %%primitive(inline-mv-call, next-method,
                          copy-down-arguments(?params));
            end }
