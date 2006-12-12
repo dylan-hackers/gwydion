@@ -364,14 +364,14 @@ define common-extensions function-test subclass ()
 end function-test subclass;
 
 define common-extensions function-test fill-table! ()
-  let table = make(<table>);
+  let my-table = make(<table>);
   check-equal("fill-table(...) returns the table",
-              fill-table!(table, #[0, "Zero", 1, "One"]),
-              table);
+              fill-table!(my-table, #[0, "Zero", 1, "One"]),
+              my-table);
   check-equal("table(...)[0] = \"Zero\"",
-              table[0], "Zero");
+              my-table[0], "Zero");
   check-equal("table(...)[1] = \"One\"",
-              table[1], "One");
+              my-table[1], "One");
 end function-test fill-table!;
 
 define common-extensions function-test application-name ()

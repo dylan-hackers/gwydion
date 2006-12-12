@@ -293,6 +293,25 @@ end method string-to-integer;
 
 #if (~mindy)
 
+// Table constructor. Syntax:
+// let my-table = table("red"=>"stop", "green"=>"go");
+// let my-table = table(<string-table>, "red"=>"stop", "green"=>"go");
+define macro table 
+
+	// Matches when optional class included.
+  { table(?table-class:expression, ?table-contents) }
+    => { let ht = make(?table-class); ?table-contents; ht; }
+
+	// Matches without optional class.
+	{ table(?rest:*) } => { table(<table>, ?rest); }
+
+  table-contents:
+  { } => { }
+  { ?key:expression => ?value:expression, ... }
+    => { ht[?key] := ?value; ... }
+end macro table;
+
+
 define macro table-definer
   { define table ?:name ?eq:token { ?keys-and-values } }
     => { define constant ?name :: <table> ?eq make(<table>);

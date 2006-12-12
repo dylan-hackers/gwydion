@@ -42,6 +42,32 @@ define common-extensions macro-test table-definer-test ()
 	       & $test-table[2] == #"two")
 end macro-test table-definer-test;
 
+define common-extensions macro-test table-test ()
+	check-true("table produces correct table",
+		begin
+			let true? = #f;
+			let test-table = table(0 => #"zero", 1 => #"one", 2 => #"two");
+			true? := subtype?(test-table.object-class, <table>)
+					& test-table.size = 3
+					& test-table[0] == #"zero"
+					& test-table[1] == #"one"
+					& test-table[2] == #"two";
+			true?;
+		end);
+	check-true("table with class produces correct table",
+		begin
+			let true? = #f;
+			let test-table = table(<string-table>,
+					"0" => "zero", "1" => "one", "2" => "two");
+			true? := instance?(test-table, <string-table>)
+					& test-table.size = 3
+					& test-table["0"] == "zero"
+					& test-table["1"] == "one"
+					& test-table["2"] == "two";
+			true?;
+		end);
+end macro-test table-test;
+
 define simple-profiling macro-test profiling-test ()
   check-true("profiling macro returns two integer values",
 	     begin

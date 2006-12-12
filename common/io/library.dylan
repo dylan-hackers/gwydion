@@ -280,7 +280,7 @@ define module print
 end module print;
 
 define module print-internals
-  use common-dylan;
+  use common-dylan, exclude: { table };
   use extensions;
   use introspection,
     rename: { subclass-of => subclass-class,

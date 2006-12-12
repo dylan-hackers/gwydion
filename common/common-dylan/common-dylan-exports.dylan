@@ -219,6 +219,7 @@ define module common-extensions
 
 #if (~mindy)
   export
+		\table,
     \table-definer,
     \iterate,
     \when;
