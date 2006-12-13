@@ -41,7 +41,7 @@ define inline function unfound ()
 end function;
 
 define inline function unfound? (object :: <object>)
- => (unfound? :: <boolean>)
+    => (unfound? :: <boolean>)
   object == unfound();
 end function;
 
@@ -189,66 +189,66 @@ define method string-to-integer
     for (i :: <integer> from start below _end)
       let char :: <character> = string[i];
       let digit :: false-or(<integer>)
-	= select (char)
-	    '-' =>
-	      if (i = start)
-		negative? := #t;
-	      elseif (valid?)
-		return(if (negative?) - integer else integer end, i);
+        = select (char)
+            '-' =>
+              if (i = start)
+                negative? := #t;
+              elseif (valid?)
+                return(if (negative?) - integer else integer end, i);
               elseif (supplied?(default))
-		return(default, i);
+                return(default, i);
               else
                 error("not a valid integer");
-	      end if;
-	      #f;
-	    '+' =>
-	      if (i = start)
+              end if;
+              #f;
+            '+' =>
+              if (i = start)
                 negative? := #f;
-	      elseif (valid?)
-		return(if (negative?) - integer else integer end, i);
+              elseif (valid?)
+                return(if (negative?) - integer else integer end, i);
               elseif (supplied?(default))
-		return(default, i);
+                return(default, i);
               else
                 error("not a valid integer");
-	      end if;
-	      #f;
-	    '0'      => 0;
-	    '1'      => 1;
-	    '2'      => 2;
-	    '3'      => 3;
-	    '4'      => 4;
-	    '5'      => 5;
-	    '6'      => 6;
-	    '7'      => 7;
-	    '8'      => 8;
-	    '9'      => 9;
-	    'A', 'a' => 10;
-	    'B', 'b' => 11;
-	    'C', 'c' => 12;
-	    'D', 'd' => 13;
-	    'E', 'e' => 14;
-	    'F', 'f' => 15;
-	    'G', 'g' => 16;
-	    'H', 'h' => 17;
-	    'I', 'i' => 18;
-	    'J', 'j' => 19;
-	    'K', 'k' => 20;
-	    'L', 'l' => 21;
-	    'M', 'm' => 22;
-	    'N', 'n' => 23;
-	    'O', 'o' => 24;
-	    'P', 'p' => 25;
-	    'Q', 'q' => 26;
-	    'R', 'r' => 27;
-	    'S', 's' => 28;
-	    'T', 't' => 29;
-	    'U', 'u' => 30;
-	    'V', 'v' => 31;
-	    'W', 'w' => 32;
-	    'X', 'x' => 33;
-	    'Y', 'y' => 34;
-	    'Z', 'z' => 35;
-	    otherwise =>
+              end if;
+              #f;
+            '0'      => 0;
+            '1'      => 1;
+            '2'      => 2;
+            '3'      => 3;
+            '4'      => 4;
+            '5'      => 5;
+            '6'      => 6;
+            '7'      => 7;
+            '8'      => 8;
+            '9'      => 9;
+            'A', 'a' => 10;
+            'B', 'b' => 11;
+            'C', 'c' => 12;
+            'D', 'd' => 13;
+            'E', 'e' => 14;
+            'F', 'f' => 15;
+            'G', 'g' => 16;
+            'H', 'h' => 17;
+            'I', 'i' => 18;
+            'J', 'j' => 19;
+            'K', 'k' => 20;
+            'L', 'l' => 21;
+            'M', 'm' => 22;
+            'N', 'n' => 23;
+            'O', 'o' => 24;
+            'P', 'p' => 25;
+            'Q', 'q' => 26;
+            'R', 'r' => 27;
+            'S', 's' => 28;
+            'T', 't' => 29;
+            'U', 'u' => 30;
+            'V', 'v' => 31;
+            'W', 'w' => 32;
+            'X', 'x' => 33;
+            'Y', 'y' => 34;
+            'Z', 'z' => 35;
+            otherwise =>
               if (valid?)
                 return(if (negative?) - integer else integer end, i);
               elseif (supplied?(default))
@@ -256,18 +256,18 @@ define method string-to-integer
               else
                 error("not a valid integer");
               end if;
-	  end select;
+            end select;
       if (digit)
-	if(digit < base)
-	  integer := integer * base + digit;
+        if(digit < base)
+          integer := integer * base + digit;
           valid? := #t;
-	elseif (valid?)
-	  return(if (negative?) - integer else integer end, i);
+        elseif (valid?)
+          return(if (negative?) - integer else integer end, i);
         elseif(supplied?(default))
           return(default, i);
         else
           error("not a valid integer");
-	end if;
+        end if;
       end if;
     end for;
 
@@ -298,12 +298,12 @@ end method string-to-integer;
 // let my-table = table(<string-table>, "red"=>"stop", "green"=>"go");
 define macro table 
 
-	// Matches when optional class included.
+  // Matches when optional class included.
   { table(?table-class:expression, ?table-contents) }
     => { let ht = make(?table-class); ?table-contents; ht; }
 
-	// Matches without optional class.
-	{ table(?rest:*) } => { table(<table>, ?rest); }
+  // Matches without optional class.
+  { table(?rest:*) } => { table(<table>, ?rest); }
 
   table-contents:
   { } => { }
@@ -327,9 +327,9 @@ end macro;
 define macro iterate
   { iterate ?:name (?clauses:*) ?:body end }
     => { %iterate-aux ?name
-	   %iterate-param-helper(?clauses)
-           %iterate-value-helper(?clauses)
-	   ?body
+         %iterate-param-helper(?clauses)
+         %iterate-value-helper(?clauses)
+         ?body
          end }
 end;
 
@@ -340,8 +340,8 @@ define macro %iterate-aux
       ?:body
     end }
     => { local method ?name (?param-clauses)
-                 ?body
-	       end;
+           ?body
+         end;
          ?name(?value-clauses) }
 end macro;
 

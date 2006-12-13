@@ -124,17 +124,17 @@ define module common-extensions
              $maximum-double-float-exponent,
              $minimum-extended-float-exponent,
              $maximum-extended-float-exponent,
-	     false-or,
-	     one-of,
-	     subclass,
-	     <format-string-condition>, <simple-condition>,
-	     ignore,
-	     difference,
+             false-or,
+             one-of,
+             subclass,
+             <format-string-condition>, <simple-condition>,
+             ignore,
+             difference,
              concatenate!,
-	     register-application-exit-function,
-	     <stretchy-sequence>,
-	     <object-deque>,
-	     <stretchy-object-vector>,
+             register-application-exit-function,
+             <stretchy-sequence>,
+             <object-deque>,
+             <stretchy-object-vector>,
              <byte-character>,
              <byte-vector>};
   use %Hash-Tables,
@@ -144,7 +144,7 @@ define module common-extensions
   use c-support;
   use simple-profiling,
     export: { \profiling, 
-	      profiling-type-result };
+              profiling-type-result };
 
   create
     <closable-object>,
@@ -219,7 +219,7 @@ define module common-extensions
 
 #if (~mindy)
   export
-		\table,
+    \table,
     \table-definer,
     \iterate,
     \when;
@@ -255,13 +255,13 @@ define module streams-protocol
     export: all;
   // Conditions
   create <stream-error>,
-           stream-error-stream,
+         stream-error-stream,
          <end-of-stream-error>,
-           <incomplete-read-error>,
-             stream-error-sequence,
-             stream-error-count,
-           <incomplete-write-error>,
-             stream-error-count;
+         <incomplete-read-error>,
+         stream-error-sequence,
+         stream-error-count,
+         <incomplete-write-error>,
+         stream-error-count;
   // Opening streams
   create open-file-stream;
   // Reading from streams
@@ -302,7 +302,7 @@ define module functional-objects-extras
     export: all;
   create <locator-defaults>,
          <server-locator>,
-	 <physical-locator>;
+         <physical-locator>;
 end module functional-objects-extras;
 
 define module common-dylan-internals
