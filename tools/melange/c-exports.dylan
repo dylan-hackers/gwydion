@@ -189,7 +189,7 @@ define module c-parse
 end module c-parse;
 
 define module c-declarations
-  use common-dylan, exclude: { format-to-string, split, table };
+  use common-dylan, exclude: { format-to-string, split };
   use table-extensions;
   use regular-expressions;
   use streams;

@@ -346,7 +346,7 @@ define module settings-internals
 end module settings-internals;
 
 define module system-internals
-  use common-dylan, exclude: { table };
+  use common-dylan;
   use melange-support;
   use functional-objects-extras;
   use machine-words;

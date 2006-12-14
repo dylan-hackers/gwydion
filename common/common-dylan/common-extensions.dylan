@@ -223,18 +223,18 @@ define method find-element
 end method find-element;
 
 define function fill-table!
-    (tab :: <table>, keys-and-elements :: <sequence>)
- => (tab :: <table>)
+    (table :: <table>, keys-and-elements :: <sequence>)
+ => (table :: <table>)
   let key = #f;
   for (object in keys-and-elements)
     if (key)
-      tab[key] := object;
+      table[key] := object;
       key := #f;
     else
       key := object
     end
   end;
-  tab
+  table
 end function fill-table!;
 
 /*
