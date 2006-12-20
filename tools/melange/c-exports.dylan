@@ -190,7 +190,7 @@ end module c-parse;
 
 define module c-declarations
   use common-dylan, exclude: { format-to-string, split };
-  use table-extensions;
+  use table-extensions, rename: { table => make-table };
   use regular-expressions;
   use streams;
   use file-system;

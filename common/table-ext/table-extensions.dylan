@@ -29,6 +29,26 @@ author: Nick Kramer (nkramer@cs.cmu.edu), David Watson (dwatson@cmu.edu)
 //======================================================================
 
 
+// Table constructor. Syntax:
+// let my-table = table("red"=>"stop", "green"=>"go");
+// let my-table = table(<string-table>, "red"=>"stop", "green"=>"go");
+//
+define macro table 
+
+  // Matches when optional class included.
+  { table(?table-class:expression, ?table-contents) }
+    => { let ht = make(?table-class); ?table-contents; ht; }
+
+  // Matches without optional class.
+  { table(?rest:*) } => { table(<table>, ?rest); }
+
+  table-contents:
+  { } => { }
+  { ?key:expression => ?value:expression, ... }
+    => { ht[?key] := ?value; ... }
+end macro table;
+
+
 // A value table whose keys are strings.
 //
 define sealed class <string-table> (<value-table>)

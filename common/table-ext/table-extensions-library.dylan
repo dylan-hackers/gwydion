@@ -42,6 +42,7 @@ define module Table-Extensions
 	     <equal-table>, equal-hash, <value-table>, value-hash};
   
   export
+    table,
     <string-table>, <byte-string-table>,
     <case-insensitive-string-table>, <case-insensitive-byte-string-table>,
     values-hash,

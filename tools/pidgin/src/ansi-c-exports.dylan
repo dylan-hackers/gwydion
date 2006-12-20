@@ -15,7 +15,9 @@ end library;
 define module outside-dependencies
   use dylan, export: all;
   use extensions, export: all;
-  use table-extensions, export: all;
+  use table-extensions,
+    rename: { table => make-table },
+    export: all;
   use format,
     import: {format-to-string},
     export: all;
