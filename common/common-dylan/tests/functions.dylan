@@ -463,12 +463,16 @@ define constant $format-complex-object-mappings
 	   vector(make(<array>, dimensions: #(2, 3)), "2 x 3"),
 	   vector(as(<vector>, #(1, 'a', "Hello")),
 		  "1, 'a', \"Hello\""),
-	   vector(singleton(10), "10"),
-	   vector(type-union(<integer>, <string>), 
-		  "<integer>, <string>"),
-	   vector(type-union(singleton(#f), <string>),
-		  "#f, <string>"));
-
+	   vector(singleton(10), "10"));
+		  
+define constant $format-type-union-mappings
+  = vector(
+      vector(type-union(<integer>, <string>),
+          list("<integer>, <string>", "<string>, <integer>")),
+      vector(type-union(singleton(#f), <string>),
+          list("#f, <string>", "<string>, #f"))
+    );
+	  
 define function test-print-name
     (object, pretty-name :: <string>, unique-name :: <string>)
  => ()
@@ -479,6 +483,19 @@ define function test-print-name
 	      format-to-string("%=", object),
 	      unique-name);
 end function test-print-name;
+
+define function test-print-name-variants
+    (object, pretty-names :: <sequence>, unique-names :: <sequence>)
+ => ()
+  local method any-equal (actual, valids)
+    ~choose(curry(\=, actual), valids).empty?
+        | error("%= not one of %=", actual, valids)
+  end;
+  check(format-to-string("format-to-string(\"%%s\", %s)", unique-names[0]),
+	      any-equal, format-to-string("%s", object), pretty-names);
+  check(format-to-string("format-to-string(\"%%=\", %s)", unique-names[0]),
+	      any-equal, format-to-string("%=", object), unique-names);
+end function test-print-name-variants;
 
 define function format-object-tests
     () => ()
@@ -494,12 +511,24 @@ define function format-object-tests
     let unique-name = format-to-string("{%s: %s}", class-name, mapping[1]);
     test-print-name(object, unique-name, unique-name)
   end;
+  // Handle separately from $format-complex-object-mappings because type-union
+  // results are unordered, i.e., "type-union(<integer>, <float>)" and
+  // "type-union(<float>, <integer>)" both pass. 
+  for (mapping in $format-type-union-mappings)
+    let object = mapping[0];
+    let class-name = format-to-string("%s", object-class(object));
+    let unique-names = map(curry(format-to-string, "{%s: %s}", class-name),
+        mapping[1]);
+    test-print-name-variants(object, unique-names, unique-names)
+  end;
   let type = type-union(<string>, type-union(singleton(10), <character>));
   let class-name = format-to-string("%s", object-class(type));
-  let expected-name
-    = format-to-string("{%s: <string>, {%s: 10, <character>}}",
-		       class-name, class-name);
-  test-print-name(type, expected-name, expected-name)
+  let expected-names = map(rcurry(format-to-string, class-name, class-name),
+      #("{%s: <string>, {%s: 10, <character>}}",
+        "{%s: <string>, {%s: <character>, 10}}",
+        "{%s: {%s: 10, <character>}, <string>}",
+        "{%s: {%s: <character>, 10}, <string>}"));
+  test-print-name-variants(type, expected-names, expected-names)
 end function format-object-tests;
 
 
