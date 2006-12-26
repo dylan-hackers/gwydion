@@ -834,9 +834,9 @@ define method test-element
               element(collection, -1, default: default),
               default);
   unless (type == <object>)
-    check-condition(format-to-string("%s element wrong default type errors", name),
-		    <error>,
-		    element(collection, -1, default: #"wrong-default-type"));
+    check-no-errors(
+        format-to-string("%s any default element type allowed", name),
+        element(collection, -1, default: #"wrong-default-type"));
   end unless;
   for (key in key-sequence(collection))
     check-equal(format-to-string("%s element %=", name, key),
