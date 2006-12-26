@@ -400,7 +400,7 @@ end method;
 //
 define sealed method element (range :: <bounded-range>, key :: <integer>,
                        #key default = $not-supplied)
-      => range-element :: <real>;
+      => range-element :: <object>;
    case
       (key >= 0) & (key < range.size) =>
          range.range-from + (key * range.range-by);
@@ -414,7 +414,7 @@ end method;
 define sealed method element
     (range :: <unbounded-range>, key :: <integer>,
      #key default = $not-supplied)
- => range-element :: <real>;
+ => range-element :: <object>;
    case
       (key >= 0) =>
          range.range-from + (key * range.range-by);
