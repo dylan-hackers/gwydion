@@ -250,6 +250,7 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
 	let object-file
 	  = if (state.unit-shared?)
               make(<file-locator>,
+	           directory: file.locator-directory,
                    base: file.locator-base,
                    extension: strip-dot(state.unit-target.shared-object-filename-suffix));
 	    else
@@ -366,6 +367,7 @@ define method compile-all-files (state :: <lid-mode-state>) => ();
 	if (state.unit-shared?)
 	  let shared-file
             = make(<file-locator>,
+                   directory: file.locator-directory,
                    name: file.locator-base,
                    extension: strip-dot(state.unit-target.shared-object-filename-suffix));
 	  format(*debug-output*, "Adding %s\n", shared-file);
