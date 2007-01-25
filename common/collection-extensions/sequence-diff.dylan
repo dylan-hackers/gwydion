@@ -42,19 +42,19 @@ define constant <script> = <list>;  // list of script-entries
 
 define abstract class <script-entry> (<object>)
   slot element-count, init-value: 1, init-keyword: #"count";
-  slot dest-index, required-init-keyword: #"dest-index";
+  constant slot dest-index, required-init-keyword: #"dest-index";
 end class <script-entry>;
 
 // Inserts immediately after dest-start
 //
 define class <insert-entry> (<script-entry>)
-  slot source-index, required-init-keyword: #"source-index";
+  constant slot source-index, required-init-keyword: #"source-index";
 end class <insert-entry>;
 
 define class <delete-entry> (<script-entry>)
 end class <delete-entry>;
 
-// Returns themin(index such that seq1[index + 1] ~= seq2[index + 1]
+// Returns the min(index such that seq1[index + 1] ~= seq2[index + 1]
 // -1 if seq1[0] ~= seq2[0]
 //
 define method last-common-elt (seq1 :: <sequence>, seq2 :: <sequence>) 
@@ -84,7 +84,16 @@ define method internal-diff (seq1 :: <sequence>, seq2 :: <sequence>)
     if (lower > upper)   // sequences are identical
       return(#());
     end if;
-
+    if (lower = 1 & upper = 1)
+      return(list(make(<insert-entry>,
+                       source-index: row,
+                       dest-index: row,
+                       count: seq2.size - row)));
+    elseif (lower = -1 & upper = -1)
+      return(list(make(<delete-entry>,
+                       dest-index: row,
+                       count: seq1.size - row)))
+    end;
     // For each diagonal k, last-distance[k] is the last row that
     // contains the desired distance.
     //
@@ -181,3 +190,4 @@ define method sequence-diff
     (s1 :: <sequence>, s2 :: <sequence>) => script :: <script>;
   merge-dups(internal-diff(s1, s2));
 end method sequence-diff;
+

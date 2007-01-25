@@ -9,7 +9,7 @@ synopsis:     Provides "subsequences", which represent an aliased reference to
 //======================================================================
 //
 // Copyright (c) 1994  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000  Gwydion Dylan Maintainers
+// Copyright (c) 1998 - 2004  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -80,12 +80,33 @@ synopsis:     Provides "subsequences", which represent an aliased reference to
 //     accessed at least once.  
 //============================================================================
 
+// Notes while reviewing the code ( -- andreas, 20050531)
+//
+// * Start and end are insufficiently checked.  It is quite easy to generate
+//   a subsequence of negative size by subsequence(foo, start: 5, end: 3).
+// * Also, passing a negative start gives access to data outside the
+//   subsequence the user is allowed to see.
+// * The semantics of omitting the sequence end isn't well-defined,
+//   especially given stretchy source sequences.
+// * The good news: the above problems are not exploitable because everything
+//   is bounds-checked twice.
+// * The bad news: the performance leaves to be desired because everything
+//   is bounds-checked twice.
+// * Design decision: signal bounds error at subsequence creation time vs.
+//   element access time. The latter is more dynamic, the former gives
+//   better performance.
+// * Feature wish: Read-only subsequences.
+
+
 define abstract class <subsequence> (<sequence>)
-   slot source           :: <sequence>, required-init-keyword: source: ;
-   slot start-index      :: <integer>, required-init-keyword: start: ;
+   constant slot source :: <sequence>,
+     required-init-keyword: source: ;
+   constant slot start-index :: <integer>,
+     required-init-keyword: start: ;
    // end-index is simply an upper bound, except in the case of
    // <vector-subsequence>s. 
-   slot end-index        :: <integer>, required-init-keyword: end: ;
+   constant slot end-index :: <integer>,
+     required-init-keyword: end: ;
 end class <subsequence>;
 
 define method subsequence(seq :: <subsequence>,
@@ -104,21 +125,20 @@ define method type-for-copy (seq :: <subsequence>) => type :: <type>;
 end method type-for-copy;
 
 define class <generic-subsequence> (<subsequence>)
-   slot init-state, required-init-keyword: init:;
-   slot limit, required-init-keyword: limit:;
-   slot next-state, required-init-keyword: next:;
-   slot finished-state?, required-init-keyword: done:;
-   slot current-elem, required-init-keyword: elem:;
-   slot current-elem-sttr, required-init-keyword: elem-setter:;
-   slot copy-state, required-init-keyword: copy:;
+  constant slot init-state, required-init-keyword: init:;
+  constant slot limit, required-init-keyword: limit:;
+  constant slot next-state, required-init-keyword: next:;
+  constant slot finished-state?, required-init-keyword: done:;
+  constant slot current-elem, required-init-keyword: elem:;
+  constant slot current-elem-sttr, required-init-keyword: elem-setter:;
+  constant slot copy-state, required-init-keyword: copy:;
 end class;
 
 define method subsequence(seq :: <sequence>,
 			  #key start: first = 0,
 			       end: last) => (result ::
 						<generic-subsequence>);
-  let sz = size(seq);
-  let subseq-last = if (last & last < sz) last else sz end if;
+  let subseq-last = if (last) last else max(first, seq.size) end if;
   let (init, limit, next, done?,
        key, elem, elem-setter, copy) = forward-iteration-protocol(seq);
   let state = for (i from 0 below first,
@@ -152,31 +172,31 @@ define method subsequence(seq :: <generic-subsequence>,
 	copy: seq.copy-state);
 end method subsequence;
 
-define constant gs-fip-next-state =
-  method (c, s)
-    head(s) := c.next-state(c.source, head(s));
-    tail(s) := tail(s) + 1;
-    s;
-  end method;
+define inline function gs-fip-next-state (c :: <generic-subsequence>, s)
+  head(s) := c.next-state(c.source, head(s));
+  tail(s) := tail(s) + 1;
+  s;
+end function;
 
-define constant gs-fip-done? =
-  method (c, s, l)
-    c.finished-state?(c.source, head(s), l) | tail(s) >= c.end-index;
-  end method;
+define inline function gs-fip-done? (c :: <generic-subsequence>, s, l)
+  c.finished-state?(c.source, head(s), l) | tail(s) >= c.end-index;
+end function;
 
-define constant gs-fip-current-key =
-  method (c, s) tail(s) - c.start-index end method;
+define inline function gs-fip-current-key (c :: <generic-subsequence>, s)
+  tail(s) - c.start-index;
+end function;
 
-define constant gs-fip-current-element =
-  method (c, s) c.current-elem(c.source, head(s)) end method;
+define inline function gs-fip-current-element (c :: <generic-subsequence>, s)
+  c.current-elem(c.source, head(s));
+end function;
 
-define constant gs-fip-current-element-setter =
-  method (v, c, s)
-    c.current-elem-sttr(v, c.source, head(s));
-  end method;
+define inline function gs-fip-current-element-setter (v, c :: <generic-subsequence>, s)
+  c.current-elem-sttr(v, c.source, head(s));
+end function;
 
-define constant gs-fip-copy-state =
-  method (c, s) pair(c.copy-state(head(s)), tail(s)) end method;
+define inline function gs-fip-copy-state (c :: <generic-subsequence>, s)
+  pair(c.copy-state(head(s)), tail(s));
+end function;
 
 define method forward-iteration-protocol (seq :: <generic-subsequence>)
  => (initial-state :: <object>, limit :: <object>, next-state :: <function>,
@@ -191,6 +211,8 @@ end method forward-iteration-protocol;
 define class <vector-subsequence> (<subsequence>, <vector>) end class;
 define class <string-subsequence> (<subsequence>, <string>) end class;
 
+define class <byte-vector-subsequence> (<vector-subsequence>) end class;
+
 // <vs-subsequence> is used for source sequences which are both <vector>s and
 // <string>s.  The only such predefined class is <byte-string>.
 define class <vs-subsequence> (<string-subsequence>, <vector-subsequence>) end;
@@ -203,8 +225,7 @@ end method;
 define method subsequence(seq :: <vector>,
 			  #key start: first = 0,
 			       end: last) => (result :: <vector-subsequence>);
-   let seq-size = size(seq);
-   let subseq-last = if (last) min(last, seq-size) else seq-size end;
+  let subseq-last = if (last) last else max(first, seq.size) end if;
   if (instance?(seq, <string>)) 
     make(<vs-subsequence>, source: seq, start: first, end: subseq-last);
   else
@@ -212,35 +233,65 @@ define method subsequence(seq :: <vector>,
   end if;
 end method subsequence;
 
-define constant vs-fip-next-element =
-  method (c :: <subsequence>, s :: <integer>) => (result :: <integer>);
-    s + 1;
-  end method;
+define method subsequence(seq :: <byte-vector>,
+			  #key start: first = 0,
+			       end: last) => (result :: <byte-vector-subsequence>);
+  let subseq-last = if (last) last else max(first, seq.size) end if;
+  make(<byte-vector-subsequence>, source: seq, start: first, end: subseq-last);
+end method subsequence;
 
-define constant vs-fip-done? =
-  method (c :: <subsequence>, s :: <integer>, l :: <integer>)
-    s >= l;
-  end method;
+define sealed domain subsequence (<byte-vector-subsequence>);
 
-define constant vs-fip-current-key =
-  method (c :: <subsequence>, s :: <integer>) => (result :: <integer>);
-    s - c.start-index;
-  end method;
+define method subsequence(seq :: <byte-vector-subsequence>,
+                          #key start: first = 0,
+                          end: last) => (result :: <byte-vector-subsequence>);
+  let subseq-last = if (last) last else max(first, seq.size) end if;
+  make(<byte-vector-subsequence>,
+       source: seq.source,
+       start: first + seq.start-index,
+       end: subseq-last + seq.start-index);
+end;
 
-define constant vs-fip-current-element =
-  method (c :: <subsequence>, s :: <integer>)
-    c.source[s];
-  end method;
+define inline function vs-fip-next-element 
+    (c :: <subsequence>, s :: <integer>) => (result :: <integer>);
+  s + 1;
+end function;
 
-define constant vs-fip-current-element-setter =
-  method (e, c :: <subsequence>, s :: <integer>)
-    c.source[s] := e;
-  end method;
+define inline function vs-fip-done? 
+    (c :: <subsequence>, s :: <integer>, l :: <integer>)
+ => (done :: <boolean>);
+  s >= l;
+end function;
 
-define constant vs-fip-copy-state =
-  method (c :: <subsequence>, s :: <integer>) => (result :: <integer>);
-    s;
-  end method;
+define inline function vs-fip-current-key 
+    (c :: <subsequence>, s :: <integer>) => (result :: <integer>);
+  s - c.start-index;
+end function;
+
+define inline function vs-fip-current-element
+    (c :: <subsequence>, s :: <integer>) => (result :: <object>);
+  c.source[s];
+end function;
+
+define inline function vs-fip-current-element-setter
+    (e, c :: <subsequence>, s :: <integer>) => (result :: <object>)
+  c.source[s] := e;
+end function;
+
+define inline function byte-vector-fip-current-element
+    (c :: <byte-vector-subsequence>, s :: <integer>) => (result :: <byte>);
+  c.source[s];
+end function;
+
+define inline function byte-vector-fip-current-element-setter
+    (e :: <byte>, c :: <byte-vector-subsequence>, s :: <integer>) => (result :: <byte>)
+  c.source[s] := e;
+end function;
+
+define inline function vs-fip-copy-state
+    (c :: <subsequence>, s :: <integer>) => (result :: <integer>);
+  s;
+end function;
 
 define method forward-iteration-protocol (seq :: <subsequence>)
  => (initial-state :: <object>, limit :: <object>, next-state :: <function>,
@@ -252,29 +303,41 @@ define method forward-iteration-protocol (seq :: <subsequence>)
 	  vs-fip-current-element-setter, vs-fip-copy-state);
 end method forward-iteration-protocol;
 
-define method size(c :: <vector-subsequence>) => (result :: <integer>);
+define inline method forward-iteration-protocol (seq :: <byte-vector-subsequence>)
+ => (initial-state :: <object>, limit :: <object>, next-state :: <function>,
+     finished-state? :: <function>, current-key :: <function>,
+     current-element :: <function>, current-element-setter :: <function>,
+     copy-state :: <function>);
+   values(seq.start-index, seq.end-index, vs-fip-next-element, vs-fip-done?,
+	  vs-fip-current-key, byte-vector-fip-current-element,
+	  byte-vector-fip-current-element-setter, vs-fip-copy-state);
+end method forward-iteration-protocol;
+
+define inline method size(c :: <vector-subsequence>) => (result :: <integer>);
    c.end-index - c.start-index;
 end method size;
 
 define method aref(c :: <vector-subsequence>,
 		   #rest rest) => (result :: <object>);
    let index = rest[0];
-   if ((index < 0) | (index >= c.end-index - c.start-index))
+   if ((index < 0) | (index >= c.size))
       signal("index out of bounds");
    else
       aref(c.source, index + c.start-index);
    end if;
 end method;
 
+
 define method aref-setter(value, c :: <vector-subsequence>,
 			  #rest rest) => (result :: <object>);
    let index = rest[0];
-   if ((index < 0) | (index >= c.end-index - c.start-index))
+   if ((index < 0) | (index >= c.size))
       signal("index out of bounds");
    else
       aref(c.source, index + c.start-index) := value;
    end if;
 end method;
+
 
 define method dimensions(c :: <vector-subsequence>) => (result :: <vector>);
    vector(c.end-index - c.start-index);
@@ -284,32 +347,32 @@ define constant subseq-no-default = pair(#f, #f);
 
 define method element(seq :: <vector-subsequence>, key :: <integer>,
 		      #key default = subseq-no-default) => elt :: <object>;
-  let index = seq.start-index + key;
   case 
-    key < 0 | index >= seq.end-index =>
+    key < 0 | key >= seq.size =>
       if (default == subseq-no-default)
 	error("No such element in %=: %=", seq, key);
       else
 	default
       end if;
-    otherwise => seq.source[index];
+    otherwise => seq.source[key + seq.start-index];
   end case;
 end method element;
+
 
 define method element-setter(value, seq :: <vector-subsequence>,
 			     key :: <integer>) => (result :: <object>);
    case 
-      key < 0 | key >= seq.end-index - seq.start-index =>
+      key < 0 | key >= seq.size =>
          error("No such element in %=: %=", seq, key);
       otherwise => seq.source[key + seq.start-index] := value;
    end case;
 end method element-setter;
 
+
 define method subsequence(seq :: <string>,
 			  #key start: first = 0,
 			       end: last) => (result :: <string-subsequence>);
-  let seq-size = size(seq);
-  let subseq-last = if (last) min(last, seq-size) else seq-size end;
+  let subseq-last = if (last) last else max(first, seq.size) end;
   
   if (instance?(seq, <vector>)) 
     make(<vs-subsequence>, source: seq, start: first, end: subseq-last);
@@ -317,3 +380,4 @@ define method subsequence(seq :: <string>,
     make(<string-subsequence>, source: seq, start: first, end: subseq-last);
   end if;
 end method subsequence;
+

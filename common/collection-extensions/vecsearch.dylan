@@ -34,7 +34,7 @@ synopsis:	Provides a small assortment of specialized operations for
 //======================================================================
 
 //======================================================================
-// The "string-search" module provides basic search and replace capabilities
+// The "vector-search" module provides basic search and replace capabilities
 // upon restricted subsets of <sequence> -- primarily <vector>.
 // Exploiting the known properties of these types yields
 // substantially better performance than can be achieved for sequences in
@@ -56,7 +56,7 @@ synopsis:	Provides a small assortment of specialized operations for
 // Find the index of first element (after "from") of a vector which
 // satisfies the given predicate.  (Like find-key, but accepts start: and end:
 // rather than skip:.)
-define method find-first-key(seq :: <vector>, pred?, 
+define method find-first-key(seq :: <vector>, pred? :: <function>, 
 			     #key start = 0, end: last, failure: fail)
   block (return)
     let sz = size(seq);
@@ -69,7 +69,7 @@ define method find-first-key(seq :: <vector>, pred?,
 end method find-first-key;
 
 // Like find-first-key, but goes backward from the end (or from before end:).
-define method find-last-key(seq :: <vector>, pred?,
+define method find-last-key(seq :: <vector>, pred? :: <function>,
 			    #key start = 0, end: last, failure: fail)
   block (return)  
     let sz = size(seq);
@@ -80,3 +80,4 @@ define method find-last-key(seq :: <vector>, pred?,
     end for
   end block 
 end method find-last-key;
+

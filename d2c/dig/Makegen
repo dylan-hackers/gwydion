@@ -1,9 +1,12 @@
 $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
     . ' -L../../common/collection-extensions'
+    . ' -L../../common/common-dylan'
     . ' -L../../common/regular-expressions'
     . ' -L../../common/string-ext'
-    . ' -L../../common/table-ext';
+    . ' -L../../common/table-ext'
+    . ' -L../runtime/random'
+    . ' -L../runtime/threads';
 $CPPFLAGS = $CPPFLAGS . ' -I$(SRCDIR)';
 
 # We're not going to worry about whether dig is actually *useful* on

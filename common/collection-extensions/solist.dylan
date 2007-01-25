@@ -66,42 +66,42 @@ end class;
 define sealed domain make (singleton(<self-organizing-list>));
 define sealed domain initialize (<self-organizing-list>);
 
-define inline method sol-fip-next-state
+define inline function sol-fip-next-state
     (list :: <self-organizing-list>, state :: <list>) 
     => (result :: <list>);
   tail(state);
-end method;
+end function;
 
-define inline method sol-fip-finished-state?
+define inline function sol-fip-finished-state?
     (list :: <self-organizing-list>, state :: <list>, limit)
     => result :: <boolean>;
   state == #();
-end method;
+end function;
 
-define inline method sol-fip-current-key
+define inline function sol-fip-current-key
     (list :: <self-organizing-list>, state :: <list>) 
     => (result :: <object>);
   head(head(state));
-end method;
+end function;
 
 
-define inline method sol-fip-current-element
+define inline function sol-fip-current-element
     (list :: <self-organizing-list>, state :: <list>) 
     => (result :: <object>);
   tail(head(state));
-end method;
+end function;
 
-define inline method sol-fip-current-element-setter
+define inline function sol-fip-current-element-setter
     (value :: <object>, list :: <self-organizing-list>, state :: <list>) 
     => (result :: <object>);
   tail(head(state)) := value;
-end method;
+end function;
 
-define inline method sol-fip-copy-state
+define inline function sol-fip-copy-state
     (list :: <self-organizing-list>, state :: <list>) 
     => (result :: <list>);
   state;
-end method;
+end function;
 
 define sealed inline method forward-iteration-protocol
     (table :: <self-organizing-list>)
@@ -124,20 +124,19 @@ define constant sol-no-default = pair(#f, #f);
 // for which test(elem, key) is true, and then return the pair which
 // *precedes* that element (or #() if not found)
 //
-define constant elem-search
-  = method (prev :: <list>, test :: <function>, key)
-      let list = prev.tail;
-      if (list == #())
-	#();
-      else
-	let elem = list.head;
-	if (test(elem.head, key))
-	  prev;
-	else
-	  elem-search(list, test, key);
-	end if;
-      end if;
-    end method;
+define function elem-search (prev :: <list>, test :: <function>, key)
+  let list = prev.tail;
+  if (list == #())
+    #();
+  else
+    let elem = list.head;
+    if (test(elem.head, key))
+      prev;
+    else
+      elem-search(list, test, key);
+    end if;
+  end if;
+end function elem-search;
 
 define method element(table :: <self-organizing-list>, key :: <object>,
 		      #key default: default = sol-no-default)

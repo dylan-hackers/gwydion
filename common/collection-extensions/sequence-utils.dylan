@@ -1,15 +1,13 @@
 module:    Sequence-Utilities
-author:    Matthias Hölzl (tc@gauss.muc.de)
+author:    Matthias Hölzl (tc@xantira.com)
 copyright: see below
-version:   0.01 19 Dec 1998
-synopsis:  This Module implements some useful methods on collections.
+version:   0.1 10 Apr 2004
+synopsis:  This Module implements some useful methods on sequences.
 
 // Copyright.
 // =========
 
-// Useful methods on collections.
-
-// Copyright (C) 1998 Matthias Hölzl.
+// Copyright (C) 1998-2004 Matthias Hölzl.
 // Copyright (C) 1998 Way Forward Technologies.
 
 //  Use and copying of this software and preparation of derivative
@@ -28,7 +26,23 @@ synopsis:  This Module implements some useful methods on collections.
 //  E-mail to the Internet address "gd-bugs@gwydiondylan.org".
 
 // If you need to receive this library under another license contact
-// the author (tc@gauss.muc.de).
+// the author (tc@xantira.com).
+
+// PUSH! -- add an element to the front of a list.
+//
+define macro push!
+    { push!(?location:expression, ?value:expression) }
+ => { ?location := pair(?value, ?location) }
+end macro push!;
+
+// POP! -- remove the first element of a list.
+//
+define macro pop!
+    { pop!(?location:expression) }
+ => { let tmp = head(?location);
+      ?location := tail(?location);
+      tmp }
+end macro pop!;
 
 // PAIR? -- check wether ARG is a pair.
 //
@@ -574,3 +588,26 @@ define method precedes?(elt-1, elt-2, seq :: <sequence>,
     not-found;
   end block;
 end method precedes?;
+
+// SPLIT-AT -- split a sequence at a token.
+//
+define function split-at
+    (sequence :: <sequence>, token, #key test = \=)
+ => split-sequence :: <sequence>;
+  let result = make(<stretchy-vector>);
+  let current-item = make(<stretchy-vector>);
+  for (elt in sequence)
+    if (test(elt, token))
+      add!(result, current-item);
+      current-item := make(<stretchy-vector>);
+    else
+      add!(current-item, elt);
+    end if;
+  finally
+    // Add the last part.  If the line ends with Token we add
+    // an empty sequence.
+    add!(result, current-item);
+  end for;
+  result;
+end function split-at;
+

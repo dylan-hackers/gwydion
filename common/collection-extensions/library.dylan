@@ -37,8 +37,11 @@ module:		dylan-user
 
 define library collection-extensions
   use dylan;
+  use common-dylan, import: { byte-vector };
   export heap, self-organizing-list, vector-search, subseq, sequence-diff;
-  export Sequence-Utilities;
+  export sde-vector;
+  export collection-utilities;
+  export sequence-utilities;
 end library collection-extensions;
 
 define module self-organizing-list
@@ -49,7 +52,8 @@ end module self-organizing-list;
 
 define module subseq
   use dylan;
-  export subsequence, <subsequence>;
+  use byte-vector;
+  export subsequence, <subsequence>, <byte-vector-subsequence>;
 end module subseq;  
 
 define module vector-search
@@ -84,8 +88,14 @@ define module sequence-diff
     element-count, source-index, dest-index;
 end module sequence-diff;
 
-define module Sequence-Utilities
-  use Dylan;
+define module collection-utilities
+  use dylan;
+  export singleton?, key-exists?;
+end module collection-utilities;
+
+define module sequence-utilities
+  use dylan;
+  export push!, pop!;
   export pair?, null?, list?;
   export xpair, tabulate, list*, take, drop, last-pair;
   export reverse-append, unfold, unfold/tail;
@@ -93,5 +103,7 @@ define module Sequence-Utilities
   export reduce-l, reduce-r, heads, tails;
   export concatenate-map, pair-do, choose-map;
   export partition, assoc, apair, alist-copy, alist-delete;
-  export satisfies, index, find, find-tail, precedes?
-end module Sequence-Utilities;
+  export satisfies, index, find, find-tail, precedes?;
+  export split-at;
+end module sequence-utilities;
+

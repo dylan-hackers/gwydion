@@ -100,12 +100,12 @@ define method forward-iteration-protocol (vec :: <sde-vector>)
 
 	 method (v :: <sde-vector>, state :: <integer>)
 	  => current-elt :: <object>;
-	   v.contents[state];
+	   v.contents[get-index(state)];
 	 end method,
 
 	 method (val :: <object>, v :: <sde-vector>, state :: <integer>)
 	  => val :: <object>;
-	   v.contents[state] := val;
+	   v.contents[get-index(state)] := val;
 	 end method,
 
 	 method (v :: <sde-vector>, state :: <integer>)
@@ -113,3 +113,4 @@ define method forward-iteration-protocol (vec :: <sde-vector>)
 	   state;
 	 end method);
 end method forward-iteration-protocol;
+
