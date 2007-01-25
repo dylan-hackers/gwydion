@@ -1,0 +1,53 @@
+<!ELEMENT p (#PCDATA|emphasis)*>
+
+<!ELEMENT emphasis (#PCDATA)*>
+<!ELEMENT name (#PCDATA)*>
+<!ELEMENT type (#PCDATA)*>
+<!ELEMENT description (p)*>
+
+<!ELEMENT organization (#PCDATA)*>
+<!ELEMENT title (#PCDATA)*>
+<!ELEMENT version (#PCDATA)*>
+<!ELEMENT copyright (#PCDATA)*>
+<!ELEMENT head (title,organization,copyright,version)>
+
+<!ELEMENT modifiers (#PCDATA)*>
+
+<!ELEMENT superclasses (#PCDATA)*>
+<!ELEMENT keywords (keyword)*>
+<!ELEMENT keyword (name,type,description)>
+
+<!ELEMENT in (name,type,description)>
+<!ELEMENT rest-in (name,type,description)>
+<!ELEMENT keyword-in (name,type,description)>
+<!ELEMENT all-keys EMPTY>
+<!ELEMENT ins ((in)*, (rest-in)?, (keyword-in)*, (all-keys)?)>
+
+<!ELEMENT raises (type)+>
+<!ELEMENT raisedby (#PCDATA)*>
+
+<!ELEMENT out (name,type,description)>
+<!ELEMENT rest-out (name,type,description)>
+<!ELEMENT outs ((out)*, (rest-out)?)>
+
+<!ELEMENT see (#PCDATA)*>
+<!ELEMENT seealso (see)*>
+
+<!ELEMENT value (#PCDATA)*>
+
+<!ELEMENT functiondef (ins,outs,raises?)>
+<!ELEMENT genericdef (modifiers?,ins,outs,raises?)>
+<!ELEMENT variabledef (type,value)>
+<!ELEMENT constantdef (type,value)>
+<!ELEMENT classdef (modifiers,superclasses,keywords?)>
+<!ELEMENT typedef (type)>
+<!ELEMENT exceptiondef (raisedby)>
+<!ELEMENT macrodef (#PCDATA)*>
+
+<!ELEMENT entry (name,(functiondef|genericdef|variabledef|constantdef|classdef|typedef|exceptiondef|macrodef),description,seealso?)>
+
+<!ELEMENT module (name, entry*)>
+
+<!ELEMENT library (name, module*)>
+
+<!ELEMENT refman (head,library*)>

@@ -5,9 +5,6 @@ entry-point: main:%main
 
 main-exports.dylan
 progress-indicator.dylan
-file-locations.dylan
-version.dylan
-unit-info.dylan
 main-unit-state.dylan
 single-file-mode-state.dylan
 lid-mode-state.dylan

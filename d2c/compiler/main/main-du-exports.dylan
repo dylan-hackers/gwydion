@@ -1,10 +1,10 @@
-module: main-unit-info
+module: dylan-user
 copyright: see below
 
 //======================================================================
 //
 // Copyright (c) 1995, 1996, 1997  Carnegie Mellon University
-// Copyright (c) 1998, 1999, 2000, 2001  Gwydion Dylan Maintainers
+// Copyright (c) 1998, 1999, 2000  Gwydion Dylan Maintainers
 // All rights reserved.
 // 
 // Use and copying of this software and preparation of derivative
@@ -28,40 +28,36 @@ copyright: see below
 //
 //======================================================================
 
-// Roots registry.
-
-// Information which needs to go into the library dump file.
-//
-define class <unit-info> (<object>)
-  slot unit-name :: <byte-string>,
-    required-init-keyword: #"unit-name";
-  
-  slot undumped-objects :: <simple-object-vector>,
-    required-init-keyword: #"undumped-objects";
-  
-  slot extra-labels :: <simple-object-vector>,
-    required-init-keyword: #"extra-labels";
-  
-  slot unit-linker-options :: false-or(<byte-string>),
-    init-value: #f, init-keyword: #"linker-options";
-end class <unit-info>;
-
-define sealed domain make (singleton(<unit-info>));
-define sealed domain initialize (<unit-info>);
-
-define constant unit-info-name = unit-name;
-define constant unit-info-name-setter = unit-name-setter;
-
-define variable *units* :: <stretchy-vector> = make(<stretchy-vector>);
-
-define method initialize (info :: <unit-info>, #next next-method, #key) => ();
-  next-method();
-  add!(*units*, info);
+define library compiler-main-du
+  use dylan;
+  use common-dylan, import: { common-extensions };
+  use compiler-base, import: { od-format, compile-time-values };
+  export main-constants, main-unit-info;
 end;
-  
-add-make-dumper(#"unit-info", *compiler-dispatcher*, <unit-info>,
-		list(unit-name, unit-name:, #f,
-		     undumped-objects, undumped-objects:, #f,
-		     extra-labels, extra-labels:, #f,
-		     unit-linker-options, linker-options: #f));
 
+define module main-constants
+  use dylan;
+  export  $version,
+          $bootstrap-counter,
+          $default-dylan-dir,
+          $default-dylan-user-dir,
+          $gc-libs,
+          $default-target-name
+end;
+
+define module main-unit-info
+  use dylan;
+  use common-extensions, import: { false-or };
+  use od-format, import: { add-make-dumper };
+  use compile-time-values, import: { *compiler-dispatcher* };
+  export  <unit-info>,
+          *units*,
+          unit-info-name,
+          unit-info-name-setter,
+          undumped-objects,
+          extra-labels,
+          unit-linker-options,
+          undumped-objects-setter,
+          extra-labels-setter,
+          unit-linker-options-setter;
+end;

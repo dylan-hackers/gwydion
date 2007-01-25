@@ -1,0 +1,37 @@
+This program has the following known issues.
+
+* The names given to functions' required arguments, #rest arguments, and
+  return values are not correct. For example, all required arguments are named
+  'arg'. This is because the <signature> class does not provide these names,
+  and I don't know where else to get them.
+  
+* It is not the most elegant of programs.
+
+
+Refman documentation in general should be improved in the following ways,
+which will probably require a new version of refman.dtd.
+
+* The current module should list its methods on other modules' general
+  functions.
+  
+  For example, io:format defines print-message, an open generic method. Let's
+  say module B defines a print-message method, but does not itself export the
+  print-message name -- it does not need to. However, module B's print-message
+  *should* be included in its refman output.
+  
+  This lets users of the module know that they can productively call
+  print-message on module B's classes; they don't have to write their own.
+  This also gives documenters a chance to note any special behaviors of
+  print-message (print-message won't have any special behaviors, but another
+  method might).
+  
+* Required keywords and default values for optional keywords should be part of
+  the refman structure, not the descriptive text.
+  
+* The refman <typedef>, <exceptiondef>, and <raises> tags should be put to
+  use. <typedef> tags should probably be used for situations where a type is
+  aliased to another type via "define constant". <exceptiondef> and <raises>
+  tags are a good idea, but should probably be expanded to cover recovery
+  protocols and the like.
+  
+* The <macrodef> tag should be structured in some way.

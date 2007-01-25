@@ -12,6 +12,7 @@ do compile_subdirs(
     'parsergen',
     'melange',
     'pidgin',
+    'refman',
     'shared-misc',
     $system_dependent_misc
 );

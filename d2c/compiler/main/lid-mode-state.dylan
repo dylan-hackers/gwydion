@@ -305,7 +305,7 @@ define method emit-make-prologue (state :: <lid-mode-state>) => ();
   cc-flags := concatenate(cc-flags, " ", getenv("CCOPTS")|"");
 
   state.unit-cback-unit := make(<unit-state>, prefix: state.unit-mprefix);
-  state.unit-other-cback-units := map-as(<simple-object-vector>, unit-name, 
+  state.unit-other-cback-units := map-as(<simple-object-vector>, unit-info-name, 
 					 *units*);
 
   let makefile-name = format-to-string("cc-%s-files.mak", state.unit-mprefix);
@@ -611,7 +611,7 @@ define method build-inits-dot-c (state :: <lid-mode-state>) => ();
                      for (unit in *units*)
                        format(stream, 
                               "{ extern void %s_Library_init(descriptor_t*);  %s_Library_init(sp); }\n", 
-                              string-to-c-name(unit.unit-name), string-to-c-name(unit.unit-name));
+                              string-to-c-name(unit.unit-info-name), string-to-c-name(unit.unit-info-name));
                      end;
                      if (entry-function-name)
                        format(stream, 
@@ -663,7 +663,7 @@ define method link-arguments (state :: <lid-mode-state>)
 	:= stringify(' ', unit.unit-linker-options, linker-args);
     end if;
     unless (unit == state.unit-unit-info)
-      add-archive(concatenate(unit.unit-name, "-dylan"));
+      add-archive(concatenate(unit.unit-info-name, "-dylan"));
     end unless;
   end;
 
@@ -701,7 +701,7 @@ define function library-dependencies (state :: <lid-mode-state>)
 
   for (unit in *units*)
     unless (unit == state.unit-unit-info)
-      add-archive(concatenate(unit.unit-name, "-dylan"));
+      add-archive(concatenate(unit.unit-info-name, "-dylan"));
     end unless;
   end;
 

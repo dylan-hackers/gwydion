@@ -216,7 +216,7 @@ define method build-inits-dot-c (state :: <single-file-mode-state>) => ();
 	 "void inits(descriptor_t *sp, int argc, char *argv[])\n{\n");
   for (unit in *units*)
     format(stream, "{ extern void %s_Library_init(descriptor_t*);  %s_Library_init(sp); }\n",
-    string-to-c-name(unit.unit-name), string-to-c-name(unit.unit-name));
+    string-to-c-name(unit.unit-info-name), string-to-c-name(unit.unit-info-name));
   end;
   format(stream, "}\n");
   format(stream, "\nextern void real_main(int argc, char *argv[]);\n\n");
@@ -254,7 +254,7 @@ define method build-executable (state :: <single-file-mode-state>) => ();
         := stringify(' ', unit.unit-linker-options, linker-args);
     end if;
     unless (unit == state.unit-unit-info)
-      add-archive(concatenate(unit.unit-name, "-dylan"));
+      add-archive(concatenate(unit.unit-info-name, "-dylan"));
     end unless;
   end;
 
@@ -330,7 +330,7 @@ define method compile-library (state :: <single-file-mode-state>)
     parse-and-finalize-library(state);
     if (~ zero?(*errors*)) give-up(); end if;
     state.unit-cback-unit := make(<unit-state>, prefix: state.unit-mprefix);
-    state.unit-other-cback-units := map-as(<simple-object-vector>, unit-name, 
+    state.unit-other-cback-units := map-as(<simple-object-vector>, unit-info-name, 
 					 *units*);
     compile-file(state);
     if (~ zero?(*errors*)) give-up(); end if;

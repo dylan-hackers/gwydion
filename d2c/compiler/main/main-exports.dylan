@@ -45,6 +45,7 @@ define library compiler-main
   use compiler-parser;
   use compiler-cback;
   use compiler-convert;
+  use compiler-main-du;
 end;
 
 define module progress-indicator
@@ -123,6 +124,8 @@ define module main
   use definitions;
   use platform;
   use platform-constants;
+  use main-constants;
+  use main-unit-info;
   use file-system;
   use extensions, import: {key-exists?};
   use command-processor;
