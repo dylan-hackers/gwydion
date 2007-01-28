@@ -160,7 +160,7 @@ define method refman-entry-defn (the-entry :: <class-definition>)
       if (class-type.functional?) " functional" else "" end);
 
   // Get superclasses.
-  let superclasses-text = reduce1(concatenate,
+  let superclasses-text = reduce(concatenate, "",
       map(curry(format-to-string, "%s "), class-type.direct-superclasses))
       .cdata;
 
@@ -265,7 +265,7 @@ define method refman-func-params (the-entry :: <function-definition>)
       // <name> and <type> apply to all keywords.
       <keyword-in>-text := concatenate(<keyword-in>-text, format-to-string(
           "\n            <keyword-in>"
-          "\n              <name>%s:</name>"
+          "\n              <name>%s</name>"
           "\n              <type>%s</type>"
           "\n              <description>",
           as(<string>, keyword.key-name).xml-esc,
@@ -362,7 +362,8 @@ end;
 define function disamb-type-from-ctype
    (the-entry :: <definition>, ctype :: <ctype>)
 => (text :: <string>)
-  let location-string = "";
+  // I use format-to-string here to textify ctype.
+  let location-string = format-to-string("%s", ctype);
   if (instance?(ctype, <defined-cclass>))
 
     // Location of current definition.
@@ -375,27 +376,26 @@ define function disamb-type-from-ctype
     let type-library = type-module.module-home;
   
     // Disambiguate like OD does: don't specify library/module if the same.
-    // Also, use the DRM's "dylan:dylan" instead of "Dylan:Dylan-Viscera".
-    if (type-library ~= this-library)
-      location-string := concatenate(location-string,
-          if (type-library ~= $Dylan-Library)
-            as(<string>, type-library.library-name);
-          else
-            "dylan";
-          end, ":");
-    end if;
+    // Also, use the DRM's "dylan:dylan" instead of "Dylan-Viscera:Dylan".
     if (type-module ~= this-module)
-      location-string := concatenate(location-string,
+      location-string := concatenate(location-string, ":",
           if (type-module ~= $Dylan-Module)
             as(<string>, type-module.module-name);
           else
             "dylan";
-          end, ":");
+          end);
+    end if;
+    if (type-library ~= this-library)
+      location-string := concatenate(location-string, ":",
+          if (type-library ~= $Dylan-Library)
+            as(<string>, type-library.library-name);
+          else
+            "dylan";
+          end);
     end if;
   end if;
 
-  // I use format-to-string here instead of concatenate to textify ctype.
-  format-to-string("%s%s", location-string, ctype).cdata;
+  location-string.cdata;
 end;
 
 
