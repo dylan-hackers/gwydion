@@ -1,8 +1,8 @@
 $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
     . ' -L../../../common/collection-extensions'
+    . ' -L../../../common/command-line-parser'
     . ' -L../../../common/common-dylan'
-    . ' -L../../../common/getopt'
     . ' -L../../../common/io'
     . ' -L../../../common/regular-expressions'
     . ' -L../../../common/string-ext'

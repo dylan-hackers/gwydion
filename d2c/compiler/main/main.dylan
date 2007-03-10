@@ -35,7 +35,7 @@ copyright: see below
 // d2c has a delightfully non-standard '-D' flag with a corresponding '-U'
 // flag which allows you to undefine things (well, sort of). We create a
 // new option parser class to handle these using the option-parser-protocol
-// module from the getopt library.
+// module from the command-line-parser library.
 
 define class <d2c-feature-option-parser> (<negative-option-parser>)
 end class <d2c-feature-option-parser>;

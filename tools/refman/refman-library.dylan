@@ -7,8 +7,8 @@ define library refman
     import: { substring-search };
   use io,
     import: { format, format-out, standard-io, streams };
-  use getopt,
-    import: { getopt };
+  use command-line-parser,
+    import: { command-line-parser };
   use system,
     import: { locators };
   
@@ -29,7 +29,7 @@ define module refman
   use common-dylan,
     exclude: { format-to-string, direct-superclasses, direct-subclasses };
   use substring-search;
-  use getopt;
+  use command-line-parser;
   use standard-io;
   use format;
   use format-out;
