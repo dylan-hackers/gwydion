@@ -3,7 +3,7 @@ Module: dylan-user
 define library ansi-c-test
   use dylan;
   use io;
-  use getopt;
+  use command-line-parser;
   use melange-support;
 
   use parser-utilities;
@@ -19,7 +19,7 @@ define module ansi-c-test
   use streams;
   use format;
   use standard-io;
-  use getopt;
+  use command-line-parser;
   use melange-support, import: {call-out};
 
   use parse-conditions;

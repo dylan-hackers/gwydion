@@ -21,6 +21,6 @@ do compile_subdirs('random',
 		   '../../common/regular-expressions',
 		   '../../common/io',
 		   '../../common/system',
-		   '../../common/getopt',
+		   '../../common/command-line-parser',
 		   '../../common/stream-ext',
 		   '../../common/command-processor');

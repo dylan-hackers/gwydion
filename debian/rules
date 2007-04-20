@@ -4,14 +4,11 @@
 ###############
 # CONFIGURATION
 
-GD_DEBUG=yes
-GD_VERSION=$(shell cat version)
+GD_BUILD_DBG:=yes
+GD_BUILD_SMP:=$(shell grep '^processor' /proc/cpuinfo | wc -l)
 
-GD_PREFIX=/usr
-GD_MANDIR=$(GD_PREFIX)/share/man
-
-GD_BOOTSTRAP_PREFIX=$(shell pwd)/debian/bootstrap
-GD_BOOTSTRAP_BINDIR=$(GD_BOOTSTRAP_PREFIX)/bin
+GD_PREFIX:=/usr
+GD_MANDIR:=$(GD_PREFIX)/share/man
 
 export DH_COMPAT=5
 export DH_VERBOSE=0
@@ -37,45 +34,20 @@ generate-stamp:
 	
 	touch generate-stamp
 
-####################
-# BOOTSTRAP HANDLING
-
-bootstrap: bootstrap-stamp
-.PHONY: bootstrap
-
-bootstrap-stamp: generate-stamp
-	dh_testdir
-	
-	# configure with bootstrap enabled
-	./configure --prefix=$(GD_BOOTSTRAP_PREFIX) \
-		    --bindir=$(GD_BOOTSTRAP_BINDIR) \
-		    --enable-debug=$(GD_DEBUG)      \
-		    --enable-bootstrap
-	
-	# build the bootstrap compiler
-	$(MAKE)
-	
-	# install to a temporary directory
-	$(MAKE) install
-	
-	# do only the post-bootstrap cleanup
-	$(MAKE) bootstrap_clean
-
-	touch bootstrap-stamp
-
 ###############
 # CONFIGURATION
 
 configure: configure-stamp
 .PHONY: configure
 
-configure-stamp: bootstrap-stamp
+configure-stamp: generate-stamp
 	dh_testdir
 	
-	PATH=$(GD_BOOTSTRAP_BINDIR):$(PATH)    \
-	./configure --prefix=$(GD_PREFIX)      \
-		    --mandir=$(GD_MANDIR)      \
-		    --enable-debug=$(GD_DEBUG)
+	./configure --prefix=$(GD_PREFIX)               \
+		    --mandir=$(GD_MANDIR)               \
+		    --enable-debug=$(GD_BUILD_DBG)      \
+                    --with-thread-count=$(GD_BUILD_SMP) \
+		    --enable-bootstrap
 	
 	touch configure-stamp
 
@@ -88,7 +60,6 @@ build: build-stamp
 build-stamp: configure-stamp
 	dh_testdir
 	
-	PATH=$(GD_BOOTSTRAP_BINDIR):$(PATH) \
 	$(MAKE)
 	
 	touch build-stamp
@@ -102,7 +73,6 @@ install: build-stamp
 	dh_clean -k
 	dh_installdirs
 
-	PATH=$(GD_BOOTSTRAP_BINDIR):$(PATH) \
 	$(MAKE) DESTDIR=`pwd`/debian/gwydiondylan install
 
 .PHONY: install
@@ -114,9 +84,9 @@ clean:
 	dh_testdir
 	dh_testroot
 
-	rm -f generate-stamp bootstrap-stamp configure-stamp build-stamp
+	rm -f generate-stamp configure-stamp build-stamp
 	
-	rm -rf debian/bootstrap debian/gwydiondylan
+	rm -rf debian/gwydiondylan
 	
 	$(MAKE) clean
 	

@@ -35,9 +35,9 @@ $CPPFLAGS = "$CPPFLAGS -I../../runtime ";
 $D2CFLAGS         # added by update-libdirs
     = $d2c_runtime
     . ' -L../../../common/collection-extensions'
+    . ' -L../../../common/command-line-parser'
     . ' -L../../../common/command-processor'
     . ' -L../../../common/common-dylan'
-    . ' -L../../../common/getopt'
     . ' -L../../../common/io'
     . ' -L../../../common/stream-ext'
     . ' -L../../../common/string-ext'
@@ -48,6 +48,7 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../convert'
     . ' -L../fer-transform'
     . ' -L../front'
+    . ' -L.'
     . ' -L../optimize'
     . ' -L../parser'
     . ' -L../../debugger'

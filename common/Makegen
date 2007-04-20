@@ -15,7 +15,7 @@ unless ($enable_bootstrap) {
 		   'regular-expressions',
 		   'io',
 		   'system',
-		   'getopt',
+		   'command-line-parser',
 		   'stream-ext');
 
   if($features{'compiled_for_unix'}) {
