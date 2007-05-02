@@ -1,22 +1,18 @@
-##
-##  This is the makegen file for the libraries shared between d2c and mindy.
-##
 
-# the order is significant, since the d2c libraries must be compiled in
-# dependency order. 
+# the order is significant, since the d2c libraries must be compiled in dependency order.
 
 unless ($enable_bootstrap) {
-  &compile_subdirs('table-ext',
+  &compile_subdirs('table-extensions',
 		   'common-dylan',
 		   'collections',
 		   'matrix',
 		   'collection-extensions',
-		   'string-ext',
+		   'string-extensions',
 		   'regular-expressions',
 		   'io',
 		   'system',
 		   'command-line-parser',
-		   'stream-ext');
+		   'stream-extensions');
 
   if($features{'compiled_for_unix'}) {
     #&compile_subdirs('network');

@@ -4,8 +4,8 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../common/command-processor'
     . ' -L../../common/common-dylan'
     . ' -L../../common/io'
-    . ' -L../../common/string-ext'
-    . ' -L../../common/table-ext'
+    . ' -L../../common/string-extensions'
+    . ' -L../../common/table-extensions'
     . ' -L../runtime/random'
     . ' -L../runtime/threads';
 

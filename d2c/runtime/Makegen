@@ -14,13 +14,13 @@ if (!$enable_bootstrap) {
 
 do compile_subdirs('random',
 		   'threads',
-		   '../../common/table-ext',
+		   '../../common/table-extensions',
 		   '../../common/common-dylan',
 		   '../../common/collection-extensions',
-		   '../../common/string-ext',
+		   '../../common/string-extensions',
 		   '../../common/regular-expressions',
 		   '../../common/io',
 		   '../../common/system',
 		   '../../common/command-line-parser',
-		   '../../common/stream-ext',
+		   '../../common/stream-extensions',
 		   '../../common/command-processor');
