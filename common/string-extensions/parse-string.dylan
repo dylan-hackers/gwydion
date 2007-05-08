@@ -37,7 +37,7 @@ copyright: see below
 // pointer along.
 //
 define class <parse-string> (<object>)
-  slot string :: <sequence>, required-init-keyword: #"string";
+  constant slot string :: <sequence>, required-init-keyword: #"string";
   slot index :: <integer>, init-value: 0;
 end class <parse-string>;
 
