@@ -108,7 +108,7 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
   let libmod-declaration
     = format-to-string("%s %s\n\n", lib-string, mod-string);
   let libmod-buffer = make(<buffer>, size: libmod-declaration.size);
-  copy-bytes(libmod-declaration, 0, libmod-buffer, 0, libmod-declaration.size);
+  copy-bytes(libmod-buffer, 0, libmod-declaration, 0, libmod-declaration.size);
 
   // XXX these two look suspicious
   // second one is ok, default is now according to DRM

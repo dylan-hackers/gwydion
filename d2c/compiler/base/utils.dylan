@@ -313,7 +313,7 @@ define method integer-to-english
   let result = make(<byte-string>, size: length + pieces.size - 1, fill: ' ');
   for (piece :: <byte-string> in pieces,
        index = 0 then index + piece.size + 1)
-    copy-bytes(piece, 0, result, index, piece.size);
+    copy-bytes(result, index, piece, 0, piece.size);
   end for;
   result;
 end method integer-to-english;
@@ -595,7 +595,7 @@ define method append
     (res :: <byte-string>, offset :: <integer>, what :: <byte-string>)
     => new-offset :: <integer>;
   let len = what.size;
-  copy-bytes(what, 0, res, offset, len);
+  copy-bytes(res, offset, what, 0, len);
   offset + len;
 end method append;
 

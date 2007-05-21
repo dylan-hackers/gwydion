@@ -132,7 +132,7 @@ define method extract-line
   finally
     let len = index - line-start;
     let result = make(<byte-string>, size: len);
-    copy-bytes(contents, line-start, result, 0, len);
+    copy-bytes(result, 0, contents, line-start, len);
     result;
   end for;
 end method extract-line;
@@ -417,7 +417,7 @@ define method extract-string
   let len = finish - start;
   if (len.positive?)
     let result = make(<string>, size: len);
-    copy-bytes(source-location.source.contents, start, result, 0, len);
+    copy-bytes(result, 0, source-location.source.contents, start, len);
     result;
   else
     "";

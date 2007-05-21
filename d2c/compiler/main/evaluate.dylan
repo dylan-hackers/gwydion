@@ -135,7 +135,7 @@ define method evaluate(expression :: <string>, env :: <interpreter-environment> 
 */
   *top-level-forms* := make(<stretchy-vector>);
   let expression-buffer = make(<buffer>, size: expression.size);
-  copy-bytes(expression, 0, expression-buffer, 0, expression.size);
+  copy-bytes(expression-buffer, 0, expression, 0, expression.size);
 
   let tokenizer = make(<lexer>,
                        module: *Current-Module*,

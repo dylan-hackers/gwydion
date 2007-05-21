@@ -127,7 +127,7 @@ define method parse-lid (state :: <lid-mode-state>) => ();
 	  let name-end = find-end-of-word(posn);
 	  let len = name-end - posn;
 	  let name = make(<byte-string>, size: len);
-	  copy-bytes(contents, posn, name, 0, len);
+	  copy-bytes(name, 0, contents, posn, len);
 	  add!(files, name);
 	  repeat(name-end);
 	end;
