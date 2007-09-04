@@ -11,12 +11,13 @@ define argument-parser <my-arg-parser> ()
   option help?, "", "Help", long: "help", short: "h";
   option libpaths, "", "Library paths", long: "libdir", short: "L",
     kind: <repeated-parameter-option-parser>;
+  option debug?, "", "Debug output", long: "debug";
   synopsis print-help,
     usage: "refman [options] libnames...",
     description:
 "Export a library or libraries to a refman-style XML document, sent to STDOUT."
 "\n"
-"libnames are library names (as in libname.lib.du).";
+"libnames are library names, as in (libname).lib.du.";
 end argument-parser;
 
 
@@ -33,6 +34,14 @@ define function main(name, arguments)
     exit-application(0);
   end;
 
+  // Set up platform constants.
+  let default-targets-dot-descr
+      = concatenate($default-dylan-dir, "/share/dylan/platforms.descr");
+  parse-platforms-file(as(<file-locator>, default-targets-dot-descr));
+  *current-target* := get-platform-named(as(<symbol>, $default-target-name));
+  define-platform-constants(*current-target*);
+  define-bootstrap-module();
+
   // Set up library search path if not specified.
   let lib-paths =
       if (args.libpaths.empty?)
@@ -46,8 +55,17 @@ define function main(name, arguments)
       end;
   *data-unit-search-path* := map(curry(as, <directory-locator>), lib-paths);
 
+  if (args.debug?)
+    format-out("Searching paths\n");
+    for (loc in lib-paths)
+      format-out("  %s\n", as(<string>, loc));
+    end for;
+  end if;
+
   // Prevent d2c from using stdout.
-  *debug-output* := make(<string-stream>, direction: #"output");
+  unless (args.debug?)
+    *debug-output* := make(<string-stream>, direction: #"output");
+  end unless;
 
   // Load libraries of interest.
   let target-libraries = map(curry(as, <symbol>), args.libnames);
@@ -68,6 +86,9 @@ define function main(name, arguments)
   end;
 
   // Print out the XML.
+  if (args.debug?)
+    format-out("Generating XML\n");
+  end if;
   format-out("%s\n", refman($Libraries, target-libraries));
   exit-application(0);
 end function main;

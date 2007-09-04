@@ -55,4 +55,6 @@ define module refman
   use macros;
   use compile-time-values;
   use main-constants;
+  use platform;
+  use platform-constants;
 end module;
