@@ -328,7 +328,7 @@ define method write-c-accessor-method
   // Write getter method
   unless(real-type.abstract-type?)
     format(stream,
-           "define %s inline-only method %s\n"
+           "define %s inline method %s\n"
              "    (ptr :: %s) => (result :: %s);\n"
              "  %s;\n"
              "end method %s;\n\n",
@@ -343,7 +343,7 @@ define method write-c-accessor-method
           & ~instance?(real-type, <non-atomic-types>))
       // Write setter method
       format(stream,
-             "define %s inline-only method %s-setter\n"
+             "define %s inline method %s-setter\n"
                "    (value :: %s, ptr :: %s) => (result :: %s);\n"
                "  %s := %s;\n"
                "  value;\n"
@@ -387,7 +387,7 @@ define method write-c-accessor-method
 			 real-type.start-bit, real-type.bits-in-field);
       // Write getter method
       format(stream,
-	     "define %s inline-only method %s\n"
+	     "define %s inline method %s\n"
 	       "    (ptr :: %s) => (result :: %s);\n"
 	       "  %s;\n"
 	       "end method %s;\n\n",
@@ -400,7 +400,7 @@ define method write-c-accessor-method
 	    & ~instance?(real-type, <non-atomic-types>))
 	// Write setter method
 	format(stream,
-	       "define %s inline-only method %s-setter\n"
+	       "define %s inline method %s-setter\n"
 		 "    (value :: %s, ptr :: %s) => (result :: %s);\n"
 		 "  let mask = lognot(ash((2 ^ %d) - 1, %d));\n"
 		 "  %s := logand(%s, mask) + ash(%s, %d);\n"
