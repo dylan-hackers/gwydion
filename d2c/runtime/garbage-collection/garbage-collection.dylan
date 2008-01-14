@@ -57,15 +57,6 @@ define sealed method GC-all-interior-pointers-setter (value :: <integer>) => (re
   value;
 end method GC-all-interior-pointers-setter;
 
-define sealed method GC-quiet () => (result :: <integer>);
-  as(<integer>, c-variable(int: "&GC_quiet"));
-end method GC-quiet;
-
-define sealed method GC-quiet-setter (value :: <integer>) => (result :: <integer>);
-  c-variable(int: "&GC_quiet") := value;
-  value;
-end method GC-quiet-setter;
-
 define sealed method GC-finalize-on-demand () => (result :: <integer>);
   as(<integer>, c-variable(int: "&GC_finalize_on_demand"));
 end method GC-finalize-on-demand;

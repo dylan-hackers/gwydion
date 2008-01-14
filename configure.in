@@ -444,7 +444,7 @@ AC_CHECK_LIB(pthread, pthread_create,[AC_DEFINE([HAVE_PTHREAD],
 AC_ARG_WITH(gc-prefix, [  --with-gc-prefix=PFX    Prefix where Boehm gc is installed],
             gc_prefix="$withval", gc_prefix="")
 if test "x$gc_prefix" != x; then
-  GC_CFLAGS="-I$gc_prefix/include"
+  GC_CFLAGS="-I$gc_prefix/include -I$gc_prefix/include/gc"
   GC_LIBS="-L$gc_prefix/lib -lgc $GC_LIBS"
 else
   GC_LIBS="-lgc $GC_LIBS"
