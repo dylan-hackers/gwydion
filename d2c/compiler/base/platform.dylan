@@ -144,6 +144,8 @@ define sealed /* exported */ class <platform> (<object>)
     required-init-keyword: #"default-c-compiler-debug-flags";
   constant /* exported */ slot default-c-compiler-profile-flags :: <byte-string>,
     required-init-keyword: #"default-c-compiler-profile-flags";
+  constant /* exported */ slot default-c-platform-defines :: false-or(<byte-string>),
+    init-value: #f, init-keyword: #"default-c-platform-defines";
   constant /* exported */ slot assembler-command :: <byte-string>,
     required-init-keyword: #"assembler-command";
   constant /* exported */ slot link-library-command :: <byte-string>,
@@ -266,6 +268,7 @@ define variable *valid-properties* = make(<table>);
 *valid-properties*[#"default-c-compiler-flags"] := #t;
 *valid-properties*[#"default-c-compiler-debug-flags"] := #t;
 *valid-properties*[#"default-c-compiler-profile-flags"] := #t;
+*valid-properties*[#"default-c-platform-defines"] := #f;
 *valid-properties*[#"assembler-command"] := #t;
 *valid-properties*[#"link-library-command"] := #t;
 *valid-properties*[#"link-executable-command"] := #t;

@@ -401,6 +401,7 @@ define module platform
     default-c-compiler-flags,
     default-c-compiler-debug-flags,
     default-c-compiler-profile-flags,
+    default-c-platform-defines,
     assembler-command,
     link-library-command,
     randomize-library-command,

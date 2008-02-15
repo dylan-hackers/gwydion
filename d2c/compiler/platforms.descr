@@ -1,5 +1,6 @@
-// A description of all target platforms we support. We use this in d2c as well as in the build scripts.
-// Remember, blank lines separate the platforms.
+// A description of all target platforms we support. We use this in d2c
+// as well as in the build scripts. Remember, blank lines separate the
+// platforms.
 
 // A target description is a description of the target-environment we
 // are compiling for.  This includes information such as what files
@@ -38,10 +39,10 @@
 // target.
 //
 // default-features: Conditional compilation features that are defined
-// on this platform.  When overriding an inheritted default-features,
+// on this platform.  When overriding an inherited default-features,
 // remember that you are giving an entirely new value to default
 // features, *not* merely adding to the list of default-features you
-// inheritted.
+// inherited.
 
 
 // CPU ARCHITECTURE entries:
@@ -100,7 +101,6 @@ long-double-size:			8
 long-double-mantissa-digits:		53
 minimum-long-double-float-exponent:	-1021
 maximum-long-double-float-exponent:	1024
-
 
 // PowerPC
 platform-name:			ppc
@@ -345,6 +345,10 @@ make-jobs-flag:				#f
 //
 // Optional flags: (All defaults are #f)
 //
+// default-c-platform-defines: A string providing various platform-specific
+// define flags such as you might find listed in sys/cdefs.h. Applied to the
+// C preprocessor, C compiler, Melange, and D2C.
+//
 
 // GNU Compiler Collection with libtool
 platform-name:			gcc
@@ -432,6 +436,7 @@ inherit-from:			gcc darwin ppc
 default-c-compiler-flags:		-I. -I%s -O2 -fomit-frame-pointer -no-cpp-precomp -Wno-long-double
 default-c-compiler-debug-flags:		-I. -I%s -g -O -fno-inline-functions -no-cpp-precomp -Wno-long-double
 default-c-compiler-profile-flags:	-I. -I%s -pg -g -O -fno-inline-functions -no-cpp-precomp -Wno-long-double
+default-c-platform-defines:             -D_POSIX_C_SOURCE
 link-executable-flags:			$(GC_LIBS) -multiply_defined suppress
 double-alignment:		4
 long-long-alignment:		4
@@ -447,8 +452,9 @@ long-double-alignment:          16
 platform-name:                 intel-darwin-gcc
 inherit-from:                  gcc darwin x86
 default-c-compiler-flags:      -I. -I%s -O2 -no-cpp-precomp -Wno-long-double
-default-c-compiler-debug-flags:        -I. -I%s -g -O -fno-inline-functions -no-cpp-precomp -Wno-long-double
-default-c-compiler-profile-flags:      -I. -I%s -pg -g -O -fno-inline-functions -no-cpp-precomp -Wno-long-double
+default-c-compiler-debug-flags:         -I. -I%s -g -O -fno-inline-functions -no-cpp-precomp -Wno-long-double
+default-c-compiler-profile-flags:       -I. -I%s -pg -g -O -fno-inline-functions -no-cpp-precomp -Wno-long-double
+default-c-platform-defines:             -D_POSIX_C_SOURCE
 link-executable-flags:          $(GC_LIBS) -multiply_defined suppress         
 long-long-alignment:           4
 long-double-size:              16

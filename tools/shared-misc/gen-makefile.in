@@ -183,6 +183,7 @@ sub set_default_defaults {
     $D2CFLAGS = '-L$(DYLANDIR)/lib/dylan';
     $CFLAGS = '';
     $CPPFLAGS = '-I$(DYLANDIR)/include';
+    $CDEFFLAGS = '';
     $MELANGE = 'melange' . $dot_exe;
     $PARSERGEN = 'parsergen' . $dot_exe;
     $gen_makefile = 'gen-makefile';
@@ -494,6 +495,7 @@ sub maybe_emit_d2c_defines {
             $CFLAGS .= " $target_platform{'default_c_compiler_flags'}";
         }
         $CFLAGS =~ s/-I%s//;
+        $CDEFFLAGS .= " $target_platform{'default_c_platform_defines'}";
 
 	if ($use_previous_melange) {
 	    $MELANGE = $PREVIOUS_MELANGE;
@@ -501,9 +503,9 @@ sub maybe_emit_d2c_defines {
 
         print <<EOF;
 D2C = $D2C
-D2CFLAGS = $D2CFLAGS -D_POSIX_C_SOURCE
-CFLAGS = $CFLAGS -D_POSIX_C_SOURCE
-CPPFLAGS = $CPPFLAGS $debug_platform_name -D_POSIX_C_SOURCE
+D2CFLAGS = $D2CFLAGS $CDEFFLAGS
+CFLAGS = $CFLAGS $CDEFFLAGS
+CPPFLAGS = $CPPFLAGS $debug_platform_name $CDEFFLAGS
 COPTS = $COPTS
 MELANGE = $MELANGE
 PARSERGEN = $PARSERGEN
