@@ -67,11 +67,11 @@ define method make-body
       form;
     else
       make(<body-parse>, source-location: simplify-source-location(srcloc),
-	   parts: vector(form));
+           parts: vector(form));
     end;
   else
     make(<body-parse>, source-location: simplify-source-location(srcloc),
-	 parts: as(<simple-object-vector>, parts));
+         parts: as(<simple-object-vector>, parts));
   end;
 end method make-body;
 
@@ -210,7 +210,7 @@ define method add-binop
     => series :: <binop-series>;
   make(<binop-series-stack>,
        to-left: reduce-some(series, operator.operator-precedence,
-			    operator.operator-associativity),
+                            operator.operator-associativity),
        operator: operator, operand: operand,
        operand-srcloc: operand-srcloc);
 end method add-binop;
@@ -248,8 +248,8 @@ define method reduce-some
     => res :: <binop-series>;
   let prev-precedence = series.binop-series-operator.operator-precedence;
   if (select (associativity)
-	#"left" => prev-precedence >= precedence;
-	#"right" => prev-precedence > precedence;
+        #"left" => prev-precedence >= precedence;
+        #"right" => prev-precedence > precedence;
       end select)
     reduce-some(reduce-once(series), precedence, associativity);
   else
@@ -267,10 +267,10 @@ define method reduce-once (series :: <binop-series-stack>)
   let to-left = series.binop-series-to-left;
   let (call, srcloc)
     = make-binary-function-call(to-left.binop-series-operand,
-				to-left.binop-series-operand-srcloc,
-				series.binop-series-operator,
-				series.binop-series-operand,
-				series.binop-series-operand-srcloc);
+                                to-left.binop-series-operand-srcloc,
+                                series.binop-series-operator,
+                                series.binop-series-operand,
+                                series.binop-series-operand-srcloc);
   to-left.binop-series-operand := call;
   to-left.binop-series-operand-srcloc := srcloc;
   to-left;
@@ -298,12 +298,12 @@ define method make-binary-function-call
     //
     // It is a function-word.  So make a function-macro-call.
     let id = make(<identifier-token>,
-		  source-location:
-		    simplify-source-location(operator.source-location),
-		  kind: $raw-function-word-token,
-		  symbol: symbol,
-		  module: module,
-		  uniquifier: operator.token-uniquifier);
+                  source-location:
+                    simplify-source-location(operator.source-location),
+                  kind: $raw-function-word-token,
+                  symbol: symbol,
+                  module: module,
+                  uniquifier: operator.token-uniquifier);
     let left-frag
       = make-parsed-fragment(left, source-location: left-srcloc);
     let comma-srcloc = source-location-before(right-srcloc);
@@ -311,16 +311,16 @@ define method make-binary-function-call
       = make(<token>, source-location: comma-srcloc, kind: $comma-token);
     let comma-frag
       = make(<token-fragment>, source-location: comma-srcloc,
-	     token: comma-token);
+             token: comma-token);
     let right-frag
       = make-parsed-fragment(right, source-location: right-srcloc);
     values(make(<function-macro-call-parse>,
-		source-location: simplify-source-location(call-srcloc),
-		word: id,
-		fragment:
-		  append-fragments!(append-fragments!(left-frag, comma-frag),
-				    right-frag)),
-	   call-srcloc);
+                source-location: simplify-source-location(call-srcloc),
+                word: id,
+                fragment:
+                  append-fragments!(append-fragments!(left-frag, comma-frag),
+                                    right-frag)),
+           call-srcloc);
   else
     //
     // It's not a function-word, so treat it like a regular function
@@ -329,17 +329,17 @@ define method make-binary-function-call
     // tried to call \begin(1, 2, 3).  Letting that code deal with it is
     // easier than dealing with it here also.
     let id = make(<identifier-token>,
-		  source-location:
-		    simplify-source-location(operator.source-location),
-		  kind: $quoted-name-token,
-		  symbol: operator.token-symbol,
-		  module: module,
-		  uniquifier: operator.token-uniquifier);
+                  source-location:
+                    simplify-source-location(operator.source-location),
+                  kind: $quoted-name-token,
+                  symbol: operator.token-symbol,
+                  module: module,
+                  uniquifier: operator.token-uniquifier);
     values(make(<funcall-parse>,
-		source-location: simplify-source-location(call-srcloc),
-		function: make(<varref-parse>, id: id),
-		arguments: vector(left, right)),
-	   call-srcloc);
+                source-location: simplify-source-location(call-srcloc),
+                function: make(<varref-parse>, id: id),
+                arguments: vector(left, right)),
+           call-srcloc);
   end if;
 end method make-binary-function-call;
 
@@ -392,9 +392,9 @@ define method push-case-constituent
   add!(state.partial-body, constituent);
   state.partial-body-srcloc
     := if (state.partial-body-srcloc)
-	 source-location-spanning(state.partial-body-srcloc, srcloc);
+         source-location-spanning(state.partial-body-srcloc, srcloc);
        else
-	 srcloc;
+         srcloc;
        end if;
 end method push-case-constituent;
 
@@ -402,14 +402,14 @@ define method finish-case-body (state :: <case-body-parse-state>) => ();
   let body = as(<simple-object-vector>, state.partial-body);
   let srcloc
     = (state.partial-body-srcloc
-	 | source-location-after(state.fragment.source-location));
+         | source-location-after(state.fragment.source-location));
   state.partial-body.size := 0;
   state.partial-body-srcloc := #f;
   push-case-fragment
     (state,
      make-parsed-fragment
        (make(<body-parse>, source-location: srcloc, parts: body),
-	source-location: srcloc));
+        source-location: srcloc));
   if (state.semicolon)
     push-case-fragment(state, state.semicolon);
     state.semicolon := #f;
@@ -425,34 +425,16 @@ end method finish-case-body;
 define generic remove-optional-semi-and-end (pattern :: <pattern>)
     => (new-pattern :: <pattern>, found-end? :: <boolean>);
 
-define method remove-optional-semi-and-end (pattern :: <semicolon-pattern>)
-    => (new-pattern :: <pattern>, found-end? :: <boolean>);
-  let right = pattern.pattern-right;
-  if (instance?(right, <name-pattern>)
-	& right.pattern-name.token-symbol == #"end")
-    values(pattern.pattern-left, #t);
-  else
-    let (new-right, found-end?) = remove-optional-semi-and-end(right);
-    if (found-end?)
-      values(make(<semicolon-pattern>,
-		  left: pattern.pattern-left,
-		  right: new-right,
-		  last: ~instance?(new-right, <semicolon-pattern>)),
-	     #t);
-    else
-      values(pattern, #f);
-    end if;
-  end if;
-end method remove-optional-semi-and-end;
-
-define method remove-optional-semi-and-end (pattern :: <comma-pattern>)
+define method remove-optional-semi-and-end
+    (pattern :: type-union(<semicolon-pattern>, <comma-pattern>))
     => (new-pattern :: <pattern>, found-end? :: <boolean>);
   let (new-right, found-end?)
     = remove-optional-semi-and-end(pattern.pattern-right);
   if (found-end?)
-    values(make(<comma-pattern>, left: pattern.pattern-left, right: new-right,
-		last: ~instance?(new-right, <comma-pattern>)),
-	   #t);
+    values(make(pattern.object-class, left: pattern.pattern-left,
+                right: new-right,
+                last: ~instance?(new-right, pattern.object-class)),
+           #t);
   else
     values(pattern, #f);
   end if;
@@ -468,8 +450,8 @@ define method remove-optional-semi-and-end (pattern :: <sequential-pattern>)
       values(left, #t);
     else
       values(make(<sequential-pattern>, left: left, right: new-right,
-		  last: ~instance?(new-right, <sequential-pattern>)),
-	     #t);
+                  last: ~instance?(new-right, <sequential-pattern>)),
+             #t);
     end if;
   else
     values(pattern, #f);
@@ -516,9 +498,9 @@ define method make-statement-or-function-rule
   if (found-end?)
     make(<statement-rule>, name: name, pattern: new-pattern, template: rhs);
   elseif (instance?(new-pattern, <bracketed-pattern>)
-	    & new-pattern.pattern-left-token.token-kind == $left-paren-token)
+            & new-pattern.pattern-left-token.token-kind == $left-paren-token)
     make(<function-rule>, name: name, pattern: new-pattern.pattern-guts,
-	 template: rhs);
+         template: rhs);
   else
     compiler-fatal-error-location(name, "Invalid rule syntax.");
   end if;
@@ -538,46 +520,46 @@ define generic make-parsed-fragment (thing :: <object>, #key source-location)
 define method make-parsed-fragment
     (defn :: <definition-parse>,
      #key source-location: srcloc :: <source-location>
-	    = make(<unknown-source-location>))
+            = make(<unknown-source-location>))
     => res :: <token-fragment>;
   make(<token-fragment>,
        source-location: srcloc,
        token: make(<pre-parsed-token>,
-		   source-location: defn.source-location,
-		   kind: $parsed-special-definition-token,
-		   parse-tree: defn));
+                   source-location: defn.source-location,
+                   kind: $parsed-special-definition-token,
+                   parse-tree: defn));
 end method make-parsed-fragment;
 
 define method make-parsed-fragment
     (defn :: <definition-macro-call-parse>,
      #key source-location: srcloc :: <source-location>
-	    = make(<unknown-source-location>))
+            = make(<unknown-source-location>))
     => res :: <token-fragment>;
   make(<token-fragment>,
        source-location: srcloc,
        token: make(<pre-parsed-token>,
-		   source-location: defn.source-location,
-		   kind: $parsed-definition-macro-call-token,
-		   parse-tree: defn));
+                   source-location: defn.source-location,
+                   kind: $parsed-definition-macro-call-token,
+                   parse-tree: defn));
 end method make-parsed-fragment;
 
 define method make-parsed-fragment
     (decl :: <local-declaration-parse>,
      #key source-location: srcloc :: <source-location>
-	    = make(<unknown-source-location>))
+            = make(<unknown-source-location>))
     => res :: <token-fragment>;
   make(<token-fragment>,
        source-location: srcloc,
        token: make(<pre-parsed-token>,
-		   source-location: decl.source-location,
-		   kind: $parsed-local-declaration-token,
-		   parse-tree: decl));
+                   source-location: decl.source-location,
+                   kind: $parsed-local-declaration-token,
+                   parse-tree: decl));
 end method make-parsed-fragment;
 
 define method make-parsed-fragment
     (varref :: <varref-parse>,
      #key source-location: srcloc :: <source-location>
-	    = make(<unknown-source-location>))
+            = make(<unknown-source-location>))
     => res :: <token-fragment>;
   make(<token-fragment>,
        source-location: srcloc,
@@ -587,83 +569,83 @@ end method make-parsed-fragment;
 define method make-parsed-fragment
     (expr :: <literal-ref-parse>,
      #key source-location: srcloc :: <source-location>
-	    = make(<unknown-source-location>))
+            = make(<unknown-source-location>))
     => res :: <token-fragment>;
   let lit = expr.litref-literal;
   make(<token-fragment>,
        source-location: srcloc,
        token: if (instance?(lit, <literal-symbol>))
-		make(<literal-token>,
-		     source-location: expr.source-location,
-		     kind: $symbol-token,
-		     literal: lit);
-	      elseif (instance?(lit, <literal-string>))
-		make(<literal-token>,
-		     source-location: expr.source-location,
-		     kind: $string-token,
-		     literal: lit);
-	      elseif (instance?(lit, <literal-list>)
-			| instance?(lit, <literal-simple-object-vector>))
-		make(<pre-parsed-token>,
-		     source-location: expr.source-location,
-		     kind: $parsed-constant-token,
-		     parse-tree: lit);
-	      else
-		make(<literal-token>,
-		     source-location: expr.source-location,
-		     kind: $literal-token,
-		     literal: lit);
-	      end if);
+                make(<literal-token>,
+                     source-location: expr.source-location,
+                     kind: $symbol-token,
+                     literal: lit);
+              elseif (instance?(lit, <literal-string>))
+                make(<literal-token>,
+                     source-location: expr.source-location,
+                     kind: $string-token,
+                     literal: lit);
+              elseif (instance?(lit, <literal-list>)
+                        | instance?(lit, <literal-simple-object-vector>))
+                make(<pre-parsed-token>,
+                     source-location: expr.source-location,
+                     kind: $parsed-constant-token,
+                     parse-tree: lit);
+              else
+                make(<literal-token>,
+                     source-location: expr.source-location,
+                     kind: $literal-token,
+                     literal: lit);
+              end if);
 end method make-parsed-fragment;
 
 define method make-parsed-fragment
     (expr :: <expression-parse>,
      #key source-location: srcloc :: <source-location>
-	    = make(<unknown-source-location>))
+            = make(<unknown-source-location>))
     => res :: <token-fragment>;
   make(<token-fragment>,
        source-location: srcloc,
        token: make(<pre-parsed-token>,
-		   source-location: expr.source-location,
-		   kind: $parsed-expression-token,
-		   parse-tree: expr));
+                   source-location: expr.source-location,
+                   kind: $parsed-expression-token,
+                   parse-tree: expr));
 end method make-parsed-fragment;
 
 define method make-parsed-fragment
     (expr :: type-union(<statement-parse>, <function-macro-call-parse>),
      #key source-location: srcloc :: <source-location>
-	    = make(<unknown-source-location>))
+            = make(<unknown-source-location>))
     => res :: <token-fragment>;
   make(<token-fragment>,
        source-location: srcloc,
        token: make(<pre-parsed-token>,
-		   source-location: expr.source-location,
-		   kind: $parsed-macro-call-token,
-		   parse-tree: expr));
+                   source-location: expr.source-location,
+                   kind: $parsed-macro-call-token,
+                   parse-tree: expr));
 end method make-parsed-fragment;
 
 define method make-parsed-fragment
     (paramlist :: <parameter-list>,
      #key source-location: srcloc :: <source-location>
-	    = make(<unknown-source-location>))
+            = make(<unknown-source-location>))
     => res :: <token-fragment>;
   make(<token-fragment>,
        source-location: srcloc,
        token: make(<pre-parsed-token>,
-		   kind: $parsed-parameter-list-token,
-		   parse-tree: paramlist));
+                   kind: $parsed-parameter-list-token,
+                   parse-tree: paramlist));
 end method make-parsed-fragment;
   
 define method make-parsed-fragment
     (varlist :: <variable-list>,
      #key source-location: srcloc :: <source-location>
-	    = make(<unknown-source-location>))
+            = make(<unknown-source-location>))
     => res :: <token-fragment>;
   make(<token-fragment>,
        source-location: srcloc,
        token: make(<pre-parsed-token>,
-		   kind: $parsed-variable-list-token,
-		   parse-tree: varlist));
+                   kind: $parsed-variable-list-token,
+                   parse-tree: varlist));
 end method make-parsed-fragment;
   
 
@@ -711,10 +693,10 @@ define method parse
       let actions :: <simple-object-vector> = $action-table[start-state];
       let action :: <integer> = actions[$eof-token];
       unless (action == $error-action)
-	note-potential-end-point(tokenizer);
-	if (debug?)
-	  dformat("potential end point\n");
-	end if;
+        note-potential-end-point(tokenizer);
+        if (debug?)
+          dformat("potential end point\n");
+        end if;
       end unless;
     end unless;
 
@@ -722,98 +704,98 @@ define method parse
       let state :: <integer> = state-stack[top - 1];
 
       if (debug?)
-	dformat("top = %d, state = %d, lookahead = %s\n",
-		top, state, lookahead);
+        dformat("top = %d, state = %d, lookahead = %s\n",
+                top, state, lookahead);
       end if;
 
       let actions :: <simple-object-vector> = $action-table[state];
       let action :: <integer> = actions[lookahead.token-kind];
       let (action-datum, action-kind)
-	= truncate/(action, ash(1, $action-bits));
+        = truncate/(action, ash(1, $action-bits));
       select (action-kind)
-	$error-action =>
-	  compiler-fatal-error-location(lookahead-srcloc, "Parse error at or before %s", lookahead);
+        $error-action =>
+          compiler-fatal-error-location(lookahead-srcloc, "Parse error at or before %s", lookahead);
 
-	$accept-action =>
-	  if (debug?)
-	    dformat("  accepting.\n");
-	  end if;
-	  unget-token(tokenizer, lookahead, lookahead-srcloc);
-	  if (top ~== 2)
-	    error("stack didn't get reduced all the way?");
-	  end if;
-	  return(symbol-stack[1]);
+        $accept-action =>
+          if (debug?)
+            dformat("  accepting.\n");
+          end if;
+          unget-token(tokenizer, lookahead, lookahead-srcloc);
+          if (top ~== 2)
+            error("stack didn't get reduced all the way?");
+          end if;
+          return(symbol-stack[1]);
 
-	$shift-action =>
-	  if (top == state-stack.size)
-	    state-stack := grow(state-stack);
-	    symbol-stack := grow(symbol-stack);
-	    srcloc-stack := grow(srcloc-stack);
-	  end if;
-	  if (debug?)
-	    dformat("  shifting to state %d.\n", action-datum);
-	  end if;
-	  state-stack[top] := action-datum;
-	  symbol-stack[top] := lookahead;
-	  srcloc-stack[top] := lookahead-srcloc;
-	  top := top + 1;
-	  let (new-lookahead, new-srcloc) = get-token(tokenizer);
-	  lookahead := new-lookahead;
-	  lookahead-srcloc := new-srcloc;
+        $shift-action =>
+          if (top == state-stack.size)
+            state-stack := grow(state-stack);
+            symbol-stack := grow(symbol-stack);
+            srcloc-stack := grow(srcloc-stack);
+          end if;
+          if (debug?)
+            dformat("  shifting to state %d.\n", action-datum);
+          end if;
+          state-stack[top] := action-datum;
+          symbol-stack[top] := lookahead;
+          srcloc-stack[top] := lookahead-srcloc;
+          top := top + 1;
+          let (new-lookahead, new-srcloc) = get-token(tokenizer);
+          lookahead := new-lookahead;
+          lookahead-srcloc := new-srcloc;
 
-	  unless (lookahead.token-kind == $eof-token)
-	    let actions :: <simple-object-vector>
-	      = $action-table[action-datum];
-	    let action :: <integer> = actions[$eof-token];
-	    unless (action == $error-action)
-	      note-potential-end-point(tokenizer);
-	      if (debug?)
-		dformat("potential end point\n");
-	      end if;
-	    end unless;
-	  end unless;
+          unless (lookahead.token-kind == $eof-token)
+            let actions :: <simple-object-vector>
+              = $action-table[action-datum];
+            let action :: <integer> = actions[$eof-token];
+            unless (action == $error-action)
+              note-potential-end-point(tokenizer);
+              if (debug?)
+                dformat("potential end point\n");
+              end if;
+            end unless;
+          end unless;
 
-	$reduce-action =>
-	  let semantic-action :: <function>
-	    = $production-table[action-datum];
-	  let number-pops :: <integer>
-	    = $number-of-pops[action-datum];
-	  if (debug?)
-	    dformat("  reducing by production %d, num pops = %d\n",
-		    action-datum, number-pops);
-	  end if;
-	  let old-top = top - number-pops;
-	  let extra-args = make(<simple-object-vector>, size: number-pops * 2);
-	  for (index from 0 below number-pops)
-	    extra-args[index * 2] := symbol-stack[old-top + index];
-	    extra-args[index * 2 + 1] := srcloc-stack[old-top + index];
-	  end for;
-	  let new-srcloc
-	    = if (zero?(number-pops))
-		let left = srcloc-stack[top - 1];
-		if (left)
-		  source-location-between(left, lookahead-srcloc);
-		else
-		  source-location-before(lookahead-srcloc);
-		end if;
-	      elseif (number-pops == 1)
-		srcloc-stack[old-top];
-	      else
-		source-location-spanning
-		  (srcloc-stack[old-top], srcloc-stack[top - 1]);
-	      end if;
-	  let (new-state :: <integer>, new-symbol)
-	    = apply(semantic-action, state-stack[old-top - 1], new-srcloc,
-		    extra-args);
-	  if (old-top == state-stack.size)
-	    state-stack := grow(state-stack);
-	    symbol-stack := grow(symbol-stack);
-	    srcloc-stack := grow(srcloc-stack);
-	  end if;
-	  state-stack[old-top] := new-state;
-	  symbol-stack[old-top] := new-symbol;
-	  srcloc-stack[old-top] := new-srcloc;
-	  top := old-top + 1;
+        $reduce-action =>
+          let semantic-action :: <function>
+            = $production-table[action-datum];
+          let number-pops :: <integer>
+            = $number-of-pops[action-datum];
+          if (debug?)
+            dformat("  reducing by production %d, num pops = %d\n",
+                    action-datum, number-pops);
+          end if;
+          let old-top = top - number-pops;
+          let extra-args = make(<simple-object-vector>, size: number-pops * 2);
+          for (index from 0 below number-pops)
+            extra-args[index * 2] := symbol-stack[old-top + index];
+            extra-args[index * 2 + 1] := srcloc-stack[old-top + index];
+          end for;
+          let new-srcloc
+            = if (zero?(number-pops))
+                let left = srcloc-stack[top - 1];
+                if (left)
+                  source-location-between(left, lookahead-srcloc);
+                else
+                  source-location-before(lookahead-srcloc);
+                end if;
+              elseif (number-pops == 1)
+                srcloc-stack[old-top];
+              else
+                source-location-spanning
+                  (srcloc-stack[old-top], srcloc-stack[top - 1]);
+              end if;
+          let (new-state :: <integer>, new-symbol)
+            = apply(semantic-action, state-stack[old-top - 1], new-srcloc,
+                    extra-args);
+          if (old-top == state-stack.size)
+            state-stack := grow(state-stack);
+            symbol-stack := grow(symbol-stack);
+            srcloc-stack := grow(srcloc-stack);
+          end if;
+          state-stack[old-top] := new-state;
+          symbol-stack[old-top] := new-symbol;
+          srcloc-stack[old-top] := new-srcloc;
+          top := old-top + 1;
 
       end select;
     end while;
