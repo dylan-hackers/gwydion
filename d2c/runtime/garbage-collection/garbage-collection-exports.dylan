@@ -14,7 +14,6 @@ define module garbage-collection
 
   export GC-gc-no, 
     // GC-oom-fn, GC-oom-fn-setter,
-    GC-quiet, GC-quiet-setter, 
     GC-dont-gc, GC-dont-gc-setter,
     GC-dont-expand, GC-dont-expand-setter, 
     GC-full-freq, GC-full-freq-setter,
