@@ -198,26 +198,35 @@ define method make-limited-collections-of-size
   let sequences = make(<stretchy-vector>);
   let element-types = limited-collection-element-types(class);
   for (element-type :: <type> in element-types)
+    // This originally used as to copy the source sequence into the limited
+    // sequence, which fails, because as for limited collections isn't defined
+    // by Gwydion Dylan. For one thing, it doesn't set a valid fill when it
+    // makes the limited sequence.
     let type = limited(class, of: element-type);
-    if (subtype?(<integer>, element-type))
-      add!(sequences, as(type, range(from: 1, to: collection-size)))
-    end;
-    if (subtype?(<character>, element-type))
-      add!(sequences,
-           if (collection-size < size($default-string))
-             as(type, copy-sequence($default-string, end: collection-size));
-           else
-             make(type, size: collection-size, fill: 'a');
-           end)
-    end;
-    if (subtype?(<vector>, element-type))
-      add!(sequences,
-           if (collection-size < size($default-vectors))
-             as(type, copy-sequence($default-vectors, end: collection-size));
-           else
-             make(type, size: collection-size, fill: #[]);
-           end)
-    end
+    let sequence = make(type, size: collection-size,
+                        fill: limited-collection-fill-object(element-type));
+    let source-sequence =
+      select (element-type by
+              method (elem-type, sel-type) subtype?(sel-type, elem-type) end)
+        <integer> =>
+          range(from: 1, size: collection-size);
+        <character> => 
+          if (collection-size < size($default-string))
+            copy-sequence($default-string, end: collection-size);
+          else
+            make(<string>, size: collection-size, fill: 'a');
+          end;
+        <vector> =>
+          if (collection-size < size($default-vectors))
+            copy-sequence($default-vectors, end: collection-size);
+          else
+            make(<simple-vector>, size: collection-size, fill: #[]);
+          end;
+      end select;
+    for (i from 0 below source-sequence.size)
+      sequence[i] := source-sequence[i];
+    end for;
+    sequences := add!(sequences, sequence);
   end;
   // Only return one for size 0, because they are all the same
   if (collection-size = 0)
@@ -322,6 +331,15 @@ define method limited-collection-element-types
     (class :: subclass(<string>)) => (element-types :: <sequence>)
   #[]
 end method limited-collection-element-types;
+
+define method limited-collection-fill-object
+    (element-type :: <type>) => (fill-object :: <object>)
+  select (element-type)
+    <integer> => 0;
+    <character> => 'x';
+    <vector> => #["fill"];
+  end select;
+end method;
 
 define generic collection-default (type :: <type>) => (res);
 

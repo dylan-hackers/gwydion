@@ -170,6 +170,11 @@ end function look-up-class-by-limited-integer-type;
 //=========================================================================
 //  We declare one subclass of <object-table> and override element-setter.
 
+// XXX - Note that the DRM doesn't say that
+// limited(<object-table>, of: <object) returns <simple-object-table> like
+// it does for limited(<simple-vector>, of: <object>). We can probably
+// remove the method below.
+
 // limited(<object-table>, of: <object>)
 define method make-limited-collection
     (base-class :: type-union(singleton(<table>), singleton(<object-table>)),
@@ -251,7 +256,8 @@ define function process-simple-vector-keys
 end function process-simple-vector-keys;
 
 //  This is a slightly more intelligent version of limited-vector-class.
-//  It defines types which are properly hooked into the runtime type model.
+//  It uses <limited-collection-mixin> to define types which are properly
+//  hooked into the runtime type model; limited-vector-class does not.
 //  We define methods on 'element-setter' and 'make-limited-collection' in
 //  another macro below.
 //  I nuked 'element-type' from this list, since we implement a general
@@ -266,8 +272,12 @@ define macro %limited-simple-vector-class
              sealed slot %elem :: ?element-type,
                init-value: ?fill, init-keyword: fill:, sizer: size,
                size-init-value: 0, size-init-keyword: size:;
+             inherited slot %limited-collection-type =
+               make(<limited-collection>, base-class: <simple-vector>,
+                    of: ?element-type);
            end class;
            define sealed domain make (singleton(?name));
+           define sealed domain initialize (?name);
            define sealed inline method element
                (vec :: ?name, index :: <integer>,
                 #key default = $not-supplied)
@@ -343,8 +353,8 @@ define method make-limited-collection
  => (instance :: <simple-object-vector>)
   let requested-size = process-simple-vector-keys(collection-type, size, fill);
   // The DRM discussion of '<simple-object-vector>' and
-  // 'limited(<simple-vector>, of: <object>)' on page 223
-  // requires us to this exactly so.
+  // 'limited(<simple-vector>, of: <object>)' on page 223 requires us to
+  // return an instance of <simple-object-vector>.
   apply(make, <simple-object-vector>,
         size: requested-size, fill: fill,
         supplied-keys);
@@ -434,3 +444,52 @@ define method make-limited-collection
         size: requested-size, fill: fill,
         supplied-keys);
 end method make-limited-collection;
+
+
+//=========================================================================
+//  Limited <stretchy-vector> Type
+//=========================================================================
+//  <limited-stretchy-object-deque> is a subclass of <stretchy-vector> and
+//  <limited-collection-mixin>. Its element method is standard, but we must
+//  customize element-setter and make.
+
+define method make-limited-collection
+    (base-class :: singleton(<stretchy-vector>),
+     element-type :: <type>,
+     collection-type :: <limited-collection>,
+     #rest supplied-keys,
+     #key fill, #all-keys)
+ => (instance :: <limited-stretchy-object-vector>)
+  process-stretchy-vector-keys(collection-type, fill);
+  apply(make, <limited-stretchy-object-vector>, 
+        collection-type: collection-type,
+        fill: fill, supplied-keys);
+end method;
+
+define class <limited-stretchy-object-vector>
+    (<stretchy-object-vector>, <limited-collection-mixin>)
+end class;
+
+define sealed domain make (singleton(<limited-stretchy-object-vector>));
+define sealed domain initialize (<limited-stretchy-object-vector>);
+
+// Implement the DRM rules (plus an extension) for handling keyword
+// arguments to 'make'.
+define function process-stretchy-vector-keys
+    (collection-type :: <limited-collection>, fill :: <object>)
+ => ()
+  if (~instance?(fill, collection-type.element-type))
+    error("Cannot fill %= with %=", collection-type, fill);
+  end if;
+end function;
+
+// This isn't especially efficient--we need to inline it and implement
+// a constant folder to get the element-type.
+define method element-setter
+    (new-value :: <object>, collection :: <limited-stretchy-object-vector>,
+     key :: <integer>, #next next-method)
+ => (element :: <object>)
+  check-type(new-value,
+             collection.%limited-collection-type.limited-element-type);
+  next-method();
+end method;
