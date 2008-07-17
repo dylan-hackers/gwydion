@@ -472,6 +472,11 @@ platform-name:			ppc-linux-gcc
 inherit-from:			gcc linux ppc
 link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
 
+platform-name:			ppc-linux-gcc4
+inherit-from:			ppc-linux-gcc
+long-double-size:               16
+long-double-alignment:          16
+
 platform-name:			sparc-linux-gcc
 inherit-from:			gcc linux sparc
 link-shared-library-command:    $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s

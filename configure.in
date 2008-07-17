@@ -109,7 +109,11 @@ case $1 in
 	     4.*) $2=intel-darwin-gcc4 ;;
 	     *)   $2=intel-darwin-gcc ;;
 	esac ;;
-    powerpc-*-linux-gnu*)  $2=ppc-linux-gcc ;;
+    powerpc-*-linux-gnu*)
+	case `gcc -dumpversion` in
+	     4.*) $2=ppc-linux-gcc4 ;;
+	     *)   $2=ppc-linux-gcc ;;
+	esac ;;
     s390*-*-linux-gnu*) $2=s390-linux-gcc ;;
     sparc*-*-linux-gnu*) $2=sparc-linux-gcc ;;
     sparc*-solaris*)
