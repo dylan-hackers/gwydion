@@ -867,6 +867,9 @@ sub emit_library_rule {
         local($cc_files_cmd) = "$make_name -f cc-" . $unit_prefix
             . "-files.mak";
         push(@cc_files_commands, $cc_files_cmd);
+        local($clean_cmd) = "$make_name -f cc-" . $unit_prefix
+            . "-files.mak clean";
+        push(@clean_commands, $clean_cmd);
 
         print "\ninclude $unit_prefix.dep\n\n";
 
