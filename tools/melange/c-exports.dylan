@@ -63,7 +63,7 @@ define library melange-c
 end library melange-c;
 
 define module source-locations
-  use common-dylan, exclude: { format-to-string };
+  use common-dylan, exclude: { format-to-string, <stream>, close };
   use streams;
   use format;
   use standard-io;
@@ -78,7 +78,7 @@ define module source-locations
 end module source-locations;
 
 define module parse-conditions
-  use common-dylan, exclude: { format-to-string };
+  use common-dylan, exclude: { format-to-string, <stream>, close };
   use source-locations;
   use streams;
   use format;
@@ -113,7 +113,8 @@ end module multistring-match;
 define module c-lexer
   use common-dylan,
     exclude: { format, format-to-string, 
-               string-to-integer, integer-to-string, split, position };
+               string-to-integer, integer-to-string, split, position,
+               <stream>, close };
   use format;
   use table-extensions;
   use self-organizing-list;
@@ -123,7 +124,6 @@ define module c-lexer
   use character-type;
   use streams;
   use file-system;
-  use locators;
   use source-locations;
   use parse-conditions,
     // XXX - These should probably go away.
@@ -164,7 +164,7 @@ define module portability
 end module portability;
 
 define module c-parse
-  use common-dylan, exclude: { format-to-string };
+  use common-dylan, exclude: { format-to-string, <stream>, close };
   use extensions, import: { <extended-integer> };
   use self-organizing-list;
   use c-lexer;
@@ -189,7 +189,7 @@ define module c-parse
 end module c-parse;
 
 define module c-declarations
-  use common-dylan, exclude: { format-to-string, split };
+  use common-dylan, exclude: { format-to-string, split, <stream>, close };
   use table-extensions, rename: { table => make-table };
   use regular-expressions;
   use streams;
