@@ -79,7 +79,7 @@ define method format
         new-line(stream)
       else
         // Parse conversion modifier flags
-        let (flags, left-justified?, flags-end)
+        let (flags, left-justified?, zero-fill?, flags-end)
           = parse-flags(control-string, start);
         
         // Parse for field width within which to pad output.
@@ -104,16 +104,17 @@ define method format
           let output = s.stream-contents;
           let output-len :: <integer> = output.size;
           let padding :: <integer> = width - output-len;
+          let fill :: <character> = if (zero-fill?) '0' else ' ' end if;
           case
             (padding < 0) =>
               buffered-write(stream, sb, output);
             (left-justified?) =>
               buffered-write(stream, sb, output);
               buffered-write(stream, sb,
-                             make(<byte-string>, size: padding, fill: ' '));
+                             make(<byte-string>, size: padding, fill: fill));
             otherwise =>
               buffered-write(stream, sb,
-                             make(<byte-string>, size: padding, fill: ' '));
+                             make(<byte-string>, size: padding, fill: fill));
               buffered-write(stream, sb, output);
           end;
         else

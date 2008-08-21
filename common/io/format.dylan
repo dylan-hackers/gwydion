@@ -140,7 +140,7 @@ define method format (stream :: <stream>, control-string :: <byte-string>,
           new-line(stream)
         else
           // Parse conversion modifier flags
-          let (flags, left-justified?, flags-end)
+          let (flags, left-justified?, zero-fill?, flags-end)
             = parse-flags(control-string, start);
 
           // Parse for field width within which to pad output.
@@ -166,14 +166,15 @@ define method format (stream :: <stream>, control-string :: <byte-string>,
             let output :: <byte-string> = s.stream-contents;
             let output-len :: <integer> = output.size;
             let padding :: <integer> = width - output-len;
+            let fill :: <character> = if (zero-fill?) '0' else ' ' end if;
             case
               (padding < 0) =>
                 write(stream, output);
               (left-justified?) =>
                 write(stream, output);
-                write(stream, make(<byte-string>, size: padding, fill: ' '));
+                write(stream, make(<byte-string>, size: padding, fill: fill));
               otherwise =>
-                write(stream, make(<byte-string>, size: padding, fill: ' '));
+                write(stream, make(<byte-string>, size: padding, fill: fill));
                 write(stream, output);
             end;
           else
@@ -194,28 +195,34 @@ end method;
 ///
 define method parse-flags
     (input :: <byte-string>, index :: <integer>)
- => (flags :: <list>, left-justified? :: <boolean>, index :: <integer>);
+ => (flags :: <list>, left-justified? :: <boolean>,
+     zero-fill? :: <boolean>, index :: <integer>);
   let input-size = input.size;
   iterate loop (flags :: <list> = #(),
                 left-justified? :: <boolean> = #f,
+                zero-fill? :: <boolean> = #f,
                 index :: <integer> = index)
     if (index = input-size)
-      values(flags, left-justified?, index)
+      values(flags, left-justified?, zero-fill?, index)
     else
       select (input[index] by \==)
         ('-') =>
-          loop(pair(left-justified?:, pair(#t, flags)), #t, index + 1);
+          loop(pair(left-justified?:, pair(#t, flags)), #t, zero-fill?,
+               index + 1);
         ('+') =>
-          loop(pair(plus-sign:, pair('+', flags)), left-justified?, index + 1);
+          loop(pair(plus-sign:, pair('+', flags)), left-justified?,
+               zero-fill?, index + 1);
         (' ') =>
-          loop(pair(plus-sign:, pair(' ', flags)), left-justified?, index + 1);
+          loop(pair(plus-sign:, pair(' ', flags)), left-justified?,
+               zero-fill?, index + 1);
         ('#') =>
           loop(pair(alternate-form?:, pair(#t, flags)), left-justified?,
-               index + 1);
+               zero-fill?, index + 1);
         ('0') =>
-          loop(pair(zero-fill?:, pair(#t, flags)), left-justified?, index + 1);
+          loop(pair(zero-fill?:, pair(#t, flags)), left-justified?, #t,
+               index + 1);
         otherwise =>
-          values(flags, left-justified?, index);
+          values(flags, left-justified?, zero-fill?, index);
       end select;
     end;
   end iterate;
