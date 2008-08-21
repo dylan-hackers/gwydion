@@ -85,7 +85,7 @@ AC_CANONICAL_TARGET
 AC_ARG_PROGRAM			# Provide support for name prefixes
 AC_PROG_CC			# Specify when cross-compiling.
 
-AC_DEFUN(GD_D2C_SYSTEM,[
+AC_DEFUN([GD_D2C_SYSTEM],[
 case $1 in
     # does-work stuff
     i*86-*-freebsd2.*) $2=x86-freebsd-aout-gcc ;;
