@@ -144,12 +144,18 @@ define method format (stream :: <stream>, control-string :: <byte-string>,
             = parse-flags(control-string, start);
 
           // Parse for field width within which to pad output.
-          let (width, width-end)
-            = string-to-integer(control-string, start: flags-end, default: 0);
+          let (width, width-end, width-arg?)
+            = parse-width(control-string, flags-end, args, arg-i);
+          if (width-arg?)
+            arg-i := arg-i + 1;
+          end;
 
           // Parse precision specifier
-          let (precision, precision-end)
-            = parse-precision(control-string, width-end);
+          let (precision, precision-end, precision-arg?)
+            = parse-precision(control-string, width-end, args, arg-i);
+          if (width-arg?)
+            arg-i := arg-i + 1;
+          end;
 
           if (width > 0)
             // Capture output in string and compute padding.
@@ -228,15 +234,38 @@ define method parse-flags
   end iterate;
 end method;
 
+/// parse-width -- Internal.
+///
+define method parse-width
+    (input :: <byte-string>, index :: <integer>,
+     args :: <sequence>, arg-i :: <integer>)
+ => (width :: <integer>, index :: <integer>, arg-used? :: <boolean>);
+  if (input[index] == '*')
+    values(args[arg-i], index + 1, #t)
+  else
+    let (width :: <integer>, index :: <integer>)
+      = string-to-integer(input, start: index, default: 0);
+    values(width, index, #f)
+  end if
+end method;
+
 /// parse-precision -- Internal.
 ///
 define method parse-precision
-    (input :: <byte-string>, index :: <integer>)
- => (precision :: false-or(<integer>), index :: <integer>);
+    (input :: <byte-string>, index :: <integer>,
+     args :: <sequence>, arg-i :: <integer>)
+ => (precision :: false-or(<integer>), index :: <integer>,
+     arg-used? :: <boolean>);
   if (input[index] == '.')
-    string-to-integer(input, start: index + 1, default: 0)
+    if (input[index + 1] == '*')
+      values(args[arg-i], index + 2, #t)
+    else
+      let (precision :: <integer>, index :: <integer>)
+        = string-to-integer(input, start: index + 1, default: 0);
+      values(precision, index, #f)
+    end if
   else
-    values(#f, index)
+    values(#f, index, #f)
   end if
 end method;
 

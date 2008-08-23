@@ -83,12 +83,18 @@ define method format
           = parse-flags(control-string, start);
         
         // Parse for field width within which to pad output.
-        let (width, width-end)
-          = string-to-integer(control-string, start: flags-end, default: 0);
+        let (width, width-end, width-arg?)
+          = parse-width(control-string, flags-end, args, arg-i);
+        if (width-arg?)
+          arg-i := arg-i + 1;
+        end;
         
         // Parse precision specifier
-        let (precision, precision-end)
-          = parse-precision(control-string, width-end);
+        let (precision, precision-end, precision-arg?)
+          = parse-precision(control-string, width-end, args, arg-i);
+        if (width-arg?)
+          arg-i := arg-i + 1;
+        end;
         
         if (width > 0)
           // Capture output in string and compute padding.
