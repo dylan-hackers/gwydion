@@ -107,30 +107,30 @@ define method parse-lid (state :: <lid-mode-state>) => ();
 
   // Common-Dylan header-file style
   let files = map-as(<stretchy-vector>,
-		     translate-abstract-filename,
-		     split-at-whitespace(element(header, #"files",
-						 default: "")));
+                     translate-abstract-filename,
+                     split-at-whitespace(element(header, #"files",
+                                                 default: "")));
 
   let ofiles = split-at-whitespace(element(header, #"c-object-files",
-					   default: ""));
+                                           default: ""));
 
   local
     method repeat (posn :: <integer>)
       if (posn < end-posn)
-	let char = as(<character>, contents[posn]);
-	if (char.whitespace?)
-	  repeat(posn + 1);
-	elseif (char == '/' & (posn + 1 < contents.size) 
-		  & as(<character>, contents[posn + 1]) == '/')
-	  repeat(find-newline(contents, posn + 1));
-	else
-	  let name-end = find-end-of-word(posn);
-	  let len = name-end - posn;
-	  let name = make(<byte-string>, size: len);
-	  copy-bytes(name, 0, contents, posn, len);
-	  add!(files, name);
-	  repeat(name-end);
-	end;
+        let char = as(<character>, contents[posn]);
+        if (char.whitespace?)
+          repeat(posn + 1);
+        elseif (char == '/' & (posn + 1 < contents.size) 
+                  & as(<character>, contents[posn + 1]) == '/')
+          repeat(find-newline(contents, posn + 1));
+        else
+          let name-end = find-end-of-word(posn);
+          let len = name-end - posn;
+          let name = make(<byte-string>, size: len);
+          copy-bytes(name, 0, contents, posn, len);
+          add!(files, name);
+          repeat(name-end);
+        end;
       end;
     end,
 
@@ -139,14 +139,14 @@ define method parse-lid (state :: <lid-mode-state>) => ();
     method find-end-of-word (posn :: <integer>)
      => end-of-word :: <integer>;
       if (posn < end-posn)
-	let char = as(<character>, contents[posn]);
-	if (char.whitespace?)
-	  posn;
-	else
-	  find-end-of-word(posn + 1);
-	end;
+        let char = as(<character>, contents[posn]);
+        if (char.whitespace?)
+          posn;
+        else
+          find-end-of-word(posn + 1);
+        end;
       else
-	posn;
+        posn;
       end;
     end method;
  
@@ -173,12 +173,12 @@ define method output-c-file-rule
   let cc-command
       = if (member?(c-name, state.unit-override-files, test: \=))
           state.unit-cc-override;
-	elseif(state.unit-shared?
-		 & state.unit-target.compile-c-for-shared-command)
-	  state.unit-target.compile-c-for-shared-command;
-	else
-	  state.unit-target.compile-c-command;
-	end if;
+        elseif(state.unit-shared?
+                 & state.unit-target.compile-c-for-shared-command)
+          state.unit-target.compile-c-for-shared-command;
+        else
+          state.unit-target.compile-c-command;
+        end if;
 
 
   format(state.unit-makefile, "%s : %s\n", o-name, c-name);
@@ -198,7 +198,7 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
      state.unit-target.default-features);
   do(process-feature,
      split-at-whitespace(element(state.unit-header, #"features",
-				 default: "")));
+                                 default: "")));
   do(process-feature, state.unit-command-line-features);
   
   let lib-name = state.unit-header[#"library"];
@@ -235,7 +235,7 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
       "DOUBLE" => *float-precision* := #"double";
       "EXTENDED" => *float-precision* := #"extended";
       otherwise =>
-	compiler-error("float-precision: header option is %s, not "
+        compiler-error("float-precision: header option is %s, not "
                          "\"auto\", \"single\", \"double\" or \"extended\".",
                        float-precision);
     end select;
@@ -247,40 +247,40 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
     let extension = file.locator-extension;
     if (extension = strip-dot(state.unit-target.object-filename-suffix))
       unless (state.unit-no-makefile)
-	let object-file
-	  = if (state.unit-shared?)
+        let object-file
+          = if (state.unit-shared?)
               make(<file-locator>,
-	           directory: file.locator-directory,
+                   directory: file.locator-directory,
                    base: file.locator-base,
                    extension: strip-dot(state.unit-target.shared-object-filename-suffix));
-	    else
-	      file
-	    end;
-	let prefixed-filename
-	  = find-file(object-file,
+            else
+              file
+            end;
+        let prefixed-filename
+          = find-file(object-file,
                       vector($this-dir,
                              state.unit-lid-locator.locator-directory));
         log-dependency(prefixed-filename);
       end unless;
     else  // assumed a Dylan file, with or without a ".dylan" extension
       block ()
-	format(*debug-output*, "Parsing %s\n", file);
-	// ### prefixed-filename is now an absolute filename.  Previously we
+        format(*debug-output*, "Parsing %s\n", file);
+        // ### prefixed-filename is now an absolute filename.  Previously we
         // used $this-dir, but that meant .du files contained library-relative
         // filenames, which didn't work when loaded elsewhere (i.e. always)
-	let prefixed-filename
-	  = find-file(file,
+        let prefixed-filename
+          = find-file(file,
                       vector(working-directory(),
                              state.unit-lid-locator.locator-directory));
-	if (prefixed-filename == #f)
-	  compiler-fatal-error("Can't find source file %s.", file);
-	end if;
-	log-dependency(prefixed-filename);
-	let (tokenizer, mod) = file-tokenizer(state.unit-lib, 
-					      prefixed-filename);
+        if (prefixed-filename == #f)
+          compiler-fatal-error("Can't find source file %s.", file);
+        end if;
+        log-dependency(prefixed-filename);
+        let (tokenizer, mod) = file-tokenizer(state.unit-lib, 
+                                              prefixed-filename);
         parse-source-record(tokenizer);
       exception (<fatal-error-recovery-restart>)
-	format(*debug-output*, "skipping rest of %s\n", file);
+        format(*debug-output*, "skipping rest of %s\n", file);
       end block;
     end if;
   end for;
@@ -294,19 +294,19 @@ define method emit-make-prologue (state :: <lid-mode-state>) => ();
   let cc-flags
     = getenv("CCFLAGS") 
         | format-to-string(if (state.unit-profile?)
-			     state.unit-target.default-c-compiler-profile-flags;
-			   elseif (state.unit-debug?)
-			     state.unit-target.default-c-compiler-debug-flags;
-			   else
-			     state.unit-target.default-c-compiler-flags;
-			   end if,
-			   $runtime-include-dir);
+                             state.unit-target.default-c-compiler-profile-flags;
+                           elseif (state.unit-debug?)
+                             state.unit-target.default-c-compiler-debug-flags;
+                           else
+                             state.unit-target.default-c-compiler-flags;
+                           end if,
+                           $runtime-include-dir);
 
   cc-flags := concatenate(cc-flags, " ", getenv("CCOPTS")|"");
 
   state.unit-cback-unit := make(<unit-state>, prefix: state.unit-mprefix);
   state.unit-other-cback-units := map-as(<simple-object-vector>, unit-info-name, 
-					 *units*);
+                                         *units*);
 
   let makefile-name = format-to-string("cc-%s-files.mak", state.unit-mprefix);
 #if (macos)
@@ -320,11 +320,11 @@ define method emit-make-prologue (state :: <lid-mode-state>) => ();
    unless (state.unit-no-makefile)
      format(*debug-output*, "Creating %s\n", makefile-name);
      let makefile = make(<file-stream>, locator: temp-makefile-name,
-			 direction: #"output", if-exists: #"overwrite");
+                         direction: #"output", if-exists: #"overwrite");
      state.unit-makefile := makefile;
      format(makefile, "# Makefile for compiling the .c and .s files\n");
      format(makefile, "# If you want to compile .dylan files, don't use "
-	      "this makefile.\n\n");
+              "this makefile.\n\n");
      format(makefile, "CCFLAGS = %s\n", cc-flags);
      let libtool = getenv("LIBTOOL") | state.unit-target.libtool-command;
      if (libtool)
@@ -334,9 +334,9 @@ define method emit-make-prologue (state :: <lid-mode-state>) => ();
      format(makefile, "GC_LIBS = %s\n", gc-libs);   
      
      format(makefile, "# We only know the ultimate target when we've finished"
-	      " building the rest\n");
+              " building the rest\n");
      format(makefile, "# of this makefile.  So we use this fake "
-	      "target...\n#\n");
+              "target...\n#\n");
      format(makefile, "all : all-at-end-of-file\n\n");
      
      // These next three streams gather filenames.  Objects-stream is
@@ -364,18 +364,18 @@ define method compile-all-files (state :: <lid-mode-state>) => ();
     let extension = file.locator-extension;
     if (extension = strip-dot(state.unit-target.object-filename-suffix))
       unless (state.unit-no-makefile)
-	if (state.unit-shared?)
-	  let shared-file
+        if (state.unit-shared?)
+          let shared-file
             = make(<file-locator>,
                    directory: file.locator-directory,
                    name: file.locator-base,
                    extension: strip-dot(state.unit-target.shared-object-filename-suffix));
-	  format(*debug-output*, "Adding %s\n", shared-file);
-	  format(state.unit-objects-stream, " %s", shared-file);
-	else
-	  format(*debug-output*, "Adding %s\n", file);
-	  format(state.unit-objects-stream, " %s", file);
-	end;
+          format(*debug-output*, "Adding %s\n", shared-file);
+          format(state.unit-objects-stream, " %s", shared-file);
+        else
+          format(*debug-output*, "Adding %s\n", file);
+          format(state.unit-objects-stream, " %s", file);
+        end;
       end unless;
     end if;
   end for;
@@ -421,15 +421,15 @@ end method compile-all-files;
 define method build-library-inits (state :: <lid-mode-state>) => ();
     let executable
      = if (state.unit-executable)
-	 concatenate(state.unit-executable, state.unit-target.executable-filename-suffix);
+         concatenate(state.unit-executable, state.unit-target.executable-filename-suffix);
        else 
-	 #f;
+         #f;
        end if;
     state.unit-executable := executable;
     let entry-point = element(state.unit-header, #"entry-point", default: #f);
     if (entry-point & ~executable)
       compiler-fatal-error("Can only specify an entry-point when producing an "
-			     "executable.");
+                             "executable.");
     end if;
 
   do-with-c-file(state, concatenate(state.unit-mprefix, "-init"),
@@ -509,31 +509,31 @@ define method build-ar-file (state :: <lid-mode-state>) => ();
   let objects = stream-contents(state.unit-objects-stream);
   let target = state.unit-target;
   let suffix = split-at-whitespace(if (state.unit-shared?) 
-				     target.shared-library-filename-suffix;
-				   else
-				     target.library-filename-suffix;
-				   end if).first;
+                                     target.shared-library-filename-suffix;
+                                   else
+                                     target.library-filename-suffix;
+                                   end if).first;
   let ar-name = concatenate(target.library-filename-prefix,
-  			    state.unit-mprefix,
+                            state.unit-mprefix,
                             "-dylan",
-			    suffix);
+                            suffix);
 
   state.unit-objects := objects;
   state.unit-ar-name := ar-name;
   format(state.unit-makefile, "\n%s : %s\n", ar-name, objects);
   format(state.unit-makefile, "\t%s %s\n",
-	 target.delete-file-command, ar-name);
+         target.delete-file-command, ar-name);
   
   let objects = use-correct-path-separator(objects, target);
 
   let link-string = if (state.unit-shared?)
-		      format-to-string(target.link-shared-library-command,
-				       ar-name, objects,
-				       state.unit-link-rpath);
-		    else
-		      format-to-string(target.link-library-command,
-				       ar-name, objects);
-		    end;
+                      format-to-string(target.link-shared-library-command,
+                                       ar-name, objects,
+                                       state.unit-link-rpath);
+                    else
+                      format-to-string(target.link-library-command,
+                                       ar-name, objects);
+                    end;
 
   if (state.unit-embedded?)
     if (state.unit-shared?)
@@ -561,14 +561,14 @@ define method build-ar-file (state :: <lid-mode-state>) => ();
   
   if (target.randomize-library-command & ~state.unit-shared?)
     let randomize-string = format-to-string(target.randomize-library-command,
-					    ar-name);
+                                            ar-name);
     format(state.unit-makefile, "\t%s\n", randomize-string);
   end if;
 
   format(state.unit-clean-stream, " %s", state.unit-ar-name);
   format(state.unit-real-clean-stream, " %s", state.unit-ar-name);
   format(state.unit-makefile, "\nall-at-end-of-file : %s\n", 
-	 state.unit-ar-name);
+         state.unit-ar-name);
 end method build-ar-file;
 
 
@@ -645,13 +645,13 @@ define method link-arguments (state :: <lid-mode-state>)
 
   local method add-archive (name :: <byte-string>) => ();
           if (state.unit-no-binaries)
-	    // If cross-compiling use -l -L search mechanism.
-	    dash-small-ells := stringify(" -l", name, dash-small-ells);
-	  else
-	    let archive = find-library-archive(name, state);
-	    unit-libs := stringify(' ', archive, unit-libs);
-	  end if;
-	end method add-archive;
+            // If cross-compiling use -l -L search mechanism.
+            dash-small-ells := stringify(" -l", name, dash-small-ells);
+          else
+            let archive = find-library-archive(name, state);
+            unit-libs := stringify(' ', archive, unit-libs);
+          end if;
+        end method add-archive;
 
   // Under Unix, the order of the libraries is significant!  First to
   // be added go at the end of the command line...
@@ -660,7 +660,7 @@ define method link-arguments (state :: <lid-mode-state>)
   for (unit in *units*)
     if (unit.unit-linker-options)
       linker-args
-	:= stringify(' ', unit.unit-linker-options, linker-args);
+        := stringify(' ', unit.unit-linker-options, linker-args);
     end if;
     unless (unit == state.unit-unit-info)
       add-archive(concatenate(unit.unit-info-name, "-dylan"));
@@ -676,9 +676,9 @@ define method link-arguments (state :: <lid-mode-state>)
     end for;
     dash-cap-ells
       := concatenate(" $(LDFLAGS)",
-      		     use-correct-path-separator(dash-cap-ells,
-		     				state.unit-target),
-		     " ");						
+                     use-correct-path-separator(dash-cap-ells,
+                                                state.unit-target),
+                     " ");                                              
 
   end;
 
@@ -693,11 +693,11 @@ define function library-dependencies (state :: <lid-mode-state>)
   let unit-libs = "";
 
   local method add-archive (name :: <byte-string>) => ();
-	  unless (state.unit-no-binaries)
-	    let archive = find-library-archive(name, state);
-	    unit-libs := stringify(' ', archive, unit-libs);
-	  end unless;
-	end method add-archive;
+          unless (state.unit-no-binaries)
+            let archive = find-library-archive(name, state);
+            unit-libs := stringify(' ', archive, unit-libs);
+          end unless;
+        end method add-archive;
 
   for (unit in *units*)
     unless (unit == state.unit-unit-info)
@@ -725,22 +725,22 @@ define method build-executable (state :: <lid-mode-state>) => ();
                        else
                          state.unit-target.link-shared-executable-command
                        end,
-		       state.unit-executable,
+                       state.unit-executable,
                        objects,
-		       link-arguments(state));
+                       link-arguments(state));
   format(state.unit-makefile, "\t%s\n", link-string);
 
   format(state.unit-clean-stream, " %s", state.unit-executable);
   format(state.unit-real-clean-stream, " %s", state.unit-executable);
   format(state.unit-makefile, "\nall-at-end-of-file : %s\n", 
-	 state.unit-executable);
+         state.unit-executable);
 end method build-executable;
 
 
 define method dump-library-summary (state :: <lid-mode-state>) => ();
   let dump-buf
     = begin-dumping(as(<symbol>, state.unit-lib-name),
-    		    $library-summary-unit-type);
+                    $library-summary-unit-type);
 
   run-stage("Dumping library summary.", rcurry(dump-od, dump-buf),
             state.unit-tlfs);
@@ -750,7 +750,7 @@ define method dump-library-summary (state :: <lid-mode-state>) => ();
   end-dumping(dump-buf);
   unless (state.unit-no-makefile)
     format(state.unit-real-clean-stream, " %s.lib.du",
-	   as-lowercase(state.unit-lib-name));
+           as-lowercase(state.unit-lib-name));
   end;
 end method;
 
@@ -759,16 +759,16 @@ define method do-make (state :: <lid-mode-state>) => ();
   let target = state.unit-target;
   format(state.unit-makefile, "\nclean :\n");
   format(state.unit-makefile, "\t%s %s\n", target.delete-file-command, 
-	 state.unit-clean-stream.stream-contents);
+         state.unit-clean-stream.stream-contents);
   format(state.unit-makefile, "\nrealclean :\n");
   format(state.unit-makefile, "\t%s %s\n", target.delete-file-command, 
-	 state.unit-real-clean-stream.stream-contents);
+         state.unit-real-clean-stream.stream-contents);
   close(state.unit-makefile);
 
   if (pick-which-file(state.unit-makefile-name,
-		      state.unit-temp-makefile-name,
-		      target)
-	= #t)
+                      state.unit-temp-makefile-name,
+                      target)
+        = #t)
     // If the new makefile is different from the old one, then we need
     // to recompile all .c and .s files, regardless of whether they
     // were changed.  So touch them to make them look newer than the
@@ -776,24 +776,24 @@ define method do-make (state :: <lid-mode-state>) => ();
     unless (empty?(state.unit-all-generated-files))
       let touch-command = "touch";
       for (filename in state.unit-all-generated-files)
-	touch-command := stringify(touch-command, ' ', filename);
+        touch-command := stringify(touch-command, ' ', filename);
       end for;
       format(*debug-output*, "%s\n", touch-command);
       if (system(touch-command) ~== 0)
-	cerror("so what", "touch failed?");
+        cerror("so what", "touch failed?");
       end if;
     end unless;
   end if;
 
   if (~state.unit-no-binaries)
     let jobs-string = if((target.make-jobs-flag ~= "#f") & state.unit-thread-count)
-			format-to-string(" %s %d", target.make-jobs-flag,
-					 state.unit-thread-count);
-		      else
-			"";
-		      end;
+                        format-to-string(" %s %d", target.make-jobs-flag,
+                                         state.unit-thread-count);
+                      else
+                        "";
+                      end;
     let make-string = format-to-string("%s%s -f %s", target.make-command, 
-				       jobs-string, state.unit-makefile-name);
+                                       jobs-string, state.unit-makefile-name);
     format(*debug-output*, "%s\n", make-string);
     unless (zero?(system(make-string)))
       cerror("so what", "gmake failed?");
@@ -823,20 +823,25 @@ define method compile-library (state :: <lid-mode-state>)
     end if;
     if (state.unit-executable)
       unless (state.unit-no-makefile)
-	log-target(state.unit-executable);
-	build-executable(state);
+        log-target(state.unit-executable);
+        build-executable(state);
       end;
     else
       unless (state.unit-no-makefile)
-	build-ar-file(state);
+        build-ar-file(state);
       end;
     end if;
     dump-library-summary(state);
 
+    if (state.unit-log-text-du)
+      dump-text-du(state.unit-lib-name,
+                   concatenate(state.unit-mprefix, ".lib.du.txt"));
+    end if;
+
     if (state.unit-log-dependencies)
       spew-dependency-log(concatenate(state.unit-mprefix, ".dep"));
     end if;
-
+    
     unless (state.unit-no-makefile)
       do-make(state);
     end;
@@ -853,10 +858,10 @@ define method compile-library (state :: <lid-mode-state>)
 
   let worked? = zero?(*errors*);
   format(*debug-output*,
-	 "Compilation %s with %d Warning%s and %d Error%s\n",
-	 if (worked?) "finished" else "failed" end,
-	 *warnings*, if (*warnings* == 1) "" else "s" end,
-	 *errors*, if (*errors* == 1) "" else "s" end);
+         "Compilation %s with %d Warning%s and %d Error%s\n",
+         if (worked?) "finished" else "failed" end,
+         *warnings*, if (*warnings* == 1) "" else "s" end,
+         *errors*, if (*errors* == 1) "" else "s" end);
 
   worked?;
 end method compile-library;

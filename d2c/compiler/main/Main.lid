@@ -11,4 +11,5 @@ lid-mode-state.dylan
 testworks-spec.dylan
 misc.dylan
 evaluate.dylan
+text-du.dylan
 main.dylan

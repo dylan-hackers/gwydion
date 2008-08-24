@@ -70,7 +70,7 @@ Notation:
     In a word-sequence, words are tagged with the word offset from the start of
     the sequence:
         0: <first word>
-	1: <second word> 
+        1: <second word> 
 
     For notational convenience, the first word in the pattern is usually taken
     to be 0 even though this pattern might be a subsequence of an enclosing
@@ -147,7 +147,7 @@ contains data.  Object definitions can contain both raw data and subobjects:
     presence of subobjects (and of an end-entry) is indicated by the
     subobjects? bit being 1.
 */
-define /* exported */ constant $odf-subobjects-flag	     = #b00010000;
+define /* exported */ constant $odf-subobjects-flag          = #b00010000;
 /*
 
 Raw data format:
@@ -176,7 +176,7 @@ See the actual code for the real definitions and class IDs.
 
 For example, we could describe a byte-string like this:
     0: <Header? = #b1, Etype = #b00, Subobjects? = #b0, Raw-Format = #x1,
-	Class-ID = byte-string-odf-id>
+        Class-ID = byte-string-odf-id>
     1: string byte-count
     2[ceiling(byte-count, word-bytes)]: 
        <string-chars: *>
@@ -254,7 +254,7 @@ end method;
 
 // Data unit object:
 //     0: <Header? = #b1, Etype = #b00, Subobjects? = #b1, Raw-Format = #x6,
-// 	Class-ID = appropriate ID>
+//      Class-ID = appropriate ID>
 //     1: $word-bytes * 6
 //     2: OD format major version code 
 //     3: OD format minor version code
@@ -361,14 +361,14 @@ register-object-id(#"extern-index", #x0003);
 
 // Extern-Handle object:
 //     0: <Header? = #b1, Etype = #b00, Subobjects? = #b1, Raw-Format = #x6,
-// 	Class-ID = extern-handle-odf-id>
+//      Class-ID = extern-handle-odf-id>
 //     1: 3 * word-bytes
 //     2: defining unit check hash
 //     3: defining unit type
 //     4: local ID of referenced object in defining unit
 //     5[n]: two subobjects:
 //          -- data-unit (e.g. library) name
-// 	    -- location hint (e.g. absolute pathname)
+//          -- location hint (e.g. absolute pathname)
 //     end: end header
 // 
 // The extern-handle represents a link to an object in another data unit.  It
@@ -800,7 +800,7 @@ define method compute-unit-hash (state :: <dump-state>)
       hash-idx := modulo(hash-idx + $hash-inc, len);
       res := logxor(logior(ash(res, 3 - $word-bits), 
                            ash(logand(res, $rot-mask), 3)),
-		    buffer-word(buf, hash-idx));
+                    buffer-word(buf, hash-idx));
     end for;
   end for;
   state.dump-hash := res;
@@ -833,13 +833,13 @@ define method compute-header-size (state :: <dump-state>)
  => (header-size :: <integer>, oa-size :: <integer>);
   let num-local = state.dump-local-index.size;
   let res = $data-unit-header-size
-  	    + ($local-index-size + num-local)
-	    + ($local-object-map-size + num-local)
-	    + truncate/(state.extern-buf.current-pos, $word-bytes);
+            + ($local-index-size + num-local)
+            + ($local-object-map-size + num-local)
+            + truncate/(state.extern-buf.current-pos, $word-bytes);
   values(res,
-  	 res
-	   + truncate/(state.current-pos, $word-bytes)
-	   + 1 // Because we haven't dumped the final end yet.
+         res
+           + truncate/(state.current-pos, $word-bytes)
+           + 1 // Because we haven't dumped the final end yet.
          )
 end method;
 
@@ -872,8 +872,8 @@ define method write-dump-buffer (buf :: <dump-buffer>, stream :: <stream>)
   end for;
 end method;
 
-// Create a stream appropriate for dumping.	-- internal
-//	called from end-dumping if no stream supplied
+// Create a stream appropriate for dumping.     -- internal
+//      called from end-dumping if no stream supplied
 //
 define function create-dump-stream(state :: <dump-state>) => stream :: <stream>;
   let fname =
@@ -907,14 +907,14 @@ define /* exported */ method end-dumping
   // End the main buffer now that we know the offset back to the start.
   dump-header-word($odf-end-entry-etype,
                    oa-len - 1, // for end header word size
-		   state);
+                   state);
 
   let header-buffer = make(<dump-buffer>);
   dump-unit-header(state, header-buffer, oa-len);
   dump-word-vector(state.dump-local-index, header-buffer,
-  		   #"local-index");
+                   #"local-index");
   dump-word-vector(build-local-map(state), header-buffer,
-  		   #"local-object-map");
+                   #"local-object-map");
 
   write-dump-buffer(header-buffer, stream);
   write-dump-buffer(state.extern-buf, stream);
@@ -997,9 +997,9 @@ define /* exported */ method dump-definition-header
    #key subobjects = #f, raw-data = $odf-no-raw-data-format)
  => ();
   dump-header-word(logior($odf-object-definition-etype,
-  		          if (subobjects) $odf-subobjects-flag else 0 end,
-			  raw-data),
-		   $object-id-registry[name], buf);
+                          if (subobjects) $odf-subobjects-flag else 0 end,
+                          raw-data),
+                   $object-id-registry[name], buf);
   if (subobjects)
     buf.dump-stack := pair(name, buf.dump-stack);
   end;
@@ -1013,7 +1013,7 @@ define /* exported */ method dump-end-entry
  => ();
   dump-header-word($odf-end-entry-etype,
                    buf.current-pos - start-posn,
-		   buf);
+                   buf);
   buf.dump-stack := tail(buf.dump-stack);
 end method;
 
@@ -1187,7 +1187,7 @@ define /* exported */ class <load-state> (<object>)
   // Word offsets of tagged object in data unit.
   slot raw-local-index :: <int-vector>
     = make(<int-vector>, size: 1,
-	   fill: truncate/($maximum-integer, $word-bytes));
+           fill: truncate/($maximum-integer, $word-bytes));
   //
   // Local IDs of the tagged objects, in order that the definitions appear.
   slot raw-local-map :: <int-vector> = make(<int-vector>, size: 1, fill: 0);
@@ -1195,6 +1195,15 @@ define /* exported */ class <load-state> (<object>)
   // The index in the local-map of the next labeled object to be loaded.
   slot next-labeled :: <integer>, init-value: 0,
     setter: %next-labeled-setter;
+  // 
+  // The label at the current location, about to be loaded. Once loaded, or if
+  // the current location is not a label, this should be reset to #f.
+  slot just-labeled :: false-or(<integer>), init-value: #f;
+  //
+  // Load and resolve external references. If #f, external data units are not
+  // used and external references will be returned as <external-ref> objects.
+  slot load-external-objects? :: <boolean>, init-value: #t,
+    init-keyword: load-external:;
   //
   // Vector mapping extern IDs in this data unit to the actual in-core
   // objects.  Will contain <forward-ref>s where there are circular
@@ -1248,7 +1257,7 @@ define constant $dispatcher-table-size = #x400;
 define /* exported */ class <dispatcher> (<object>)
   slot table :: <simple-object-vector>
     = make(<vector>, size: $dispatcher-table-size,
-	   fill: undefined-entry-type);
+           fill: undefined-entry-type);
 end class;
 
 define sealed domain make (singleton(<dispatcher>));
@@ -1311,7 +1320,7 @@ define method search-for-file
       end if;
     end for;
     values(#f, #f);
-  end block;	
+  end block;    
 end method search-for-file;
 
 
@@ -1332,27 +1341,27 @@ define method check-unit-header
 
   let (tag, id) = buffer-header-word(buf, base);
   unless (tag = logior($odf-object-definition-etype,
-  		       $odf-subobjects-flag, $odf-word-raw-data-format))
+                       $odf-subobjects-flag, $odf-word-raw-data-format))
     error("Invalid ODF header on %=", state.od-stream);
   end;
   unless (check-odf-id(id))
     error("Unrecognised entry ID %=.  Bad data?", id);
   end;
 
-  let hsize =	buffer-word(buf, base + ($word-bytes * 1));
-  let major =	buffer-word(buf, base + ($word-bytes * 2));
+  let hsize =   buffer-word(buf, base + ($word-bytes * 1));
+  let major =   buffer-word(buf, base + ($word-bytes * 2));
 
   // Check major version now, in case the unit header format changed.
   unless (major = $od-format-major-version)
     error("Incompatible OD major version %=, current version is %=.",
-    	  major, $od-format-major-version);
+          major, $od-format-major-version);
   end;
 
-  let minor =	buffer-word(buf, base + ($word-bytes * 3));
-  let oa-len =	buffer-word(buf, base + ($word-bytes * 4));
-  let platfm =	buffer-word(buf, base + ($word-bytes * 5));
-  let type =	buffer-word(buf, base + ($word-bytes * 6));
-  let hash =	buffer-word(buf, base + ($word-bytes * 7));
+  let minor =   buffer-word(buf, base + ($word-bytes * 3));
+  let oa-len =  buffer-word(buf, base + ($word-bytes * 4));
+  let platfm =  buffer-word(buf, base + ($word-bytes * 5));
+  let type =    buffer-word(buf, base + ($word-bytes * 6));
+  let hash =    buffer-word(buf, base + ($word-bytes * 7));
 
   // Change in header size should be flagged by a new major version, but...
   unless (hsize = $data-unit-header-size - 2)
@@ -1361,7 +1370,7 @@ define method check-unit-header
 
   unless (minor <= $od-format-minor-version)
     error("Incompatible OD minor version %=, current version is %=.",
-    	  minor, $od-format-minor-version);
+          minor, $od-format-minor-version);
   end;
 
   unless (platfm = $like-an-hp-platform-characteristics)
@@ -1379,10 +1388,10 @@ define method check-unit-header
   end;
 
   let res = make(<data-unit>, unit-name: name, minor-version: minor,
-  	         platform-characteristics: platfm, unit-type: type,
-		 check-hash: hash, location-hint: location-hint);
+                 platform-characteristics: platfm, unit-type: type,
+                 check-hash: hash, location-hint: location-hint);
   *data-units*[name] := pair(pair(type, res),
-  			     element(*data-units*, name, default: #()));
+                             element(*data-units*, name, default: #()));
 
   values(res, oa-len);
 
@@ -1403,12 +1412,12 @@ define constant $empty-object :: <empty-object> = make(<empty-object>);
 define method load-data-unit
  (name :: <data-unit-name>, type :: <integer>,
   loc :: false-or(<location-hint>), hash :: false-or(<word>),
-  dispatcher :: <dispatcher>)
+  dispatcher :: <dispatcher>, load-external :: <boolean>)
  => res :: <data-unit>;
 
   let name-guess
     = concatenate(as-lowercase(as(<string>, name)), ".",
-    		  $unit-type-strings[type], ".du");
+                  $unit-type-strings[type], ".du");
 
   let (stream, found-loc) = search-for-file(name-guess, loc);
   unless (stream)
@@ -1423,13 +1432,13 @@ define method load-data-unit
   let initial-next :: <buffer-index> = buf.buffer-next;
   let buf-end :: <buffer-index> = buf.buffer-end;
   let state = make(<load-state>, stream: stream, buffer: buf,
-  		   next: initial-next, end: buf-end,
-		   position-offset: -initial-next,
-		   dispatcher: dispatcher);
+                   next: initial-next, end: buf-end,
+                   position-offset: -initial-next,
+                   dispatcher: dispatcher, load-external: load-external);
 
   let (unit, oa-len)
     = check-unit-header(state, name, type, hash,
-			~locator-relative?(found-loc) & found-loc);
+                        ~locator-relative?(found-loc) & found-loc);
   state.load-unit := unit;
   state.overall-length := oa-len;
   let rlocal = load-object-dispatch(state);
@@ -1440,13 +1449,13 @@ define method load-data-unit
     := concatenate-as(<int-vector>, rlocal, vector(oa-len - 1));
   state.raw-local-map
     := concatenate-as(<int-vector>, load-object-dispatch(state),
-		      vector(nlocals));
+                      vector(nlocals));
 
   // initializes label-index...
   state.position-offset := state.position-offset;
 
   state.extern-index := load-object-dispatch(state);
-
+  
   let lindex = make(<simple-object-vector>, size: nlocals, fill: $empty-object);
   unit.local-index := lindex;
 
@@ -1480,22 +1489,24 @@ define /* exported */ method find-data-unit
   (name :: <data-unit-name>, type :: <integer>,
    #key location-hint :: false-or(<location-hint>),
         check-hash: expected-hash :: false-or(<word>),
-	dispatcher :: <dispatcher> = *default-dispatcher*)
+        dispatcher :: <dispatcher> = *default-dispatcher*,
+        load-external :: <boolean> = #t)
  => res :: <data-unit>;
   let types = element(*data-units*, name, default: #());
   block (punt)
     for (elt in types)
       if (elt.head = type)
         let found = elt.tail;
-	unless (~expected-hash | expected-hash = found.check-hash)
+        unless (~expected-hash | expected-hash = found.check-hash)
           error("Unit hash mismatch; version mismatch between data units.\n"
-	  	"%=",
-		found.unit-name);
-	end unless;
-	punt(found);
+                "%=",
+                found.unit-name);
+        end unless;
+        punt(found);
       end;
     end for;
-    load-data-unit(name, type, location-hint, expected-hash, dispatcher);
+    load-data-unit(name, type, location-hint, expected-hash, dispatcher,
+                   load-external);
   end block;
 end method;
 
@@ -1543,6 +1554,7 @@ define /* exported */ method load-object-dispatch (state :: <load-state>)
       // recurse to get the value.
       let nextlab = state.next-labeled;
       let id = state.raw-local-map[nextlab];
+      state.just-labeled := id;
       state.next-labeled := nextlab + 1;
       let res = load-object-dispatch(state);
       let lidx = state.load-unit.local-index;
@@ -1553,10 +1565,10 @@ define /* exported */ method load-object-dispatch (state :: <load-state>)
         assert(old == $empty-object);
       end;
       if (res.obj-resolved?)
-	lidx[id] := res.actual-obj;
+        lidx[id] := res.actual-obj;
       else
-	request-backpatch(res, method (actual) lidx[id] := actual end);
-	lidx[id] := res;
+        request-backpatch(res, method (actual) lidx[id] := actual end);
+        lidx[id] := res;
       end if;
     end if;
 
@@ -1564,21 +1576,34 @@ define /* exported */ method load-object-dispatch (state :: <load-state>)
   else
     let (buf, next) = buffer-at-least($word-bytes, state);
     let (flags, code) = buffer-header-word(buf, next);
+    let id = state.just-labeled;
+    state.just-labeled := #f;
 
     select (ash(flags, $odf-etype-shift))
      $odf-object-definition-shifted =>
+       let loader :: <function> = state.dispatcher.table[code];
+       let args :: <vector>
+         = select (loader.function-arguments)
+             // If loader can handle extra arguments, pass them in. Otherwise,
+             // just pass state argument as usual.
+             3 => vector(state, flags, id);
+             4 => let def-loader = *default-dispatcher*.table[code];
+                  vector(state, flags, id,
+                         def-loader ~= undefined-entry-type & def-loader);
+             otherwise => vector(state);
+           end select;
 
 if ($load-debug)
        assert(code < $dispatcher-table-size);
        let orig-stack = state.load-stack;
        block ()
-	 state.load-stack := pair(code, orig-stack);
-	 state.dispatcher.table[code](state);
+         state.load-stack := pair(code, orig-stack);
+         apply(loader, args);
        cleanup
-	 state.load-stack := orig-stack;
+         state.load-stack := orig-stack;
        end;
 else
-       state.dispatcher.table[code](state);
+       apply(loader, args);
 end if;
 
      $odf-end-entry-shifted =>
@@ -1589,15 +1614,15 @@ end if;
 
      $odf-external-reference-shifted =>
        let wot = state.extern-index[code];
-       if (obj-resolved?(wot))
+       if (obj-resolved?(wot) & state.load-external-objects?)
          let res = wot.actual-obj;
-	 unless (instance?(res, <identity-preserving-mixin>)
-	           & instance?(res.handle, <extern-handle>))
+         unless (instance?(res, <identity-preserving-mixin>)
+                   & instance?(res.handle, <extern-handle>))
            error("Externally referencing an object that wasn't loaded with\n"
-	         "load-external-definition. %=",
-		 wot);
-	 end unless;
-	 res;
+                 "load-external-definition. %=",
+                 wot);
+         end unless;
+         res;
        else
          wot;
        end;
@@ -1676,18 +1701,18 @@ define /* exported */ method load-raw-data
       next := nnext;
       if (sofar = elsize)
         let next = round-to-word(next);
-	buf.buffer-next := (state.od-next := next);
+        buf.buffer-next := (state.od-next := next);
         punt(next);
       else
         assert(next = buf-end);
-	buf.buffer-next := buf-end;
+        buf.buffer-next := buf-end;
         buf := next-input-buffer(state.od-stream);
-	if (~ buf)
-	  error(make(<end-of-stream-error>, stream: state.od-stream));
-	end;
-	state.position-offset := state.position-offset + next;
-	state.od-end := (buf-end := buf.buffer-end);
-	next := buf.buffer-next;
+        if (~ buf)
+          error(make(<end-of-stream-error>, stream: state.od-stream));
+        end;
+        state.position-offset := state.position-offset + next;
+        state.od-end := (buf-end := buf.buffer-end);
+        next := buf.buffer-next;
       end if;
     end while;
   end block;
@@ -1702,8 +1727,8 @@ define method load-subobjects-vector
     let contents :: <simple-object-vector>
       = make(<simple-object-vector>, size: size-hint);
     for (part = load-object-dispatch(state) then load-object-dispatch(state),
-	 i :: <integer> from 0,
-	 until: part == $end-object)
+         i :: <integer> from 0,
+         until: part == $end-object)
       contents[i] := part;
     finally
       assert(i == size-hint);
@@ -1712,8 +1737,8 @@ define method load-subobjects-vector
   else
     let contents :: <stretchy-object-vector> = make(<stretchy-vector>);
     for (part = load-object-dispatch(state) then load-object-dispatch(state),
-	 i :: <integer> from 0,
-	 until: part == $end-object)
+         i :: <integer> from 0,
+         until: part == $end-object)
       contents[i] := part;
     finally
       as(<simple-object-vector>, contents);
@@ -1775,6 +1800,10 @@ define /* exported */ class <forward-ref> (<object>)
   // True when resolved.
   /* exported */ slot obj-resolved? :: <boolean>, init-value: #f;
   //
+  // Local ID this reference should resolve to.  Optional.
+  /* exported */ slot forward-ref-id :: false-or(<integer>), init-value: #f,
+    init-keyword: id:;
+  //
   // List of registered backpatch functions.
   slot patchers :: <list>, init-value: #();
 end class;
@@ -1783,6 +1812,8 @@ define sealed domain make (singleton(<forward-ref>));
 define sealed domain initialize (<forward-ref>);
 
 // Anything that isn't a <forward-ref> is resolved, and is itself.
+// <extern-ref>s aren't technically resolved, but they won't get any *more*
+// resolved, so whatever.
 //
 define method obj-resolved? (obj :: <object>) => res :: <boolean>;
   #t;
@@ -1817,7 +1848,7 @@ define /* exported */ method resolve-forward-ref
       resolve-forward-ref(ref, value.actual-obj);
     else
       request-backpatch
-	(value, method (actual) resolve-forward-ref(ref, actual) end);
+        (value, method (actual) resolve-forward-ref(ref, actual) end);
     end if;
   else
     if (ref.obj-resolved?)
@@ -1826,7 +1857,7 @@ define /* exported */ method resolve-forward-ref
       ref.actual-obj := value;
       ref.obj-resolved? := #t;
       for (x in ref.patchers)
-	x(value);
+        x(value);
       end;
       ref.patchers := #(); // for GC
     end if;
@@ -1842,7 +1873,7 @@ define method maybe-forward-ref (unit :: <data-unit>, id :: <integer>)
   let lidx = unit.local-index;
   let thing = lidx[id];
   if (thing == $empty-object)
-    lidx[id] := make(<forward-ref>);
+    lidx[id] := make(<forward-ref>, id: id);
   elseif (thing.obj-resolved?)
     thing.actual-obj;
   else
@@ -1852,6 +1883,21 @@ end method;
 
 
 // External references:
+
+// A class representing an external reference. Only used if not loading
+// external objects.
+// 
+define /* exported */ class <extern-ref> (<object>)
+  /* exported */ slot extern-ref-du-name :: <data-unit-name>,
+    required-init-keyword: name:;
+  /* exported */ slot extern-ref-du-loc :: <file-locator>,
+    required-init-keyword: loc:;
+  /* exported */ slot extern-ref-local-id :: <integer>,
+    required-init-keyword: id:;
+end class;
+
+define sealed domain make (singleton(<extern-ref>));
+define sealed domain initialize (<extern-ref>);
 
 // A handle on some object having <identity-preserving-mixin>.  This is where
 // we record the ID used to reference the object in this dump.
@@ -1985,7 +2031,7 @@ define method maybe-dump-reference-dispatch
     let unit = handle.defining-unit;
     let cpos = xbuf.current-pos;
     dump-definition-header(#"extern-handle", xbuf, subobjects: #t,
-    			   raw-data: $odf-word-raw-data-format);
+                           raw-data: $odf-word-raw-data-format);
     dump-word(3, xbuf);
     dump-word(unit.check-hash, xbuf);
     dump-word(unit.unit-type, xbuf);
@@ -2019,7 +2065,7 @@ define method maybe-dump-reference-dispatch
     let unit = handle.defining-state;
     let cpos = xbuf.current-pos;
     dump-definition-header(#"extern-handle", xbuf, subobjects: #t,
-    			   raw-data: $odf-word-raw-data-format);
+                           raw-data: $odf-word-raw-data-format);
     dump-word(3, xbuf);
     dump-word(unit.dump-hash, xbuf);
     dump-word(unit.dump-type, xbuf);
@@ -2093,13 +2139,13 @@ define /* exported */ method load-external-definition
   let unit = state.load-unit;
   let id = state.raw-local-map[state.next-labeled - 1];
   assert(state.raw-local-index[id] * $word-bytes
-  	   = state.od-next + state.position-offset - $word-bytes);
+           = state.od-next + state.position-offset - $word-bytes);
 
   local method set-handle (obj :: <identity-preserving-mixin>) => ();
-	  assert(~obj.handle);
-	  obj.handle
-	    := make(<extern-handle>, defining-unit: unit, local-id: id);
-	end method set-handle;
+          assert(~obj.handle);
+          obj.handle
+            := make(<extern-handle>, defining-unit: unit, local-id: id);
+        end method set-handle;
   let res = body(state);
   if (instance?(res, <forward-ref>))
     request-backpatch(res, set-handle);
@@ -2115,7 +2161,7 @@ end method;
 add-od-loader(*default-dispatcher*, #"local-index", load-word-vector);
 
 add-od-loader(*default-dispatcher*, #"local-object-map",
-	      load-word-vector);
+              load-word-vector);
 
 add-od-loader(*default-dispatcher*, #"extern-index",
   method (state :: <load-state>)
@@ -2126,7 +2172,8 @@ add-od-loader(*default-dispatcher*, #"extern-index",
 
 // Load an extern-handle.  After parsing the contents, we look up the
 // referenced data unit and try to find the object.  If it isn't there yet, we
-// make a forward reference.
+// make a forward reference.  If not loading external objects, returns an
+// <extern-ref> object.
 //
 add-od-loader(*default-dispatcher*, #"extern-handle", 
   method (state :: <load-state>) => res :: <object>;
@@ -2138,12 +2185,16 @@ add-od-loader(*default-dispatcher*, #"extern-handle",
     let hint = load-object-dispatch(state);
     assert-end-object(state);
 
-    let ext-unit
-      = find-data-unit(name, du-type, location-hint: hint,
-      		       check-hash: hash,
-		       dispatcher: state.dispatcher);
+    if (state.load-external-objects?)
+      let ext-unit
+        = find-data-unit(name, du-type, location-hint: hint,
+                         check-hash: hash,
+                         dispatcher: state.dispatcher);
 
-    maybe-forward-ref(ext-unit, localid);		       
+      maybe-forward-ref(ext-unit, localid);
+    else
+      make(<extern-ref>, id: localid, name: name, loc: hint);
+    end if;
   end method
 );
 
@@ -2215,7 +2266,7 @@ define method dump-od (obj :: <object>, buf :: <dump-buffer>) => ();
     unless (element(*classes-I-cant-dump*, oclass, default: #f))
       *classes-I-cant-dump*[oclass] := #t;
       signal("Don't know how to dump instances of %=.  Dump stack: %=\n",
-	     oclass, buf.dump-stack);
+             oclass, buf.dump-stack);
     end unless;
   elseif (~instance?(obj, <identity-preserving-mixin>)
             | maybe-dump-reference(obj, buf))
@@ -2243,12 +2294,12 @@ define method make-loader-guts
       let cache = *loader-vector-cache*;
       let sz = cache.size;
       if (sz > 0)
-	let v :: <stretchy-object-vector> = cache[sz - 1];
-	cache.size := sz - 1;
-	v.size := 0;
-	v;
+        let v :: <stretchy-object-vector> = cache[sz - 1];
+        cache.size := sz - 1;
+        v.size := 0;
+        v;
       else
-	make(<stretchy-vector>);
+        make(<stretchy-vector>);
       end;
     end,
 
@@ -2269,39 +2320,39 @@ define method make-loader-guts
     let val = vec[i];
     if (obj-resolved?(val))
       if (key)
-	add!(keys, key);
-	add!(keys, val.actual-obj);
+        add!(keys, key);
+        add!(keys, val.actual-obj);
       else
-	add!(setter-losers, i);
+        add!(setter-losers, i);
       end if;
     else
       if (info.setter-funs[i])
-	add!(setter-losers, i);
+        add!(setter-losers, i);
       else
-	add!(key-losers, i);
+        add!(key-losers, i);
       end if;
     end if;
   end for;
 
   local method make-obj () => x :: <object>;
-	  let obj = apply(make, info.obj-class, keys);
+          let obj = apply(make, info.obj-class, keys);
   
-	  for (i :: <integer> in setter-losers)
-	    let setter = info.setter-funs[i];
-	    let val = vec[i];
-	    assert(setter);
-	    if (obj-resolved?(val))
-	      setter(val.actual-obj, obj);
-	    else
-	      request-backpatch(val, method (actual) setter(actual, obj) end);
-	    end;
-	  end;
+          for (i :: <integer> in setter-losers)
+            let setter = info.setter-funs[i];
+            let val = vec[i];
+            assert(setter);
+            if (obj-resolved?(val))
+              setter(val.actual-obj, obj);
+            else
+              request-backpatch(val, method (actual) setter(actual, obj) end);
+            end;
+          end;
 
-	  release-vector(keys);
-	  release-vector(setter-losers);
-	  
-	  obj;
-	end method make-obj;
+          release-vector(keys);
+          release-vector(setter-losers);
+          
+          obj;
+        end method make-obj;
 
 
   if (key-losers.size == 0)
@@ -2315,14 +2366,14 @@ define method make-loader-guts
       let key = info.init-keys[i];
       let val = vec[i];
       request-backpatch
-	(val,
-	 method (actual) => ();
-	   add!(keys, key);
-	   add!(keys, actual);
-	   if ((unresolved-keys := unresolved-keys - 1).zero?)
-	     resolve-forward-ref(forward, make-obj());
-	   end if;
-	 end method);
+        (val,
+         method (actual) => ();
+           add!(keys, key);
+           add!(keys, actual);
+           if ((unresolved-keys := unresolved-keys - 1).zero?)
+             resolve-forward-ref(forward, make-obj());
+           end if;
+         end method);
     end for;
 
     release-vector(key-losers);
@@ -2368,40 +2419,40 @@ define /* exported */ method add-make-dumper
   let info =
     make(<make-info>,
          accessor-funs: acc,
-	 init-keys: key,
+         init-keys: key,
          setter-funs: set,
-	 obj-class: obj-class,
-	 obj-name: name,
-	 dump-side-effect: dump-side-effect);
+         obj-class: obj-class,
+         obj-name: name,
+         dump-side-effect: dump-side-effect);
 
   *make-dumpers*[obj-class] := info;
 
   unless (dumper-only)
     let loader
       = if (load-side-effect)
-	  method (state :: <load-state>) => res :: <object>;
-	    let res = make-loader-guts(state, info);
-	    if (instance?(res, <forward-ref>))
-	      request-backpatch(res, load-side-effect);
-	    else
-	      load-side-effect(res);
-	    end if;
-	    res;
-	  end;
-	else
-	  method (state :: <load-state>) => res :: <object>;
-	    make-loader-guts(state, info);
-	  end;
-	end;
+          method (state :: <load-state>) => res :: <object>;
+            let res = make-loader-guts(state, info);
+            if (instance?(res, <forward-ref>))
+              request-backpatch(res, load-side-effect);
+            else
+              load-side-effect(res);
+            end if;
+            res;
+          end;
+        else
+          method (state :: <load-state>) => res :: <object>;
+            make-loader-guts(state, info);
+          end;
+        end;
 
     add-od-loader(dispatcher, name,
-		  if (load-external)
-		    method (state :: <load-state>) => res :: <object>;
-		      load-external-definition(state, loader);
-		    end;
-		  else
-		    loader;
-		  end);
+                  if (load-external)
+                    method (state :: <load-state>) => res :: <object>;
+                      load-external-definition(state, loader);
+                    end;
+                  else
+                    loader;
+                  end);
   end;
 
 end method;
@@ -2411,7 +2462,7 @@ end method;
 define method invert-registry () => inverted-registery :: <vector>;
   let registry = $object-id-registry;
   let vec = make(<vector>, size: // $dispatcher-table-size);
-		   4000);
+                   4000);
   let keys = key-sequence(registry);
   for (key in keys)
     let id = registry[key];
@@ -2419,3 +2470,7 @@ define method invert-registry () => inverted-registery :: <vector>;
   end for;
   vec;
 end method invert-registry;
+
+define function registered-object-ids () => (ids :: <vector>)
+  map-as(<vector>, identity, $object-id-registry.key-sequence);
+end function;

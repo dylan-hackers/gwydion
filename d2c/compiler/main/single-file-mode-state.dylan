@@ -56,7 +56,7 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
      state.unit-target.default-features);
   do(process-feature,
      split-at-whitespace(element(state.unit-header, #"features",
-				 default: "")));
+                                 default: "")));
   do(process-feature, state.unit-command-line-features);
   
   let lib-name = state.unit-header[#"module"];
@@ -77,7 +77,7 @@ define method parse-and-finalize-library (state :: <single-file-mode-state>) => 
   //   use-modules:  common-dylan, format-out
   //
   local method build-export-list(list-data :: <byte-string>)
-		=> result :: <byte-string>;
+                => result :: <byte-string>;
     let list-head :: <byte-string> = "";
     for (val in split-at(method (x :: <character>) x = ',' end, list-data))
       list-head := concatenate(list-head, format-to-string(" use %s; ", val));
@@ -192,19 +192,19 @@ define method build-local-heap-file (state :: <single-file-mode-state>) => ();
   format(*debug-output*, "Emitting Library Heap.\n");
   let prefix = state.unit-cback-unit.unit-prefix;
   let (undumped, extra-labels) = build-local-heap(state.unit-cback-unit, 
-						  state.unit-c-file);
+                                                  state.unit-c-file);
   let linker-options = element(state.unit-header, #"linker-options", 
-			       default: #f);
+                               default: #f);
   state.unit-unit-info := make(<unit-info>, unit-name: state.unit-mprefix,
-			       undumped-objects: undumped,
-			       extra-labels: extra-labels,
-			       linker-options: linker-options);
+                               undumped-objects: undumped,
+                               extra-labels: extra-labels,
+                               linker-options: linker-options);
 end method build-local-heap-file;
 
 define method build-da-global-heap (state :: <single-file-mode-state>) => ();
   format(*debug-output*, "Emitting Global Heap.\n");
   build-global-heap(apply(concatenate, map(undumped-objects, *units*)),
-		    state.unit-c-file);
+                    state.unit-c-file);
 end method;
 
 
@@ -213,7 +213,7 @@ define method build-inits-dot-c (state :: <single-file-mode-state>) => ();
   let stream = state.unit-stream;
   format(stream, "#include <stdlib.h>\n\n");
   format(stream,
-	 "void inits(descriptor_t *sp, int argc, char *argv[])\n{\n");
+         "void inits(descriptor_t *sp, int argc, char *argv[])\n{\n");
   for (unit in *units*)
     format(stream, "{ extern void %s_Library_init(descriptor_t*);  %s_Library_init(sp); }\n",
     string-to-c-name(unit.unit-info-name), string-to-c-name(unit.unit-info-name));
@@ -331,7 +331,7 @@ define method compile-library (state :: <single-file-mode-state>)
     if (~ zero?(*errors*)) give-up(); end if;
     state.unit-cback-unit := make(<unit-state>, prefix: state.unit-mprefix);
     state.unit-other-cback-units := map-as(<simple-object-vector>, unit-info-name, 
-					 *units*);
+                                         *units*);
     compile-file(state);
     if (~ zero?(*errors*)) give-up(); end if;
     build-library-inits(state);
@@ -353,12 +353,17 @@ define method compile-library (state :: <single-file-mode-state>)
   
   format(*debug-output*, "Optimize called %d times.\n", *optimize-ncalls*);
 
+  if (state.unit-log-text-du)
+    dump-text-du(state.unit-name,
+                 concatenate(state.unit-mprefix, ".lib.du.txt"));
+  end if;
+
   let worked? = zero?(*errors*);
   format(*debug-output*,
-	 "Compilation %s with %d Warning%s and %d Error%s\n",
-	 if (worked?) "finished" else "failed" end,
-	 *warnings*, if (*warnings* == 1) "" else "s" end,
-	 *errors*, if (*errors* == 1) "" else "s" end);
+         "Compilation %s with %d Warning%s and %d Error%s\n",
+         if (worked?) "finished" else "failed" end,
+         *warnings*, if (*warnings* == 1) "" else "s" end,
+         *errors*, if (*errors* == 1) "" else "s" end);
 
   worked?;
 end method compile-library;

@@ -32,6 +32,8 @@ define library compiler-main
   use Dylan;
   use Common-Dylan;
   use IO;
+  use Stream-extensions,
+     import: {indenting-streams};
   use System;
   use String-extensions;
   use Random;
@@ -76,6 +78,7 @@ define module main
   use random;
   use command-line-parser;
   use option-parser-protocol;
+  use indenting-streams;
    
   use utils;
   use variables;

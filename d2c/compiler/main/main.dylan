@@ -92,6 +92,7 @@ define method show-help(stream :: <stream>) => ()
 "       -D, --define:      Define conditional compilation features.\n"
 "       -U, --undefine:    Undefine conditional compilation features.\n"
 "       -M, --log-deps:    Log dependencies to a file.\n"
+"       --dump-du:         Create human-readable lib.du.txt file.\n"
 "       -T, --target:      Target platform name.\n"
 "       -p, --platforms:   File containing platform descriptions.\n"
 "       --no-binaries:     Do not compile generated C files.\n"
@@ -293,6 +294,9 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
 			    long-options: #("log-deps"),
 			    short-options: #("M"));
   add-option-parser-by-type(argp,
+			    <simple-option-parser>,
+			    long-options: #("dump-du"));
+  add-option-parser-by-type(argp,
 			    <parameter-option-parser>,
 			    long-options: #("target"),
 			    short-options: #("T"));
@@ -378,6 +382,7 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
   let library-dirs = option-value-by-long-name(argp, "libdir");
   let features = option-value-by-long-name(argp, "define");
   let log-dependencies = option-value-by-long-name(argp, "log-deps");
+  let log-text-du = option-value-by-long-name(argp, "dump-du");
   let no-binaries-pre = option-value-by-long-name(argp, "no-binaries");
   let no-makefile = option-value-by-long-name(argp, "no-makefile");
   let no-binaries = no-binaries-pre | no-makefile;
@@ -504,6 +509,7 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
                      source-locator: locator,
                      command-line-features: as(<list>, features), 
                      log-dependencies: log-dependencies,
+                     log-text-du: log-text-du,
                      target: *current-target*,
                      no-binaries: no-binaries,
                      no-makefile: no-makefile,
@@ -516,6 +522,7 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
                      lid-locator: locator,
                      command-line-features: as(<list>, features), 
                      log-dependencies: log-dependencies,
+                     log-text-du: log-text-du,
                      target: *current-target*,
                      no-binaries: no-binaries,
                      no-makefile: no-makefile,

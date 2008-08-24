@@ -37,6 +37,8 @@ define class <main-unit-state> (<object>)
     required-init-keyword: command-line-features:;
   constant slot unit-log-dependencies :: <boolean>, 
     required-init-keyword: log-dependencies:;
+  constant slot unit-log-text-du :: <boolean>,
+    required-init-keyword: log-text-du:;
   constant slot unit-target :: <platform>,
     required-init-keyword: target:;
   constant slot unit-no-binaries :: <boolean>,

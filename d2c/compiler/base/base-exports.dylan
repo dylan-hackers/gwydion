@@ -179,16 +179,22 @@ define module od-format
     load-sole-subobject,
     assert-end-object,
     <forward-ref>,
+    forward-ref-id,
     actual-obj,
     obj-resolved?,
     request-backpatch,
     resolve-forward-ref,
+    <extern-ref>,
+    extern-ref-du-name,
+    extern-ref-du-loc,
+    extern-ref-local-id,
     <identity-preserving-mixin>,
     defined-externally?,
     maybe-dump-reference,
     load-external-definition,
     add-make-dumper,
     invert-registry,
+    registered-object-ids,
     *Data-Unit-Search-Path*;
 
 end;

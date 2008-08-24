@@ -1,0 +1,1549 @@
+<!--This file created by AppleWorks HTML Filter 6.0-->
+<HTML>
+<HEAD>
+<META NAME=GENERATOR CONTENT="AppleWorks HTML Filter 6.0">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=macintosh">
+<TITLE>od-format-description.</TITLE>
+</HEAD>
+<BODY  >
+
+<P ALIGN=CENTER><FONT SIZE=4><B>Gwydion Dylan DU File Format<BR>
+</B></FONT><B>Aug 17, 2008<BR>
+</B></P>
+
+<P><BR>
+The conceptual root of the DU file format is the dumped &lt;unit-info&gt; instance, but I don&#146;t know whether that is the first object physically found in the file or not.<BR>
+<BR>
+Here are most of the dumped compiler classes, where their dump formats are defined, and the formats themselves: the dumped tags (in order) and the elements of each tag.<BR>
+<BR>
+<UL>
+<LI TYPE="circle">#t base/dylan-dump:45<BR>
+<UL>
+<LI TYPE="circle">#&#148;true&#148;<BR>
+</UL>
+<LI TYPE="circle">#f base/dylan-dump:58<BR>
+<UL>
+<LI TYPE="circle">#&#148;false&#148;<BR>
+</UL>
+<LI TYPE="circle">&lt;integer&gt; base/dylan-dump:72<BR>
+<UL>
+<LI TYPE="circle">#&#148;fixed-integer&#148;<BR>
+<UL>
+<LI TYPE="circle">raw word data (1)<BR>
+<LI TYPE="circle">raw word data (value of integer)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;extended-integer&gt; base/dylan-dump:114<BR>
+<UL>
+<LI TYPE="circle">#&#148;extended-integer&#148;<BR>
+<UL>
+<LI TYPE="circle">raw word data (number of subsequent words)<BR>
+<LI TYPE="circle">series of raw word data<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;ratio&gt; base/dylan-dump:157<BR>
+<UL>
+<LI TYPE="circle">#&#148;ratio&#148;<BR>
+<UL>
+<LI TYPE="circle">numerator<BR>
+<LI TYPE="circle">denominator<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;file-locator&gt; base/dylan-dump:177<BR>
+<UL>
+<LI TYPE="circle">#&#148;file-locator&#148;<BR>
+<UL>
+<LI TYPE="circle">raw byte data (path to file)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;single-float&gt; base/dylan-dump:229<BR>
+<UL>
+<LI TYPE="circle">#&#148;single-float&#148;<BR>
+<UL>
+<LI TYPE="circle">fractional part<BR>
+<LI TYPE="circle">exponent part<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;byte-string&gt; base/dylan-dump:249<BR>
+<UL>
+<LI TYPE="circle">#&#148;byte-string&#148;<BR>
+<UL>
+<LI TYPE="circle">raw byte data<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;symbol&gt; base/dylan-dump:272<BR>
+<UL>
+<LI TYPE="circle">#&#148;byte-symbol&#148;<BR>
+<UL>
+<LI TYPE="circle">raw byte data (string form of symbol)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;byte-character&gt; base/dylan-dump:294<BR>
+<UL>
+<LI TYPE="circle">#&#148;byte-character&#148;<BR>
+<UL>
+<LI TYPE="circle">raw byte data (1 byte)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;list&gt; base/dylan-dump:315<BR>
+<UL>
+<LI TYPE="circle">#&#148;list*&#148; (if improper)<BR>
+<UL>
+<LI TYPE="circle">series of elements<BR>
+</UL>
+<LI TYPE="circle">#&#148;list&#148; (if proper)<BR>
+<UL>
+<LI TYPE="circle">series of elements<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;simple-object-vector&gt; base/dylan-dump:399<BR>
+<UL>
+<LI TYPE="circle">#&#148;simple-object-vector&#148;<BR>
+<UL>
+<LI TYPE="circle">series of elements<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;unknown-source-location&gt; base/source.dylan:92<BR>
+<UL>
+<LI TYPE="circle">#&#148;unknown-source-location&#148;<BR>
+</UL>
+<LI TYPE="circle">&lt;source-file&gt; base/source.dylan:195<BR>
+<UL>
+<LI TYPE="circle">#&#148;source-file&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;file-locator&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;source-buffer&gt;<BR>
+<UL>
+<LI TYPE="circle">#&#148;source-buffer&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;byte-string&gt; (buffer name)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;known-source-location&gt; base/source.dylan:434<BR>
+<UL>
+<LI TYPE="circle">#&#148;known-source-location&#148;<BR>
+<UL>
+<LI TYPE="circle">raw word data (6)<BR>
+<LI TYPE="circle">raw word data (start position)<BR>
+<LI TYPE="circle">raw word data (start line)<BR>
+<LI TYPE="circle">raw word data (start column)<BR>
+<LI TYPE="circle">raw word data (end position)<BR>
+<LI TYPE="circle">raw word data (end line)<BR>
+<LI TYPE="circle">raw word data (end column)<BR>
+<LI TYPE="circle">&lt;source-file&gt; or &lt;source-buffer&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;ct-raw-function&gt; base/ctfunc.dylan:107<BR>
+<UL>
+<LI TYPE="circle">#&#148;ct-function&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;signature&gt;<BR>
+<LI TYPE="circle">&lt;function-definition&gt; or #f (if it didn&#146;t come from a definition)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;ctype&gt;? (types of closure vars for local functions)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (has-general-entry?)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;ct-callback-function&gt; base/ctfunc.dylan:122<BR>
+<UL>
+<LI TYPE="circle">#&#148;ct-callback-function&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;signature&gt;<BR>
+<LI TYPE="circle">&lt;function-definition&gt; or #f (if it didn&#146;t come from a definition)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;ctype&gt;? (types of closure vars for local functions)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (has-general-entry?)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (has-callback-entry?)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;ct-sealed-generic&gt; base/ctfunc.dylan:155<BR>
+<UL>
+<LI TYPE="circle">#&#148;ct-sealed-generic&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;signature&gt;<BR>
+<LI TYPE="circle">&lt;function-definition&gt; or #f (if it didn&#146;t come from a definition)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;ctype&gt;? (types of closure vars for local functions)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (has-general-entry?)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (sealed)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;ct-open-generic&gt; base/ctfunc.dylan:161<BR>
+<UL>
+<LI TYPE="circle">#&#148;ct-open-generic&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;signature&gt;<BR>
+<LI TYPE="circle">&lt;function-definition&gt; or #f (if it didn&#146;t come from a definition)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;ctype&gt;? (types of closure vars for local functions)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (has-general-entry?)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (sealed)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;ct-method&gt; base/ctfunc.dylan:186<BR>
+<UL>
+<LI TYPE="circle">#&#148;ct-method&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;signature&gt;<BR>
+<LI TYPE="circle">&lt;function-definition&gt; or #f (if it didn&#146;t come from a definition)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;ctype&gt;? (types of closure vars for local functions)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (has-general-entry?)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (method is hidden inside generic function)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (has-generic-entry?)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;ct-accessor-method&gt; base/ctfunc.dylan:205<BR>
+<UL>
+<LI TYPE="circle">#&#148;ct-accessor-method&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;signature&gt;<BR>
+<LI TYPE="circle">&lt;function-definition&gt; or #f (if it didn&#146;t come from a definition)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;ctype&gt;? (types of closure vars for local functions)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (has-general-entry?)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (method is hidden inside generic function)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (has-generic-entry?)<BR>
+<LI TYPE="circle">&lt;slot-info&gt;<BR>
+<LI TYPE="circle">&lt;ct-function&gt; (shared accessor stand-in) or #f (need custom stand-in)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;ct-entry-point&gt; base/ctfunc.dylan:251<BR>
+<LI TYPE="circle">&lt;ct-not-supplied-marker&gt; base/ctv.dylan:782<BR>
+<LI TYPE="circle">&lt;eql-literal&gt; base/ctv.dylan:790<BR>
+<LI TYPE="circle">&lt;literal-integer&gt; base/ctv.dylan:816<BR>
+<LI TYPE="circle">&lt;literal-single-float&gt; base/ctv.dylan:822<BR>
+<LI TYPE="circle">&lt;literal-double-float&gt; base/ctv.dylan:828<BR>
+<LI TYPE="circle">&lt;literal-extended-float&gt; base/ctv.dylan:834<BR>
+<LI TYPE="circle">&lt;literal-pair&gt; base/ctv.dylan:864<BR>
+<LI TYPE="circle">&lt;literal-simple-object-vector&gt; base/ctv.dylan:871<BR>
+<LI TYPE="circle">&lt;literal-byte-string&gt; base/ctv.dylan:879<BR>
+<LI TYPE="circle">&lt;basic-name&gt; base/names.dylan:79<BR>
+<UL>
+<LI TYPE="circle">#&#148;basic-name&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;symbol&gt;<BR>
+<LI TYPE="circle">&lt;module&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;derived-name&gt; (internal use) base/names.dylan:132<BR>
+<UL>
+<LI TYPE="circle">#&#148;derived-name&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;symbol&gt; (describing what kind of derivation to do)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;internal-name&gt; (local method etc) base/names.dylan:159<BR>
+<UL>
+<LI TYPE="circle">#&#148;internal-name&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;symbol&gt; (name of local method)<BR>
+<LI TYPE="circle">&lt;name&gt; (container)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;anonymous-name&gt; (unnamed tlf) base/names.dylan:185<BR>
+<UL>
+<LI TYPE="circle">#&#148;anonymous-name&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;source-location&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;method-name&gt; base/names.dylan:218<BR>
+<UL>
+<LI TYPE="circle">#&#148;method-name&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;basic-name&gt;<BR>
+<LI TYPE="circle">&lt;sequence&gt; of &lt;ctype&gt; (specializers)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;signature&gt; base/signature.dylan:70<BR>
+<UL>
+<LI TYPE="circle">#&#148;function-signature&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;list&gt; of &lt;ctype&gt; (specializers for req&#146;d arguments)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (#next present)<BR>
+<LI TYPE="circle">&lt;ctype&gt; (#rest type) or #f (if no #rest)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;key-info&gt;, or #f  (if no #key)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (#all-keys present)<BR>
+<LI TYPE="circle">&lt;values-ctype&gt; (result type)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;key-info&gt; base/signature.dylan:119<BR>
+<UL>
+<LI TYPE="circle">#&#148;function-key-info&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;symbol&gt;<BR>
+<LI TYPE="circle">&lt;ctype&gt;<BR>
+<LI TYPE="circle">&lt;boolean&gt; (required)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (default compile-time value) or #f<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;token&gt; base/tokens.dylan:610<BR>
+<UL>
+<LI TYPE="circle">#&#148;token&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;source-location&gt;<BR>
+<LI TYPE="circle">&lt;integer&gt;  (token kind)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;identifier-token&gt; base/tokens.dylan:626<BR>
+<UL>
+<LI TYPE="circle">#&#148;identifier-token&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;source-location&gt;<BR>
+<LI TYPE="circle">&lt;integer&gt; (token kind)<BR>
+<LI TYPE="circle">&lt;symbol&gt;<BR>
+<LI TYPE="circle">&lt;module&gt; or #f<BR>
+<LI TYPE="circle">&lt;uniquifier&gt; or #f or omitted<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;left-bracket-token&gt; (tokens that have a symbol name) base/tokens.dylan:629<BR>
+<UL>
+<LI TYPE="circle">#&#148;left-bracket-token&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;source-location&gt;<BR>
+<LI TYPE="circle">&lt;integer&gt; (token kind)<BR>
+<LI TYPE="circle">&lt;module&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;uniquifier&gt; base/tokens.dylan:632<BR>
+<UL>
+<LI TYPE="circle">#&#148;uniquifier&#148;<BR>
+</UL>
+<LI TYPE="circle">&lt;operator-token&gt; base/tokens.dylan:639<BR>
+<UL>
+<LI TYPE="circle">#&#148;operator-token&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;source-location&gt;<BR>
+<LI TYPE="circle">&lt;integer&gt; (token kind)<BR>
+<LI TYPE="circle">&lt;symbol&gt;<BR>
+<LI TYPE="circle">&lt;module&gt; or #f<BR>
+<LI TYPE="circle">&lt;uniquifier&gt; or #f<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;constrained-name-token&gt; base/tokens.dylan:642<BR>
+<UL>
+<LI TYPE="circle">#&#148;constrained-name-token&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;source-location&gt;<BR>
+<LI TYPE="circle">&lt;integer&gt;  (token kind)<BR>
+<LI TYPE="circle">&lt;symbol&gt; (pattern variable name part)<BR>
+<LI TYPE="circle">&lt;symbol&gt; (pattern variable constraint part)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;literal-token&gt; base/tokens.dylan:647<BR>
+<UL>
+<LI TYPE="circle">#&#148;literal-token&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;source-location&gt;<BR>
+<LI TYPE="circle">&lt;integer&gt; (token kind)<BR>
+<LI TYPE="circle">&lt;literal&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;pre-parsed-token&gt; base/tokens.dylan:651<BR>
+<UL>
+<LI TYPE="circle">#&#148;pre-parsed-token&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;source-location&gt;<BR>
+<LI TYPE="circle">&lt;integer&gt; (token kind)<BR>
+<LI TYPE="circle">token-parse-tree<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;union-ctype&gt; base/type-dump.dylan:47<BR>
+<UL>
+<LI TYPE="circle">#&#148;union-type&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;values-ctype&gt; (memo of extensional version of type) or #f<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;ctype&gt; (classes, limited types, or singletons in union)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;unknown-ctype&gt; base/type-dump.dylan:99<BR>
+<UL>
+<LI TYPE="circle">#&#148;unknown-type&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;values-ctype&gt; (memo of extensional version of type) or #f<BR>
+<LI TYPE="circle">#f (theoretically, the expression of unknown type)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;limited-integer-ctype&gt; base/type-dump.dylan:107<BR>
+<UL>
+<LI TYPE="circle">#&#148;limited-integer-type&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;values-ctype&gt; (memo of extensional version of type) or #f<BR>
+<LI TYPE="circle">&lt;cclass&gt; (most specific supertype of this limited type)<BR>
+<LI TYPE="circle">&lt;extended-integer&gt; or #f (low bound)<BR>
+<LI TYPE="circle">&lt;extended-integer&gt; or #f (high bound)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;direct-instance-ctype&gt; base/type-dump.dylan:115<BR>
+<UL>
+<LI TYPE="circle">#&#148;direct-instance-type&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;values-ctype&gt; (memo of extensional version of type) or #f<BR>
+<LI TYPE="circle">&lt;cclass&gt; (most specific supertype of this type)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;singleton-ctype&gt; base/type-dump.dylan:121<BR>
+<UL>
+<LI TYPE="circle">#&#148;singleton-type&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;values-ctype&gt; (memo of extensional version of type) or #f<BR>
+<LI TYPE="circle">&lt;cclass&gt; (direct class of this type)<BR>
+<LI TYPE="circle">&lt;ct-value&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;byte-character-ctype&gt; base/type-dump.dylan:128<BR>
+<UL>
+<LI TYPE="circle">#&#148;byte-character-type&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;values-ctype&gt; (memo of extensional version of type) or #f<BR>
+<LI TYPE="circle">&lt;cclass&gt; (most specific supertype of this type)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;multi-value-ctype&gt; base/type-dump.dylan:134<BR>
+<UL>
+<LI TYPE="circle">#&#148;multi-value-type&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;values-ctype&gt; (memo of extensional version of type) or #f<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;ctype&gt; (types of specifically typed values)<BR>
+<LI TYPE="circle">&lt;integer&gt; (min number of values that will ever be included)<BR>
+<LI TYPE="circle">&lt;ctype&gt; (type of rest value) or empty-ctype<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;subclass-ctype&gt; base/type-dump.dylan:141<BR>
+<UL>
+<LI TYPE="circle">#&#148;subclass-type&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;values-ctype&gt; (memo of extensional version of type) or #f<BR>
+<LI TYPE="circle">&lt;cclass&gt; (most specific supertype of this type)<BR>
+<LI TYPE="circle">&lt;cclass&gt; (class this type covers subclasses of)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;limited-collection-ctype&gt; base/type-dump.dylan:148<BR>
+<UL>
+<LI TYPE="circle">#&#148;limited-collection&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;values-ctype&gt; (memo of extensional version of type) or #f<BR>
+<LI TYPE="circle">&lt;cclass&gt; (most specific supertype of this limited type)<BR>
+<LI TYPE="circle">&lt;ctype&gt; (element type)<BR>
+<LI TYPE="circle">&lt;integer&gt;, or &lt;sequence&gt; of &lt;integer&gt;, or #f (size or dimensions)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;proxy&gt; base/type-dump.dylan:157<BR>
+<UL>
+<LI TYPE="circle">#&#148;class-proxy&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;cclass&gt; (proxied class)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;instance-slot-info&gt; base/type-dump.dylan:204<BR>
+<UL>
+<LI TYPE="circle">#&#148;instance-slot-info&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;cclass&gt; (that introduces this slot)<BR>
+<LI TYPE="circle">&lt;ctype&gt;<BR>
+<LI TYPE="circle">&lt;variable&gt; (getter generic function) or #f (if not needed for identity)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (no setter)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (initial value) or #t (if there is an initial value, but it is unknown) or #f (if there is no initial value)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (init-function) or #t (if there is an init-function, but it is unknown) or #f (if there is no init-function)<BR>
+<LI TYPE="circle">&lt;symbol&gt; (init-keyword) or #f<BR>
+<LI TYPE="circle">&lt;boolean&gt; (init-keyword is required)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;vector-slot-info&gt; base/type-dump.dylan:216<BR>
+<UL>
+<LI TYPE="circle">#&#148;vector-slot-info&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;cclass&gt; (that introduces this slot)<BR>
+<LI TYPE="circle">&lt;ctype&gt;<BR>
+<LI TYPE="circle">&lt;variable&gt; (getter generic function) or #f (if not needed for identity)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (no setter)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (initial value) or #t (if there is an initial value, but it is unknown) or #f (if there is no initial value)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (init-function) or #t (if there is an init-function, but it is unknown) or #f (if there is no init-function)<BR>
+<LI TYPE="circle">&lt;symbol&gt; (init-keyword) or #f<BR>
+<LI TYPE="circle">&lt;boolean&gt; (init-keyword is required)<BR>
+<LI TYPE="circle">&lt;instance-slot-info&gt; (slot-size slot)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;meta-slot-info&gt; base/type-dump.dylan:224<BR>
+(actual class slot or each-subclass slot, located in instance&#146;s object-class)<BR>
+<UL>
+<LI TYPE="circle">#&#148;meta-slot-info&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;cclass&gt; (that introduces this slot)<BR>
+<LI TYPE="circle">&lt;ctype&gt;<BR>
+<LI TYPE="circle">&lt;variable&gt; (getter generic function) or #f (if not needed for identity)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (no setter)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (initial value) or #t (if there is an initial value, but it is unknown) or #f (if there is no initial value)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (init-function) or #t (if there is an init-function, but it is unknown) or #f (if there is no init-function)<BR>
+<LI TYPE="circle">&lt;symbol&gt; (init-keyword) or #f<BR>
+<LI TYPE="circle">&lt;boolean&gt; (init-keyword is required)<BR>
+<LI TYPE="circle">&lt;class-slot-info&gt; or &lt;each-subclass-slot-info&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;class-slot-info&gt; base/type-dump.dylan:233<BR>
+<UL>
+<LI TYPE="circle">#&#148;class-slot-info&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;cclass&gt; (that introduces this slot)<BR>
+<LI TYPE="circle">&lt;ctype&gt;<BR>
+<LI TYPE="circle">&lt;variable&gt; (getter generic function) or #f (if not needed for identity)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (no setter)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (initial value) or #t (if there is an initial value, but it is unknown) or #f (if there is no initial value)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (init-function) or #t (if there is an init-function, but it is unknown) or #f (if there is no init-function)<BR>
+<LI TYPE="circle">&lt;symbol&gt; (init-keyword) or #f<BR>
+<LI TYPE="circle">&lt;boolean&gt; (init-keyword is required)<BR>
+<LI TYPE="circle">&lt;meta-slot-info&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;each-subclass-slot-info&gt; base/type-dump.dylan:242<BR>
+<UL>
+<LI TYPE="circle">#&#148;each-subclass-slot-info&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;cclass&gt; (that introduces this slot)<BR>
+<LI TYPE="circle">&lt;ctype&gt;<BR>
+<LI TYPE="circle">&lt;variable&gt; (getter generic function) or #f (if not needed for identity)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (no setter)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (initial value) or #t (if there is an initial value, but it is unknown) or #f (if there is no initial value)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (init-function) or #t (if there is an init-function, but it is unknown) or #f (if there is no init-function)<BR>
+<LI TYPE="circle">&lt;symbol&gt; (init-keyword) or #f<BR>
+<LI TYPE="circle">&lt;boolean&gt; (init-keyword is required)<BR>
+<LI TYPE="circle">&lt;meta-slot-info&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;virtual-slot-info&gt; base/type-dump.dylan:250<BR>
+<UL>
+<LI TYPE="circle">#&#148;virtual-slot-info&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;cclass&gt; (that introduces this slot)<BR>
+<LI TYPE="circle">&lt;ctype&gt;<BR>
+<LI TYPE="circle">&lt;variable&gt; (getter generic function) or #f (if not needed for identity)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (no setter)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (initial value) or #t (if there is an initial value, but it is unknown) or #f (if there is no initial value)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (init-function) or #t (if there is an init-function, but it is unknown) or #f (if there is no init-function)<BR>
+<LI TYPE="circle">&lt;symbol&gt; (init-keyword) or #f<BR>
+<LI TYPE="circle">&lt;boolean&gt; (init-keyword is required)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;override-info&gt; base/type-dump.dylan:256<BR>
+<UL>
+<LI TYPE="circle">#&#148;override-info&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;cclass&gt; (that introduces this inherited slot clause)<BR>
+<LI TYPE="circle">&lt;variable&gt; (getter generic function being inherited)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (initial value) or #t (if there is a new initial value, but it is unknown) or #f (if there is no new initial value)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (init-function) or #t (if there is a new init-function, but it is unknown) or #f (if there is no new init-function)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;keyword-info&gt; base/type-dump.dylan:265<BR>
+<UL>
+<LI TYPE="circle">#&#148;keyword-info&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;cclass&gt; (that introduces this keyword clause)<BR>
+<LI TYPE="circle">&lt;symbol&gt; (the keyword symbol)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (initial value) or #t (if there is a new initial value, but it is unknown) or #f (if there is no new initial value)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (init-function) or #t (if there is a new init-function, but it is unknown) or #f (if there is no new init-function)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (required keyword)<BR>
+<LI TYPE="circle">&lt;ctype&gt; (type restriction of keyword)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;defined-cclass&gt; base/type-dump.dylan:285<BR>
+<UL>
+<LI TYPE="circle">#&#148;defined-class&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;values-ctype&gt; (memo of extensional version of type) or #f<BR>
+<LI TYPE="circle">&lt;name&gt; (printable name of class)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;cclass&gt; (direct superclasses)<BR>
+<LI TYPE="circle">&lt;cclass&gt; (closest primary superclass)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class and its subclasses can&#146;t be functional)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class is functional)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class is sealed)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class is abstract)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class is primary)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;cclass&gt; (class precedence list, including this class and indirect superclasses)<BR>
+<LI TYPE="circle">&lt;integer&gt; (unique id of concrete class) or #f<BR>
+<LI TYPE="circle">&lt;integer&gt; (subclass id range min of sealed &amp; non-mixed class) or #f<BR>
+<LI TYPE="circle">&lt;integer&gt; (subclass id range max of sealed &amp; non-mixed class) or #f<BR>
+<LI TYPE="circle">&lt;representation&gt; (direct speed representation) or #f (if abstract)<BR>
+<LI TYPE="circle">&lt;representation&gt; (direct space representation) or #f (if abstract)<BR>
+<LI TYPE="circle">&lt;representation&gt; (general speed representation) or #f (if abstract)<BR>
+<LI TYPE="circle">&lt;representation&gt; (general space representation) or #f (if abstract)<BR>
+<LI TYPE="circle">&lt;meta-cclass&gt; or #f<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;limited-cclass&gt; base/type-dump.dylan:292<BR>
+<UL>
+<LI TYPE="circle">#&#148;limited-class&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;values-ctype&gt; (memo of extensional version of type) or #f<BR>
+<LI TYPE="circle">&lt;name&gt; (printable name of class)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;cclass&gt; (direct superclasses)<BR>
+<LI TYPE="circle">&lt;cclass&gt; (closest primary superclass)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class and its subclasses can&#146;t be functional)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class is functional)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class is sealed)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class is abstract)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class is primary)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;cclass&gt; (class precedence list, including this class and indirect superclasses)<BR>
+<LI TYPE="circle">&lt;integer&gt; (unique id of concrete class) or #f<BR>
+<LI TYPE="circle">&lt;integer&gt; (subclass id range min of sealed &amp; non-mixed class) or #f<BR>
+<LI TYPE="circle">&lt;integer&gt; (subclass id range max of sealed &amp; non-mixed class) or #f<BR>
+<LI TYPE="circle">&lt;representation&gt; (direct speed representation) or #f (if abstract)<BR>
+<LI TYPE="circle">&lt;representation&gt; (direct space representation) or #f (if abstract)<BR>
+<LI TYPE="circle">&lt;representation&gt; (general speed representation) or #f (if abstract)<BR>
+<LI TYPE="circle">&lt;representation&gt; (general space representation) or #f (if abstract)<BR>
+<LI TYPE="circle">&lt;meta-cclass&gt; or #f<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;meta-cclass&gt; base/type-dump.dylan:299<BR>
+<UL>
+<LI TYPE="circle">#&#148;meta-class&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;values-ctype&gt; (memo of extensional version of type) or #f<BR>
+<LI TYPE="circle">&lt;name&gt; (printable name of class)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;cclass&gt; (direct superclasses)<BR>
+<LI TYPE="circle">&lt;cclass&gt; (closest primary superclass)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class and its subclasses can&#146;t be functional)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class is functional)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class is sealed)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class is abstract)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class is primary)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;cclass&gt; (class precedence list, including this class and indirect superclasses)<BR>
+<LI TYPE="circle">&lt;integer&gt; (unique id of concrete class) or #f<BR>
+<LI TYPE="circle">&lt;integer&gt; (subclass id range min of sealed &amp; non-mixed class) or #f<BR>
+<LI TYPE="circle">&lt;integer&gt; (subclass id range max of sealed &amp; non-mixed class) or #f<BR>
+<LI TYPE="circle">&lt;representation&gt; (direct speed representation) or #f (if abstract)<BR>
+<LI TYPE="circle">&lt;representation&gt; (direct space representation) or #f (if abstract)<BR>
+<LI TYPE="circle">&lt;representation&gt; (general speed representation) or #f (if abstract)<BR>
+<LI TYPE="circle">&lt;representation&gt; (general space representation) or #f (if abstract)<BR>
+<LI TYPE="circle">&lt;meta-cclass&gt; or #f<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;slot-info&gt; (slots introduced by this class)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;defined-cdclass&gt; base/type-dump.dylan:307<BR>
+<UL>
+<LI TYPE="circle">#&#148;defined-designator-class&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;values-ctype&gt; (memo of extensional version of type) or #f<BR>
+<LI TYPE="circle">&lt;name&gt; (printable name of class)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;cclass&gt; (direct superclasses)<BR>
+<LI TYPE="circle">&lt;cclass&gt; (closest primary superclass)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class and its subclasses can&#146;t be functional)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class is functional)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class is sealed)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class is abstract)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (this class is primary)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;cclass&gt; (class precedence list, including this class and indirect superclasses)<BR>
+<LI TYPE="circle">&lt;integer&gt; (unique id of concrete class) or #f<BR>
+<LI TYPE="circle">&lt;integer&gt; (subclass id range min of sealed &amp; non-mixed class) or #f<BR>
+<LI TYPE="circle">&lt;integer&gt; (subclass id range max of sealed &amp; non-mixed class) or #f<BR>
+<LI TYPE="circle">&lt;representation&gt; (direct speed representation) or #f (if abstract)<BR>
+<LI TYPE="circle">&lt;representation&gt; (direct space representation) or #f (if abstract)<BR>
+<LI TYPE="circle">&lt;representation&gt; (general speed representation) or #f (if abstract)<BR>
+<LI TYPE="circle">&lt;representation&gt; (general space representation) or #f (if abstract)<BR>
+<LI TYPE="circle">&lt;meta-cclass&gt; or #f<BR>
+<LI TYPE="circle">&lt;integer&gt; (sizeof designated type)<BR>
+<LI TYPE="circle">&lt;integer&gt; (alignment in sizeof units)<BR>
+<LI TYPE="circle">&lt;representation&gt; (representation of FFI type) or #f<BR>
+<LI TYPE="circle">&lt;defined-cdclass&gt; (referenced type of this pointer designator type) or #f<BR>
+<LI TYPE="circle">&lt;defined-cdclass&gt; (pointer designator type referring to this type) or #f<BR>
+<LI TYPE="circle">&lt;cclass&gt; (superclass for generating above) or #f<BR>
+<LI TYPE="circle">&lt;ctype&gt; (correpsonding Dylan import type) or #f<BR>
+<LI TYPE="circle">&lt;ctype&gt; (corresponding Dylan export type) or #f<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (indirect-getter function) or #f<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (indirect-setter function)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;struct-slot-info&gt; base/type-dump.dylan:323<BR>
+<LI TYPE="circle">&lt;library&gt; base/variables.dylan:1239<BR>
+<UL>
+<LI TYPE="circle">#&#148;library&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;symbol&gt; (library name)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;module&gt; base/variables.dylan:1250<BR>
+<UL>
+<LI TYPE="circle">#&#148;module&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;library&gt;<BR>
+<LI TYPE="circle">&lt;symbol&gt; (module name)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;variable&gt; base/variables.dylan:1287<BR>
+<UL>
+<LI TYPE="circle">#&#148;module-variable&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;module&gt; (owner, not definer)<BR>
+<LI TYPE="circle">&lt;symbol&gt; (variable name)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;use&gt; base/variables.dylan:1300<BR>
+<UL>
+<LI TYPE="circle">#&#148;use&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;symbol-token&gt; (name of used library, module, or binding)<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;symbol-token&gt;, or &lt;all-marker&gt; (imported names)<BR>
+<LI TYPE="circle">&lt;byte-string&gt; or #f (prefix)<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;symbol-token&gt; (excluded names)<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;renaming&gt; (renamed binding, also included in imported names)<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;symbol-token&gt;, or &lt;all-marker&gt; (re-exported names)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;all-marker&gt; base/variables.dylan:1308<BR>
+<UL>
+<LI TYPE="circle">#&#148;all-marker&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;source-location&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;renaming&gt; base/variables.dylan:1311<BR>
+<UL>
+<LI TYPE="circle">#&#148;renaming&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;symbol-token&gt; (original name)<BR>
+<LI TYPE="circle">&lt;symbol-token&gt; (new name)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;define-bindings-tlf&gt; convert/defconstvar.dylan:533<BR>
+<UL>
+<LI TYPE="circle">#&#148;define-binding-tlf&#148; (main binding)<BR>
+<UL>
+<LI TYPE="circle">&lt;definition&gt;<BR>
+<LI TYPE="circle">&lt;top-level-form&gt;, or &lt;list&gt; of &lt;top-level-form&gt; (dependencies)<BR>
+</UL>
+<LI TYPE="circle">#&#148;define-binding-tlf&#148; (multiple aux bindings)<BR>
+<UL>
+<LI TYPE="circle">&lt;definition&gt;<BR>
+<LI TYPE="circle">&lt;top-level-form&gt;, or &lt;list&gt; of &lt;top-level-form&gt; (dependencies)<BR>
+</UL>
+<LI TYPE="circle">#&#148;define-binding-tlf&#148; (optional if rest defn)<BR>
+<UL>
+<LI TYPE="circle">&lt;variable-definition&gt; or &lt;constant-definition&gt;<BR>
+<LI TYPE="circle">&lt;top-level-form&gt;, or &lt;list&gt; of &lt;top-level-form&gt; (dependencies)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;constant-definition&gt; convert/defconstvar.dylan:549<BR>
+<UL>
+<LI TYPE="circle">#&#148;constant-definition&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;library&gt; (library making the definition)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (definition can be dynamically redefined)<BR>
+<LI TYPE="circle">&lt;ctype&gt;  (constant value type)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (constant value) or #f (if not computable at compile time) or #&#148;not-computed-yet&#148; (if unknown)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;constant-method-definition&gt; convert/defconstvar.dylan:555<BR>
+<UL>
+<LI TYPE="circle">#&#148;constant-method-definition&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;library&gt; (library making the definition)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (definition can be dynamically redefined)<BR>
+<LI TYPE="circle">&lt;signature&gt;<BR>
+<LI TYPE="circle">&lt;boolean&gt; (hairy: something non-constant in signature)<BR>
+<LI TYPE="circle">&lt;ct-function&gt; or #f (if hairy) or #&#148;not-computed-yet&#148;<BR>
+<LI TYPE="circle">&lt;boolean&gt; (flushable: no side effects)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (movable: result only depends on arguments)<BR>
+<LI TYPE="circle">&lt;function-literal&gt; or #f (inlined function literal)<BR>
+<LI TYPE="circle">&lt;symbol&gt; (inlining type)<BR>
+<LI TYPE="circle">&lt;ctype&gt;  (constant value)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (constant value type) or #f (if not computable at compile time) or #&#148;not-computed-yet&#148; (if unknown)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;variable-definition&gt; convert/defconstvar.dylan:562<BR>
+<UL>
+<LI TYPE="circle">#&#148;variable-definition&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;library&gt; (library making the definition)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (definition can be dynamically redefined)<BR>
+<LI TYPE="circle">&lt;ctype&gt;  (initial value)<BR>
+<LI TYPE="circle">&lt;ct-value&gt; (initial value type) or #f (if not computable at compile time) or #&#148;not-computed-yet&#148; (if unknown)<BR>
+<LI TYPE="circle">&lt;constant-definition&gt; (if initial value  type is not compile-time constant) or #f<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;define-class-tlf&gt; convert/defclass.dylan:4117<BR>
+<UL>
+<LI TYPE="circle">#&#148;define-binding-tlf&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;real-class-definition&gt;<BR>
+<LI TYPE="circle">#f (no dependencies)<BR>
+</UL>
+<LI TYPE="circle">&lt;getter-method-definition&gt; (per inherited or exported non-virtual getter)<BR>
+<LI TYPE="circle">#&#148;sealed-domain&#148; (immediately following each above if sealed)<BR>
+<UL>
+<LI TYPE="circle">&lt;generic-definition&gt; (of getter) or #f<BR>
+<LI TYPE="circle">&lt;library&gt; (of this tlf&#146;s &lt;real-class-definition&gt;)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;ctype&gt; (getter specializers)<BR>
+</UL>
+<LI TYPE="circle">&lt;setter-method-definition&gt; (per inherited or exported non-virtual setter)<BR>
+<LI TYPE="circle">#&#148;sealed-domain&#148; (immediately following each above if sealed)<BR>
+<UL>
+<LI TYPE="circle">&lt;generic-definition&gt; (of setter) or #f<BR>
+<LI TYPE="circle">&lt;library&gt; (of this tlf&#146;s &lt;real-class-definition&gt;)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;ctype&gt; (setter specializers)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;real-class-definition&gt; convert/defclass.dylan:4245<BR>
+<UL>
+<LI TYPE="circle">#&#148;class-definition&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;library&gt; (library making the definition)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (definition can be dynamically redefined)<BR>
+<LI TYPE="circle">&lt;cclass&gt; or #f (if unknown) or #&#148;not-computed-yet&#148; or #&#148;computing&#148;<BR>
+<LI TYPE="circle">&lt;ct-function&gt; (to do deferred evaluations) or #f <BR>
+<LI TYPE="circle">&lt;ct-function&gt; (to do key defaulting) or #f<BR>
+<LI TYPE="circle">&lt;ct-function&gt; (to do making) or #f<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;slot-info&gt; (slots introduced by this class)<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;override-info&gt; (overrides introduced by this class)<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;keyword-info&gt; (for overrides introduced by this class)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;local-class-definition&gt; convert/defclass.dylan:4256<BR>
+<UL>
+<LI TYPE="circle">same as &lt;real-class-definition&gt;<BR>
+</UL>
+<LI TYPE="circle">&lt;init-function-definition&gt; convert/defclass.dylan:4260<BR>
+<UL>
+<LI TYPE="circle">#&#148;init-function-definition&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;library&gt; (library making the definition)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (definition can be dynamically redefined)<BR>
+<LI TYPE="circle">&lt;signature&gt;<BR>
+<LI TYPE="circle">&lt;boolean&gt; (hairy: something non-constant in signature)<BR>
+<LI TYPE="circle">&lt;ct-function&gt; or #f (if hairy) or #&#148;not-computed-yet&#148;<BR>
+<LI TYPE="circle">&lt;boolean&gt; (flushable: no side effects)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (movable: result only depends on arguments)<BR>
+<LI TYPE="circle">&lt;function-literal&gt; or #f (inlined function literal)<BR>
+<LI TYPE="circle">&lt;symbol&gt; (inlining type)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;maker-function-definition&gt; convert/defclass.dylan:4265<BR>
+<UL>
+<LI TYPE="circle">#&#148;maker-function-definition&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;library&gt; (library making the definition)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (definition can be dynamically redefined)<BR>
+<LI TYPE="circle">&lt;signature&gt;<BR>
+<LI TYPE="circle">&lt;boolean&gt; (hairy: something non-constant in signature)<BR>
+<LI TYPE="circle">&lt;ct-function&gt; or #f (if hairy) or #&#148;not-computed-yet&#148;<BR>
+<LI TYPE="circle">&lt;boolean&gt; (flushable: no side effects)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (movable: result only depends on arguments)<BR>
+<LI TYPE="circle">&lt;function-literal&gt; or #f (inlined function literal)<BR>
+<LI TYPE="circle">&lt;symbol&gt; (inlining type)<BR>
+<LI TYPE="circle">&lt;class-definition&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;real-define-method-tlf&gt; convert/deffunc.dylan:1344<BR>
+<UL>
+<LI TYPE="circle">&lt;generic-definition&gt; (if inherited or exported)<BR>
+<LI TYPE="circle">#&#148;sealed-domain&#148; (if sealed)<BR>
+<UL>
+<LI TYPE="circle">&lt;generic-definition&gt;<BR>
+<LI TYPE="circle">&lt;library&gt; (of this tlf)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;ctype&gt; (specializers)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;define-sealed-domain-tlf&gt; convert/deffunc.dylan:1359<BR>
+<UL>
+<LI TYPE="circle">#&#148;sealed-domain&#148; (if sealed)<BR>
+<UL>
+<LI TYPE="circle">&lt;generic-definition&gt;<BR>
+<LI TYPE="circle">&lt;library&gt; <BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;ctype&gt; (specializers)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;define-library-tlf&gt; convert/deflibmod.dylan:73<BR>
+<UL>
+<LI TYPE="circle">#&#148;define-library-tlf&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;symbol-token&gt; (library name)<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;use&gt; (used libraries)<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;identifier-token&gt; (exported module names)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;define-module-tlf&gt; convert/deflibmod.dylan:152<BR>
+<UL>
+<LI TYPE="circle">#&#148;define-module-tlf&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;symbol-token&gt; (module name)<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;use&gt; (used modules)<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;identifier-token&gt; (exported binding names)<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;identifier-token&gt; (created binding names)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;real-designator-class-definition&gt; convert/defdclass.dylan:437<BR>
+<LI TYPE="circle">&lt;local-designator-class-definition&gt; convert/defdclass.dylan:449<BR>
+<LI TYPE="circle">&lt;expression-tlf&gt; convert/tlexpr.dylan:110<BR>
+<UL>
+<LI TYPE="circle">nothing<BR>
+</UL>
+<LI TYPE="circle">&lt;magic-internal-primitives-placeholder&gt; convert/tlexpr.dylan:140<BR>
+<UL>
+<LI TYPE="circle">nothing<BR>
+</UL>
+<LI TYPE="circle">&lt;generic-definition&gt; front/func-defns.dylan:900<BR>
+<UL>
+<LI TYPE="circle">#&#148;generic-definition&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;library&gt; (library making the definition)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (definition can be dynamically redefined)<BR>
+<LI TYPE="circle">&lt;signature&gt;<BR>
+<LI TYPE="circle">&lt;boolean&gt; (hairy: something non-constant in signature)<BR>
+<LI TYPE="circle">&lt;ct-function&gt; or #f (if hairy) or #&#148;not-computed-yet&#148;<BR>
+<LI TYPE="circle">&lt;boolean&gt; (flushable: no side effects)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (movable: result only depends on arguments)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (sealed)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;seal-info&gt; (seals on this generic)<BR>
+<LI TYPE="circle">&lt;ct-function&gt; or #f (discriminator function)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;implicit-generic-definition&gt; front/func-defns.dylan:905<BR>
+<UL>
+<LI TYPE="circle">#&#148;implicit-generic-definition&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;library&gt; (library making the definition)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (definition can be dynamically redefined)<BR>
+<LI TYPE="circle">&lt;signature&gt;<BR>
+<LI TYPE="circle">&lt;boolean&gt; (hairy: something non-constant in signature)<BR>
+<LI TYPE="circle">&lt;ct-function&gt; or #f (if hairy) or #&#148;not-computed-yet&#148;<BR>
+<LI TYPE="circle">&lt;boolean&gt; (flushable: no side effects)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (movable: result only depends on arguments)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (sealed)<BR>
+<LI TYPE="circle">&lt;list&gt; of &lt;seal-info&gt; (seals on this generic)<BR>
+<LI TYPE="circle">&lt;ct-function&gt; or #f (discriminator function)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;seal-info&gt; front/func-defns.dylan:910<BR>
+<UL>
+<LI TYPE="circle">#&#148;seal-info&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;list&gt; of &lt;ctype&gt; (specializers)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;method-definition&gt; front/func-defns.dylan:932<BR>
+<UL>
+<LI TYPE="circle">#&#148;method-definition&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;library&gt; (library making the definition)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (definition can be dynamically redefined)<BR>
+<LI TYPE="circle">&lt;signature&gt;<BR>
+<LI TYPE="circle">&lt;boolean&gt; (hairy: something non-constant in signature)<BR>
+<LI TYPE="circle">&lt;ct-function&gt; or #f (if hairy) or #&#148;not-computed-yet&#148;<BR>
+<LI TYPE="circle">&lt;boolean&gt; (flushable: no side effects)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (movable: result only depends on arguments)<BR>
+<LI TYPE="circle">&lt;function-literal&gt; or #f (inlined function literal)<BR>
+<LI TYPE="circle">&lt;symbol&gt; (inlining type)<BR>
+<LI TYPE="circle">&lt;generic-definition&gt; or #f<BR>
+<LI TYPE="circle">&lt;boolean&gt; (congruent to &lt;generic-definition&gt;)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;getter-method-definition&gt; front/func-defns.dylan:941<BR>
+<UL>
+<LI TYPE="circle">#&#148;getter-method-definition&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;library&gt; (library making the definition)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (definition can be dynamically redefined)<BR>
+<LI TYPE="circle">&lt;signature&gt;<BR>
+<LI TYPE="circle">&lt;boolean&gt; (hairy: something non-constant in signature)<BR>
+<LI TYPE="circle">&lt;ct-function&gt; or #f (if hairy) or #&#148;not-computed-yet&#148;<BR>
+<LI TYPE="circle">&lt;boolean&gt; (flushable: no side effects)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (movable: result only depends on arguments)<BR>
+<LI TYPE="circle">&lt;function-literal&gt; or #f (inlined function literal)<BR>
+<LI TYPE="circle">&lt;symbol&gt; (inlining type)<BR>
+<LI TYPE="circle">&lt;generic-definition&gt; or #f<BR>
+<LI TYPE="circle">&lt;boolean&gt; (congruent to &lt;generic-definition&gt;)<BR>
+<LI TYPE="circle">&lt;slot-info&gt; or #f<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;setter-method-definition&gt; front/func-defns.dylan:945<BR>
+<UL>
+<LI TYPE="circle">#&#148;setter-method-definition&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;library&gt; (library making the definition)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (definition can be dynamically redefined)<BR>
+<LI TYPE="circle">&lt;signature&gt;<BR>
+<LI TYPE="circle">&lt;boolean&gt; (hairy: something non-constant in signature)<BR>
+<LI TYPE="circle">&lt;ct-function&gt; or #f (if hairy) or #&#148;not-computed-yet&#148;<BR>
+<LI TYPE="circle">&lt;boolean&gt; (flushable: no side effects)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (movable: result only depends on arguments)<BR>
+<LI TYPE="circle">&lt;function-literal&gt; or #f (inlined function literal)<BR>
+<LI TYPE="circle">&lt;symbol&gt; (inlining type)<BR>
+<LI TYPE="circle">&lt;generic-definition&gt; or #f<BR>
+<LI TYPE="circle">&lt;boolean&gt; (congruent to &lt;generic-definition&gt;)<BR>
+<LI TYPE="circle">&lt;slot-info&gt; or #f<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;function-literal&gt; front/fer-od.dylan:535<BR>
+<UL>
+<LI TYPE="circle">#&#148;function-literal&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;values-ctype&gt; (subclass of &lt;function&gt;)<BR>
+<LI TYPE="circle">&lt;symbol&gt; (indicating visibility)<BR>
+<LI TYPE="circle">&lt;signature&gt;<BR>
+<LI TYPE="circle">&lt;ct-function&gt; (if global visibility) or #f<BR>
+<LI TYPE="circle">&lt;fer-function-region&gt;<BR>
+<LI TYPE="circle">&lt;fer-function-region&gt; or #f<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;simple-define-tlf&gt; front/tlf.dylan:220<BR>
+<UL>
+<LI TYPE="circle">#&#148;define-binding-tlf&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;definition&gt;<BR>
+<LI TYPE="circle">&lt;top-level-form&gt;, or &lt;list&gt; of &lt;top-level-form&gt; (dependencies)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;unit-info&gt; main/unit-info.dylan:62<BR>
+<UL>
+<LI TYPE="circle">#&#148;unit-info&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;byte-string&gt; (unit name)<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; (undumped objects)<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; (extra labels)<BR>
+<LI TYPE="circle">&lt;byte-string&gt; (linker options) or #f<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;define-list-macro-definition&gt; parser/macros.dylan:3184<BR>
+<UL>
+<LI TYPE="circle">#&#148;define-bindings-macro-definition&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;library&gt; (library making the definition)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (definition can be dynamically redefined)<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;symbol&gt; (intermediate words)<BR>
+<LI TYPE="circle">&lt;main-rule-set&gt;<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;auxiliary-rule-set&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;define-body-macro-definition&gt; parser/macros.dylan:3187<BR>
+<UL>
+<LI TYPE="circle">#&#148;define-macro-definition&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;library&gt; (library making the definition)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (definition can be dynamically redefined)<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;symbol&gt; (intermediate words)<BR>
+<LI TYPE="circle">&lt;main-rule-set&gt;<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;auxiliary-rule-set&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;function-macro-definition&gt; parser/macros.dylan:3190<BR>
+<UL>
+<LI TYPE="circle">#&#148;function-macro-definition&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;library&gt; (library making the definition)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (definition can be dynamically redefined)<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;symbol&gt; (intermediate words)<BR>
+<LI TYPE="circle">&lt;main-rule-set&gt;<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;auxiliary-rule-set&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;statement-macro-definition&gt; parser/macros.dylan:3193<BR>
+<UL>
+<LI TYPE="circle">#&#148;statement-macro-definition&#148;<BR>
+<UL>
+<LI TYPE="circle">info<BR>
+<LI TYPE="circle">&lt;name&gt;<BR>
+<LI TYPE="circle">&lt;library&gt; (library making the definition)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (definition can be dynamically redefined)<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;symbol&gt; (intermediate words)<BR>
+<LI TYPE="circle">&lt;main-rule-set&gt;<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;auxiliary-rule-set&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;main-rule-set&gt; parser/macros.dylan:3201<BR>
+<UL>
+<LI TYPE="circle">#&#148;main-rule-set&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;rule&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;auxiliary-rule-set&gt; parser/macros.dylan:3204<BR>
+<UL>
+<LI TYPE="circle">#&#148;aux-rule-set&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;rule&gt;<BR>
+<LI TYPE="circle">&lt;symbol&gt; (name of aux rule set)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (a rule in this set ends with pattern variable with body/case constraint)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;body-style-define-rule&gt; parser/macros.dylan:3222<BR>
+<UL>
+<LI TYPE="circle">#&#148;body-style-define-rule&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;pattern&gt;<BR>
+<LI TYPE="circle">&lt;template&gt;<BR>
+<LI TYPE="circle">&lt;symbol-token&gt; or #f (name of macro containing this rule)<BR>
+<LI TYPE="circle">&lt;pattern&gt; or #f (modifiers part of pattern)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;list-style-define-rule&gt; parser/macros.dylan:3226<BR>
+<UL>
+<LI TYPE="circle">#&#148;list-style-define-rule&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;pattern&gt;<BR>
+<LI TYPE="circle">&lt;template&gt;<BR>
+<LI TYPE="circle">&lt;symbol-token&gt; or #f (name of macro containing this rule)<BR>
+<LI TYPE="circle">&lt;pattern&gt; or #f (modifiers part of pattern)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;statement-rule&gt; parser/macros.dylan:3230<BR>
+<UL>
+<LI TYPE="circle">#&#148;statement-rule&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;pattern&gt;<BR>
+<LI TYPE="circle">&lt;template&gt;<BR>
+<LI TYPE="circle">&lt;symbol-token&gt; or #f (name of macro containing this rule)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;function-rule&gt; parser/macros.dylan:3234<BR>
+<UL>
+<LI TYPE="circle">#&#148;statement-rule&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;pattern&gt;<BR>
+<LI TYPE="circle">&lt;template&gt;<BR>
+<LI TYPE="circle">&lt;symbol-token&gt; or #f (name of macro containing this rule)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;auxiliary-rule&gt; parser/macros.dylan:3238<BR>
+<UL>
+<LI TYPE="circle">#&#148;auxiliary-rule&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;pattern&gt;<BR>
+<LI TYPE="circle">&lt;template&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;empty-pattern&gt; parser/macros.dylan:3243<BR>
+<UL>
+<LI TYPE="circle">#&#148;empty-pattern&#148;<BR>
+</UL>
+<LI TYPE="circle">&lt;semicolon-pattern&gt; parser/macros.dylan:3252<BR>
+<UL>
+<LI TYPE="circle">#&#148;semicolon-pattern&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;pattern&gt; (left-hand side)<BR>
+<LI TYPE="circle">&lt;pattern&gt; (right-hand side)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (last semicolon pattern in chain)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;comma-pattern&gt; parser/macros.dylan:3256<BR>
+<UL>
+<LI TYPE="circle">#&#148;comma-pattern&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;pattern&gt; (left-hand side)<BR>
+<LI TYPE="circle">&lt;pattern&gt; (right-hand side)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (last comma pattern in chain)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;sequential-pattern&gt; parser/macros.dylan:3260<BR>
+<UL>
+<LI TYPE="circle">#&#148;sequential-pattern&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;pattern&gt; (left-hand side)<BR>
+<LI TYPE="circle">&lt;pattern&gt; (right-hand side)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (last sequential pattern in chain)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;bracketed-pattern&gt; parser/macros.dylan:3264<BR>
+<UL>
+<LI TYPE="circle">#&#148;bracketed-pattern&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;token&gt; (left bracket)<BR>
+<LI TYPE="circle">&lt;pattern&gt;<BR>
+<LI TYPE="circle">&lt;token&gt; (right bracket)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;variable-pattern&gt; parser/macros.dylan:3270<BR>
+(pattern representing a variable, e.g. &#147;?:name :: ?:expression&#148;)<BR>
+<UL>
+<LI TYPE="circle">#&#148;variable-pattern&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;pattern-variable&gt; (name part)<BR>
+<LI TYPE="circle">&lt;pattern-variable&gt; (type part)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;bindings-pattern&gt; parser/macros.dylan:3275<BR>
+(pattern representing a binding, e.g. &#147;?:variable = ?:expression&#148;)<BR>
+<UL>
+<LI TYPE="circle">#&#148;bindings-pattern&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;pattern-variable&gt; or &lt;variable-pattern&gt; (left-hand side)<BR>
+<LI TYPE="circle">&lt;pattern-variable&gt; (right-hand side)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;name-pattern&gt; parser/macros.dylan:3280<BR>
+<UL>
+<LI TYPE="circle">#&#148;name-pattern&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;symbol-token&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;arrow-pattern&gt; parser/macros.dylan:3284<BR>
+<UL>
+<LI TYPE="circle">#&#148;arrow-pattern&#148;<BR>
+</UL>
+<LI TYPE="circle">&lt;pattern-variable&gt; parser/macros.dylan:3294<BR>
+<UL>
+<LI TYPE="circle">#&#148;pattern-variable&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;source-location&gt;<BR>
+<LI TYPE="circle">&lt;symbol&gt; or #f (pattern variable name)<BR>
+<LI TYPE="circle">&lt;symbol&gt; or #f (pattern variable constraint)<BR>
+<LI TYPE="circle">&lt;boolean&gt; (pattern variable is at end of pattern)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;property-list-pattern&gt; parser/macros.dylan:3298<BR>
+<UL>
+<LI TYPE="circle">#&#148;property-list-pattern&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;pattern-variable&gt; (#rest part of prop list pattern) or #f<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;pattern-keyword&gt; (#key parts of prop list pattern) or #f<BR>
+<LI TYPE="circle">&lt;boolean&gt; (#all-keys present in prop list pattern)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;pattern-keyword&gt; parser/macros.dylan:3304<BR>
+<UL>
+<LI TYPE="circle">#&#148;pattern-keyword&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;source-location&gt;<BR>
+<LI TYPE="circle">&lt;symbol&gt; or #f (pattern variable name)<BR>
+<LI TYPE="circle">&lt;symbol&gt; or #f (pattern variable constraint)<BR>
+<LI TYPE="circle">#t<BR>
+<LI TYPE="circle">&lt;template&gt; (default template for keyword) or #f<BR>
+<LI TYPE="circle">&lt;boolean&gt; (?? keyword)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;procedural-template&gt; parser/macros.dylan:3311<BR>
+<UL>
+<LI TYPE="circle">#&#148;procedural-template&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;identifier-token&gt; (procedure that produces replacement)<BR>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;template&gt; (arguments)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;literal-template&gt; parser/macros.dylan:3316<BR>
+<UL>
+<LI TYPE="circle">#&#148;literal-template&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;simple-object-vector&gt; of &lt;token&gt; or &lt;bracketed-element&gt; or &lt;pattern-variable-reference&gt;<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;bracketed-element&gt; parser/macros.dylan:3320<BR>
+<UL>
+<LI TYPE="circle">#&#148;bracketed-element&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;token&gt; (left bracket)<BR>
+<LI TYPE="circle">&lt;literal-template&gt;<BR>
+<LI TYPE="circle">&lt;token&gt; (right bracket)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;simple-pattern-variable-reference&gt; parser/macros.dylan:3329<BR>
+<UL>
+<LI TYPE="circle">#&#148;simple-pattern-variable-reference&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;token&gt; (name, string, or symbol)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;ellipsis-pattern-variable-reference&gt; parser/macros.dylan:3334<BR>
+<UL>
+<LI TYPE="circle">#&#148;ellipsis-pattern-variable-reference&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;token&gt; (ellipsis)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;concatenating-pattern-variable-reference&gt; parser/macros.dylan:3339<BR>
+<UL>
+<LI TYPE="circle">#&#148;concatenating-pattern-variable-reference&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;token&gt; (name, string, or symbol)<BR>
+<LI TYPE="circle">&lt;byte-string&gt; (prefix) or #f<BR>
+<LI TYPE="circle">&lt;byte-string&gt; (suffix) or #f<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;sequence-pattern-variable-reference&gt; parser/macros.dylan:3346<BR>
+<UL>
+<LI TYPE="circle">#&#148;sequence-pattern-variable-reference&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;token&gt; (name, string, or symbol)<BR>
+<LI TYPE="circle">&lt;token&gt; (separator)<BR>
+</UL>
+</UL>
+<LI TYPE="circle">&lt;unhygienic-pattern-variable-reference&gt; parser/macros.dylan:3352<BR>
+<UL>
+<LI TYPE="circle">#&#148;unhygienic-pattern-variable-reference&#148;<BR>
+<UL>
+<LI TYPE="circle">&lt;token&gt; (name)<BR>
+</UL>
+</UL>
+<BR>
+A &lt;boolean&gt; will be dumped as one of<BR>
+<UL>
+<LI TYPE="disc">#t<BR>
+<LI TYPE="disc">#f<BR>
+</UL>
+<BR>
+A &lt;sequence&gt; will be dumped as one of<BR>
+<UL>
+<LI TYPE="disc">&lt;list&gt;<BR>
+<LI TYPE="disc">&lt;simple-object-vector&gt;<BR>
+<BR>
+</UL>
+A &lt;source-location&gt; will be dumped as one of<BR>
+<UL>
+<LI TYPE="disc">&lt;known-source-location&gt;<BR>
+<LI TYPE="disc">&lt;unknown-source-location&gt;<BR>
+<BR>
+</UL>
+A &lt;symbol-token&gt; will be dumped as one of<BR>
+<UL>
+<LI TYPE="disc">&lt;identifier-token&gt;<BR>
+<LI TYPE="disc">&lt;operator-token&gt;<BR>
+<LI TYPE="disc">&lt;constrained-name-token&gt;<BR>
+</UL>
+<BR>
+A &lt;literal&gt; will be dumped as one of<BR>
+<UL>
+<LI TYPE="disc">&lt;eql-literal&gt;<BR>
+<LI TYPE="disc">&lt;literal-integer&gt;<BR>
+<LI TYPE="disc">&lt;literal-single-float&gt;<BR>
+<LI TYPE="disc">&lt;literal-double-float&gt;<BR>
+<LI TYPE="disc">&lt;literal-extended-float&gt;<BR>
+<LI TYPE="disc">&lt;literal-pair&gt;<BR>
+<LI TYPE="disc">&lt;literal-simple-object-vector&gt;<BR>
+<LI TYPE="disc">&lt;literal-byte-string&gt;<BR>
+</UL>
+<BR>
+A &lt;top-level-form&gt; will be dumped as one of<BR>
+<UL>
+<LI TYPE="disc">&lt;define-sealed-domain-tlf&gt;<BR>
+<LI TYPE="disc">&lt;define-library-tlf&gt;<BR>
+<LI TYPE="disc">&lt;define-module-tlf&gt;<BR>
+<LI TYPE="disc">&lt;expression-tlf&gt;<BR>
+<LI TYPE="disc">&lt;simple-define-tlf&gt;<BR>
+<LI TYPE="disc">&lt;define-class-tlf&gt;<BR>
+<LI TYPE="disc">&lt;define-bindings-tlf&gt;<BR>
+<BR>
+</UL>
+A &lt;definition&gt; will be dumped as one of<BR>
+<UL>
+<LI TYPE="disc">&lt;generic-definition&gt;<BR>
+<LI TYPE="disc">&lt;implicit-generic-definition&gt;<BR>
+<LI TYPE="disc">&lt;method-definition&gt;<BR>
+<LI TYPE="disc">&lt;init-function-definition&gt;<BR>
+<LI TYPE="disc">&lt;maker-function-definition&gt;<BR>
+<LI TYPE="disc">&lt;constant-method-definition&gt;<BR>
+<LI TYPE="disc">&lt;getter-method-definition&gt;<BR>
+<LI TYPE="disc">&lt;setter-method-definition&gt;<BR>
+<LI TYPE="disc">&lt;real-class-definition&gt;<BR>
+<LI TYPE="disc">&lt;local-class-definition&gt;<BR>
+<LI TYPE="disc">&lt;constant-definition&gt;<BR>
+<LI TYPE="disc">&lt;variable-definition&gt;<BR>
+<LI TYPE="disc">&lt;define-list-macro-definition&gt;<BR>
+<LI TYPE="disc">&lt;define-body-macro-definition&gt;<BR>
+<LI TYPE="disc">&lt;function-macro-definition&gt;<BR>
+<LI TYPE="disc">&lt;statement-macro-definition&gt;<BR>
+<LI TYPE="disc">&lt;real-designator-class-definition&gt;<BR>
+<LI TYPE="disc">&lt;local-designator-class-definition&gt;<BR>
+</UL>
+<BR>
+A &lt;function-definition&gt; will be dumped as one of<BR>
+<UL>
+<LI TYPE="disc">&lt;generic-definition&gt;<BR>
+<LI TYPE="disc">&lt;maker-function-definition&gt;<BR>
+<LI TYPE="disc">&lt;init-function-definition&gt;<BR>
+<LI TYPE="disc">&lt;constant-method-definition&gt;<BR>
+<LI TYPE="disc">&lt;getter-method-definition&gt;<BR>
+<LI TYPE="disc">&lt;setter-method-definition&gt;<BR>
+<LI TYPE="disc">&lt;implicit-generic-definition&gt;<BR>
+</UL>
+<BR>
+A &lt;class-definition&gt; will be dumped as one of<BR>
+<UL>
+<LI TYPE="disc">&lt;real-class-definition&gt;<BR>
+<LI TYPE="disc">&lt;local-class-definition&gt;<BR>
+<LI TYPE="disc">&lt;real-designator-class-definition&gt;<BR>
+<LI TYPE="disc">&lt;local-designator-class-definition&gt;<BR>
+</UL>
+<BR>
+A &lt;name&gt; will be dumped as one of<BR>
+<UL>
+<LI TYPE="disc">&lt;basic-name&gt;<BR>
+<LI TYPE="disc">&lt;derived-name&gt;<BR>
+<LI TYPE="disc">&lt;internal-name&gt;<BR>
+<LI TYPE="disc">&lt;anonymous-name&gt;<BR>
+<LI TYPE="disc">&lt;method-name&gt;<BR>
+</UL>
+<BR>
+A &lt;ctype&gt; will be dumped as one of<BR>
+<UL>
+<LI TYPE="disc">&lt;union-ctype&gt;<BR>
+<LI TYPE="disc">&lt;unknown-ctype&gt;<BR>
+<LI TYPE="disc">&lt;limited-integer-ctype&gt;<BR>
+<LI TYPE="disc">&lt;direct-instance-ctype&gt;<BR>
+<LI TYPE="disc">&lt;singleton-ctype&gt;<BR>
+<LI TYPE="disc">&lt;byte-character-ctype&gt;<BR>
+<LI TYPE="disc">&lt;subclass-ctype&gt;<BR>
+<LI TYPE="disc">&lt;limited-collection-ctype&gt;<BR>
+<LI TYPE="disc">&lt;defined-cclass&gt;<BR>
+<LI TYPE="disc">&lt;limited-cclass&gt;<BR>
+<LI TYPE="disc">&lt;meta-cclass&gt;<BR>
+<LI TYPE="disc">&lt;defined-cdclass&gt;<BR>
+</UL>
+<BR>
+There doesn&#146;t seem to be any dump format for &lt;values-ctype&gt;. It will probably only be dumped as a more specific &lt;ctype&gt;.<BR>
+<BR>
+An empty-ctype is dumped as a &lt;union-ctype&gt; with no members.<BR>
+<BR>
+A &lt;ct-value&gt; will be dumped as one of<BR>
+<UL>
+<LI TYPE="disc">&lt;ct-not-supplied-marker&gt;<BR>
+<LI TYPE="disc">&lt;eql-literal&gt;<BR>
+<LI TYPE="disc">&lt;literal-integer&gt;<BR>
+<LI TYPE="disc">&lt;literal-single-float&gt;<BR>
+<LI TYPE="disc">&lt;literal-double-float&gt;<BR>
+<LI TYPE="disc">&lt;literal-extended-float&gt;<BR>
+<LI TYPE="disc">&lt;literal-pair&gt;<BR>
+<LI TYPE="disc">&lt;literal-simple-object-vector&gt;<BR>
+<LI TYPE="disc">&lt;literal-byte-string&gt;<BR>
+<LI TYPE="disc">&lt;ct-entry-point&gt;<BR>
+<LI TYPE="disc">&lt;struct-slot-info&gt;<BR>
+<LI TYPE="disc">&lt;ct-function&gt; (see below)<BR>
+<LI TYPE="disc">&lt;slot-info&gt; (see below)<BR>
+</UL>
+<BR>
+A &lt;ct-function&gt; will be dumped as one of<BR>
+<UL>
+<LI TYPE="disc">&lt;ct-raw-function&gt;<BR>
+<LI TYPE="disc">&lt;ct-callback-function&gt;<BR>
+<LI TYPE="disc">&lt;ct-sealed-generic&gt;<BR>
+<LI TYPE="disc">&lt;ct-open-generic&gt;<BR>
+<LI TYPE="disc">&lt;ct-method&gt;<BR>
+<LI TYPE="disc">&lt;ct-accessor-method&gt;<BR>
+</UL>
+<BR>
+A &lt;cclass&gt; will be dumped as one of<BR>
+<UL>
+<LI TYPE="disc">&lt;defined-cclass&gt;<BR>
+<LI TYPE="disc">&lt;limited-cclass&gt;<BR>
+<LI TYPE="disc">&lt;meta-cclass&gt;<BR>
+<LI TYPE="disc">&lt;defined-cdclass&gt;<BR>
+</UL>
+<BR>
+A &lt;slot-info&gt; will be dumped as one of<BR>
+<UL>
+<LI TYPE="disc">&lt;instance-slot-info&gt;<BR>
+<LI TYPE="disc">&lt;vector-slot-info&gt;<BR>
+<LI TYPE="disc">&lt;meta-slot-info&gt;<BR>
+<LI TYPE="disc">&lt;class-slot-info&gt;<BR>
+<LI TYPE="disc">&lt;each-subclass-slot-info&gt;<BR>
+<LI TYPE="disc">&lt;virtual-slot-info&gt;<BR>
+</UL>
+<BR>
+A &lt;rule&gt; will be dumped as one of<BR>
+<UL>
+<LI TYPE="disc">&lt;body-style-define-rule&gt;<BR>
+<LI TYPE="disc">&lt;list-style-define-rule&gt;<BR>
+<LI TYPE="disc">&lt;statement-rule&gt;<BR>
+<LI TYPE="disc">&lt;function-rule&gt;<BR>
+<LI TYPE="disc">&lt;auxiliary-rule&gt;<BR>
+</UL>
+<BR>
+A &lt;pattern&gt; will be dumped as one of<BR>
+<UL>
+<LI TYPE="disc">&lt;empty-pattern&gt;<BR>
+<LI TYPE="disc">&lt;semicolon-pattern&gt;<BR>
+<LI TYPE="disc">&lt;comma-pattern&gt;<BR>
+<LI TYPE="disc">&lt;sequential-pattern&gt;<BR>
+<LI TYPE="disc">&lt;bracketed-pattern&gt;<BR>
+<LI TYPE="disc">&lt;variable-pattern&gt;<BR>
+<LI TYPE="disc">&lt;bindings-pattern&gt;<BR>
+<LI TYPE="disc">&lt;name-pattern&gt;<BR>
+<LI TYPE="disc">&lt;arrow-pattern&gt;<BR>
+</UL>
+<BR>
+A &lt;template&gt; will be dumped as one of<BR>
+<UL>
+<LI TYPE="disc">&lt;procedural-template&gt;<BR>
+<LI TYPE="disc">&lt;literal-template&gt;<BR>
+<BR>
+</UL>
+A &lt;pattern-variable-reference&gt; will be dumped as one of<BR>
+<UL>
+<LI TYPE="disc">&lt;simple-pattern-variable-reference&gt;<BR>
+<LI TYPE="disc">&lt;ellipsis-pattern-variable-reference&gt;<BR>
+<LI TYPE="disc">&lt;concatenating-pattern-variable-reference&gt;<BR>
+<LI TYPE="disc">&lt;sequence-pattern-variable-reference&gt;<BR>
+<LI TYPE="disc">&lt;unhygienic-pattern-variable-reference&gt;<BR>
+</UL>
+<BR>
+A &lt;representation&gt; will be in a dump format defined in base/c-rep.dylan.<BR>
+<BR>
+An info or a token-parse-tree can be dumped as anything.<BR>
+<BR>
+I am omitting dump formats from the following, because they don&#146;t seem important for most purposes:<BR>
+<UL>
+<LI TYPE="disc">base/c-rep.dylan<BR>
+<LI TYPE="disc">base/policy.dylan<BR>
+<LI TYPE="disc">cback/cback.dylan<BR>
+<LI TYPE="disc">cback/heap.dylan<BR>
+<LI TYPE="disc">front/fer-od.dylan (except &lt;function-literal&gt;)<BR>
+<LI TYPE="disc">front/primitives.dylan<BR>
+<LI TYPE="disc">Macintosh<BR>
+<LI TYPE="disc">parser/srcutil.dylan<BR>
+</UL>
+</P>
+
+<HR>
+<P>
+<P ALIGN=RIGHT><FONT SIZE=2><I>Page # of #</P>
+</I></FONT></P>
+</BODY>
+</HTML>
+
