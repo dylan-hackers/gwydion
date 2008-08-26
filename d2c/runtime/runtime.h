@@ -117,6 +117,7 @@ float (atan2f)(float y, float x);
 float (expf)(float x);
 float (sqrtf)(float x);
 float (logf)(float x);
+float (log2f)(float x);
 float (log10f)(float x);
 float (log10f)(float x);
 float (powf)(float b, float x);

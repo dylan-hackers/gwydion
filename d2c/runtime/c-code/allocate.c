@@ -46,7 +46,7 @@ descriptor_t *allocate_stack(void)
   GC_word boundary;
   void *boundaryp;
   
-  if(pagesize & -pagesize != pagesize) /* power of 2? */
+  if((pagesize & -pagesize) != pagesize) /* power of 2? */
     abort();
   
   boundary = ((GC_word)stack + STACK_SIZE - pagesize) & -(GC_word)pagesize;

@@ -16,7 +16,7 @@ descriptor_t *catch(descriptor_t *(*fn)(descriptor_t *sp, void *state,
     jmp_buf state;
     long rc;
 
-    if(rc = setjmp(state)) { /* This _is_ an assignment */
+    if ((rc = setjmp(state))) { /* This _is_ an assignment */
       /* longjmp was called, return stack_top */
       return (descriptor_t *)rc;    
     } else {
