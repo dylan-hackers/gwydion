@@ -88,11 +88,15 @@ define method format
         if (width-arg?)
           arg-i := arg-i + 1;
         end;
+        if (width < 0)
+          left-justified? := #t;
+          width := -width;
+        end;
         
         // Parse precision specifier
         let (precision, precision-end, precision-arg?)
           = parse-precision(control-string, width-end, args, arg-i);
-        if (width-arg?)
+        if (precision-arg?)
           arg-i := arg-i + 1;
         end;
         
@@ -104,7 +108,7 @@ define method format
                        direction: #"output");
           if (do-dispatch(control-string[precision-end], s,
                           element(args, arg-i, default: #f),
-                          flags, width, precision))
+                          flags, zero-fill? & width, precision))
             arg-i := arg-i + 1
           end;
           let output = s.stream-contents;
@@ -112,12 +116,12 @@ define method format
           let padding :: <integer> = width - output-len;
           let fill :: <character> = if (zero-fill?) '0' else ' ' end if;
           case
-            (padding < 0) =>
+            (padding <= 0) =>
               buffered-write(stream, sb, output);
             (left-justified?) =>
               buffered-write(stream, sb, output);
               buffered-write(stream, sb,
-                             make(<byte-string>, size: padding, fill: fill));
+                             make(<byte-string>, size: padding, fill: ' '));
             otherwise =>
               buffered-write(stream, sb,
                              make(<byte-string>, size: padding, fill: fill));
@@ -126,7 +130,7 @@ define method format
         else
           if (buffered-do-dispatch(control-string[precision-end], stream, sb,
                                    element(args, arg-i, default: #f),
-                                   flags, width, precision))
+                                   flags, #f, precision))
             arg-i := arg-i + 1
           end;
         end;
@@ -139,8 +143,9 @@ define method format
 end method format;
 
 define method buffered-do-dispatch
-    (char :: <byte-character>, stream :: <buffered-stream>, sb :: <buffer>, arg,
-     flags :: <list>, width :: <integer>, precision :: false-or(<integer>))
+    (char :: <byte-character>, stream :: <buffered-stream>, sb :: <buffer>,
+     arg, flags :: <list>,
+     width :: false-or(<integer>), precision :: false-or(<integer>))
  => (consumed-arg? :: <boolean>)
   select (char by \==)
     ('s'), ('S') =>
@@ -168,16 +173,20 @@ define method buffered-do-dispatch
       end;
       #t;
     ('d'), ('D') =>
-      buffered-format-integer(arg, 10, stream, sb);
+      apply(buffered-format-integer, arg, 10, width, precision, stream, sb,
+            flags);
       #t;
     ('b'), ('B') =>
-      buffered-format-integer(arg, 2, stream, sb);
+      apply(buffered-format-integer, arg,  2, width, precision, stream, sb,
+            flags);
       #t;
     ('o'), ('O') =>
-      buffered-format-integer(arg, 8, stream, sb);
+      apply(buffered-format-integer, arg,  8, width, precision, stream, sb,
+            flags);
       #t;
     ('x'), ('X') =>
-      buffered-format-integer(arg, 16, stream, sb);
+      apply(buffered-format-integer, arg, 16, width, precision, stream, sb,
+            flags);
       #t;
     ('e'), ('E') =>
       apply(format-float-exponential, arg, precision, stream, flags);
@@ -201,19 +210,38 @@ end method buffered-do-dispatch;
 
 define method buffered-format-integer
     (arg :: <abstract-integer>, radix :: limited(<integer>, min: 2, max: 36),
-     stream :: <buffered-stream>, sb :: <buffer>) => ()
-  local method repeat (arg :: <abstract-integer>, digits :: <list>)
+     width :: false-or(<integer>),
+     precision :: false-or(<integer>),
+     stream :: <stream>, sb :: <buffer>,
+     #key plus-sign :: false-or(<character>),
+          alternate-form? :: <boolean>,
+     #all-keys)
+ => ();
+  // Define an iteration that collects the digits for the print
+  // representation of arg.
+  local
+    method repeat (arg :: <abstract-integer>, digits :: <list>,
+                   count :: <integer>, sign? :: <boolean>)
           let (quotient :: <abstract-integer>, remainder :: <abstract-integer>)
             = floor/(arg, radix);
           let digits = pair($digits[as(<integer>, remainder)], digits);
-          if (zero?(quotient))
-            for (digit in digits)
-              buffered-write-element(stream, sb, digit)
-            end
+          if (~zero?(quotient) | (precision & count < precision))
+            repeat(quotient, digits, count + 1, sign?);
           else
-            repeat(quotient, digits)
-          end
+            zero-pad(if (sign?) count + 1 else count end);
+            for (digit in digits)
+              buffered-write-element(stream, sb, digit);
+            end
+          end;
+    end,
+    method zero-pad (count :: <integer>) => ();
+      if (width)
+        for (i from count below width)
+          buffered-write-element(stream, sb, '0');
         end;
+      end;
+    end;
+
   // Set up for the iteration.
   if (negative?(arg))
     buffered-write-element(stream, sb, '-');
@@ -224,19 +252,28 @@ define method buffered-format-integer
     // signed integer.
     let (quotient :: <abstract-integer>, remainder :: <abstract-integer>)
       = truncate/(arg, radix);
-    if (~ zero?(quotient))
-      repeat(- quotient, list($digits[as(<integer>, - remainder)]))
+    if (~zero?(quotient) | (precision & 1 < precision))
+      repeat(- quotient, list($digits[as(<integer>, - remainder)]), 2, #t);
     else
-      buffered-write-element(stream, sb, $digits[as(<integer>, - remainder)])
+      zero-pad(2);
+      buffered-write-element(stream, sb, $digits[as(<integer>, - remainder)]);
     end
   else
-    repeat(arg, #())
+    if (plus-sign)
+      buffered-write-element(stream, sb, plus-sign);
+    end if;
+    if (~zero?(arg) | ~precision | 0 < precision)
+      repeat(arg, #(), 1, true?(plus-sign));
+    end if;
   end
-end method buffered-format-integer;
+end method;
 
 define method buffered-format-integer
     (arg :: <float>, radix :: limited(<integer>, min: 2, max: 36),
-     stream :: <buffered-stream>, buffer :: <buffer>) => ()
+     width :: false-or(<integer>),
+     precision :: false-or(<integer>),
+     stream :: <buffered-stream>, buffer :: <buffer>,
+     #key, #all-keys) => ()
   //--- Should we really be this compulsive?
   assert(radix = 10, "Can only print floats in base 10");
   print(arg, stream)
