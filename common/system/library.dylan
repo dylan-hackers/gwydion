@@ -62,6 +62,9 @@ define module operating-system
 	 environment-variable, environment-variable-setter,
 	 tokenize-environment-variable,
 	 run-application,
+         <application-process>,
+         wait-for-application-process,
+         \with-application-output,
 	 create-application-event,
 	 wait-for-application-event,
 	 signal-application-event,
@@ -175,6 +178,7 @@ end module locators;
 
 define module locators-internals
   use common-dylan;
+  use functional-extensions;
   use functional-objects-extras;
   use streams-protocol;
   use locators-protocol, export: all;

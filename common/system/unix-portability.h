@@ -2,6 +2,8 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <signal.h>
 #include <fcntl.h>
 #include <time.h>
 #include <pwd.h>
@@ -32,3 +34,9 @@ int system_open(const char *path, int oflag, mode_t mode);
 void system_st_birthtime(struct stat *st, struct timeval *tp);
 void system_st_atime(struct stat *st, struct timeval *tp);
 void system_st_mtime(struct stat *st, struct timeval *tp);
+
+int system_spawn(char *program, char **argv, char **envp, char *dir,
+		 int inherit_console,
+		 int stdin_fd, int stdout_fd, int stderr_fd);
+
+extern char **environ;

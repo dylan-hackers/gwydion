@@ -17,7 +17,7 @@ define interface
               "struct tm", "system_localtime" => %system-localtime,
               "struct timeval", "gettimeofday" => %gettimeofday,
 
-              "struct utsname",
+              "struct utsname", 
               "uname" => %uname,
 
               "getlogin" => %getlogin,
@@ -28,6 +28,9 @@ define interface
               "unsetenv" => %unsetenv,
 
 	      "system" => %system,
+	      "system_spawn" => %spawn,
+	      "waitpid" => %waitpid,
+	      "environ",
 
               "struct passwd",
               "getpwnam" => %getpwnam, "getpwuid" => %getpwuid,
@@ -52,6 +55,8 @@ define interface
               "_PC_SYMLINK_MAX" => $_PC_SYMLINK_MAX,
               "_PC_PATH_MAX" => $_PC_PATH_MAX,
 
+	      "pipe" => %pipe,
+
               "readlink" => %readlink,
 
               "unlink" => %unlink,
@@ -75,7 +80,14 @@ define interface
               "O_RDONLY" => $O_RDONLY, "O_WRONLY" => $O_WRONLY,
               "O_RDWR" => $O_RDWR,
               "O_APPEND" => $O_APPEND, "O_CREAT" => $O_CREAT,
-              "O_TRUNC" => $O_TRUNC, "O_SYNC" => $O_SYNC },
+              "O_TRUNC" => $O_TRUNC, "O_SYNC" => $O_SYNC,
+              "close" => unix-close,
+
+              "off_t",
+              "lseek" => %lseek,
+              "SEEK_CUR" => $seek_cur,
+              "SEEK_SET" => $seek_set,
+              "SEEK_END" => $seek_end },
     name-mapper: minimal-name-mapping,
     equate: { "char *" => <c-string> },
     map: { "char *" => <byte-string> };
@@ -98,6 +110,16 @@ define interface
   
   function "putenv",
     map-result: <c-string>;
+
+  function "system_spawn",
+    map-argument: { 4 => <c-string> },
+    map-argument: { 5 => <boolean> };
+
+  function "waitpid",
+    output-argument: 2;
+
+  variable "environ",
+    read-only: #t;
 
   struct "struct passwd",
     read-only: #t;
@@ -163,3 +185,9 @@ define function unix-file-error
                format-arguments: list(status-message, operation)))
   end;
 end function unix-file-error;
+
+define function unix-lseek
+    (fd :: <integer>, position :: <integer>, mode :: <integer>)
+ => (position :: <integer>);
+  as(<integer>, %lseek(fd, as(<off-t>, position), mode))
+end function;
