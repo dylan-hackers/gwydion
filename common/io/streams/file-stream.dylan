@@ -754,14 +754,19 @@ end method unread-element;
 define method read-to-end
     (stream :: <file-stream>) => (seq :: <sequence>)
   if (stream-open?(stream))
-    let n = stream.stream-size - stream-position(stream);
-    read(stream, n)
+    let the-size = stream-size(stream);
+    if (the-size)
+      let n = stream.stream-size - stream-position(stream);
+      read(stream, n)
+    else
+      next-method()
+    end if
   else
     error(make(<stream-closed-error>, stream: stream,
 	       format-string: 
 		 "Can't read from closed stream"));
 
-  end if;
+  end if
 end method read-to-end;
 
 define method stream-contents
