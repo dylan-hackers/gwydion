@@ -591,6 +591,13 @@ define method cpp-define (state :: <tokenizer>, pos :: <integer>) => ();
 		  grab-params(state, pair(name.value, param-list));
 		<rparen-token> =>
 		  pair(name.value, param-list);
+                <ellipsis-token> =>
+                  unless (instance?(get-token(state, cpp-line: #t),
+                                    <rparen-token>))
+                    parse-error(state, "Badly formed parameter list in #define,"
+                                  " ellipsis must be last parameter.");
+                  end unless;
+                  name.value;                
 		otherwise =>
 		  parse-error(state,"Badly formed parameter list in #define.");
 	      end select;            
@@ -599,7 +606,7 @@ define method cpp-define (state :: <tokenizer>, pos :: <integer>) => ();
                 parse-error(state, "Badly formed parameter list in #define,"
                                    " ellipsis must be last parameter.");
               end unless;
-
+              "__VA_ARGS__"
 	    else
 	      parse-error(state, "Badly formed parameter list in #define.");
 	    end if;
