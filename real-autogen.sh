@@ -51,12 +51,24 @@ fi
         exit 1
 }
 
+LIBTOOL_ARGUMENTS="--force --copy"
+LIBTOOL_VERSION=$(libtool --version|awk 'NR == 1 {print $4}')
+case $LIBTOOL_VERSION in
+  1.*)
+    if [[ $LIBTOOL_VERSION == 1.9[bdf] ]]
+    then
+      LIBTOOL_ARGUMENTS="--install --force --copy"
+    fi;;
+  0.*) ;;
+  *) LIBTOOL_ARGUMENTS="--install --force --copy";;
+esac
+
 echo processing...
 
 ( cd $srcdir
   aclocal $ACLOCAL_FLAGS
   # we just run automake for copying in missing files. Ignore errors.
   automake --add-missing
-  $LIBTOOLIZE --force --copy
+  $LIBTOOLIZE $LIBTOOL_ARGUMENTS
   autoheader
   autoconf )
