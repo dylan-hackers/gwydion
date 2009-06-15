@@ -7,10 +7,11 @@ License:      Functional Objects Library Public License Version 1.0
 Dual-license: GNU Lesser General Public License
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
+// Native file accessor class for POSIX platforms
 
-define sealed class <unix-fd-file-accessor> (<external-file-accessor>)
-  slot file-descriptor :: false-or(<integer>),
-    required-init-keyword: file-descriptor:;
+define sealed class <native-file-accessor> (<external-file-accessor>)
+  slot file-descriptor :: false-or(<integer>) = #f,
+    init-keyword: file-descriptor:;
   slot file-position :: <integer> = 0,
     init-keyword: file-position:;
   constant slot asynchronous? :: <boolean> = #f, 
@@ -18,7 +19,7 @@ define sealed class <unix-fd-file-accessor> (<external-file-accessor>)
   sealed slot accessor-positionable? :: <boolean> = #f;
   sealed slot accessor-preferred-buffer-size :: <integer> = 0;
   sealed slot accessor-at-end? :: <boolean> = #f;
-end class <unix-fd-file-accessor>;
+end class <native-file-accessor>;
 
 ignore(asynchronous?);
 
@@ -26,10 +27,18 @@ ignore(asynchronous?);
 // functionality.  Legal values for TYPE might include #"file", #"pipe",
 // #"tcp", #"udp".  Legal values for LOCATOR depend on TYPE.  
 define sideways method platform-accessor-class
-    (type == #"file", locator :: <integer>)
- => (class :: singleton(<unix-fd-file-accessor>))
-  <unix-fd-file-accessor>
+    (type == #"file", locator)
+ => (class :: singleton(<native-file-accessor>))
+  <native-file-accessor>
 end method platform-accessor-class;
+
+define method accessor-fd
+    (the-accessor :: <native-file-accessor>) 
+ => (the-fd :: false-or(<machine-word>))
+  if (the-accessor.file-descriptor)
+    as(<machine-word>, the-accessor.file-descriptor)
+  end if
+end method;
 
 // Legal values for direction are #"input", #"output", #"input-output"
 // Legal values for if-exists are #"new-version", #"overwrite", #"replace",
@@ -39,12 +48,13 @@ end method platform-accessor-class;
 // as to where to go first.
 // Legal values for if-does-not-exist are #"signal", #"create"
 define method accessor-open
-    (accessor :: <unix-fd-file-accessor>,
+    (accessor :: <native-file-accessor>, locator :: <integer>,
      #key direction = #"input", if-exists, if-does-not-exist,
        file-descriptor: initial-file-descriptor,
        file-position: initial-file-position = #f, // :: false-or(<integer>)?
        file-size: initial-file-size = #f, // :: false-or(<integer>)?
      #all-keys) => ()
+  accessor.file-descriptor := initial-file-descriptor;
   let (preferred-size, positionable?) = unix-fd-info(initial-file-descriptor);
   accessor.accessor-preferred-buffer-size := preferred-size;
   accessor.accessor-positionable? := positionable?;
@@ -55,7 +65,7 @@ define method accessor-open
 end method accessor-open;
 
 define method accessor-close
-    (accessor :: <unix-fd-file-accessor>,
+    (accessor :: <native-file-accessor>,
      #key abort? = #f, wait? = #t)
  => (closed? :: <boolean>)
   let fd = accessor.file-descriptor;
@@ -71,12 +81,12 @@ define method accessor-close
 end method accessor-close;
 
 define method accessor-open?
-    (accessor :: <unix-fd-file-accessor>) => (open? :: <boolean>)
+    (accessor :: <native-file-accessor>) => (open? :: <boolean>)
   accessor.file-descriptor & #t
 end method accessor-open?;
 
 define method accessor-size
-    (accessor :: <unix-fd-file-accessor>)
+    (accessor :: <native-file-accessor>)
  => (size :: false-or(<integer>))
   accessor.accessor-positionable?
   & begin
@@ -90,13 +100,13 @@ define method accessor-size
 end method accessor-size;
 
 define inline method accessor-position
-    (accessor :: <unix-fd-file-accessor>)
+    (accessor :: <native-file-accessor>)
  => (position :: <integer>)
   accessor.file-position
 end method accessor-position;
 
 define method accessor-position-setter
-    (position :: <integer>, accessor :: <unix-fd-file-accessor>)
+    (position :: <integer>, accessor :: <native-file-accessor>)
  => (position :: <integer>)
   let old-position = accessor.file-position;
   if (position ~= old-position)
@@ -118,7 +128,7 @@ define method accessor-position-setter
 end method accessor-position-setter;
 
 define method accessor-read-into!
-    (accessor :: <unix-fd-file-accessor>, stream :: <file-stream>,
+    (accessor :: <native-file-accessor>, stream :: <file-stream>,
      offset :: <integer>, count :: <integer>, #key buffer)
  => (nread :: <integer>)
   if (accessor.accessor-at-end?)
@@ -140,7 +150,7 @@ define method accessor-read-into!
 end method accessor-read-into!;
 
 define method accessor-write-from
-    (accessor :: <unix-fd-file-accessor>, stream :: <file-stream>,
+    (accessor :: <native-file-accessor>, stream :: <file-stream>,
      offset :: <integer>, count :: <integer>, #key buffer,
      return-fresh-buffer? = #f)
  => (nwritten :: <integer>, new-buffer :: <buffer>)
@@ -164,14 +174,14 @@ define method accessor-write-from
 end method accessor-write-from;
 
 define method accessor-force-output
-    (accessor :: <unix-fd-file-accessor>,
+    (accessor :: <native-file-accessor>,
      stream :: <file-stream>)
  => ()
   unix-fsync(accessor.file-descriptor);
 end method accessor-force-output;
 
 define method accessor-newline-sequence
-    (accessor :: <unix-fd-file-accessor>)
+    (accessor :: <native-file-accessor>)
  => (string :: <string>)
   "\n"
 end method accessor-newline-sequence;

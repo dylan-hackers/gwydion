@@ -7,19 +7,6 @@ License:      Functional Objects Library Public License Version 1.0
 Dual-license: GNU Lesser General Public License
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
-define sealed class <unix-file-accessor> (<external-file-accessor>)
-  slot fd-file-accessor :: false-or(<external-file-accessor>) = #f;
-end class <unix-file-accessor>;
-
-// An attempt at a portable flexible interface to OS read/write/seek
-// functionality.  Legal values for TYPE might include #"file", #"pipe",
-// #"tcp", #"udp".  Legal values for LOCATOR depend on TYPE.  
-define sideways method platform-accessor-class
-    (type == #"file", locator :: <object>)
- => (class :: singleton(<unix-file-accessor>))
-  <unix-file-accessor>
-end method platform-accessor-class;
-
 define constant $file_create_permissions
   = logior($S_IRUSR, $S_IWUSR, $S_IRGRP, $S_IWGRP, $S_IROTH, $S_IWOTH);
 
@@ -30,10 +17,10 @@ define constant $file_create_permissions
 // that writing is likely to continue from the end.  So its merely a hint
 // as to where to go first.
 // Legal values for if-does-not-exist are #"signal", #"create"
-define method accessor-open
-    (accessor :: <unix-file-accessor>,
+define sideways method accessor-open
+    (accessor :: <native-file-accessor>, locator :: <pathname>,
+     #rest keywords,
      #key direction = #"input", if-exists, if-does-not-exist,
-       locator,
        file-position: initial-file-position = #f, // :: false-or(<integer>)?
        file-size: initial-file-size = #f, // :: false-or(<integer>)?
      #all-keys) => ()
@@ -99,12 +86,9 @@ define method accessor-open
         unix-file-error("open", "%s", locator);
       end
     else
-      let fd-accessor
-        = new-accessor(#"file", locator: fd, file-descriptor: fd);
-      accessor.fd-file-accessor := fd-accessor;
-      *open-accessors*[accessor] := #t;
+      apply(accessor-open, accessor, fd, file-descriptor: fd, keywords);
       if (if-exists == #"append")
-        fd-accessor.accessor-position := fd-accessor.accessor-size;
+        accessor.accessor-position := accessor.accessor-size;
       end;
       // IMPORTANT!!
       // Once the file has been created the required reopen behaviour is
@@ -117,73 +101,3 @@ define method accessor-open
     end
   end
 end method accessor-open;
-
-define method accessor-close
-    (accessor :: <unix-file-accessor>,
-     #key abort? = #f, wait? = #t)
- => (closed? :: <boolean>)
-  if (accessor.fd-file-accessor)
-    accessor-close(accessor.fd-file-accessor);
-    accessor.fd-file-accessor := #f;
-    #t
-  end
-end method accessor-close;
-
-define method accessor-open?
-    (accessor :: <unix-file-accessor>) => (open? :: <boolean>)
-  accessor.fd-file-accessor & accessor-open?(accessor.fd-file-accessor)
-end method accessor-open?;
-
-define method accessor-preferred-buffer-size
-    (accessor :: <unix-file-accessor>)
- => (preferred-buffer-size :: <integer>)
-  accessor-preferred-buffer-size(accessor.fd-file-accessor);
-end method accessor-preferred-buffer-size;
-
-define method accessor-size
-    (accessor :: <unix-file-accessor>)
- => (size :: false-or(<integer>))
-  accessor-size(accessor.fd-file-accessor);
-end method accessor-size;
-
-define method accessor-positionable?
-    (accessor :: <unix-file-accessor>) => (positionable? :: <boolean>)
-  accessor.fd-file-accessor & accessor-positionable?(accessor.fd-file-accessor)
-end method accessor-positionable?;
-
-define inline method accessor-position
-    (accessor :: <unix-file-accessor>)
- => (position :: <integer>)
-  accessor-position(accessor.fd-file-accessor);
-end method accessor-position;
-
-define method accessor-position-setter
-    (position :: <integer>, accessor :: <unix-file-accessor>)
- => (position :: <integer>)
-  accessor-position-setter(position, accessor.fd-file-accessor);
-end method accessor-position-setter;
-
-define method accessor-read-into!
-    (accessor :: <unix-file-accessor>, stream :: <file-stream>,
-     offset :: <integer>, count :: <integer>, #key buffer)
- => (nread :: <integer>)
-  accessor-read-into!(accessor.fd-file-accessor, stream,
-                      offset, count, buffer: buffer);
-end method accessor-read-into!;
-
-define method accessor-write-from
-    (accessor :: <unix-file-accessor>, stream :: <file-stream>,
-     offset :: <integer>, count :: <integer>, #key buffer,
-     return-fresh-buffer? = #f)
- => (nwritten :: <integer>, new-buffer :: <buffer>)
-  accessor-write-from(accessor.fd-file-accessor, stream,
-                      offset, count,
-                      buffer: buffer,
-                      return-fresh-buffer?: return-fresh-buffer?);
-end method accessor-write-from;
-
-define method accessor-newline-sequence
-    (accessor :: <unix-file-accessor>)
- => (string :: <string>)
-  "\n"
-end method accessor-newline-sequence;

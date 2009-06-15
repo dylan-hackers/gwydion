@@ -20,7 +20,6 @@ define library io
     format,
     format-internals,
     standard-io,
-    io-internals,
     format-out;
 end library io;
 
@@ -229,6 +228,7 @@ define module streams-internals
          accessor-newline-sequence,
          accessor-preferred-buffer-size,
          accessor-synchronize,
+	 accessor-fd,
          accessor-read-into!,
          accessor-write-from,
          *open-accessors*;
@@ -252,6 +252,9 @@ define module streams-internals
          pending-count,
          pending-file-offset,
          pending-stream;
+
+  // File accessors
+  create <native-file-accessor>;
 end module streams-internals;
 
 define module pprint
@@ -343,10 +346,6 @@ define module io-internals
   use format-internals;
   use standard-io;
   use format-out;
-
-  // File descriptors. Hm, need to think about this for different
-  // platforms
-  export file-descriptor;
 end module io-internals;
 
 define module redirect-io

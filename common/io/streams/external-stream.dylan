@@ -122,6 +122,15 @@ define open generic platform-accessor-class
     (type :: <symbol>, locator :: <object>)
  => (class :: subclass(<external-stream-accessor>));
 
+// Returns the file-handle/file-descriptor/file-pointer from the platform
+// accessor class, whichever it is.  Value has to be a <machine-word>
+// because win32 file-handles set the high bits.  So once again the lowest
+// common denominator wins.
+
+define open generic accessor-fd
+    (the-accessor :: <external-stream-accessor>) 
+ => (the-fd :: false-or(<machine-word>));
+
 // Legal values for direction are #"input", #"output", #"input-output"
 // Legal values for if-exists are #"new-version", #"overwrite", #"replace",
 //                                #"truncate", #"signal", #"append"
@@ -135,12 +144,12 @@ define method new-accessor
     (type :: <symbol>, #rest initargs, #key locator, #all-keys)
  => (accessor :: <external-stream-accessor>)
   let new-one = apply(make, platform-accessor-class(type, locator), initargs);
-  apply(accessor-open, new-one, initargs);
+  apply(accessor-open, new-one, locator, initargs);
   new-one
 end method new-accessor;
 
 define open generic accessor-open
-    (accessor :: <external-stream-accessor>,
+    (accessor :: <external-stream-accessor>, locator :: <object>,
      #key direction, if-exists, if-does-not-exist,
      #all-keys) => ();
 
