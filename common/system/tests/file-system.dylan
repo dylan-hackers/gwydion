@@ -374,8 +374,8 @@ define method universal-stream-test
     // read-to second of the tester should return a one element sequence
     check("read-to returns correct result", \=,
 	  copy-sequence(tester, end: 1), read-to(s, second(tester)));
-    check("read should be on second after read-to second",
-	  \=, read-element(s), second(tester));
+    check("read should be on third after read-to second",
+	  \=, read-element(s), third(tester));
   end if;
   cleanup-function(s);
   
