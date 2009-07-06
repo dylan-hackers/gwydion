@@ -34,7 +34,7 @@ define function login-group () => (group :: false-or(<string>))
   if (gr-ent = $null-pointer)
     #f
   else
-    gr-ent.gr-name
+    as(<byte-string>, gr-ent.gr-name)
   end;
 end function login-group;
 
@@ -115,7 +115,7 @@ define function run-application
           if-output-exists :: one-of(#"signal", #"new-version", #"replace",
                                      #"overwrite", #"append",
                                      #"truncate") = #"replace",
-          error :: type-union(one-of(#"inherit", #"null", #"stream", #"output"),
+          error: _error :: type-union(one-of(#"inherit", #"null", #"stream", #"output"),
                               <pathname>) = #"inherit",
           if-error-exists :: one-of(#"signal", #"new-version", #"replace",
                                     #"overwrite", #"append",
@@ -129,28 +129,28 @@ define function run-application
     = if (under-shell?)
         if (instance?(command, <string>))
           let argv = make(<char**>, element-count: 4);
-          pointer-value(argv, index: 0) := "sh";
-          pointer-value(argv, index: 1) := "-c";
-          pointer-value(argv, index: 2) := command;
+          pointer-value(argv, index: 0) := as(<c-string>, "sh");
+          pointer-value(argv, index: 1) := as(<c-string>, "-c");
+          pointer-value(argv, index: 2) := as(<c-string>, command);
           values($posix-shell, argv)
         else
           let argv = make(<char**>, element-count: 3 + command.size);
-          pointer-value(argv, index: 0) := "sh";
-          pointer-value(argv, index: 1) := "-c";
+          pointer-value(argv, index: 0) := as(<c-string>, "sh");
+          pointer-value(argv, index: 1) := as(<c-string>, "-c");
           for (i from 0 below command.size)
-            pointer-value(argv, index: 2 + i) := command[i];
+            pointer-value(argv, index: 2 + i) := as(<c-string>, command[i]);
           end for;
           values($posix-shell, argv)
         end if
       else
         if (instance?(command, <string>))
           let argv = make(<char**>, element-count: 2);
-          pointer-value(argv, index: 0) := command;
+          pointer-value(argv, index: 0) := as(<c-string>, command);
           values(command, argv)
         else
           let argv = make(<char**>, element-count: 1 + command.size);
           for (i from 0 below command.size)
-            pointer-value(argv, index: i) := command[i];
+            pointer-value(argv, index: i) := as(<c-string>, command[i]);
           end for;
           values(command[0], argv)
         end if
@@ -235,7 +235,7 @@ define function run-application
     end method;
 
   let output-fd = open-output(output, if-output-exists);
-  let error-fd = open-output(error, if-error-exists);
+  let error-fd = open-output(_error, if-error-exists);
 
   let pid = %spawn(program, argv, envp, dir, inherit-console?,
                    input-fd, output-fd, error-fd);

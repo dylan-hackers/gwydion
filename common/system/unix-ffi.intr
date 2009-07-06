@@ -27,7 +27,6 @@ define interface
               "getenv" => %getenv, "putenv" => %putenv,
               "unsetenv" => %unsetenv,
 
-	      "system" => %system,
 	      "system_spawn" => %spawn,
 	      "waitpid" => %waitpid,
 	      "environ",
@@ -89,14 +88,17 @@ define interface
               "SEEK_SET" => $seek_set,
               "SEEK_END" => $seek_end },
     name-mapper: minimal-name-mapping,
-    equate: { "char *" => <c-string> },
-    map: { "char *" => <byte-string> };
+    equate: { "char *" => <c-string> };
 
+  function "getlogin",
+    map-result: <byte-string>;
+  
   function "system_localtime",
     map-result: <boolean>,
     output-argument: 2,
     output-argument: 3,
-    output-argument: 4;
+    output-argument: 4,
+    map-argument: { 4 => <byte-string> };
   function "gettimeofday",
     map-result: <boolean>,
     output-argument: 1,
@@ -104,15 +106,32 @@ define interface
 
   struct "struct utsname",
     read-only: #t,
-    rename: { "release" => utsname-release };
+    rename: { "release" => utsname-release },
+    map: { "sysname" => <byte-string> },
+    map: { "release" => <byte-string> };
+
+  struct "struct passwd",
+    read-only: #t;
+
+  function "getpwnam",
+    map-argument: { 1 => <byte-string> };
+
+  struct "struct group",
+    read-only: #t,
+    map: { "gr_name" => <byte-string> };
+    
   function "uname",
     output-argument: 1;
-  
+
+  function "getenv",
+    map-argument: { 1 => <byte-string> };
   function "putenv",
-    map-result: <c-string>;
+    map-argument: { 1 => <byte-string> };
+  function "unsetenv",
+    map-argument: { 1 => <byte-string> };
 
   function "system_spawn",
-    map-argument: { 4 => <c-string> },
+    map-argument: { 1 => <byte-string> },
     map-argument: { 5 => <boolean> };
 
   function "waitpid",
@@ -121,15 +140,14 @@ define interface
   variable "environ",
     read-only: #t;
 
-  struct "struct passwd",
-    read-only: #t;
-
   struct "struct stat",
     read-only: #t;
   function "stat",
+    map-argument: { 1 => <byte-string> },
     map-result: <boolean>,
     output-argument: 2;
   function "lstat",
+    map-argument: { 1 => <byte-string> },
     map-result: <boolean>,
     output-argument: 2;
   function "system_st_birthtime",
@@ -138,21 +156,49 @@ define interface
     output-argument: 2;
   function "system_st_mtime",
     output-argument: 2;
-  
+
+  function "system_open",
+    map-argument: { 1 => <byte-string> };
+
+  function "access",
+    map-argument: { 1 => <byte-string> };
+
   function "unlink",
+    map-argument: { 1 => <byte-string> },
     map-result: <boolean>;
   function "rename",
+    map-argument: { 1 => <byte-string> },
+    map-argument: { 2 => <byte-string> },
+    map-result: <boolean>;
+  function "mkdir",
+    map-argument: { 1 => <byte-string> },
+    map-result: <boolean>;
+  function "rmdir",
+    map-argument: { 1 => <byte-string> },
     map-result: <boolean>;
 
+  function "chdir",
+    map-argument: { 1 => <byte-string> };
   function "getcwd",
-    map-result: <c-string>,
-    map-argument: { 1 => <c-string> };
+    map-result: <c-string>;
+
+  function "pathconf",
+    map-argument: { 1 => <byte-string> };
   function "readlink",
-    map-argument: { 2 => <c-string> };
+    map-argument: { 1 => <byte-string> };
+  function "chmod",
+    map-argument: { 1 => <byte-string> };
+
+  function "opendir",
+    map-argument: { 1 => <byte-string> };
 
   struct "struct dirent",
     read-only: #t,
-    rename: { "d_name" => dirent-name };
+    rename: { "d_name" => dirent-name },
+    map: { "d_name" => <byte-string> };
+
+  function "strerror",
+    map-result: <byte-string>;
 end interface;
 
 define function unix-last-error-message () => (message :: <string>)

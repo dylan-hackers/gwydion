@@ -10,7 +10,8 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 /// Operating system tests
 
 define operating-system constant-test $architecture-little-endian? ()
-  //---*** Fill this in...
+  check-true("$architecture-little-endian? is true if x86",
+             $machine-name ~== #"x86" | $architecture-little-endian?);
 end constant-test $architecture-little-endian?;
 
 define operating-system constant-test $os-name ()
@@ -37,19 +38,23 @@ end constant-test $machine-name;
 /// Operating System functions
 
 define operating-system function-test login-name ()
-  //---*** Fill this in...
+  check-instance?("login-name returns #f or a string",
+                  false-or(<string>), login-name());
 end function-test login-name;
 
 define operating-system function-test login-group ()
-  //---*** Fill this in...
+  check-instance?("login-group returns #f or a string",
+                  false-or(<string>), login-group());
 end function-test login-group;
 
 define operating-system function-test owner-name ()
-  //---*** Fill this in...
+  check-instance?("owner-name returns #f or a string",
+                  false-or(<string>), owner-name());
 end function-test owner-name;
 
 define operating-system function-test owner-organization ()
-  //---*** Fill this in...
+  check-instance?("owner-organization returns #f or a string",
+                  false-or(<string>), owner-organization());
 end function-test owner-organization;
 
 define operating-system class-test <application-process> ()
@@ -194,15 +199,24 @@ end function-test load-library;
 // Application startup handling
 
 define operating-system function-test application-name ()
-  //---*** Fill this in...
+  check-instance?("application-name returns #f or a string",
+                  false-or(<string>), application-name());
 end function-test application-name;
 
 define operating-system function-test application-filename ()
-  //---*** Fill this in...
+  let filename = application-filename();
+  check-true("application-filename returns #f or a valid, existing file name",
+             ~filename
+               | begin
+                   let locator = as(<file-system-file-locator>, filename);
+                   file-exists?(locator)
+                 end)
+
 end function-test application-filename;
 
 define operating-system function-test application-arguments ()
-  //---*** Fill this in...
+  check-instance?("application-arguments returns a sequence",
+                  <sequence>, application-arguments());
 end function-test application-arguments;
 
 define operating-system function-test tokenize-command-string ()
@@ -210,7 +224,8 @@ define operating-system function-test tokenize-command-string ()
 end function-test tokenize-command-string;
 
 define operating-system function-test command-line-option-prefix ()
-  //---*** Fill this in...
+  check-instance?("command-line-option-prefix returns a character",
+                  <character>, command-line-option-prefix());
 end function-test command-line-option-prefix;
 
 define operating-system function-test exit-application ()
@@ -225,11 +240,22 @@ end function-test register-application-exit-function;
 // Environment variables
 
 define operating-system function-test environment-variable ()
-  //---*** Fill this in...
+  check-false("unset environment variable returns false",
+              environment-variable("HIGHLY_UNLIKELY_TO_BE_SET"));
+  check-instance?("PATH is set and is a string",
+                  <string>, environment-variable("PATH"));
 end function-test environment-variable;
 
 define operating-system function-test environment-variable-setter ()
-  //---*** Fill this in...
+  check-equal("environment-variable-setter returns new value",
+              "new-value",
+              environment-variable("OS_TEST_E_V_S") := "new-value");
+  check-equal("newly set value reflected in environment",
+              "new-value", environment-variable("OS_TEST_E_V_S"));
+  check-false("environment-variable-setter to #f returns #f",
+              environment-variable("OS_TEST_E_V_S") := #f);
+  check-false("newly unset value reflected in environment",
+              environment-variable("OS_TEST_E_V_S"));
 end function-test environment-variable-setter;
 
 define operating-system function-test tokenize-environment-variable ()
