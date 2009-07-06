@@ -158,7 +158,7 @@ define function run-application
 
   let envp
     = if (environment)
-        error("environment: not supported yet");
+        make-envp(environment)
       else
         environ()
       end if;
@@ -270,6 +270,47 @@ define function wait-for-application-process
   let signal-code = logand(status-code, #o177);
   let exit-code = ash(status-code, -8);
   values(exit-code, (signal-code ~= 0) & signal-code);
+end function;
+
+define function make-envp
+    (environment :: <explicit-key-collection>)
+ => (result :: <char**>)
+  let temp-table :: <string-table> = make(<string-table>);
+
+  // Obtain the current environment as a <string-table> keyed by the
+  // environment variable name
+  let old-envp :: <char**> = environ();
+  block (envp-done)
+    for (i :: <integer> from 0)
+      let item = pointer-value(old-envp, index: i);
+      if (item = $null-pointer)
+        envp-done();
+      else
+        block (item-done)
+          for (char in item, j from 0)
+            if (char == '=')
+              let key = copy-sequence(item, end: j);
+              temp-table[key] := item;
+              item-done();
+            end if;
+          end for;
+        end block;
+      end if;
+    end for;
+  end block;
+
+  // Override anything set in the user-supplied environment
+  for (value keyed-by key in environment)
+    temp-table[key] := as(<c-string>, concatenate(key, "=", value));
+  end for;
+
+  // Create a new environment vector and initialize it
+  let new-envp = make(<char**>, element-count: temp-table.size + 1);
+  for (i :: <integer> from 0, item keyed-by key in temp-table)
+    pointer-value(new-envp, index: i) := item;
+  end for;
+
+  new-envp
 end function;
 
 ///---*** NOTE: The following functions need real implementations!

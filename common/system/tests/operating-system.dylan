@@ -184,6 +184,35 @@ define operating-system function-test run-application ()
         close(output-stream);
       end;
       
+      // Environment variable setting
+      begin
+        check-false("test preconditions: OS_TEST_RUN_APPLICATION not set",
+                    environment-variable("OS_TEST_RUN_APPLICATION"));
+
+        let env = make(<string-table>);
+        env["OS_TEST_RUN_APPLICATION"] := "Dylan programming language";
+
+        let (exit-code, signal, child, stream)
+          = run-application("echo $OS_TEST_RUN_APPLICATION",
+                            asynchronous?: #t, output: #"stream",
+                            environment: env);
+        check-equal("asynchronous exit 0", 0, exit-code);
+        check-equal("asynchronous no signal", #f, signal);
+        check-instance?("child returned for asynchronous run-application",
+                        <application-process>, child);
+        check-instance?("stream returned for run-application w/output stream",
+                        <stream>, stream);
+
+        let contents = read-to-end(stream);
+        check-equal("echo w/environment variable results read from stream",
+                    "Dylan programming language\n", contents);
+
+        let (exit-code, signal) = wait-for-application-process(child);
+        check-equal("wait echo exit 0", 0, exit-code);
+        check-equal("wait echo no signal", #f, signal);
+
+        close(stream);
+      end;
   end select;
 end function-test run-application;
 
