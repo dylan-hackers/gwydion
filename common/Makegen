@@ -12,10 +12,7 @@ unless ($enable_bootstrap) {
 		   'io',
 		   'system',
 		   'command-line-parser',
-		   'stream-extensions',
-           'anaphora',
-           'meta',
-           'xml-parser');
+		   'stream-extensions');
 
   if($features{'compiled_for_unix'}) {
     #&compile_subdirs('network');
