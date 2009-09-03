@@ -8,6 +8,7 @@ Dual-license: GNU Lesser General Public License
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library system
+  use dylan;
   use common-dylan;
   use melange-support;
   use io;
@@ -352,6 +353,7 @@ end module settings-internals;
 define module system-internals
   use common-dylan;
   use melange-support;
+  use system, import: {\c-system-include, \call-out, vector-elements-address};
   use functional-objects-extras;
   use machine-words;
   use threads;

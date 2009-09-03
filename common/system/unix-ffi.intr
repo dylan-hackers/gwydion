@@ -81,6 +81,7 @@ define interface
               "O_APPEND" => $O_APPEND, "O_CREAT" => $O_CREAT,
               "O_TRUNC" => $O_TRUNC, "O_SYNC" => $O_SYNC,
               "close" => unix-close,
+              "read" => unix-raw-read,
 
               "off_t",
               "lseek" => %lseek,
