@@ -731,6 +731,7 @@ define sealed method parse-url
 end method parse-url;
 
 //---*** It is a pity we need this method for efficiency...
+/*
 define sealed copy-down-method parse-url
     (string :: <byte-string>, #key protocol :: false-or(<string>) = #f)
  => (class :: subclass(<server-url>),
@@ -744,3 +745,4 @@ define sealed copy-down-method parse-url
      extension :: false-or(<string>),
      cgi-string :: false-or(<string>),
      index :: false-or(<string>));
+*/
