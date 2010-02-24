@@ -34,7 +34,7 @@ DIE=0
         echo
         echo "You must have $LIBTOOL installed to compile Gwydion Dylan."
 	if test $LIBTOOL = glibtool; then
-	    echo "This should have come with Darwin/MacOS X"
+	    echo "This should have come with Darwin/Mac OS X"
 	else
 	    echo "Get ftp://ftp.gnu.org/pub/gnu/libtool/libtool-1.3.2.tar.gz"
 	    echo "(or a newer version if it is available)"
@@ -51,24 +51,13 @@ fi
         exit 1
 }
 
-LIBTOOL_ARGUMENTS="--force --copy"
-LIBTOOL_VERSION=$(libtool --version|awk 'NR == 1 {print $4}')
-case $LIBTOOL_VERSION in
-  1.*)
-    if [[ $LIBTOOL_VERSION == 1.9[bdf] ]]
-    then
-      LIBTOOL_ARGUMENTS="--install --force --copy"
-    fi;;
-  0.*) ;;
-  *) LIBTOOL_ARGUMENTS="--install --force --copy";;
-esac
-
 echo processing...
 
 ( cd $srcdir
   aclocal $ACLOCAL_FLAGS
   # we just run automake for copying in missing files. Ignore errors.
   automake --add-missing
-  $LIBTOOLIZE $LIBTOOL_ARGUMENTS
+  $LIBTOOLIZE --install --force --copy >/dev/null 2>&1 \
+      || $LIBTOOLIZE --force --copy 
   autoheader
   autoconf )
