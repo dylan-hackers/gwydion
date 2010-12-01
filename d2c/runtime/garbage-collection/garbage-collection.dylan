@@ -574,8 +574,8 @@ define constant <GC-warn-proc> = <anonymous-58>;
 define method GC-set-warn-proc
     (arg1 :: <GC-warn-proc>)
  => (result :: <GC-warn-proc>);
-  let result-value
-    = call-out("GC_set_warn_proc", ptr:, ptr: (arg1).raw-value);
+  let result-value = call-out("GC_get_warn_proc", ptr:);
+  call-out("GC_set_warn_proc", void:, ptr: (arg1).raw-value);
   let result-value = make(<GC-warn-proc>, pointer: result-value);
   values(result-value);
 end method GC-set-warn-proc;
