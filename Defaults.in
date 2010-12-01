@@ -34,8 +34,8 @@ $enable_mindy = "@enable_mindy@" eq "yes";
 $cross_compiling = "@d2c_cross_compiling@" eq "yes";
 $enable_bootstrap = "@enable_bootstrap@" eq "yes";
 $recheck = "@recheck@";
-$shared = "@shared@" eq "yes";
-$static = "@static@" eq "yes";
+$shared = "@enable_shared@" eq "yes";
+$static = "@enable_static@" eq "yes";
 $INSTALL = "@INSTALL@";
 $LIBTOOL = '@LIBTOOL@';
 

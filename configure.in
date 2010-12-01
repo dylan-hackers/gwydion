@@ -235,22 +235,8 @@ fi
 
 AC_PROG_LIBTOOL
 LIBTOOL="${CONFIG_SHELL-/bin/sh} $buildroot/libtool"
-
-AC_MSG_CHECKING(whether to build shared libraries)
-shared=no
-if $LIBTOOL --features | grep 'enable shared libraries' > /dev/null; then
-    shared=yes
-fi
-AC_MSG_RESULT($shared)
-AC_SUBST(shared)
-
-AC_MSG_CHECKING(whether to build static libraries)
-static=no
-if $LIBTOOL --features | grep 'enable static libraries' > /dev/null; then
-    static=yes
-fi
-AC_MSG_RESULT($static)
-AC_SUBST(static)
+AC_SUBST(enable_shared)
+AC_SUBST(enable_static)
 
 #--------------------------------------------------------------------
 # Study our build environment carefully.
@@ -324,7 +310,7 @@ if test -x "$buildroot/bootstrap_compiler/d2c"; then
     D2C="$bootstrap_d2c -p$srcdir/d2c/compiler/platforms.descr"
 elif test "$enable_bootstrap" = yes; then
     SCENARIO=BOOTSTRAPPING
-    shared=no
+    enable_shared=no
 elif test "$d2c_cross_compiling" = yes; then
     SCENARIO=CROSS_COMPILING
 else
