@@ -71,87 +71,87 @@
 // Same for 'long double'. If not present, defaults to the values for 'double'.
 
 // 32-bit
-platform-name:                        32-bit
-integer-length:                        32
-pointer-size:                        4
-integer-size:                        4
-short-size:                        2
-long-size:                        4
-long-long-size:                        8
+platform-name:                      32-bit
+integer-length:                     32
+pointer-size:                       4
+integer-size:                       4
+short-size:                         2
+long-size:                          4
+long-long-size:                     8
 
 // 64-bit
-platform-name:                        64-bit
-integer-length:                        64
-pointer-size:                        8
-integer-size:                        4
-short-size:                        2
-long-size:                        8
+platform-name:                      64-bit
+integer-length:                     64
+pointer-size:                       8
+integer-size:                       4
+short-size:                         2
+long-size:                          8
 
 // IEEE 754 floating point
-platform-name:                                ieee-754
-single-size:                                4
-single-mantissa-digits:                        24
-minimum-single-float-exponent:                -125
-maximum-single-float-exponent:                128
-double-size:                                8
-double-mantissa-digits:                        53
-minimum-double-float-exponent:                -1021
-maximum-double-float-exponent:                1024
-long-double-size:                        8
-long-double-mantissa-digits:                53
-minimum-long-double-float-exponent:        -1021
-maximum-long-double-float-exponent:        1024
+platform-name:                      ieee-754
+single-size:                        4
+single-mantissa-digits:             24
+minimum-single-float-exponent:      -125
+maximum-single-float-exponent:      128
+double-size:                        8
+double-mantissa-digits:             53
+minimum-double-float-exponent:      -1021
+maximum-double-float-exponent:      1024
+long-double-size:                   8
+long-double-mantissa-digits:        53
+minimum-long-double-float-exponent: -1021
+maximum-long-double-float-exponent: 1024
 
 // PowerPC
-platform-name:                        ppc
-inherit-from:                        32-bit ieee-754
-default-features:                compiled-for-ppc
+platform-name:                      ppc
+inherit-from:                       32-bit ieee-754
+default-features:                   compiled-for-ppc
 big-endian?:                        #t
 
 // SPARC (32 bit)
-platform-name:                        sparc
-inherit-from:                        32-bit ieee-754
-default-features:                compiled-for-sparc
+platform-name:                      sparc
+inherit-from:                       32-bit ieee-754
+default-features:                   compiled-for-sparc
 big-endian?:                        #t
-long-double-size:                        16
-long-double-mantissa-digits:                113
-minimum-long-double-float-exponent:        -16381
-maximum-long-double-float-exponent:        16384
+long-double-size:                   16
+long-double-mantissa-digits:        113
+minimum-long-double-float-exponent: -16381
+maximum-long-double-float-exponent: 16384
 
 // x86 (IA32)
-platform-name:                        x86
-inherit-from:                        32-bit ieee-754
-default-features:                compiled-for-x86
+platform-name:                      x86
+inherit-from:                       32-bit ieee-754
+default-features:                   compiled-for-x86
 big-endian?:                        #f
-long-long-alignment:                        4
-double-alignment:                        4
-long-double-size:                        12
-long-double-alignment:                        4
-long-double-mantissa-digits:                64
-minimum-long-double-float-exponent:        -16381
-maximum-long-double-float-exponent:        16384
+long-long-alignment:                4
+double-alignment:                   4
+long-double-size:                   12
+long-double-alignment:              4
+long-double-mantissa-digits:        64
+minimum-long-double-float-exponent: -16381
+maximum-long-double-float-exponent: 16384
 
 // AMD64/EMT64
-platform-name:                        x86_64
-inherit-from:                        64-bit ieee-754
-default-features:                compiled-for-x86_64 64-bit-target
+platform-name:                      x86_64
+inherit-from:                       64-bit ieee-754
+default-features:                   compiled-for-x86_64 64-bit-target
 big-endian?:                        #f
-long-double-size:                 16
-long-double-alignment:                 16
-long-double-mantissa-digits:         64
+long-double-size:                   16
+long-double-alignment:              16
+long-double-mantissa-digits:        64
 minimum-long-double-float-exponent: -16381
 maximum-long-double-float-exponent: 16384
 
 // SPARC64:
-platform-name:                        sparc64
-inherit-from:                        64-bit ieee-754
-default-features:                compiled-for-sparc 64-bit-target
+platform-name:                      sparc64
+inherit-from:                       64-bit ieee-754
+default-features:                   compiled-for-sparc 64-bit-target
 big-endian?:                        #t
-long-double-size:                        16
-long-double-alignment:                        16
-long-double-mantissa-digits:                113
-minimum-long-double-float-exponent:        -16381
-maximum-long-double-float-exponent:        16384
+long-double-size:                   16
+long-double-alignment:              16
+long-double-mantissa-digits:        113
+minimum-long-double-float-exponent: -16381
+maximum-long-double-float-exponent: 16384
 
 
 
@@ -205,67 +205,67 @@ maximum-long-double-float-exponent:        16384
 //
 
 // Generic Unix (parent class to all unices and unix-like environments)
-platform-name:                                generic-unix
-default-features:                        compiled-for-unix posix-dig
-object-filename-suffix:                        .o
-shared-object-filename-suffix:                .lo
-library-filename-prefix:                lib
-library-filename-suffix:                .a
-shared-library-filename-suffix:                .la
+platform-name:                      generic-unix
+default-features:                   compiled-for-unix posix-dig
+object-filename-suffix:             .o
+shared-object-filename-suffix:      .lo
+library-filename-prefix:            lib
+library-filename-suffix:            .a
+shared-library-filename-suffix:     .la
 executable-filename-suffix: 
-path-separator:                                /
-delete-file-command:                        rm -f
-compare-file-command:                        cmp -s %s %s
-move-file-command:                        mv -f %s %s
-uses-drive-letters?:                        #f
-environment-variables-can-be-exported?:        #t
-makefile-name:                                GNUmakefile
-make-supports-phony-targets?:                #t
-makefiles-can-rebuild-themselves?:        #t
-make-jobs-flag:                                -j
-recursive-make-command:                        $(MAKE) -C %s %s
-libtool-command:                        libtool
+path-separator:                     /
+delete-file-command:                rm -f
+compare-file-command:               cmp -s %s %s
+move-file-command:                  mv -f %s %s
+uses-drive-letters?:                #f
+environment-variables-can-be-exported?:  #t
+makefile-name:                      GNUmakefile
+make-supports-phony-targets?:       #t
+makefiles-can-rebuild-themselves?:  #t
+make-jobs-flag:                     -j
+recursive-make-command:             $(MAKE) -C %s %s
+libtool-command:                    libtool
 
 // Darwin (MacOS X)
-platform-name:                                darwin
-inherit-from:                                generic-unix
-default-features:                        compiled-for-darwin
-make-command:                           gnumake
-randomize-library-command:              ranlib -c %s
-libtool-command:                        glibtool
+platform-name:                      darwin
+inherit-from:                       generic-unix
+default-features:                   compiled-for-darwin
+make-command:                       gnumake
+randomize-library-command:          ranlib -c %s
+libtool-command:                    glibtool
 
 // FreeBSD
-platform-name:                                freebsd
-inherit-from:                                generic-unix
-default-features:                        compiled-for-freebsd
-make-command:                           gmake
-randomize-library-command:              ranlib %s
+platform-name:                      freebsd
+inherit-from:                       generic-unix
+default-features:                   compiled-for-freebsd
+make-command:                       gmake
+randomize-library-command:          ranlib %s
 
 // Linux
-platform-name:                                linux
-inherit-from:                                generic-unix
-default-features:                        compiled-for-linux
-make-command:                           make
+platform-name:                      linux
+inherit-from:                       generic-unix
+default-features:                   compiled-for-linux
+make-command:                       make
 
 
 // Microsoft Win32
-platform-name:                                win32
-default-features:                        compiled-for-win32
-                                        newlines-are-CRLF
-                                        no-time
-link-doesnt-search-for-libs?:                #t
-executable-filename-suffix:                .exe
-delete-file-command:                        rm -f %s
-compare-file-command:                        cmp -s %s %s
-move-file-command:                        mv -f %s %s
-recursive-make-command:                        $(MAKE) -C %s %s
-uses-drive-letters?:                        #t
-environment-variables-can-be-exported?:        #t
-makefile-name:                                Makefile
-make-supports-phony-targets?:                #f
-makefiles-can-rebuild-themselves?:        #f
-make-command:                                make
-make-jobs-flag:                                #f
+platform-name:                      win32
+default-features:                   compiled-for-win32
+                                    newlines-are-CRLF
+                                    no-time
+link-doesnt-search-for-libs?:       #t
+executable-filename-suffix:         .exe
+delete-file-command:                rm -f %s
+compare-file-command:               cmp -s %s %s
+move-file-command:                  mv -f %s %s
+recursive-make-command:             $(MAKE) -C %s %s
+uses-drive-letters?:                #t
+environment-variables-can-be-exported?: #t
+makefile-name:                      Makefile
+make-supports-phony-targets?:       #f
+makefiles-can-rebuild-themselves?:  #f
+make-command:                       make
+make-jobs-flag:                     #f
 
 
 
