@@ -292,6 +292,20 @@ lid_format_version=$_DCI_DYLAN_LID_FORMAT_VERSION
 AC_SUBST(lid_format_version)
 
 AC_PATH_PROG(MELANGE, melange, no)
+AC_MSG_CHECKING(if $MELANGE needs flags)
+need_melange_flags=no
+MELANGEFLAGS=
+case "${host}" in
+*-apple-darwin*)
+    if ! $MELANGE --defines | grep __restrict > /dev/null; then
+	      MELANGEFLAGS="-D__restrict=/\*\*/"
+        need_melange_flags=yes
+    fi
+;;
+esac
+AC_MSG_RESULT($need_melange_flags)
+AC_SUBST(MELANGEFLAGS)
+
 
 #--------------------------------------------------------------------
 # Determine our "build scenario".

@@ -185,6 +185,7 @@ sub set_default_defaults {
     $CPPFLAGS = '-I$(DYLANDIR)/include';
     $CDEFFLAGS = '';
     $MELANGE = 'melange' . $dot_exe;
+    $MELANGEFLAGS = '@MELANGEFLAGS@';
     $PARSERGEN = 'parsergen' . $dot_exe;
     $gen_makefile = 'gen-makefile';
     $install_data = "cp";
@@ -507,6 +508,7 @@ D2CFLAGS = $D2CFLAGS $CDEFFLAGS
 CFLAGS = $CFLAGS $CDEFFLAGS
 CPPFLAGS = $CPPFLAGS $debug_platform_name $CDEFFLAGS
 COPTS = $COPTS
+MELANGEFLAGS = $MELANGEFLAGS
 MELANGE = $MELANGE
 PARSERGEN = $PARSERGEN
 
@@ -1030,7 +1032,7 @@ sub emit_melange_rule {
 	printf("\t$host_platform{'recursive_make_command'}\n",
 	       $MELANGE_DIR, "");
     }
-    print "\t\$(MELANGE) --d2c";
+    print "\t\$(MELANGE) --d2c \$(MELANGEFLAGS)";
     if ($features{'compiled_for_cygnus'}) {
 # Maybe a better way:
 # -D__uint16_t=uint16_t -D__int32_t=int32_t -D__uint32_t=uint32_t
