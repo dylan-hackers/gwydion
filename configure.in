@@ -1,14 +1,14 @@
 dnl
-dnl	The new and improved configure file for Gwydion Dylan!
-dnl	This is based on the old configure file, but rewritten to
-dnl	support our goals for maintaining and improving the compiler.
+dnl The new and improved configure file for Gwydion Dylan!
+dnl This is based on the old configure file, but rewritten to
+dnl support our goals for maintaining and improving the compiler.
 dnl
-dnl	Rules are annotated with codes:
-dnl	  [C] d2c-specific
-dnl	  [?] Might be specific to one or the other
+dnl Rules are annotated with codes:
+dnl   [C] d2c-specific
+dnl   [?] Might be specific to one or the other
 dnl
-dnl	We don't support cross-compilation yet, but we're working on
-dnl	it.
+dnl We don't support cross-compilation yet, but we're working on
+dnl it.
 
 #--------------------------------------------------------------------
 # Emit configure initialization, verify that we're in the right
@@ -79,11 +79,11 @@ fi
 # whether there's any cross-compiling going on.
 #--------------------------------------------------------------------
 
-AC_CANONICAL_BUILD		# Find the system type
+AC_CANONICAL_BUILD  # Find the system type
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
-AC_ARG_PROGRAM			# Provide support for name prefixes
-AC_PROG_CC			# Specify when cross-compiling.
+AC_ARG_PROGRAM      # Provide support for name prefixes
+AC_PROG_CC          # Specify when cross-compiling.
 
 AC_DEFUN([GD_D2C_SYSTEM],[
 case $1 in
@@ -100,20 +100,20 @@ case $1 in
        else $2=x86-solaris-gcc
        fi ;;
     powerpc-apple-darwin*)
-	case `gcc -dumpversion` in
-	     4.*) $2=ppc-darwin-gcc4 ;;
-	     *)   $2=ppc-darwin-gcc ;;
-	esac ;;
+        case `gcc -dumpversion` in
+             4.*) $2=ppc-darwin-gcc4 ;;
+             *)   $2=ppc-darwin-gcc ;;
+        esac ;;
     i*86-apple-darwin*)
-	case `gcc -dumpversion` in
-	     4.*) $2=intel-darwin-gcc4 ;;
-	     *)   $2=intel-darwin-gcc ;;
-	esac ;;
+        case `gcc -dumpversion` in
+             4.*) $2=intel-darwin-gcc4 ;;
+             *)   $2=intel-darwin-gcc ;;
+        esac ;;
     powerpc-*-linux-gnu*)
-	case `gcc -dumpversion` in
-	     4.*) $2=ppc-linux-gcc4 ;;
-	     *)   $2=ppc-linux-gcc ;;
-	esac ;;
+        case `gcc -dumpversion` in
+             4.*) $2=ppc-linux-gcc4 ;;
+             *)   $2=ppc-linux-gcc ;;
+        esac ;;
     s390*-*-linux-gnu*) $2=s390-linux-gcc ;;
     sparc*-*-linux-gnu*) $2=sparc-linux-gcc ;;
     sparc*-solaris*)
@@ -171,9 +171,9 @@ exe_ext=""
 cygnus_line_hack=""
 case $d2c_build in
     *cygwin*|x86-mingw*)
-    	exe_ext=".exe"
+        exe_ext=".exe"
         cygnus_line_hack="\$_ =~ s/\r//;"
-	;;
+    ;;
 esac
 AC_MSG_RESULT($exe_ext)
 AC_SUBST(exe_ext)
@@ -226,7 +226,7 @@ AC_CHECK_TOOL(RANLIB, ranlib, :)
 
 AC_PATH_PROG(EMACS, emacs, no)
 if test "$EMACS" = no; then
-	AC_PATH_PROG(EMACS, xemacs, no)
+    AC_PATH_PROG(EMACS, xemacs, no)
 fi
 
 #--------------------------------------------------------------------
@@ -239,18 +239,18 @@ LIBTOOL="${CONFIG_SHELL-/bin/sh} $buildroot/libtool"
 AC_MSG_CHECKING(whether to build shared libraries)
 shared=no
 if $LIBTOOL --features | grep 'enable shared libraries' > /dev/null; then
-	shared=yes
+    shared=yes
 fi
 AC_MSG_RESULT($shared)
-AC_SUBST(shared)	
+AC_SUBST(shared)
 
 AC_MSG_CHECKING(whether to build static libraries)
 static=no
 if $LIBTOOL --features | grep 'enable static libraries' > /dev/null; then
-	static=yes
+    static=yes
 fi
 AC_MSG_RESULT($static)
-AC_SUBST(static)	
+AC_SUBST(static)
 
 #--------------------------------------------------------------------
 # Study our build environment carefully.
@@ -263,7 +263,7 @@ d2c_path=`echo $ac_cv_path_D2C|sed -e 's|/bin/d2c||'`
 # Does the user explicitly want a bootstrap?
 AC_ARG_ENABLE(bootstrap,
 [  --enable-bootstrap  Force a two-stage d2c bootstrap even if the
-            	      bootstrap counts match.  This saves hacking
+                      bootstrap counts match.  This saves hacking
                       with main.dylan and configure.in every time
                       you want to test some little change in the
                       runtime system])
@@ -275,7 +275,7 @@ if test "$D2C" != no; then
     _DCI_D2C_BOOTSTRAP_COUNTER=0
     _DCI_D2C_RUNTIME_SUBDIR=
     if $D2C --compiler-info > "$srcdir/compiler-info" 2> /dev/null; then
-	. "$srcdir/compiler-info"
+        . "$srcdir/compiler-info"
     fi
     rm -f "$srcdir/compiler-info"
 
@@ -298,7 +298,7 @@ MELANGEFLAGS=
 case "${host}" in
 *-apple-darwin*)
     if ! $MELANGE --defines | grep __restrict > /dev/null; then
-	      MELANGEFLAGS="-D__restrict=/\*\*/"
+        MELANGEFLAGS="-D__restrict=/\*\*/"
         need_melange_flags=yes
     fi
 ;;
@@ -374,7 +374,7 @@ AC_ARG_WITH(existing-runtime,
                           Look for the d2c runtime libraries in a different
                           place when bootstrapping. Defaults to
                           {prefix}/lib/dylan. This is only applicable when
-			  building in BOOTSTRAPPING mode.])
+                          building in BOOTSTRAPPING mode.])
 with_existing_runtime=${with_existing_runtime:-no}
 if test "$with_existing_runtime" = yes; then
     with_existing_runtime=no
@@ -392,7 +392,7 @@ if test $SCENARIO = BOOTSTRAPPING; then
     AC_MSG_CHECKING(for existing d2c runtime)
     if test "$with_existing_runtime" = no; then
         relative_runtime="lib/dylan/$_DCI_D2C_RUNTIME_SUBDIR"
-	with_existing_runtime="$d2c_path/$relative_runtime"
+        with_existing_runtime="$d2c_path/$relative_runtime"
     fi
     AC_MSG_RESULT($with_existing_runtime)
 
@@ -401,29 +401,29 @@ if test $SCENARIO = BOOTSTRAPPING; then
 
     # Make links to our runtime libraries.
     for f in $RUNTIME_LIBRARIES; do
-	lib="$with_existing_runtime/$f"
-	if test -r $lib; then
-	    ln -s "$lib" "$LOCAL_RUNTIME"
-	else
-	    AC_MSG_ERROR([
+        lib="$with_existing_runtime/$f"
+        if test -r $lib; then
+            ln -s "$lib" "$LOCAL_RUNTIME"
+        else
+            AC_MSG_ERROR([
 Cannot find $f in $with_existing_runtime.
 You may need to specify the --with-existing-runtime option to configure; see
 './configure --help' for details.])
-	fi
+        fi
     done
     for f in $EXTRA_RUNTIME_LIBRARIES; do
-	lib="$with_existing_runtime/$f"
-	if test -r $lib; then
-	    ln -s "$lib" "$LOCAL_RUNTIME"
-	fi
+        lib="$with_existing_runtime/$f"
+        if test -r $lib; then
+            ln -s "$lib" "$LOCAL_RUNTIME"
+        fi
     done
 
 
 
     # Make a link to our runtime.h file.
-	if test ! -f "$existing_runtime_header"; then
-	AC_MSG_ERROR([Cannot locate runtime.h for the installed d2c. ($existing_runtime_header)])
-	fi
+    if test ! -f "$existing_runtime_header"; then
+        AC_MSG_ERROR([Cannot locate runtime.h for the installed d2c. ($existing_runtime_header)])
+    fi
     ln -s "$existing_runtime_header" "$LOCAL_RUNTIME"
 fi
 
@@ -440,16 +440,16 @@ fi
 AC_SUBST(with_site_dylan_prefix)
 
 #--------------------------------------------------------------------
-#	Check for HP shared library emulation on ELF systems
+# Check for HP shared library emulation on ELF systems
 # testing for /usr/include/dlfcn.h might be a good automatic test?
 #--------------------------------------------------------------------
 
 AC_CHECK_LIB(dld, shl_load, [AC_DEFINE(HAVE_LIBDLD)
-			     LIBS="$LIBS -ldld"])
+                             LIBS="$LIBS -ldld"])
 AC_CHECK_LIB(dl, dlopen,[AC_DEFINE(HAVE_LIBDLDELF)
-			 AC_DEFINE(HAVE_LIBDLD)
+                         AC_DEFINE(HAVE_LIBDLD)
                          AC_LIBOBJ([shl])
-			 LIBS="-ldl" GC_LIBS="-ldl"])
+                         LIBS="-ldl" GC_LIBS="-ldl"])
 AC_CHECK_LIB(pthread, pthread_create,[AC_DEFINE([HAVE_PTHREAD],
                                                 [],
                                                 [pthread library available])
@@ -457,7 +457,7 @@ AC_CHECK_LIB(pthread, pthread_create,[AC_DEFINE([HAVE_PTHREAD],
                                       GC_LIBS="$GC_LIBS -lpthread"])
 
 #--------------------------------------------------------------------
-#	Look for gc, set GC_CFLAGS and GC_LIBS
+# Look for gc, set GC_CFLAGS and GC_LIBS
 #--------------------------------------------------------------------
 AC_ARG_WITH(gc-prefix, [  --with-gc-prefix=PFX    Prefix where Boehm gc is installed],
             gc_prefix="$withval", gc_prefix="")
@@ -489,24 +489,24 @@ AC_SUBST(GC_CFLAGS)
 AC_SUBST(GC_LIBS)
 
 #--------------------------------------------------------------------
-#	Look for mmap/mprotect support
+# Look for mmap/mprotect support
 #--------------------------------------------------------------------
 AC_CHECK_HEADERS(unistd.h sys/mman.h)
 AC_CHECK_FUNCS(mprotect getpagesize)
 
 #--------------------------------------------------------------------
-#	Look for getrlimit, getrusage
+# Look for getrlimit, getrusage
 #--------------------------------------------------------------------
 AC_CHECK_HEADERS(sys/time.h sys/resource.h)
 AC_CHECK_FUNCS(getrlimit getrusage)
 
 #--------------------------------------------------------------------
-#	How many threads do we want each invocation of d2c to use
+# How many threads do we want each invocation of d2c to use
 #--------------------------------------------------------------------
 AC_ARG_WITH(thread-count,
 [  --with-thread-count=INTEGER
-			  How many threads should d2c use. Currently only
-			  tells the sub-make process the same thing.])
+        How many threads should d2c use. Currently only
+        tells the sub-make process the same thing.])
 with_thread_count=${with_thread_count:-no}
 if test "$with_thread_count" = yes; then
     with_thread_count=no
@@ -522,7 +522,7 @@ AC_SUBST(with_thread_count)
 #====================================================================
 
 #--------------------------------------------------------------------
-#	Establish the default compile options for cc
+# Establish the default compile options for cc
 #--------------------------------------------------------------------
 AC_ARG_ENABLE(debug, [  --enable-debug=[no/minimum/yes/profiling] turn on debugging [default=minimum]],,enable_debug=minimum)
 AC_SUBST(enable_debug)
@@ -535,20 +535,20 @@ gcc* | *-gcc*)
     if test $enable_debug = yes; then
         CCOPTS="-g -O -fno-inline -Wall -pedantic"
     elif test $enable_debug = minimum; then
-	CCOPTS="-g -O2 -Wall"
+        CCOPTS="-g -O2 -Wall"
     else
- 	CCOPTS="-O4"
+        CCOPTS="-O4"
     fi
     EXTRA_INCLUDE_DIR="`$CC --print-file-name=include`"
     if test "X$EXTRA_INCLUDE_DIR" = Xinclude; then
-	EXTRA_INCLUDE_DIR=
+        EXTRA_INCLUDE_DIR=
     fi
     ;;
 cl|cl.exe)
     if test $enable_debug = yes; then
-	CCOPTS="-nologo /W3 /ZI/Ge"
+        CCOPTS="-nologo /W3 /ZI/Ge"
     else
-	CCOPTS="-nologo"
+        CCOPTS="-nologo"
     fi
     ;;
 *)
@@ -578,7 +578,7 @@ AC_TRY_COMPILE([#include <time.h>], [struct tm t; long g = t.tm_gmtoff;],
          AC_DEFINE(HAVE_CYGNUS_DAYLIGHT)])])])
 
 #--------------------------------------------------------------------
-#	Checks for the io and system libraries
+# Checks for the io and system libraries
 #--------------------------------------------------------------------
 
 AC_CHECK_FUNCS(localtime_r)
@@ -593,39 +593,39 @@ AC_CHECK_MEMBERS([struct stat.st_atim])
 AC_CHECK_MEMBERS([struct stat.st_mtim])
 
 #--------------------------------------------------------------------
-#	This next section is lifted from tcl-7.3, it deals with
-#	establishing which of the known faults in POSIX compliance
-#	need to be corrected.
+# This next section is lifted from tcl-7.3, it deals with
+# establishing which of the known faults in POSIX compliance
+# need to be corrected.
 #--------------------------------------------------------------------
 
 #--------------------------------------------------------------------
-#	Supply substitutes for missing POSIX library procedures, or
-#	set flags so Tcl uses alternate procedures.
+# Supply substitutes for missing POSIX library procedures, or
+# set flags so Tcl uses alternate procedures.
 #--------------------------------------------------------------------
 
 AC_REPLACE_FUNCS(getcwd opendir strerror strstr)
 AC_REPLACE_FUNCS(strtol memmove tmpnam waitpid)
 
 #--------------------------------------------------------------------
-#	Include sys/select.h if it exists and if it supplies things
-#	that appear to be useful and aren't already in sys/types.h.
-#	This appears to be true only on the RS/6000 under AIX.  Some
-#	systems like OSF/1 have a sys/select.h that's of no use, and
-#	other systems like SCO UNIX have a sys/select.h that's
-#	pernicious.  If "fd_set" isn't defined anywhere then set a
-#	special flag.
+# Include sys/select.h if it exists and if it supplies things
+# that appear to be useful and aren't already in sys/types.h.
+# This appears to be true only on the RS/6000 under AIX.  Some
+# systems like OSF/1 have a sys/select.h that's of no use, and
+# other systems like SCO UNIX have a sys/select.h that's
+# pernicious.  If "fd_set" isn't defined anywhere then set a
+# special flag.
 #--------------------------------------------------------------------
 
 AC_MSG_CHECKING(fd_set)
 AC_TRY_COMPILE([#include <sys/types.h>],
-	[fd_set readMask, writeMask;], AC_MSG_RESULT(yes),
-	[AC_EGREP_HEADER(fd_mask, sys/select.h, AC_DEFINE(HAVE_SYS_SELECT_H)
-		AC_DEFINE(NO_FD_SET))
-	 AC_MSG_RESULT(no fd_set)])
+    [fd_set readMask, writeMask;], AC_MSG_RESULT(yes),
+    [AC_EGREP_HEADER(fd_mask, sys/select.h, AC_DEFINE(HAVE_SYS_SELECT_H)
+                     AC_DEFINE(NO_FD_SET))
+     AC_MSG_RESULT(no fd_set)])
 
 #--------------------------------------------------------------------
-#	Check for various typedefs and provide substitutes if
-#	they don't exist.
+# Check for various typedefs and provide substitutes if
+# they don't exist.
 #--------------------------------------------------------------------
 
 AC_TYPE_MODE_T
@@ -634,17 +634,17 @@ AC_TYPE_SIZE_T
 AC_TYPE_UID_T
 
 #--------------------------------------------------------------------
-#	End of the section lifted from tcl.
+# End of the section lifted from tcl.
 #--------------------------------------------------------------------
 
 #--------------------------------------------------------------------
-#	Check for libm
+# Check for libm
 #--------------------------------------------------------------------
 
 AC_CHECK_LIB(m, sin, LIBS="$LIBS -lm")
 
 #--------------------------------------------------------------------
-#	Check for rint() and other math library functions
+# Check for rint() and other math library functions
 #--------------------------------------------------------------------
 
 AC_REPLACE_FUNCS(rint)
@@ -653,7 +653,7 @@ AC_CHECK_FUNCS(fabsf sinf cosf tanf asinf acosf atanf atan2f expf sqrtf)
 AC_CHECK_FUNCS(logf log2f log10f powf sinhf coshf tanhf)
 
 #--------------------------------------------------------------------
-#	See if cfmakeraw() is already declared
+# See if cfmakeraw() is already declared
 #--------------------------------------------------------------------
 
 AC_CHECK_DECLS([cfmakeraw],,,[#include <termios.h>])
@@ -707,13 +707,13 @@ $srcdir/mkinstalldirs tools
 # in and of itself) and configure tries to create the *.dylan files before
 # we build our buildroot tree causing things to flame out horribly.
 AC_OUTPUT(Defaults tools/shared-misc/gen-makefile tools/shared-misc/mk-build-tree tools/shared-misc/line-count tools/shared-misc/make-dylan-app tools/shared-misc/make-dylan-lib tools/shared-misc/update-libdirs tools/unix-misc/mk-rcs-links doc/Makefile doc/dylan.7 doc/gwydion.7 doc/d2c.1 doc/dybug.1 doc/melange.1 doc/parsergen.1 doc/make-dylan-app.1 doc/platforms.descr.4,
-	 [${INSTALL} -m uog+rx $buildroot/tools/shared-misc/mk-build-tree ./
-	  ${INSTALL} -m uog+rx $buildroot/tools/shared-misc/gen-makefile ./
-	  (PATH=$buildroot:$PATH; export PATH; perl mk-build-tree -p$srcdir/d2c/compiler/platforms.descr)
-	  touch $buildroot/force.timestamp
-	  ], [
-	      srcdir=$srcdir
-	      buildroot=$buildroot
+         [${INSTALL} -m uog+rx $buildroot/tools/shared-misc/mk-build-tree ./
+          ${INSTALL} -m uog+rx $buildroot/tools/shared-misc/gen-makefile ./
+          (PATH=$buildroot:$PATH; export PATH; perl mk-build-tree -p$srcdir/d2c/compiler/platforms.descr)
+          touch $buildroot/force.timestamp
+         ], [
+              srcdir=$srcdir
+              buildroot=$buildroot
 ])
 
 #--------------------------------------------------------------------
@@ -725,30 +725,30 @@ echo "Build scenario: $SCENARIO"
 echo
 case $SCENARIO in
     REGULAR_BUILD)
-	echo "Compiling d2c. The installed version of d2c will be"
-	echo "used to compile programs written in Dylan."
-	;;
+        echo "Compiling d2c. The installed version of d2c will be"
+        echo "used to compile programs written in Dylan."
+    ;;
     SECOND_STAGE)
-	echo "Compiling d2c. The recently compiled version of d2c"
-	echo "will be used to compile programs written in Dylan."
-	echo
-	echo "If you've already done a second stage build and installed"
-	echo "a working copy of d2c, you can try 'make bootstrap_clean'."
-	;;
+        echo "Compiling d2c. The recently compiled version of d2c"
+        echo "will be used to compile programs written in Dylan."
+        echo
+        echo "If you've already done a second stage build and installed"
+        echo "a working copy of d2c, you can try 'make bootstrap_clean'."
+    ;;
     BOOTSTRAPPING)
-	echo "The installed version of d2c will be used to bootstrap this"
-	echo "version of d2c. Alternatively, you may want to download"
-	echo "up-to-date binaries for your platform. See the README for"
+        echo "The installed version of d2c will be used to bootstrap this"
+        echo "version of d2c. Alternatively, you may want to download"
+        echo "up-to-date binaries for your platform. See the README for"
         echo "details."
-	;;
+    ;;
     CROSS_COMPILING)
-	echo "You're trying to use d2c as a cross-compiler. You may encounter"
+        echo "You're trying to use d2c as a cross-compiler. You may encounter"
         echo "various problems. If you get it to work, please tell us how"
-	echo "you did it."
-	;;
+        echo "you did it."
+    ;;
     *)
-	echo "Unknown build scenario! This is a bug."
-	;;
+        echo "Unknown build scenario! This is a bug."
+    ;;
 esac
 if test "$srcdir" != "$buildroot"; then
     echo
