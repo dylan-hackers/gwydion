@@ -114,6 +114,7 @@ case $1 in
              4.*) $2=ppc-linux-gcc4 ;;
              *)   $2=ppc-linux-gcc ;;
         esac ;;
+    arm*-*-linux-gnu*) $2=arm-linux-gcc ;;
     s390*-*-linux-gnu*) $2=s390-linux-gcc ;;
     sparc*-*-linux-gnu*) $2=sparc-linux-gcc ;;
     sparc*-solaris*)

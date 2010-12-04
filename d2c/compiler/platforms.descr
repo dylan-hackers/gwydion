@@ -108,6 +108,12 @@ inherit-from:                       32-bit ieee-754
 default-features:                   compiled-for-ppc
 big-endian?:                        #t
 
+// ARM
+platform-name:                      arm
+inherit-from:                       32-bit ieee-754
+default-features:                   compiled-for-arm
+big-endian?:                        #f
+
 // SPARC (32 bit)
 platform-name:                      sparc
 inherit-from:                       32-bit ieee-754
@@ -471,6 +477,9 @@ long-double-alignment:              16
 
 
 // Linux
+platform-name:                      arm-linux-gcc
+inherit-from:                       gcc linux arm
+
 platform-name:                      ppc-linux-gcc
 inherit-from:                       gcc linux ppc
 link-shared-library-command:        $(LIBTOOL) --mode=link gcc -o %s %s -rpath %s
