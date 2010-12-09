@@ -188,22 +188,6 @@ end method;
 // use libdir, etc., but the default substitutions contain ${prefix}
 // variables, which Dylan doesn't have yet.
 
-#if (macos)
-
-define constant $dylan-dir = $default-dylan-dir;
-define constant $dylan-user-dir = $default-dylan-user-dir;
-
-// Platform parameter database.
-define constant $default-targets-dot-descr = concatenate($dylan-dir, ":support:platforms.descr" );
-
-// Library search path.
-define constant $default-dylan-path = concatenate($dylan-dir, ":support:\t");
-
-// Location of runtime.h
-define constant $runtime-include-dir = concatenate($dylan-dir, ":support:runtime-includes" );
-
-#else
-
 define constant $dylan-dir = getenv("DYLANDIR") | $default-dylan-dir;
 define constant $dylan-user-dir = getenv("DYLANUSERDIR") | getenv("DYLANDIR") | $default-dylan-user-dir;
 
@@ -216,8 +200,6 @@ define constant $default-targets-dot-descr
 // Location of runtime.h
 define constant $runtime-include-dir
   = concatenate($dylan-dir, "/include");
-
-#endif
 
 define class <interactive-debugger> (<debugger>)
 end class <interactive-debugger>;

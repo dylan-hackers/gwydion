@@ -309,11 +309,7 @@ define method emit-make-prologue (state :: <lid-mode-state>) => ();
                                          *units*);
 
   let makefile-name = format-to-string("cc-%s-files.mak", state.unit-mprefix);
-#if (macos)
-  let temp-makefile-name = "makefile";
-#else
   let temp-makefile-name = concatenate(makefile-name, "-temp");
-#endif
   state.unit-makefile-name := makefile-name;
   state.unit-temp-makefile-name := temp-makefile-name;
 

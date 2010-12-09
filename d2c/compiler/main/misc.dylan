@@ -219,11 +219,7 @@ define constant $search-path-seperator =
 #if (compiled-for-win32)
   ';';
 #else
-  #if (macos)
-     '\t';
-  #else
-     ':';
-  #endif
+  ':';
 #endif
 
 define function find-file

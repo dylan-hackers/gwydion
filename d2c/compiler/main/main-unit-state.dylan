@@ -79,23 +79,6 @@ end class <main-unit-state>;
 // didn't specify '-static' on the command line, locate shared library
 // version first. 
 
-#if (macos)
-
-// At the moment we don't include compiled libs, so we don't need to look properly
-// This will cause problems for MPW and building projects, 
-// and so this is a temporary measure
-
-define method find-library-archive
-    (unit-name :: <byte-string>, state :: <main-unit-state>)
- => path :: <byte-string>;
-	let target = state.unit-target;
-	let suffixes = split-at-whitespace( target.library-filename-suffix );
-	let libname = concatenate( target.library-filename-prefix, unit-name, first( suffixes ) );
- 	libname;
- end method find-library-archive;
-
-#else
-
 define method find-library-archive
     (unit-name :: <byte-string>, state :: <main-unit-state>)
  => path :: <byte-string>;
@@ -145,8 +128,6 @@ define method find-library-archive
     as(<byte-string>, found.first);
   end if;
 end method find-library-archive;
-
-#endif
 
 
 // FER conversion
