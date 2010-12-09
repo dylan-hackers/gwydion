@@ -88,11 +88,14 @@ if ($features{'compiled_for_unix'}) {
     print <<"EOF"
 installdirs:
 	$srcdir/mkinstalldirs \${DESTDIR}$bindir \\
-	   \${DESTDIR}$sitelibdir \\
-	   \${DESTDIR}$libdir \${DESTDIR}$libdir/elisp \\
-	   \${DESTDIR}$includedir \${DESTDIR}$datadir/dylan \\
-           \${DESTDIR}$mandir/man1 \${DESTDIR}$mandir/man4 \\
-           \${DESTDIR}$mandir/man7
+	    \${DESTDIR}$sitelibdir \\
+	    \${DESTDIR}$libdir \\
+	    \${DESTDIR}$libdir/elisp \\
+	    \${DESTDIR}$includedir \\
+	    \${DESTDIR}$datadir/dylan \\
+	    \${DESTDIR}$mandir/man1 \\
+	    \${DESTDIR}$mandir/man4 \\
+	    \${DESTDIR}$mandir/man7
 
 EOF
 ;
