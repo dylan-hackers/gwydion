@@ -123,10 +123,11 @@ define constant $indentation-step = 4;
 
 define constant make-indenting-string-stream
   = method (#rest keys)
-	=> res :: <indenting-stream>;
+        => res :: <indenting-stream>;
       apply(make, <indenting-stream>,
-	    inner-stream: make(<byte-string-stream>, direction: #"output"),
-	    keys);
+            inner-stream: make(<byte-string-stream>, direction: #"output"),
+            output-tab-width: #f,
+            keys);
     end;
 
 define method get-string (stream :: <indenting-stream>)
