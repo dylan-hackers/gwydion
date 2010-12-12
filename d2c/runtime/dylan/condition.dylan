@@ -292,7 +292,7 @@ end method signal;
 
 // signal(<string>) -- exported gf method.
 //
-// Make a <simple-warning> out of the string and arugments and re-signal
+// Make a <simple-warning> out of the string and arguments and re-signal
 // it.
 // 
 define method signal (string :: <string>, #rest arguments)
@@ -509,7 +509,7 @@ define open generic return-description (cond :: <condition>)
 // return-query -- exported from Dylan.
 //
 // Called by handlers (after return-allowed? has okayed returning) in order
-// to propt the user for the values to return.
+// to prompt the user for the values to return.
 // 
 define open generic return-query (condition :: <condition>);
 
@@ -530,8 +530,8 @@ define sealed domain make (singleton(<breakpoint>));
 
 // return-allowed?(<breakpoint>) -- gf method.
 //
-// Returning is allowed for breakpoings.
-// 
+// Returning is allowed for breakpoints.
+//
 define method return-allowed? (cond :: <breakpoint>) => res :: <true>;
   #t;
 end method return-allowed?;
@@ -647,7 +647,7 @@ define class <uninitialized-slot-error> (<error>)
   constant slot uninitialized-slot-error-slot :: <slot-descriptor>,
     required-init-keyword: slot:;
   //
-  // The instance whos slot was uninitialized.
+  // The instance whose slot was uninitialized.
   constant slot uninitialized-slot-error-instance :: <object>,
     required-init-keyword: instance:;
 

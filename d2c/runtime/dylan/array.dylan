@@ -223,7 +223,7 @@ end;
 // aref(<simple-object-array>) -- exported gf method.
 //
 // Identical to the inherited method, but repeated here so that the body
-// can be compiled more effeciently.
+// can be compiled more efficiently.
 //
 define inline method aref
     (array :: <simple-object-array>, #rest indices)
@@ -234,7 +234,7 @@ end;
 // aref-setter(<simple-object-array>) -- exported gf method.
 //
 // Identical to the inherited method, but repeated here so that the body
-// can be compiled more effeciently.
+// can be compiled more efficiently.
 //
 define inline method aref-setter
     (new-value :: <object>, array :: <simple-object-array>, #rest indices)

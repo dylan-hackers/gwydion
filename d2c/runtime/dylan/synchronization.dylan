@@ -108,7 +108,7 @@ end class;
 
 // <count-exceeded-error>
 //
-// Signalled when a <semaphore> exceeds its maximum count.
+// Signaled when a <semaphore> exceeds its maximum count.
 //
 
 define sealed class <count-exceeded-error> (<synchronization-condition>, <error>)
@@ -128,7 +128,7 @@ end function;
 
 // <deadlock-error>
 //
-// Signalled when a synchronization operation would lead
+// Signaled when a synchronization operation would lead
 // to deadlock. This is an extension and meant primarily
 // for the single-threaded implementation.
 //
@@ -168,7 +168,7 @@ end function;
 
 // <not-owned-error>
 //
-// Signalled when the client tries to release an <exclusive-lock>
+// Signaled when the client tries to release an <exclusive-lock>
 // on a thread that is not the owner of the lock.
 //
 

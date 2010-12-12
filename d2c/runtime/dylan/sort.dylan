@@ -311,7 +311,7 @@ end function partition!;
 // Caution: quick-sort! leaves the vector not *quite* sorted, to be
 // cleaned up afterwards by insertion-sort!
 //
-// The depth-charge saves us from O(N^2) worse-case behaviour.  Median-of-3
+// The depth-charge saves us from O(N^2) worse-case behavior.  Median-of-3
 // pivoting makes it statistically unlikely, depth-charge prevents it
 // entirely by punting to a GUARANTEED O(N.log(N)) method while we've still
 // only done O(N.log(N)) work ourselves.  Traditionally you use heapsort,

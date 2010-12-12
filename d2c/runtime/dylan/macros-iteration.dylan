@@ -30,7 +30,7 @@ module: dylan-viscera
 
 // outlined-forward-iteration-protocol-definer -- internal macro
 //
-// Defines a specialised outlined forward iteration protocol method
+// Defines a specialized outlined forward iteration protocol method
 // on a collection class.
 //
 
@@ -81,7 +81,7 @@ end macro;
 
 // outlined-backward-iteration-protocol-definer -- internal macro
 //
-// Defines a specialised outlined backward iteration protocol method
+// Defines a specialized outlined backward iteration protocol method
 // on a collection class.
 //
 

@@ -50,7 +50,7 @@ module: dylan-viscera
   The DRM does not touch on the expected behavior of methods such as
   \=, add!, remove!, or size for non-proper lists (except that size is
   defined for circular lists). The whole <list>, <pair>, <empty-list>
-  heirarchy is perhaps unfortunate.
+  hierarchy is perhaps unfortunate.
 */
 
 define abstract class <list> (<mutable-sequence>)

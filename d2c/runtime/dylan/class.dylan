@@ -184,7 +184,7 @@ define class <slot-descriptor> (<object>)
     init-value: #f;
   //
   // A-list mapping classes to positions for the slot.  An entry is for all
-  // subclasses of the key class, therefore more specific classes must preceed
+  // subclasses of the key class, therefore more specific classes must precede
   // less specific classes.  Positions are either integers for heap allocated
   // slots or #"data-word" for slots allocated in the data-word.
   slot slot-positions :: <list>,

@@ -311,7 +311,7 @@ end method push-last;
 // pop -- public
 //
 // Removes the first deque-element and returns its DEQUE-ELEMENT-DATA.  If
-// the deque is empty, an error is signalled.
+// the deque is empty, an error is signaled.
 //
 define sealed inline method pop (deque :: <object-deque>)
  => (result :: <object>);

@@ -396,7 +396,7 @@ end method;
 // Returns the element of the range corresponding to KEY.  This
 // element is found using FROM + KEY * BY.  If KEY is out of the
 // bounds of the range, the default is returned or an error is
-// signalled.
+// signaled.
 //
 define sealed method element (range :: <bounded-range>, key :: <integer>,
                        #key default = $not-supplied)
@@ -868,7 +868,7 @@ end method;
 // 
 // This is done by finding the interval of intersection of the two
 // ranges, and calculating the either finite, infinite increasing, or
-// infinite decreasing intersection withing the interval.
+// infinite decreasing intersection within the interval.
 //
 define method range-intersection (range1 :: <builtin-range>, range2 :: <builtin-range>,
 				  #key test)

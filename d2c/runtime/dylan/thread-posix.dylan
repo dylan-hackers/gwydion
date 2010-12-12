@@ -31,7 +31,7 @@ module: dylan-viscera
 // This is an implementation of the FD threading interface using
 // POSIX threads.
 //
-// XXX: this doesnt handle priorities.
+// XXX: this doesn't handle priorities.
 
 // some dummy priority values
 define constant $low-priority         = -2;
@@ -83,7 +83,7 @@ define callback-method thread-startup-function (threadptr :: <raw-pointer>)
     let (#rest results) = thread.thread-function();
     thread.thread-results := results;
   cleanup
-    // If we are allready being joined,
+    // If we are already being joined,
     // pthread-detach wont do anything.
     pthread-detach(thread.thread-pthread);
   end;

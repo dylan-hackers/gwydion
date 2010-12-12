@@ -90,10 +90,10 @@ define function calc-size(new :: <integer>)
   for (new-len = 4 then new-len * 2,
        until: new <= new-len)
   finally
-    // earlier code considered doubling to be too wastefull for large
+    // earlier code considered doubling to be too wasteful for large
     // vectors and increased by no more than 1024 elements, but if you
     // don't increase it geometrically you lose the important property
-    // of O(N) amortised time.  So we now take two steps to double...
+    // of O(N) amortized time.  So we now take two steps to double...
     //
     let three-quarters = new-len - ash(new-len, -2);
     if (new <= three-quarters)

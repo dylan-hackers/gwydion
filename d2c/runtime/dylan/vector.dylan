@@ -215,7 +215,7 @@ define sealed inline method as
 end method as;
 
 // This method looks to be unduly specific, but the compiler will
-// generate this case whenever you "apply" a function to a strechy vector
+// generate this case whenever you "apply" a function to a stretchy vector
 // Perhaps this should be inlined eventually, but at present it
 // tickles a bug in stack analysis
 //

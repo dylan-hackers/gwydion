@@ -98,7 +98,7 @@ end;
 
 // as-signed-2 -- internal.
 //
-// Make a fixed integer by sign extendeding two digits.
+// Make a fixed integer by sign extending two digits.
 //
 define inline function as-signed-2 (digit-a :: <digit>, digit-b :: <digit>)
     => res :: <integer>;
@@ -264,7 +264,7 @@ end;
 // shrink-bignum -- internal.
 //
 // Change num's size to be new-size, throwing away any extra digits.  Note: it
-// is guarenteed that new-size will be less than or equal to the current size.
+// is guaranteed that new-size will be less than or equal to the current size.
 //
 define function shrink-bignum
     (num :: <extended-integer>, new-size :: <integer>)
@@ -385,7 +385,7 @@ end;
 define method as (class == <extended-integer>, num :: <double-integer>)
     => res :: <extended-integer>;
   //
-  // To convert a doube integer into an extended integer, we recurse to
+  // To convert a double integer into an extended integer, we recurse to
   // find how many digits we need, create a bignum, and then fill it in
   // on the way back out of the recursion.
   let sign = ash(num, 1 - $double-integer-bits);

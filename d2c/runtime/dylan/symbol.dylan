@@ -34,7 +34,7 @@ module: dylan-viscera
 //
 // ### Note: currently, there is no support for unicode symbols.  We'll
 // have to fix that someday.  Also, we should probably consider storing
-// the symbol-string directly in a vector slot instead of a seperate
+// the symbol-string directly in a vector slot instead of a separate
 // string object.  Or at least copying the string before returning it in
 // as(<string>, symbol).
 //
@@ -59,7 +59,7 @@ define class <symbol-table> (<object>)
   slot cell-count :: <integer>, required-init-keyword: #"size";
   //
   // The bucket vector.  Each element is a chain (though symbol-next) of
-  // the symbols whos modulo(symbol-hashing, cell-count) == the index.  We
+  // the symbols whose modulo(symbol-hashing, cell-count) == the index.  We
   // give it a spurious init-value that gets overwritten in the initialize
   // method just so the compiler will believe that this slot is always
   // initialized.
@@ -119,7 +119,7 @@ define class <symbol> (<object>)
   // The ``name'' of this symbol.  DO NOT MODIFY.
   slot symbol-string :: <string>, setter: #f, required-init-keyword: string:;
   //
-  // A case-independent hashing of the name.  We pre-compute it for effeciency.
+  // A case-independent hashing of the name.  We pre-compute it for efficiency.
   slot symbol-hashing :: <integer>, init-value: 0;
   //
   // The next symbol in the bucket chain in the symbol table.

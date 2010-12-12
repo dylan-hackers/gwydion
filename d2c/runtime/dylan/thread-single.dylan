@@ -53,7 +53,7 @@ define method make(cls == <thread>, #key, #all-keys)
   if(*thread-created?*)
     error("Cannot create a second thread in a single-threaded dylan.");
   else
-    /* Ordering doesnt really matter, this is for style. */
+    /* Ordering doesn't really matter, this is for style. */
     let thread = next-method();
     *thread-created?* := #t;
     thread;

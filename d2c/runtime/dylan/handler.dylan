@@ -49,7 +49,7 @@ define class <handler> (<object>)
   constant slot handler-test :: false-or(<function>),
     required-init-keyword: test:;
 
-  // The init-arguments to pass make when interactivly invoking this handler.
+  // The init-arguments to pass make when interactively invoking this handler.
   constant slot handler-init-arguments :: <sequence>,
     required-init-keyword: init-arguments:;
 

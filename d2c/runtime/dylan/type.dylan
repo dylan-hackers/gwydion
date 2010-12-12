@@ -973,7 +973,7 @@ end;
 // %instance?(<object>,<none-of>) -- internal.
 //
 // Something is an instance of a <none-of> if it is an instance of the base
-// type but not an isntance of any of the excluded types.
+// type but not an instance of any of the excluded types.
 //
 define method %instance? (object :: <object>, type :: <none-of>)
     => res :: <boolean>;
@@ -1129,7 +1129,7 @@ end method %subtype?;
 //  class1.class-row[class2.class-bucket] == class2.class-row[class2.class-bucket]; 
 //=======
 // Class1 is a subtype of class2 when class2 is listed in class1's
-// all-superclasses.  For effeciency, pick off the case where the two
+// all-superclasses.  For efficiency, pick off the case where the two
 // classes are ==.
 //
 // This is speed-critical code--if we're not using inline instance checks
@@ -1195,7 +1195,7 @@ end method %subtype?;
 // Unless some more specific method is applicable, a subclass type is a subtype
 // of some other type iff the base class's metaclass is a subtype of that
 // other type.  We assume that <class> is the only kind of metaclass in
-// existance, though.
+// existence, though.
 //
 define inline method %subtype? (type1 :: <subclass>, type2 :: <type>)
     => res :: <boolean>;
@@ -1294,8 +1294,8 @@ end;
 // %subtype?(<none-of>,<type>) -- internal gf method.
 //
 // A type negation is subtype some other type if it's base is a subtype.
-// This case is straigtforward, but the (<type>, <none-of>) method is just too
-// hair to implement, so we won't.
+// This case is straightforward, but the (<type>, <none-of>) method is just too
+// hairy to implement, so we won't.
 //
 define method %subtype? (type1 :: <none-of>, type2 :: <type>)
     => res :: <boolean>;
@@ -1370,7 +1370,7 @@ define method overlap?
     & overlap?(type1.limited-integer-base-class, type2.limited-integer-base-class);
 end method overlap?;
 	       
-// Catch comparisions between limited integers and limited collections.
+// Catch comparisons between limited integers and limited collections.
 //
 define method overlap?
     (type1 :: <limited-type>, type2 :: <limited-type>)

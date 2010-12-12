@@ -405,7 +405,7 @@ define function add-method
   //
   // First, check that the method is congruent.
   //
-  // The number of specialiers must be the same.
+  // The number of specializers must be the same.
   unless (new.function-specializers.size == gf.function-specializers.size)
     error("%= isn't congruent with %= because %= takes %d required "
 	    "argument%s but %= takes %d",
@@ -416,7 +416,7 @@ define function add-method
   end unless;
   //
   // Each method specializer must be a subtype of the corresponding
-  // gf specialier.
+  // gf specializer.
   for (index from 0 below new.function-specializers.size)
     let meth-spec = new.function-specializers[index];
     let gf-spec = gf.function-specializers[index];
@@ -575,12 +575,12 @@ define function find-method
     (gf :: <generic-function>, specializers :: <sequence>)
     => meth :: false-or(<method>);
   //
-  // Convert the specialiers into a simple object vector so we can more
-  // effeciently access it.
+  // Convert the specializers into a simple object vector so we can more
+  // efficiently access it.
   let specializers :: <simple-object-vector>
     = as(<simple-object-vector>, specializers);
   //
-  // Verify that the correct number of specialiers was supplied.
+  // Verify that the correct number of specializers was supplied.
   unless (gf.function-specializers.size == specializers.size)
     error("Wrong number of specializers in find-method.  %= has %d required "
 	    "argument%s, but %d specializers were supplied.",
@@ -594,7 +594,7 @@ end function find-method;
 // internal-find-method -- internal
 //
 // Used by add-method and find-method to find a method that matches the
-// given specialiers.  Returns that method and the previous pair so that
+// given specializers.  Returns that method and the previous pair so that
 // add-method can remove it.
 // 
 define function internal-find-method

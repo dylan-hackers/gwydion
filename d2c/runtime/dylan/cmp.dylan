@@ -194,7 +194,7 @@ define inline function min (object :: <object>, #rest more-objects)
   reduce(binary-min, object, more-objects);
 end;
 //
-// binary-min is a seperate function instead of being an anonymous method
+// binary-min is a separate function instead of being an anonymous method
 // inside of min so that when min gets inlined each reference to binary-min
 // will get independently inlined.
 // 
@@ -212,7 +212,7 @@ define inline function max (object :: <object>, #rest more-objects)
   reduce(binary-max, object, more-objects);
 end;
 //
-// binary-max is a seperate function instead of being an anonymous method
+// binary-max is a separate function instead of being an anonymous method
 // inside of max so that when max gets inlined each reference to binary-min
 // will get independently inlined.
 // 
