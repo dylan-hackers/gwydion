@@ -8,7 +8,6 @@ if (!$enable_bootstrap) {
                        'threads',
 		       'melange',
 #		       'c-ffi',
-		       'garbage-collection',
 		       'transcendental');
 }
 
