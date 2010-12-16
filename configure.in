@@ -113,6 +113,11 @@ case $1 in
                     *)   $2=intel-darwin-gcc ;;
                 esac ;;
         esac ;;
+    x86_64-apple-darwin*)
+        case $CC in
+            *clang*) $2=x86_64-darwin-clang ;;
+            *) $2=x86_64-darwin-gcc ;;
+        esac ;;
     powerpc-*-linux-gnu*)
         case `gcc -dumpversion` in
              4.*) $2=ppc-linux-gcc4 ;;
