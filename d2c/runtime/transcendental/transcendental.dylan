@@ -460,13 +460,6 @@ define sealed inline method tanh (x :: <double-float>) => y :: <double-float>;
   call-out("tanh", double:, double: x);
 end method tanh;
 
-
-// Inverse hyperbolic trig functions are not implemented for some
-// platforms, and we haven't yet felt up to writing our own.
-// 
-
-#if (compiled-for-hpux | compiled-for-linux | compiled-for-freebsd | compiled-for-beos | compiled-for-cygnus)
-
 define sealed method asinh (x :: <integer>) => y :: <single-float>;
   c-include("math.h");
   as(<single-float>,
@@ -518,4 +511,3 @@ define sealed method atanh (x :: <double-float>) => y :: <double-float>;
   call-out("atanh", double:, double: x);
 end method atanh;
 
-#endif

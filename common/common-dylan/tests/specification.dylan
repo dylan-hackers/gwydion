@@ -259,11 +259,9 @@ define module-spec transcendentals ()
 // The floating point precision of the result is given by the precision
 // of _x_.  The result will be a <single-float> if _x_ is an integer.
 
-#if (compiled-for-hpux | compiled-for-linux | compiled-for-freebsd | compiled-for-beos)
   open generic-function asinh (<real>) => (<float>);
   open generic-function acosh (<real>) => (<float>);
   open generic-function atanh (<real>) => (<float>);
-#endif
 
 // Returns the hyperbolic arc sine, hyperbolic arc cosine, or hyperbolic
 // arc tangent of _y_, respectively.
