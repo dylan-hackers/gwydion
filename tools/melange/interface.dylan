@@ -895,11 +895,7 @@ define method main (program, args)
   for (dir in include-dirs)
     push(include-path, dir);
   end for;
-  #if (MacOS)
-  	push(include-path, "");
-  #else
-  	push(include-path, "./");
-  #endif
+  push(include-path, "./");
   
   // Handle --framework.
   for (dir in framework-dirs)

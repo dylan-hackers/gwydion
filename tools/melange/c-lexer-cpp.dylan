@@ -338,13 +338,6 @@ define /* exported */ function file-in-include-path (name :: <string>,
                                                      #key skip-to)
  => (full-name :: false-or(<string>));
  
- 	#if (MacOS)
- 		// Convert UNIX paths to Mac paths
- 		name := regexp-replace( name, "\\.\\./", "::" );
- 		name := regexp-replace( name, "\\./", ":" ); 
- 		name := regexp-replace( name, "/", ":" );
- 	#endif
- 
   if (first(name) == '/')
     if(name.file-is-header?) name else #f end;
   else
@@ -361,16 +354,8 @@ define /* exported */ function file-in-include-path (name :: <string>,
         
       for (dir in search-path)
         block ()
-        #if (MacOS)
-                let full-name = if( (dir ~= "") & (dir ~= ":") )
-                                                        concatenate(dir, ":", name);
-                                                else
-                                                        name;
-                                                end if;
-        #else
-                let full-name = concatenate(dir, "/", name);
-        #endif
-                if(full-name.file-is-header?) return(full-name) end;
+          let full-name = concatenate(dir, "/", name);
+          if(full-name.file-is-header?) return(full-name) end;
         end block;
       finally
         // Try looking in the frameworks
@@ -476,11 +461,7 @@ define method quote-include( state, contents, quote-start, quote-end )
                                         #if (compiled-for-x86-win32)
                                             "[^\\\\/]+$", 
                                         #else
-                                            #if (MacOS)
-                                                    "[^:]+$", 
-                                            #else
-                                                    "[^/]+$", 
-                                            #endif
+                                            "[^/]+$", 
                                         #endif
                                             name);
     end if;
