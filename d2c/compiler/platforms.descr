@@ -457,7 +457,6 @@ inherit-from:                       gcc darwin ppc
 default-c-compiler-flags:           -I. -I%s -Os -fomit-frame-pointer -arch ppc
 default-c-compiler-debug-flags:     -I. -I%s -g -O -fno-inline-functions -arch ppc
 default-c-compiler-profile-flags:   -I. -I%s -pg -g -O -fno-inline-functions -arch ppc
-default-c-platform-defines:         -D_POSIX_C_SOURCE
 link-executable-flags:              $(GC_LIBS) -multiply_defined suppress -arch ppc
 double-alignment:                   4
 long-long-alignment:                4
@@ -473,7 +472,6 @@ inherit-from:                       gcc darwin x86
 default-c-compiler-flags:           -Wall -Wno-unused-variable -I. -I%s -O2 -arch i386
 default-c-compiler-debug-flags:     -Wall -Wno-unused-variable -I. -I%s -g -O -fno-inline-functions -arch i386
 default-c-compiler-profile-flags:   -Wall -Wno-unused-variable -I. -I%s -pg -g -O -fno-inline-functions -arch i386
-default-c-platform-defines:         -D_POSIX_C_SOURCE
 link-executable-flags:              $(GC_LIBS) -multiply_defined suppress -arch i386
 long-long-alignment:                4
 long-double-size:                   16
@@ -492,7 +490,6 @@ inherit-from:                       clang darwin x86
 default-c-compiler-flags:           -Wall -Wno-unused-variable -I. -I%s -O2 -fomit-frame-pointer -arch i386
 default-c-compiler-debug-flags:     -Wall -Wno-unused-variable -I. -I%s -g -O -fno-inline-functions -arch i386
 default-c-compiler-profile-flags:   -Wall -Wno-unused-variable -I. -I%s -pg -g -O -fno-inline-functions -arch i386
-default-c-platform-defines:         -D_POSIX_C_SOURCE
 link-executable-flags:              $(GC_LIBS) -multiply_defined suppress -arch i386
 long-long-alignment:                4
 long-double-size:                   16
@@ -503,7 +500,6 @@ inherit-from:                       gcc darwin x86_64
 default-c-compiler-flags:           -Wall -Wno-unused-variable -I. -I%s -O2 -arch x86_64
 default-c-compiler-debug-flags:     -Wall -Wno-unused-variable -I. -I%s -g -O -fno-inline-functions -arch x86_64
 default-c-compiler-profile-flags:   -Wall -Wno-unused-variable -I. -I%s -pg -g -O -fno-inline-functions -arch x86_64
-default-c-platform-defines:         -D_POSIX_C_SOURCE
 link-executable-flags:              $(GC_LIBS) -multiply_defined suppress -arch x86_64
 long-long-alignment:                4
 long-double-size:                   16
@@ -514,7 +510,6 @@ inherit-from:                       clang darwin x86_64
 default-c-compiler-flags:           -Wall -Wno-unused-variable -I. -I%s -O2 -arch x86_64
 default-c-compiler-debug-flags:     -Wall -Wno-unused-variable -I. -I%s -g -O -fno-inline-functions -arch x86_64
 default-c-compiler-profile-flags:   -Wall -Wno-unused-variable -I. -I%s -pg -g -O -fno-inline-functions -arch x86_64
-default-c-platform-defines:         -D_POSIX_C_SOURCE
 link-executable-flags:              $(GC_LIBS) -multiply_defined suppress -arch x86_64
 long-long-alignment:                4
 long-double-size:                   16
