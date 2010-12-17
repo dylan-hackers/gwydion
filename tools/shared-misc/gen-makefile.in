@@ -776,7 +776,7 @@ sub emit_library_rule {
     for $file (split(' ', $lidfile{'files'})) {
 	$file =~ s/\.dylan$//;  # chop off ".dylan"
 	if ($&) {				# This was a "something.dylan"
-	    push(@files_to_clean, "$file.c", "$file$dot_obj");
+	    push(@files_to_clean, "$file.c", "$file$dot_obj", "$file.el");
 	} else {
 	    # This is a *.o or something that is handled by the
 	    # emit_c_file_rule ...
