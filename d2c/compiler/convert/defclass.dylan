@@ -288,6 +288,10 @@ define /* exported */ class <slot-definition> (<abstract-slot-definition>)
   // The sizer slot defn.
   constant slot slot-definition-sizer-definition :: false-or(<slot-definition>),
         init-value: #f, init-keyword: sizer-defn:;
+  //
+  // Whether or not this slot's storage should be zero-terminated.
+  constant slot slot-definition-zero-terminate? :: <boolean>,
+    init-value: #f, init-keyword: zero-terminate:;
 end;
 
 define class <override-definition> (<abstract-slot-definition>)
@@ -436,14 +440,16 @@ define method process-slot
        init-keyword-frag, req-init-keyword-frag, init-value-frag,
        init-expr-frag, init-function-frag, sizer-frag,
        size-init-keyword-frag, req-size-init-keyword-frag,
-       size-init-value-frag, size-init-function-frag)
+       size-init-value-frag, size-init-function-frag,
+       zero-terminate-frag)
     = extract-properties(slot.slot-parse-options,
                          sealed:, allocation:, type:, setter:,
                          init-keyword:, required-init-keyword:,
                          init-value:, init-expr:, init-function:,
                          sizer:, size-init-keyword:,
                          required-size-init-keyword:,
-                         size-init-value:, size-init-function:);
+                         size-init-value:, size-init-function:,
+                         zero-terminate:);
   let getter = slot.slot-parse-name.token-symbol;
   let sealed? = sealed?-frag & extract-boolean(sealed?-frag);
   let allocation = if (allocation-frag)
@@ -487,6 +493,8 @@ define method process-slot
   let size-init-function
     = (size-init-function-frag
          & expression-from-fragment(size-init-function-frag));
+  let zero-terminate-value
+    = zero-terminate-frag & expression-from-fragment(zero-terminate-frag);
 
   if (init-value)
     if (init-expr)
@@ -536,6 +544,21 @@ define method process-slot
     compiler-fatal-error-location
       (simplify-source-location(init-keyword-frag.source-location),
        "Can't supply both an init-keyword: and a required-init-keyword:.");
+  end;
+
+  let zero-terminate? = if (zero-terminate-value)
+    unless (sizer)
+      compiler-fatal-error-location
+       (simplify-source-location(zero-terminate-frag.source-location),
+        "Can't zero-terminate: a non-vector slot.");
+    end;
+    unless (instance?(zero-terminate-value, <literal-ref-parse>) &
+            instance?(zero-terminate-value.litref-literal, <literal-boolean>))
+      compiler-fatal-error-location
+       (simplify-source-location(zero-terminate-frag.source-location),
+        "zero-terminate: must be given a literal #t or #f.");
+    end;
+    literal-value(zero-terminate-value.litref-literal);
   end;
 
   let module = slot.slot-parse-name.token-module;
@@ -595,7 +618,8 @@ define method process-slot
                         init-keyword:
                           size-init-keyword | req-size-init-keyword,
                         init-keyword-required:
-                          req-size-init-keyword & #t);
+                          req-size-init-keyword & #t,
+                        zero-terminate: zero-terminate?);
         add!(slots, slot);
         slot;
       else
@@ -640,7 +664,8 @@ define method process-slot
                   init-function: init-function,
                   init-keyword: init-keyword | req-init-keyword,
                   sizer-defn: size-defn,
-                  init-keyword-required: req-init-keyword & #t);
+                  init-keyword-required: req-init-keyword & #t,
+                  zero-terminate: zero-terminate?);
   add!(slots, slot);
 end method process-slot;
 
@@ -1089,7 +1114,8 @@ define method compute-slot (slot :: <slot-definition>) => info :: <slot-info>;
              init-keyword: slot.slot-definition-init-keyword,
              init-keyword-required:
                slot.slot-definition-init-keyword-required?,
-             size-slot: slot.slot-definition-sizer-definition.slot-definition-info);
+             size-slot: slot.slot-definition-sizer-definition.slot-definition-info,
+             zero-terminate: slot.slot-definition-zero-terminate?);
       else
         make(<slot-info>,
              allocation: slot.slot-definition-allocation,
@@ -2615,6 +2641,7 @@ define method build-maker-function-body
   let size-leaf = #f;
   let vector-slot = cclass.vector-slot;
   let size-slot = vector-slot & vector-slot.slot-size-slot;
+  let zero-terminate-slot? = vector-slot & vector-slot.slot-zero-terminate?;
 
   let policy = $Default-Policy;
   let source = defn.source-location;
@@ -2731,6 +2758,24 @@ define method build-maker-function-body
                       // element.
                       let block-region
                         = build-block-body(init-builder, policy, source);
+
+                      if (zero-terminate-slot?)
+                        let terminator-index = make-local-var(init-builder, #"index",
+                                                              specifier-type(#"<integer>"));
+                        build-assignment
+                          (init-builder, policy, source, terminator-index,
+                           make-unknown-call
+                           (init-builder,
+                            ref-dylan-defn(init-builder, policy, source, #"+"),
+                            #f,
+                            list(size-leaf, make-literal-constant(init-builder, 1))));
+                        build-assignment
+                          (init-builder, policy, source, #(),
+                           make-operation
+                             (init-builder, <heap-slot-set>,
+                               list(make-literal-constant(init-builder, 0), instance-leaf, posn-leaf, terminator-index),
+                               slot-info: slot));
+                      end;
                       let index
                         = make-local-var(init-builder, #"index",
                                          specifier-type(#"<integer>"));
@@ -2768,9 +2813,9 @@ define method build-maker-function-body
                       build-else(init-builder, policy, source);
                       build-exit
                         (init-builder, policy, source, block-region);
-                      end-body(init-builder);
-                      end-body(init-builder);
-                      end-body(init-builder);
+                      end-body(init-builder); /* end if */
+                      end-body(init-builder); /* end for */
+                      end-body(init-builder); /* end block */
                     else
                       build-assignment
                         (init-builder, policy, source, #(),
@@ -3001,6 +3046,15 @@ define method build-maker-function-body
               ref-dylan-defn(tl-builder, policy, source, #"+"),
               #f,
               list(base-len, extra)));
+        if (zero-terminate-slot?)
+          build-assignment
+            (tl-builder, policy, source, var,
+             make-unknown-call
+               (tl-builder,
+                ref-dylan-defn(tl-builder, policy, source, #"+"),
+                #f,
+                list(var, make-literal-constant(tl-builder, elsize))));
+        end;
         var;
       else
         base-len;

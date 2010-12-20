@@ -431,6 +431,8 @@ define sealed domain make (singleton(<instance-slot-info>));
 define class <vector-slot-info> (<instance-slot-info>)
   slot slot-size-slot :: <instance-slot-info>,
     init-keyword: size-slot:;
+  slot slot-zero-terminate? :: <boolean>,
+    init-value: #f, init-keyword: zero-terminate:;
 end;
 
 define sealed domain make (singleton(<vector-slot-info>));

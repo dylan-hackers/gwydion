@@ -181,7 +181,8 @@ define inline outlined-forward-iteration-protocol <unicode-string>;
 define class <byte-string> (<string>, <vector>)
   sealed slot %element :: <byte-character>,
     init-value: ' ', init-keyword: fill:,
-    sizer: size, size-init-value: 0, size-init-keyword: size:;
+    sizer: size, size-init-value: 0, size-init-keyword: size:,
+    zero-terminate: #t;
 end;
 
 define sealed domain make (singleton(<byte-string>));

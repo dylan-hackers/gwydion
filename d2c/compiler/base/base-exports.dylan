@@ -712,7 +712,8 @@ define module classes
     <instance-slot-info>, slot-representation, slot-initialized?-slot,
     slot-positions, find-slot-offset, best-idea-of-class,
 
-    <vector-slot-info>, slot-size-slot, slot-size-slot-setter,
+    <vector-slot-info>, slot-size-slot, slot-size-slot-setter, slot-zero-terminate?,
+    slot-zero-terminate?-setter,
 
     <virtual-slot-info>,
     <indirect-slot-info>, <class-slot-info>, <each-subclass-slot-info>,

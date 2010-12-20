@@ -216,7 +216,8 @@ add-make-dumper(#"instance-slot-info", *compiler-dispatcher*,
 add-make-dumper(#"vector-slot-info", *compiler-dispatcher*, <vector-slot-info>,
    concatenate(
      $slot-info-dump-slots,
-     list(slot-size-slot, size-slot:, slot-size-slot-setter)),
+     list(slot-size-slot, size-slot:, slot-size-slot-setter,
+          slot-zero-terminate?, zero-terminate:, slot-zero-terminate?-setter)),
    load-external: #t
 );
 

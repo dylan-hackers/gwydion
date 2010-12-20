@@ -1645,7 +1645,11 @@ define method spew-layout
                    field.slot-representation.representation-c-type,
                    name);
             if(instance?(field, <vector-slot-info>))
-              format(stream, "[%d]", size);
+              if (field.slot-zero-terminate?)
+                format(stream, "[%d]", size + 1);
+              else
+                format(stream, "[%d]", size);
+              end if;
             end if;
             if(getter)
               format(stream, ";\t /* %s */\n",
@@ -1841,8 +1845,14 @@ define function object-size-from-length
   let class = ctv.layouter-cclass;
   let vector-slot = class.vector-slot;
   assert(vector-slot);
-  get-direct-position(vector-slot.slot-positions, class)
-    + vector-slot.slot-representation.representation-size * elements;
+  let extra = vector-slot.slot-representation.representation-size * elements;
+  let terminator
+    = if (vector-slot.slot-zero-terminate?)
+        vector-slot.slot-representation.representation-size
+      else
+        0
+      end if;
+  get-direct-position(vector-slot.slot-positions, class) + extra + terminator;
 end function object-size-from-length;
 
 // object-size{<proxy>} -- method on internal GF.

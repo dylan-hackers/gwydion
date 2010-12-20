@@ -468,7 +468,8 @@ define macro class-definer
 	   ?size-init-keyword:token = foo:,
 	   ?required-size-init-keyword:token = foo:,
 	   ?size-init-value:expression = #f,
-	   ?size-init-function:expression = #f }
+	   ?size-init-function:expression = #f,
+	   ?zero-terminate:expression = #f }
       => {?all}
 
   init-arg-options:
