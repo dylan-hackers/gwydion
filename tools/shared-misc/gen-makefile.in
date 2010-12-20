@@ -26,6 +26,7 @@ use Cwd;
 #    emit_cc_file_rule($base_file_name, @header_files)
 #    emit_melange_rule($base_file_name, @dependencies)
 #    emit_parsergen_rule($base_file_name)
+#    emit_dtrace_rule($base_file_name)
 #    install($dest_subdir, @files)
 #    install_from_src($dest_subdir, @files)
 #    install_executable_from_src($dest_subdir, @files)
@@ -327,7 +328,7 @@ sub read_Defaults_file {
     $D2C = &convert_path_separator($D2C);
     $MELANGE = &convert_path_separator($MELANGE);
     $PARSERGEN = &convert_path_separator($PARSERGEN);
-
+    $DTRACE = &convert_path_separator($DTRACE);
 }
 
 # do_Makegen_file() -- internal
@@ -511,6 +512,7 @@ COPTS = $COPTS
 MELANGEFLAGS = $MELANGEFLAGS
 MELANGE = $MELANGE
 PARSERGEN = $PARSERGEN
+DTRACE = $DTRACE
 
 EOF
         if ($host_platform{'environment_variables_can_be_exported?'}) {
@@ -1061,6 +1063,20 @@ sub emit_parsergen_rule {
     print "\$(SRCDIR)/$basefile.input $basefile.dylan\n\n";
     push(@compile_dependencies, "$basefile.dylan");
     push(@files_to_clean, "$basefile.dylan");
+}
+
+# emit_dtrace_rule($base_file_name) -- exported
+#
+# Emit the rule to process a DTrace provider definition file into a .h file.
+#
+sub emit_dtrace_rule {
+    local ($basefile) = @_;
+    do maybe_emit_d2c_defines();
+
+    print "$basefile.h: \$(SRCDIR)/$basefile.d\n";
+    print "\t\$(DTRACE) -h -s \$(SRCDIR)/$basefile.d\n\n";
+    push(@compile_dependencies, "$basefile.h");
+    push(@files_to_clean, "$basefile.h");
 }
 
 # install_one_file($from_file, $to_file, $executable_permissions) -- internal

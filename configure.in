@@ -302,6 +302,55 @@ esac
 AC_MSG_RESULT($need_melange_flags)
 AC_SUBST(MELANGEFLAGS)
 
+#--------------------------------------------------------------------
+# Deal with user-space probes, like DTrace, System Tap.
+#--------------------------------------------------------------------
+
+WITH_TRACING_DEFAULT='no'
+case "${host}" in
+    *darwin8*) WITH_TRACING_DEFAULT='no' ;;
+    *darwin*) WITH_TRACING_DEFAULT='dtrace' ;;
+esac
+
+AC_MSG_CHECKING([whether to include tracing support])
+AC_ARG_WITH([tracing],
+            [AS_HELP_STRING([--with-tracing=(dtrace,systemtap,no)],
+                            [Enable inclusion of tracing support.)])],
+            [WITH_TRACING="${withval}"], [WITH_TRACING=${WITH_TRACING_DEFAULT}])
+AC_MSG_RESULT(${WITH_TRACING})
+
+if test "x${WITH_TRACING}" != xdtrace -a "x${WITH_TRACING}" != xsystemtap -a "x${WITH_TRACING}" != xno; then
+    AC_MSG_ERROR([${WITH_TRACING} is not a valid value for --with-tracing. Use 'dtrace', 'systemtap' or 'no'.])
+fi
+
+if test "x${WITH_TRACING}" = xdtrace; then
+    # Consider adding FreeBSD and Solaris support here.
+    case "${host}" in
+      *darwin*) ;;
+      *) AC_MSG_ERROR([dtrace is currently only supported on Mac OS X.]) ;;
+    esac
+    AC_CHECK_PROGS(DTRACE, dtrace)
+    if test -z "$DTRACE"; then
+      AC_MSG_ERROR([dtrace not found, consider using --without-tracing.])
+    fi
+fi
+
+# This is not complete yet.
+if test "x${WITH_TRACING}" = xsystemtap; then
+    AC_MSG_WARN([systemtap support is not yet ready for use.])
+    case "${host}" in
+      *linux*) ;;
+      *) AC_MSG_ERROR([systemtap is only available on Linux.]) ;;
+    esac
+    AC_CHECK_PROGS(DTRACE, dtrace)
+    if test -z "$DTRACE"; then
+      AC_MSG_ERROR([dtrace not found, consider using --without-tracing.])
+    fi
+    AC_CHECK_HEADER([sys/sdt.h], [SDT_H_FOUND='yes'],
+                    [SDT_H_FOUND='no';
+                     AC_MSG_ERROR([systemtap support needs sys/sdt.h header])])
+fi
+
 
 #--------------------------------------------------------------------
 # Determine our "build scenario".
