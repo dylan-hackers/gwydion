@@ -87,65 +87,45 @@ AC_PROG_CC          # Specify when cross-compiling.
 
 AC_DEFUN([GD_D2C_SYSTEM],[
 case $1 in
-    # does-work stuff
-    i*86-*-freebsd2.*) $2=x86-freebsd-aout-gcc ;;
-    i*86-*-freebsd*)   $2=x86-freebsd-elf-gcc ;;
-    i*86-*-linux*) $2=x86-linux-gcc ;;
-    i*86-pc-cygwin*) $2=x86-cygnus-gcc ;;
-
-    # might-work stuff
-    x86_64-*-linux-gnu*) $2=x86_64-linux-gcc ;;
-    i*86-*-solaris*)
-       if test "$CC" = "cc"; then $2=x86-solaris-sunpro
-       else $2=x86-solaris-gcc
-       fi ;;
-    powerpc-apple-darwin*)
-        case `gcc -dumpversion` in
-             4.*) $2=ppc-darwin-gcc4 ;;
-             *)   $2=ppc-darwin-gcc ;;
-        esac ;;
+    i*86-*-cygwin*)        $2=x86-cygnus-gcc ;;
+    i*86-*-freebsd*)       $2=x86-freebsd-gcc ;;
+    i*86-*-linux*)         $2=x86-linux-gcc ;;
+    x86_64-*-linux-gnu*)   $2=x86_64-linux-gcc ;;
+    arm*-*-linux-gnu*)     $2=arm-linux-gcc ;;
+    powerpc-*-linux-gnu*)  $2=ppc-linux-gcc ;;
+    s390*-*-linux-gnu*)    $2=s390-linux-gcc ;;
+    sparc*-*-linux-gnu*)   $2=sparc-linux-gcc ;;
+    powerpc-apple-darwin*) $2=ppc-darwin-gcc ;;
     i*86-apple-darwin*)
         case $CC in
-            *clang*) $2=x86-darwin-clang ;;
-            *)
-                case `gcc -dumpversion` in
-                    4.*) $2=intel-darwin-gcc4 ;;
-                    *)   $2=intel-darwin-gcc ;;
-                esac ;;
+            *clang*)       $2=x86-darwin-clang ;;
+            *)             $2=x86-darwin-gcc ;;
         esac ;;
     x86_64-apple-darwin*)
         case $CC in
-            *clang*) $2=x86_64-darwin-clang ;;
-            *) $2=x86_64-darwin-gcc ;;
+            *clang*)       $2=x86_64-darwin-clang ;;
+            *)             $2=x86_64-darwin-gcc ;;
         esac ;;
-    powerpc-*-linux-gnu*)
-        case `gcc -dumpversion` in
-             4.*) $2=ppc-linux-gcc4 ;;
-             *)   $2=ppc-linux-gcc ;;
-        esac ;;
-    arm*-*-linux-gnu*) $2=arm-linux-gcc ;;
-    s390*-*-linux-gnu*) $2=s390-linux-gcc ;;
-    sparc*-*-linux-gnu*) $2=sparc-linux-gcc ;;
+    i*86-*-solaris*)
+       case $CC in
+            cc)            $2=x86-solaris-sunpro ;;
+            *)             $2=x86-solaris-gcc ;;
+       esac ;;
     sparc*-solaris*)
-       if test "$CC" = "cc"; then $2=sparc-solaris-sunpro
-       else $2=sparc-solaris-gcc
-       fi ;;
-
-    # experimental stuff
-    i*86-*-l4*) $2=x86-l4-gcc ;;
+       case $CC in
+            cc)            $2=sparc-solaris-sunpro ;;
+            *)             $2=sparc-solaris-gcc ;;
+       esac ;;
 
     # old stuff
-    i*86-pc-bsdi*) $2=x86-bsdi-gcc ;;
-    alpha*-*-linux-gnu*) $2=alpha-linux-gcc ;;
-    hppa*-hp-hpux*) $2=hppa-hpux-gcc ;;
-    sparc*-openbsd*) $2=sparc-openbsd-gcc ;;
-    i*86-pc-mingw32*) $2=x86-mingw32-gcc ;;
-    i*86-pc-none) $2=x86-win32-vc ;;
-    i*86-pc-beos) $2=x86-beos-gcc ;;
-    mips-sgi-irix*) $2=mips-irix-gcc ;;
-    i*86-*-netbsd*) $2=x86-netbsd-gcc ;;
+    hppa*-hp-hpux*)        $2=hppa-hpux-gcc ;;
+    sparc*-openbsd*)       $2=sparc-openbsd-gcc ;;
+    i*86-pc-mingw32*)      $2=x86-mingw32-gcc ;;
+    i*86-pc-none)          $2=x86-win32-vc ;;
+    i*86-pc-beos)          $2=x86-beos-gcc ;;
+    i*86-*-netbsd*)        $2=x86-netbsd-gcc ;;
 
-    *) $2=unknown-unix ;;
+    *)                     $2=unknown-unix ;;
 esac])
 
 version="`cat $srcdir/version`"

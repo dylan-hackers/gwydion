@@ -415,11 +415,14 @@ path-separator:                     /
 //
 
 // FreeBSD
-// Rename to x86-freebsd-gcc? -prom
-platform-name:                      x86-freebsd-elf-gcc
+platform-name:                      x86-freebsd-gcc
 inherit-from:                       gcc freebsd x86
 default-c-compiler-flags:           -Wall -Wno-unused-variable -I. -I%s -O2 -fno-strict-aliasing -fomit-frame-pointer
 link-shared-library-command:        $(LIBTOOL) --tag=CC --mode=link gcc -o %s %s -rpath %s
+
+// Deprecated:
+platform-name:                      x86-freebsd-elf-gcc
+inherit-from:                       x86-freebsd-gcc
 
 // Linux
 platform-name:                      x86-linux-gcc
@@ -523,9 +526,6 @@ inherit-from:                       gcc linux arm
 platform-name:                      ppc-linux-gcc
 inherit-from:                       gcc linux ppc
 link-shared-library-command:        $(LIBTOOL) --tag=CC --mode=link gcc -o %s %s -rpath %s
-
-platform-name:                      ppc-linux-gcc4
-inherit-from:                       ppc-linux-gcc
 long-double-size:                   16
 long-double-alignment:              16
 
@@ -603,23 +603,6 @@ inherit-from:                       beos-gcc beos x86
 link-shared-library-command:        $(LIBTOOL) --tag=CC --mode=link gcc -o %s %s -rpath %s
 
 
-// BSDI
-// once maintained by Douglas M. Auclair <doug@cotilliongroup.com>
-platform-name:                      bsdi
-inherit-from:                       generic-unix
-default-features:                   compiled-for-bsdi
-make-command:                       gmake
-
-platform-name:                      x86-bsdi-gcc
-inherit-from:                       gcc bsdi x86
-link-shared-library-command:        $(LIBTOOL) --tag=CC --mode=link gcc -o %s %s -rpath %s
-
-
-// FreeBSD
-platform-name:                      x86-freebsd-aout-gcc
-inherit-from:                       gcc freebsd x86
-
-
 // HP/UX
 // Bruce Hoult made this work on HP/UX 10.20
 // HP/UX 11 not tried yet
@@ -649,37 +632,7 @@ long-double-size:                   8
 long-double-alignment:              8
 
 
-// IRIX
-// once maintained by David Lichteblau <lichteblau@fhtw-berlin.de>
-platform-name:                      mips
-inherit-from:                       32-bit ieee-754
-default-features:                   compiled-for-mips
-big-endian?:                        #t
-
-platform-name:                      irix
-inherit-from:                       generic-unix
-default-features:                   compiled-for-irix
-make-command:                       gmake
-
-platform-name:                      mips-irix-gcc
-inherit-from:                       gcc irix mips
-default-features:                   compiled-for-irix compiled-for-mips C-compiler-is-GCC
-link-shared-library-command:        $(LIBTOOL) --tag=CC --mode=link cc -n32 -Wl,-woff,85 -o %s %s -rpath %s
-
-
-// Linux
-// alpha support moved here due to uncertain state of 64bit-support.
-platform-name:                      alpha
-inherit-from:                       64-bit ieee-754
-default-features:                   compiled-for-alpha
-big-endian?:                        #f
-
-platform-name:                      alpha-linux-gcc
-inherit-from:                       gcc linux alpha
-assembler-command:                  gcc $(CCFLAGS) -x assembler-with-cpp -c %s -o %s
-link-shared-library-command:        $(LIBTOOL) --tag=CC --mode=link gcc -o %s %s -rpath %s
-
-// s390 support moved here because i dont think anybody is checking whether it works.
+// Linux on s390
 platform-name:                      s390
 inherit-from:                       32-bit ieee-754
 default-features:                   compiled-for-s390
@@ -737,20 +690,6 @@ inherit-from:                       gcc solaris sparc
 default-features:                   compiled-for-solaris compiled-for-sparc C-compiler-is-GCC
 default-c-compiler-debug-flags:     -I. -I%s -g -O0 -fno-inline-functions
 long-double-alignment:              8
-
-platform-name:                      sparc-solaris-gcc30
-inherit-from:                       gcc solaris sparc
-default-features:                   compiled-for-solaris compiled-for-sparc C-compiler-is-GCC
-default-c-compiler-flags:           -I. -I%s -O1
-default-c-compiler-debug-flags:     -I. -I%s -g -O0 -fno-inline-functions
-link-shared-library-command:        $(LIBTOOL) --tag=CC --mode=link gcc -o %s %s -rpath %s
-long-long-alignment:                8
-long-double-size:                   16
-long-double-alignment:              8
-long-double-mantissa-digits:        113
-minimum-long-double-float-exponent: -16381
-maximum-long-double-float-exponent: 16384
-
 
 // Microsoft Win32
 
