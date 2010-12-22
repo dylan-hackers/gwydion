@@ -105,3 +105,14 @@ long *cpu_time(void)
   return retval;
 }
 #endif
+
+int dylan_fault_in(const char * data, int length)
+{
+  int i, t = 0;
+  for(i = 0; i < length; i += 4096) {
+    t += data[i];
+  }
+  t += data[length - 1];
+  return t;
+}
+
