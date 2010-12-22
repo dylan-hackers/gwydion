@@ -490,7 +490,7 @@ inherit-from:                       intel-darwin-gcc
 
 platform-name:                      x86-darwin-clang
 inherit-from:                       clang darwin x86
-default-c-compiler-flags:           -Wall -Wno-unused-variable -I. -I%s -O2 -fomit-frame-pointer -arch i386
+default-c-compiler-flags:           -Wall -Wno-unused-variable -I. -I%s -O2 -arch i386
 default-c-compiler-debug-flags:     -Wall -Wno-unused-variable -I. -I%s -g -O -fno-inline-functions -arch i386
 default-c-compiler-profile-flags:   -Wall -Wno-unused-variable -I. -I%s -pg -g -O -fno-inline-functions -arch i386
 link-executable-flags:              $(GC_LIBS) -multiply_defined suppress -arch i386
