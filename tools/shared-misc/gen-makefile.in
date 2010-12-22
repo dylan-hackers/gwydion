@@ -498,6 +498,9 @@ sub maybe_emit_d2c_defines {
         }
         $CFLAGS =~ s/-I%s//;
         $CDEFFLAGS .= " $target_platform{'default_c_platform_defines'}";
+        if ($enable_dtrace) {
+            $D2CFLAGS .= " -Duse-dtrace-probes";
+        }
 
 	if ($use_previous_melange) {
 	    $MELANGE = $PREVIOUS_MELANGE;
@@ -1071,12 +1074,14 @@ sub emit_parsergen_rule {
 #
 sub emit_dtrace_rule {
     local ($basefile) = @_;
-    do maybe_emit_d2c_defines();
+    if ($enable_dtrace) {
+        do maybe_emit_d2c_defines();
 
-    print "$basefile.h: \$(SRCDIR)/$basefile.d\n";
-    print "\t\$(DTRACE) -h -s \$(SRCDIR)/$basefile.d\n\n";
-    push(@compile_dependencies, "$basefile.h");
-    push(@files_to_clean, "$basefile.h");
+        print "$basefile.h: \$(SRCDIR)/$basefile.d\n";
+        print "\t\$(DTRACE) -h -s \$(SRCDIR)/$basefile.d\n\n";
+        push(@compile_dependencies, "$basefile.h");
+        push(@files_to_clean, "$basefile.h");
+    }
 }
 
 # install_one_file($from_file, $to_file, $executable_permissions) -- internal

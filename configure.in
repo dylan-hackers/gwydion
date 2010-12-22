@@ -313,6 +313,8 @@ if test "x${WITH_TRACING}" = xdtrace; then
     if test -z "$DTRACE"; then
       AC_MSG_ERROR([dtrace not found, consider using --without-tracing.])
     fi
+    enable_dtrace=yes
+    AC_SUBST(enable_dtrace)
 fi
 
 # This is not complete yet.

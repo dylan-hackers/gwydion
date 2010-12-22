@@ -39,6 +39,7 @@ $static = "@enable_static@" eq "yes";
 $INSTALL = "@INSTALL@";
 $LIBTOOL = '@LIBTOOL@';
 $DTRACE = '@DTRACE@';
+$enable_dtrace = "@enable_dtrace@" eq "yes";
 
 # INSTALL_DATA and INSTALL_PROGRAM don't do what I would expect.  In
 # particular, INSTALL_PROGRAM doesn't force executability.
