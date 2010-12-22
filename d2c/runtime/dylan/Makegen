@@ -1,6 +1,8 @@
 if ($host_platform{'integer_length'} >= 64) {
         $CFLAGS = "$CFLAGS -DDYLAN_64BIT";
 }       
-	
+
+&emit_dtrace_rule('dylan-provider');
+
 &emit_library_rule('Dylan', '$(BUILDROOT)/force.timestamp', '',
 		   'compile', 'install', 'no-mindy');

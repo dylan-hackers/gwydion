@@ -794,19 +794,23 @@ define function gf-call-lookup
      nargs :: <integer>, 
      source-location :: <source-location>)
  => (meth :: <method>, next :: <list>);
+  probe-gf-call-lookup-entry(self.function-name);
   let specializers = self.function-specializers;
   let nfixed = specializers.size;
   if (nfixed ~== nargs)
     if (self.function-rest? | self.function-keywords)
       if (nargs < nfixed)
+        probe-gf-call-lookup-error(self.function-name, "wrong-number-of-arguments");
         wrong-number-of-arguments-error(#f, nfixed, nargs, 
                                         source-location: source-location);
       end;
       if (self.function-keywords & odd?(nargs - nfixed))
+        probe-gf-call-lookup-error(self.function-name, "odd-number-of-arguments");
         odd-number-of-keyword/value-arguments-error
           (source-location: source-location);
       end;
     else
+      probe-gf-call-lookup-error(self.function-name, "wrong-number-of-arguments");
       wrong-number-of-arguments-error(#t, nfixed, nargs,
                                       source-location: source-location);
     end;
@@ -835,6 +839,7 @@ define function gf-call-lookup
     end case;
   end if;
   if (meth)
+    probe-gf-call-lookup-return(self.function-name, meth.function-name);
     values(meth, next-info);
   elseif (next-info.empty?)
     for (index :: <integer> from 0 below nfixed)
@@ -842,11 +847,13 @@ define function gf-call-lookup
       let arg = %%primitive(extract-arg, arg-ptr, index);
       %check-type(arg, specializer, source-location);
     end;
+    probe-gf-call-lookup-error(self.function-name, "no-applicable-methods");
     no-applicable-methods-error
       (self, mv-call(vector, %%primitive(pop-args, arg-ptr)),
        source-location: source-location);
   else
     // There is no unambiguous "first method"
+    probe-gf-call-lookup-error(self.function-name, "ambiguous-method");
     ambiguous-method-error(next-info.first,
                            source-location: source-location);
   end if;
