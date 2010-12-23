@@ -64,7 +64,7 @@ end function n-spaces;
 define function find-command-by-prefix(command-name :: <string>)
   choose(method(x) 
              case-insensitive-equal(command-name,
-                                    subsequence(x.name, end: command-name.size))
+                                    subsequence(x.name, end: min(x.name.size, command-name.size)))
          end, *command-table*)
 end function find-command-by-prefix;
 
