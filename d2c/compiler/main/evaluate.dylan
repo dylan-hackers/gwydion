@@ -59,6 +59,7 @@ make(<command>, name: "Set Library",
                                
 make(<command>, name: "Set Module",
      command: method(parameter)
+                  assure-loaded(*Current-Library* | $Dylan-library);
                   *current-module*
                     := find-module(*Current-Library* | $Dylan-library, 
                                  as(<symbol>, parameter));
@@ -68,13 +69,20 @@ make(<command>, name: "Set Module",
 make(<command>, name: "Show Library",
      command: method(parameter)
                   let lib = find-library(as(<symbol>, parameter));
-                  assure-loaded(lib);
-                  format(*standard-output*, "%=\n", lib.exported-names);
+                  if (lib)
+                    assure-loaded(lib);
+                    format(*standard-output*, "%=\n", lib.exported-names);
+                  else
+                    format(*standard-output*,
+                           "Error: %s is not a valid library name or has not been loaded.\n",
+                           parameter);
+                  end if;
               end method,
      summary: "Show modules in specified library.");
                                
 make(<command>, name: "Show Module",
      command: method(parameter)
+                  assure-loaded(*Current-Library* | $Dylan-library);
                   let mod = find-module(*Current-Library* | $Dylan-library, 
                                         as(<symbol>, parameter));
                   format(*standard-output*, "%=\n", mod.exported-names);
@@ -120,19 +128,15 @@ define class <function-literal-query> (<condition>)
   constant slot for-ct-function :: <ct-function>, required-init-keyword: ct-function:;
 end;
 
+define variable *interpreter-library* = #f;
+
 define method evaluate(expression :: <string>, env :: <interpreter-environment> )
  => (val :: <ct-value>)
-/*
   if(~ *interpreter-library*)
-    *interpreter-library* := find-library(#"foo", create: #t); // ### FIXME: arbitrary name
-    seed-representations();
-    inherit-slots();
-    inherit-overrides();
-    layout-instance-slots();
+    *interpreter-library* := find-library(#"%%interpreter-library", create: #t);
   end if;
   *Current-Library* := *interpreter-library*;
   *Current-Module*  := find-module(*interpreter-library*, #"dylan-user");
-*/
   *top-level-forms* := make(<stretchy-vector>);
   let expression-buffer = make(<buffer>, size: expression.size);
   copy-bytes(expression-buffer, 0, expression, 0, expression.size);
