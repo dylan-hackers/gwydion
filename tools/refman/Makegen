@@ -19,30 +19,4 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../d2c/runtime/random'
     . ' -L../../d2c/runtime/threads';
 
-if ($features{'compiled_for_win32'}) {
-    $c_decl_lid = "win32-vc-decl";
-} elsif ($features{'compiled_for_hpux'}) {
-    $c_decl_lid = "hp-c-decl";
-} elsif ($features{'compiled_for_solaris'}) {
-    $c_decl_lid = "solaris-c-decl";
-} elsif ($features{'compiled_for_cygnus'}) {
-    $c_decl_lid = "cygnus-c-decl";
-} elsif ($features{'compiled_for_linux'}
-         || $features{'compiled_for_beos'}) {
-    $c_decl_lid = "linux-c-decl";
-} elsif ($features{'compiled_for_freebsd'}
-         || $features{'compiled_for_bsdi'}) { # best guess for bsdi
-    $c_decl_lid = "freebsd-c-decl";
-} elsif ($features{'compiled_for_netbsd'}) {
-    $c_decl_lid = "netbsd-c-decl";
-} elsif ($features{'compiled_for_openbsd'}) {
-    $c_decl_lid = "openbsd-c-decl";
-} elsif ($features{'compiled_for_darwin'}) {
-    $c_decl_lid = "macos-decl";
-} elsif ($features{'compiled_for_irix'}) {
-    $c_decl_lid = "irix-c-decl";
-} else {
-    &unknown_platform_error();
-};
-
 do emit_library_rule('refman', '', '', 'compile', 'install');
