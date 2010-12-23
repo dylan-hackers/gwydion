@@ -1,6 +1,5 @@
 library: compiler-main-du
-
-main-du-exports.dylan
-version.dylan
-file-locations.dylan
-unit-info.dylan
+Files: main-du-exports
+       version
+       file-locations
+       unit-info

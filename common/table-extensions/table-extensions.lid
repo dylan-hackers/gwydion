@@ -1,4 +1,3 @@
 library: Table-Extensions
-
-table-extensions-library.dylan
-table-extensions.dylan
+Files: table-extensions-library
+       table-extensions

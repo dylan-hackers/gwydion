@@ -1,6 +1,5 @@
 library: command-processor
-files:  command-processor-exports
-  command-processor
-  termios
-
-cfmakeraw.o
+Files: command-processor-exports
+       command-processor
+       termios
+C-Object-Files: cfmakeraw.o

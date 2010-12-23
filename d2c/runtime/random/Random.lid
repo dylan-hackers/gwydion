@@ -1,4 +1,3 @@
 library: Random
-
-exports.dylan
-random.dylan
+Files: exports
+       random

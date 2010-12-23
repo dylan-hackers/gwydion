@@ -1,50 +1,49 @@
 library: Dylan
 unique-id-base: 0
-
-bootstrap.dylan
-macros.dylan
-macros-iteration.dylan
-exports.dylan
-object.dylan
-misc.dylan
-boolean.dylan
-cmp.dylan
-type.dylan
-class.dylan
-designator-class.dylan
-copy.dylan
-func.dylan
-activation-record.dylan
-num.dylan
-bignum.dylan
-ratio.dylan
-rawptr.dylan
-machineword.dylan
-symbol.dylan
-char.dylan
-value-cell.dylan
-collection.dylan
-array.dylan
-vector.dylan
-stretchy.dylan
-string.dylan
-buffer.dylan
-list.dylan
-range.dylan
-deque.dylan
-table.dylan
-set.dylan
-sort.dylan
-limited-collection.dylan
-seals.dylan
-handler.dylan
-nlx.dylan
-output.dylan
-condition.dylan
-debug.dylan
-thread-single.dylan
-synchronization.dylan
-synchronization-single.dylan
-system.dylan
-main.dylan
-probes.dylan
+Files: bootstrap
+       macros
+       macros-iteration
+       exports
+       object
+       misc
+       boolean
+       cmp
+       type
+       class
+       designator-class
+       copy
+       func
+       activation-record
+       num
+       bignum
+       ratio
+       rawptr
+       machineword
+       symbol
+       char
+       value-cell
+       collection
+       array
+       vector
+       stretchy
+       string
+       buffer
+       list
+       range
+       deque
+       table
+       set
+       sort
+       limited-collection
+       seals
+       handler
+       nlx
+       output
+       condition
+       debug
+       thread-single
+       synchronization
+       synchronization-single
+       system
+       main
+       probes

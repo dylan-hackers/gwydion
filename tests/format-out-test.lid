@@ -2,7 +2,6 @@ library: format-out-test
 executable: format-out-test
 unique-id-base: 732
 entry-point: format-out-test:main
-
-format-out-test-exports.dylan
-format-out-test.dylan
+Files: format-out-test-exports
+       format-out-test
 
