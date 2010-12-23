@@ -524,7 +524,10 @@ define method main (argv0 :: <byte-string>, #rest args) => ();
         | args.size = 0)
     make(<command>, name: "Build",
          summary: "Build specified library.",
-         command: build-file);
+         command: method(filename)
+                      let locator = as(<file-locator>, filename);
+                      build-file(locator);
+                  end);
     run-command-processor();
     exit();
   end if;
