@@ -29,9 +29,7 @@ module: dylan-user
 
 define library d2c-gnu
   use dylan;
-  use streams;
-  use standard-io;
-  use format;
+  use io;
   use melange-support;
   use table-extensions;
   use string-extensions;
