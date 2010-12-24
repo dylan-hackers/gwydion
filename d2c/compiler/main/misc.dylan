@@ -76,10 +76,20 @@ define constant $this-dir
 
 define function translate-abstract-filename (abstract-name :: <byte-string>)
  => (physical-name :: <byte-string>)
-  // XXX - We should eventually replace this with a routine that checks
-  // for foo.dylan and then foo.dyl, preferably using some sort of abstract
-  // locator translation. But for now, we keep it simple.
-  concatenate(abstract-name, ".dylan");
+  // First, we'll look for the file with a .dylan extension, then .dyl and
+  // then the abstract-name itself.
+  local method check-for-extension(extension :: <byte-string>) => res :: false-or(<byte-string>);
+    let name = concatenate(abstract-name, extension);
+    let path = merge-locators(as(<file-locator>, name), $this-dir);
+    if (file-exists?(path))
+      name;
+    else
+      #f;
+    end if;
+  end method check-for-extension;
+  check-for-extension(".dylan") |
+    check-for-extension(".dyl") | 
+    abstract-name;
 end;
 
 // Considers anything with an ASCII value less than 32 (' ') to be
