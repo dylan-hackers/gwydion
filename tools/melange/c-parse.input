@@ -190,6 +190,7 @@ define constant <source-location> = false-or(<parse-state>);
 ;; define class <const-token> (<reserved-word-token>) end class;
 ;; define class <volatile-token> (<reserved-word-token>) end class;
 :token <void-token> <type-specifier-token> 
+:token <bool-token> <type-specifier-token>
 :token <inline-token> <reserved-word-token> 
 :token <extern-token> <reserved-word-token> 
 :token <static-token> <reserved-word-token> 
@@ -273,14 +274,16 @@ define constant <source-location> = false-or(<parse-state>);
      <minus-token> <tilde-token> <bang-token> <lt-token> <gt-token>
      <question-token> <colon-token> <eq-op-token> <le-op-token>
      <ge-op-token> <ne-op-token> <and-op-token> <or-op-token>
-     <pound-pound-token> <left-op-token> <right-op-token> <assign-token>)
+     <pound-pound-token> <left-op-token> <right-op-token> <assign-token>
+     <bool-token>)
 
 :union NAME <name-token> 
     (<identifier-token> <type-name-token>)
 
 :union TYPE-SPEC <type-specifier-token>
     (<short-token> <long-token> <int-token> <char-token> <signed-token>
-     <unsigned-token> <float-token> <double-token> <void-token>)
+     <unsigned-token> <float-token> <double-token> <void-token>
+     <bool-token>)
 
 
 

@@ -871,6 +871,7 @@ define method dylan-type-for-c-type (leaf :: <leaf>) => res :: <values-ctype>;
 	#"unsigned-char", #"unsigned-short", #"unsigned-int" =>
 	  specifier-type(#"<integer>");
         #"long-long" => specifier-type(#"<double-integer>");
+        #"boolean" => specifier-type(#"<boolean>");
 	#"ptr" => specifier-type(#"<raw-pointer>");
 	#"float" => specifier-type(#"<single-float>");
 	#"double" => specifier-type(#"<double-float>");

@@ -949,6 +949,11 @@ define constant long-double-type = make(<float-type-declaration>,
 					name: "long-double",
 					dylan-name: "<extended-float>",
 					size: $long-double-size);
+define constant bool-type = make(<signed-integer-type-declaration>,
+					accessor: "unsigned-byte-at",
+					name: "_Bool",
+					dylan-name: "<boolean>",
+					size: $char-size);
 
 define method compute-closure 
     (results :: <deque>, decl :: <predefined-type-declaration>)

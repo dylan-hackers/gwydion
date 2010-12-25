@@ -71,7 +71,6 @@ define constant $default-defines
       "__inline", "",
       "__builtin_va_list", "void*",
       "__restrict", "",
-      "_Bool", "int",
       
       // Parameterized macros which remove various GCC extensions from our
       // source code. The last item in the list is the right-hand side of

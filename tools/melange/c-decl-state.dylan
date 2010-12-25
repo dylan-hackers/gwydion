@@ -281,6 +281,11 @@ define method process-type-list
 		  unknown-type => void-type;
 		  otherwise => parse-error(state, "Bad type specifier, expected <void-token>, got %=", type);
 		end select;
+	      <bool-token> =>
+		select (type)
+		  unknown-type => bool-type;
+		  otherwise => parse-error(state, "Bad type specifier, expected <bool-token>, got %=", type);
+		end select;
 	      otherwise =>
 		// user defined types are passed on unmodified
 		select (type)
