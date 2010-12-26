@@ -18,9 +18,9 @@ $destdir = $exec_prefix = "@exec_prefix@";
 $bindir = "@bindir@";
 $libdir = "@libdir@/dylan/@version@/@d2c_target@";
 if("@with_site_dylan_prefix@" ne "no") {
-  $sitelibdirprefix = "@with_site_dylan_prefix@";
+    $sitelibdirprefix = "@with_site_dylan_prefix@";
 } else {
-  $sitelibdirprefix = "$prefix";
+    $sitelibdirprefix = "$prefix";
 }
 $sitelibdir = "$sitelibdirprefix/lib/dylan/@version@/@d2c_target@/dylan-user";
 $mandir = "@mandir@";
@@ -48,12 +48,12 @@ $install_program = "@LIBTOOL@ --mode=install @INSTALL@ -m oug+rx";
 $install_library = "@LIBTOOL@ --mode=install @INSTALL@";
 
 if ($cross_compiling) {
-  # Use cross-compilation flags if necessary.
-  $D2C = "@D2C@ -T$target_name --no-binaries";
+    # Use cross-compilation flags if necessary.
+    $D2C = "@D2C@ -T$target_name --no-binaries";
 } else {
-  # Try to build using the default d2c settings. This makes bootstrapping
-  # *much* easier.
-  $D2C = "@D2C@";
+    # Try to build using the default d2c settings. This makes bootstrapping
+    # *much* easier.
+    $D2C = "@D2C@";
 }
 
 # Should this really go in D2CFLAGS?
@@ -78,7 +78,7 @@ if ($enable_bootstrap) {
     $CPPFLAGS = '-I'.$srcroot.'/d2c/runtime';
     @runtime_directories = ('c-code', 'dylan', 'melange', 'transcendental');
     foreach (@runtime_directories) {
-	$d2c_runtime .= "-L$buildroot/d2c/runtime/$_ ";
+        $d2c_runtime .= "-L$buildroot/d2c/runtime/$_ ";
     }
 }
 
