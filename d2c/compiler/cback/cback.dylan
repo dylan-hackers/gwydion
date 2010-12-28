@@ -547,19 +547,28 @@ define constant <symbolic-c-preprocessor-stream> = <indenting-stream>;
 
 // FIXME should be slot
 define variable emitting-file-name :: false-or(<file-locator>) = #f;
+// This option sounds nice, but it breaks actually using things like gdb or
+// fixing warnings / errors from gcc where you need to know the actual line
+// number in the C file.
+define constant $use-broken-line-output = #f;
 
 define function write-source-location
   (stream :: <symbolic-c-preprocessor-stream>,
    source-loc :: <known-source-location>,
    line-getter :: <function>,
    file :: <file-state>) => ();
-  if (emitting-file-name = source-loc.source.source-locator)
-    format(stream.inner-stream, "\n#line %d\nD__L(",
-           source-loc.line-getter);
+  if ($use-broken-line-output)
+    if (emitting-file-name = source-loc.source.source-locator)
+      format(stream.inner-stream, "\n#line %d\nD__L(",
+             source-loc.line-getter);
+    else
+      emitting-file-name := source-loc.source.source-locator;
+      format(stream.inner-stream, "\n#line %d \"%s\"\nD__L(",
+             source-loc.line-getter, emitting-file-name);
+    end;
   else
-    emitting-file-name := source-loc.source.source-locator;
-    format(stream.inner-stream, "\n#line %d \"%s\"\nD__L(",
-           source-loc.line-getter, emitting-file-name);
+    format(stream, "/* #line %d \"%s\" */\n",
+           source-loc.line-getter, source-loc.source.source-locator);
   end;
 end;
 
@@ -598,9 +607,11 @@ end method;
 
 define function finish-source-location(file :: <file-state>) => ();
   if (instance?(file.file-source-location, <known-source-location>))
-    format(file.file-guts-stream, ")");
+    if ($use-broken-line-output)
+      format(file.file-guts-stream, ")");
+      emitting-line := 0;
+    end;
     file.file-source-location := make(<unknown-source-location>);
-    emitting-line := 0;
   end;
 end;
 
