@@ -314,12 +314,20 @@ define variable to-cooked = identity;
 
 define function run-command-processor()
   let running = #t;
+
+  // Set up various ways to exit...
+  local method exit(c)
+    running := #f
+  end;
   make(<command>, 
        name: "Exit", 
-       command: method(parameter)
-                    running := #f;
-                end,
+       command: exit,
        summary: "Exits the command loop.");
+  make(<command>, 
+       name: "Quit", 
+       command: exit,
+       summary: "Exits the command loop.");
+  *key-bindings*[4] := exit;
 
   let old-termios = make(<termios>);
   tcgetattr(0 /* *standard-input*.file-descriptor */, old-termios);
