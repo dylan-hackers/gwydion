@@ -75,7 +75,7 @@ copyright: see below
 
 // *HACK*: We temporarily use a global variable to figure out whether a given
 // declaration is an object declaration or a typedef declaration.  This
-// appears to be simpler than trying to propogate detailed information
+// appears to be simpler than trying to propagate detailed information
 // upwards.
 //
 define variable *typedef-flag* = #f;
