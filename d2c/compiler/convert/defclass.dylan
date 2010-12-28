@@ -2760,20 +2760,11 @@ define method build-maker-function-body
                         = build-block-body(init-builder, policy, source);
 
                       if (zero-terminate-slot?)
-                        let terminator-index = make-local-var(init-builder, #"index",
-                                                              specifier-type(#"<integer>"));
-                        build-assignment
-                          (init-builder, policy, source, terminator-index,
-                           make-unknown-call
-                           (init-builder,
-                            ref-dylan-defn(init-builder, policy, source, #"+"),
-                            #f,
-                            list(size-leaf, make-literal-constant(init-builder, 1))));
                         build-assignment
                           (init-builder, policy, source, #(),
                            make-operation
                              (init-builder, <heap-slot-set>,
-                               list(make-literal-constant(init-builder, 0), instance-leaf, posn-leaf, terminator-index),
+                               list(make-literal-constant(init-builder, 0), instance-leaf, posn-leaf, size-leaf),
                                slot-info: slot));
                       end;
                       let index
