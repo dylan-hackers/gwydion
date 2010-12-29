@@ -28,7 +28,7 @@ copyright: see below
 //
 //======================================================================
 
-// This file surves no purpose other then to force the debugger into
+// This file serves no purpose other then to force the debugger into
 // picking the module we want for the default current module.
 
 #t;

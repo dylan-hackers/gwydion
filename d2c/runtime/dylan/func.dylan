@@ -170,7 +170,7 @@ define sealed domain make (singleton(<dynamic-method>));
 
 define class <accessor-method> (<method>)
   //
-  // The <slot-descriptor> this is the acccessor of.
+  // The <slot-descriptor> this is the accessor of.
   constant slot accessor-slot :: <slot-descriptor>,
     required-init-keyword: slot:;
 end class <accessor-method>;
