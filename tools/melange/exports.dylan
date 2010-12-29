@@ -64,7 +64,7 @@ copyright: see below
 //       Allow CPP '#pragma'
 //       Fix handling of CPP foo##bar
 //   b1.2: (10/25/95)
-//     Improved protability handling:
+//     Improved portability handling:
 //       portable size constants
 //       multiple alignment models
 //     Improved vector handling:

@@ -42,7 +42,7 @@ copyright: see below
 
 //======================================================================
 // Module portability is a tiny OS dependent module which defines the
-// preprocessor definions and "standard" include directories which would be
+// preprocessor definitions and "standard" include directories which would be
 // used by a typical C compiler for that OS.  It may, at some future date,
 // also include behavioral switches for things like slot allocation or sizes
 // of different sorts of numbers.

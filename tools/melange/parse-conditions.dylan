@@ -46,7 +46,7 @@ push(*default-parse-context*, #f);
 //  Parse Conditions
 //======================================================================
 //  We define a small number of condition classes which are used by
-//  exising programs. It would be possible to add <parse-error> and
+//  existing programs. It would be possible to add <parse-error> and
 //  other such classes if they are needed.
 
 define abstract class <parse-condition> (<condition>)
@@ -157,7 +157,7 @@ end function;
 //    *warning-output* := *standard-output*;
 //
 //  Note: I've added back in Cheap-IO support, but now print warnings
-//  when I catch someone using it. There's too many codepaths in the
+//  when I catch someone using it. There are too many code paths in the
 //  Dylan libraries which might use it, and I want to find them all.
 
 define method print-message

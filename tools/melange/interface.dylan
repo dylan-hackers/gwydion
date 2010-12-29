@@ -187,7 +187,7 @@ end method process-mappings;
 // the declaration itself and will contain either #t or a renaming for every
 // explicitly imported declaration, #f for every explicitly excluded
 // declarations, and be undefined for others.  "Import-all?" can be used to
-// determine whether to import declarations which are not explictly named.
+// determine whether to import declarations which are not explicitly named.
 //
 // "find-decl" should be a mapping from strings to declarations -- likely a
 // curried call to either "parse-type" or "find-slot".
@@ -752,7 +752,7 @@ define method show-help(stream :: <stream>) => ()
 "                         child framework options.)\n"
 "  -m, --module-file      Create a Dylan interchange file with a module definition\n"
 "                         that exports the interface names.\n"
-"  --defines              Show the default C preprocesor definitions.\n"
+"  --defines              Show the default C preprocessor definitions.\n"
 "  --help                 Show this help text.\n"
 "  --version              Show version number.\n"
 );

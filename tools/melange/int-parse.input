@@ -15,7 +15,7 @@ copyright: see below
 //======================================================================
 
 //======================================================================
-// Module int-parse handles parsing of define interface forms in interace
+// Module int-parse handles parsing of define interface forms in interface
 // files.  It makes no attempt to handle any other part of the Dylan language
 // at this time, since it will eventually be merged into the native parser for
 // the Gwydion compiler.
@@ -53,7 +53,7 @@ copyright: see below
 define constant <string?> = false-or(<string>);
 
 // Undefined values are useful for values that may need to be defaulted.  This
-// is superious do simply filling in the default value at the start, since it
+// is superior to simply filling in the default value at the start, since it
 // allows us to merge several <container-option>s before doing the defaulting.
 //
 define class <undefined> (<object>) end class;

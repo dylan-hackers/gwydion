@@ -57,7 +57,7 @@ copyright: see below
 // <Parse-state> definitions
 // 
 // <Parse-state> encapsulates all information required to parse a file or
-// expression, includeing the tokenizer, and may also stores the "results" of
+// expression, including the tokenizer, and may also stores the "results" of
 // the parse for later processing.
 //
 // <parse-file-state> is a subclass used for parsing entire files of
@@ -87,7 +87,7 @@ end class <parse-state>;
 // level.
 //
 define class <parse-file-state> (<parse-state>) 
-  // Declarations is an ordered list of all declarations made withing a single
+  // Declarations is an ordered list of all declarations made within a single
   // ".h" file.
   slot declarations :: <deque> = make(<deque>);
   slot current-file :: <string> = "<top-level>";
