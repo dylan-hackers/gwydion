@@ -44,9 +44,12 @@ typedef struct descriptor {
 
 typedef descriptor_t *(*entry_t)();
 
+/* Memory allocation, GC stuff */
 extern heapptr_t allocate(unsigned int bytes);
 extern descriptor_t *allocate_stack(void);
 extern void destroy(void* ptr);
+extern long dylan_gc_get_total_bytes(void);
+
 extern heapptr_t make_trampoline(void *func, descriptor_t closure,
 				 int nkeys, char *signature);
 extern descriptor_t *catch(descriptor_t *(*fn)(descriptor_t *sp, void *state,

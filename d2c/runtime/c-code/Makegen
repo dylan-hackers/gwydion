@@ -6,7 +6,7 @@ if ($target_platform{'long_long_size'}) {
 
 $COPTS = "$COPTS $GC_CFLAGS";
 
-&emit_c_file_rule('allocate');
+&emit_c_file_rule("gc_$with_gc");
 &emit_c_file_rule('main');
 &emit_c_file_rule('nlx');
 &emit_c_file_rule('trampoline');
@@ -15,12 +15,12 @@ $COPTS = "$COPTS $GC_CFLAGS";
 
 $lib_name = "$lib_prefix" . "runtime$dot_lib";
 
-print "$lib_name: allocate$dot_obj main$dot_obj nlx$dot_obj ";
+print "$lib_name: gc_$with_gc$dot_obj main$dot_obj nlx$dot_obj ";
 print " trampoline$dot_obj dblfix$dot_obj float$dot_obj\n";
 print "\trm -f $lib_name\n\t";
 if ($shared) {
 	printf($target_platform{'link_shared_library_command'}, $lib_name,
-	       "allocate$dot_obj main$dot_obj nlx$dot_obj"
+	       "gc_$with_gc$dot_obj main$dot_obj nlx$dot_obj"
 	       . " trampoline$dot_obj dblfix$dot_obj float$dot_obj",
 	       $libdir);
 	print "\n";
@@ -34,7 +34,7 @@ if ($shared) {
 	}
 } else {
 	printf($target_platform{'link_library_command'}, $lib_name,
-	       "allocate$dot_obj main$dot_obj nlx$dot_obj"
+	       "gc_$with_gc$dot_obj main$dot_obj nlx$dot_obj"
 	       . " trampoline$dot_obj dblfix$dot_obj float$dot_obj");
 	print "\n";
 	if($target_platform{'randomize_library_command'}) {

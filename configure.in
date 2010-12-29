@@ -483,35 +483,65 @@ AC_CHECK_LIB(pthread, pthread_create,[AC_DEFINE([HAVE_PTHREAD],
                                       LIBS="$LIBS -lpthread"
                                       GC_LIBS="$GC_LIBS -lpthread"])
 
-#--------------------------------------------------------------------
-# Look for gc, set GC_CFLAGS and GC_LIBS
-#--------------------------------------------------------------------
-AC_ARG_WITH(gc-prefix, [  --with-gc-prefix=PFX    Prefix where Boehm gc is installed],
-            gc_prefix="$withval", gc_prefix="")
-if test "x$gc_prefix" != x; then
-  GC_CFLAGS="-I$gc_prefix/include -I$gc_prefix/include/gc"
-  GC_LIBS="-L$gc_prefix/lib -lgc $GC_LIBS"
-else
-  GC_LIBS="-lgc $GC_LIBS"
+WITH_GC_DEFAULT='boehm'
+#case "${host}" in
+#    *darwin8*) WITH_GC_DEFAULT='boehm' ;;
+#    *darwin*) WITH_GC_DEFAULT='auto_zone' ;;
+#esac
+
+AC_MSG_CHECKING([which GC should be used])
+AC_ARG_WITH([gc],
+            [AS_HELP_STRING([--with-gc=(boehm,auto_zone)],
+                            [Specify which GC should be used.])],
+            [WITH_GC="${withval}"], [WITH_GC=${WITH_GC_DEFAULT}])
+AC_MSG_RESULT(${WITH_GC})
+
+AC_SUBST(WITH_GC)
+
+if test "x${WITH_GC}" != xboehm -a "x${WITH_GC}" != xauto_zone; then
+    AC_MSG_ERROR([${WITH_GC} is not a valid value for --with-gc. Use 'boehm' or 'auto_zone'.])
 fi
-save_CPPFLAGS="$CPPFLAGS"
-save_LIBS="$LIBS"
-CPPFLAGS="$GC_CFLAGS $CPPFLAGS"
-LIBS="$GC_LIBS $LIBS"
-FOUND_BOEHM=no
-AC_CHECK_HEADERS(gc.h gc/gc.h, FOUND_BOEHM=yes,)
-if test "$FOUND_BOEHM" = no; then
-AC_MSG_ERROR([
+
+if test "x${WITH_GC}" = xauto_zone; then
+    case "${host}" in
+        *darwin*) ;;
+        *) AC_MSG_ERROR([auto_zone is currently only supported on Mac OS X.]) ;;
+    esac
+    GC_CFLAGS=
+    GC_LIBS="-lauto $GC_LIBS"
+    AC_CHECK_LIB(auto, auto_zone_allocate_object,,AC_MSG_ERROR([Could not link with auto_zone.]))
+    AC_CHECK_HEADER(auto_zone.h)
+    AC_DEFINE(USING_AUTOZONE, [1], [Define to 1 if using the auto_zone GC.])
+fi
+
+if test "x${WITH_GC}" = xboehm; then
+    #--------------------------------------------------------------------
+    # Look for gc, set GC_CFLAGS and GC_LIBS
+    #--------------------------------------------------------------------
+    AC_ARG_WITH(gc-prefix, [  --with-gc-prefix=PFX    Prefix where Boehm gc is installed],
+                gc_prefix="$withval", gc_prefix="")
+    if test "x$gc_prefix" != x; then
+        GC_CFLAGS="-I$gc_prefix/include -I$gc_prefix/include/gc"
+        GC_LIBS="-L$gc_prefix/lib -lgc $GC_LIBS"
+    else
+        GC_LIBS="-lgc $GC_LIBS"
+    fi
+    save_CPPFLAGS="$CPPFLAGS"
+    save_LIBS="$LIBS"
+    CPPFLAGS="$GC_CFLAGS $CPPFLAGS"
+    LIBS="$GC_LIBS $LIBS"
+    AC_CHECK_HEADERS(gc.h gc/gc.h,,AC_MSG_ERROR([
 Cannot locate the Boehm-Weiser conservative garbage collector. Please
 download the library from http://www.hpl.hp.com/personal/Hans_Boehm/gc/
-or from your operating system distribution.])
-fi
-AC_CHECK_LIB(gc, GC_malloc_ignore_off_page, ,AC_MSG_ERROR([
-Cannot link with the Boehm-Weiser conservative garbage collector library.
-Please download the library from http://www.hpl.hp.com/personal/Hans_Boehm/gc/
 or from your operating system distribution.]))
-CPPLAGS="$save_CPPLAGS"
-LIBS="$save_LIBS"
+    AC_CHECK_LIB(gc, GC_malloc_ignore_off_page, ,AC_MSG_ERROR([
+    Cannot link with the Boehm-Weiser conservative garbage collector library.
+    Please download the library from http://www.hpl.hp.com/personal/Hans_Boehm/gc/
+    or from your operating system distribution.]))
+    CPPLAGS="$save_CPPLAGS"
+    LIBS="$save_LIBS"
+    AC_DEFINE(USING_BOEHM, [1], [Define to 1 if using the Boehm GC.])
+fi
 AC_SUBST(GC_CFLAGS)
 AC_SUBST(GC_LIBS)
 

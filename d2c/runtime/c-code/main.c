@@ -7,14 +7,10 @@
 #include "config.h"
 #include "runtime.h"
 
-#if defined(HAVE_GC_H)
-#include <gc.h>
-#elif defined(HAVE_GC_GC_H)
-#include <gc/gc.h>
-#endif
-
 int application_argc;
 char **application_argv;
+
+extern void dylan_gc_init(void);
 
 void GD_NORETURN not_reached(void)
 {
@@ -30,7 +26,7 @@ void real_main(int argc, char *argv[])
 {
     descriptor_t *sp;
 
-    GC_INIT();
+    dylan_gc_init();
 
     sp = allocate_stack();
 

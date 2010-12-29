@@ -23,6 +23,16 @@
 
 #define STACK_SIZE (96 * 1024)
 
+void dylan_gc_init(void)
+{
+  GC_INIT();
+}
+
+long dylan_gc_get_total_bytes(void)
+{
+  return GC_get_total_bytes();
+}
+
 heapptr_t allocate(unsigned int bytes)
 {
   return (heapptr_t)GC_malloc_ignore_off_page(bytes);
