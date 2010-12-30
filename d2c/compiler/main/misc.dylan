@@ -67,20 +67,21 @@ define method set-library (library :: <symbol>) => ();
   end block;
 end method set-library;
 
-
-// The identifier for the current directory
-// Used in searching for files
-
-define constant $this-dir
-  = make(<directory-locator>, path: vector(#"self"), relative?: #t);
-
-define function translate-abstract-filename (abstract-name :: <byte-string>)
+// translate-abstract-filename
+//
+// Translate Abstract-Name to the name of a dylan source file located
+// in Directory.
+//
+define method translate-abstract-filename
+    (directory :: <directory-locator>, abstract-name :: <byte-string>)
  => (physical-name :: <byte-string>)
+          
   // First, we'll look for the file with a .dylan extension, then .dyl and
   // then the abstract-name itself.
-  local method check-for-extension(extension :: <byte-string>) => res :: false-or(<byte-string>);
+  local method check-for-extension
+            (extension :: <byte-string>) => res :: false-or(<byte-string>);
     let name = concatenate(abstract-name, extension);
-    let path = merge-locators(as(<file-locator>, name), $this-dir);
+    let path = merge-locators(as(<file-locator>, name), directory);
     if (file-exists?(path))
       name;
     else
@@ -90,7 +91,21 @@ define function translate-abstract-filename (abstract-name :: <byte-string>)
   check-for-extension(".dylan") |
     check-for-extension(".dyl") | 
     abstract-name;
-end;
+end method translate-abstract-filename;
+
+// translate-abstract-filename
+//
+// Translate Abstract-Name to the name of a Dylan source file located
+// in the same directory as the lid file for State.
+//
+define method translate-abstract-filename
+    (state :: <lid-mode-state>, abstract-name :: <byte-string>)
+ => (physical-name :: <byte-string>)
+  let directory = state.unit-lid-locator.locator-directory;
+  assert(directory, "Lid file %= has no directory?",
+         as(<string>, state.unit-lid-locator));
+  translate-abstract-filename(directory, abstract-name);
+end method translate-abstract-filename;
 
 // Considers anything with an ASCII value less than 32 (' ') to be
 // whitespace.  This includes control characters as well as what we

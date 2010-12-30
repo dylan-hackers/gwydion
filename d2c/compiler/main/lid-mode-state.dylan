@@ -107,7 +107,7 @@ define method parse-lid (state :: <lid-mode-state>) => ();
 
   // Common-Dylan header-file style
   let files = map-as(<stretchy-vector>,
-                     translate-abstract-filename,
+                     curry(translate-abstract-filename, state),
                      split-at-whitespace(element(header, #"files",
                                                  default: "")));
 
@@ -258,7 +258,7 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
             end;
         let prefixed-filename
           = find-file(object-file,
-                      vector($this-dir,
+                      vector(working-directory(),
                              state.unit-lid-locator.locator-directory));
         log-dependency(prefixed-filename);
       end unless;
