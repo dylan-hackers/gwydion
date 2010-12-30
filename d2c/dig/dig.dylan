@@ -189,11 +189,6 @@ define variable $from-gdb :: <stream> = *standard-input*;
 //
 define method open-gdb-process (#rest args) => ();
   let cmd-line = apply(join, " ", "gdb", args);
-#if (compiled-for-hpux)
-  let (to-fd, from-fd) = mutant-fd-exec(cmd-line);
-  $to-gdb := make(<fd-stream>, direction: #"output", fd: to-fd);
-  $from-gdb := make(<fd-stream>, direction: #"input", fd: from-fd);
-#else
   let (to-stream, from-stream) = piped-exec(cmd-line);
   $to-gdb := to-stream;
   $from-gdb := from-stream;
@@ -202,7 +197,6 @@ define method open-gdb-process (#rest args) => ();
   #else
      delegate-gdb-signals(); 
   #endif
-#endif
 end method open-gdb-process;
 
 // Find out if we are at the GDB prompt.  We must magically match this

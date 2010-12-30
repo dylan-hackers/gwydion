@@ -109,7 +109,6 @@ case $1 in
        esac ;;
 
     # old stuff
-    hppa*-hp-hpux*)        $2=hppa-hpux-gcc ;;
     sparc*-openbsd*)       $2=sparc-openbsd-gcc ;;
     i*86-pc-mingw32*)      $2=x86-mingw32-gcc ;;
     i*86-pc-none)          $2=x86-win32-vc ;;

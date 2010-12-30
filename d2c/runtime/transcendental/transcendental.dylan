@@ -36,7 +36,6 @@ copyright: see below
 /// Not quite complete yet:
 /// ### Possibly don't catch all errors at the dylan level.
 /// ### Need to deal with extended integers (?)
-/// ### Need to implement asinh etc. for other than hp.
 /// ### Not sure that the \^ we already have from the dylan module is
 ///     conformant with the spec that the rest of this file is implemented
 ///     from.
