@@ -132,7 +132,7 @@ end;
 // condition-format{<stream>,<byte-string>} -- method on imported GF.
 //
 // Shadow the <stream>,<string> method with one that uses pretty-format.
-// This is kinda sleezy, but, hey, it works.
+// This is kinda sleazy, but, hey, it works.
 // 
 define method condition-format
     (stream :: <stream>, control-string :: <byte-string>, #rest args)

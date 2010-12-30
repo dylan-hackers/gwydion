@@ -223,7 +223,7 @@ Note that:
 //
 // To avoid creating zillions of variables and to allow introspective
 // back-mapping, we maintain a registry of object IDs named by symbols.  This
-// does incurr some lookup overhead at dump time, but not at load time, which
+// does incur some lookup overhead at dump time, but not at load time, which
 // is probably more important.
 //
 // Note that it is intended that all IDs be registered in this file so that
@@ -248,7 +248,7 @@ end method;
 
 ////  Pseudo-object format definitions:
 //
-//    The nested-object structure is used to build the OD format itelf.  There
+//    The nested-object structure is used to build the OD format itself.  There
 // are various pseudo-objects which represent the indexing, etc.
 
 
@@ -383,7 +383,7 @@ register-object-id(#"extern-handle", #x0004);
 // Dylan object IDs:
 
 // We wrap these in a begin with an initial local declaration so that the
-// compiler doesn't treat each one as a seperate top level form.
+// compiler doesn't treat each one as a separate top level form.
 //
 begin
   let ignore = 5;
@@ -431,7 +431,7 @@ end;
 // Compiler object IDs:
 
 // We wrap these in a begin with an initial local declaration so that the
-// compiler doesn't treat each one as a seperate top level form.
+// compiler doesn't treat each one as a separate top level form.
 //
 begin
   let ignore = 5;
@@ -1345,7 +1345,7 @@ define method check-unit-header
     error("Invalid ODF header on %=", state.od-stream);
   end;
   unless (check-odf-id(id))
-    error("Unrecognised entry ID %=.  Bad data?", id);
+    error("Unrecognized entry ID %=.  Bad data?", id);
   end;
 
   let hsize =   buffer-word(buf, base + ($word-bytes * 1));
@@ -2000,7 +2000,7 @@ end method defined-externally?;
 //   end unless;
 //
 // Currently, Obj must have <identity-preserving-mixin>, though we could use a
-// table to preserve local idenity of arbitrary objects.  We dispatch according
+// table to preserve local identity of arbitrary objects.  We dispatch according
 // to the location handle in the object.
 //
 define /* exported */ method maybe-dump-reference

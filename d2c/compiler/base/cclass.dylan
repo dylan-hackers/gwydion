@@ -672,7 +672,7 @@ define class <class-precedence-description> (<object>)
   // List of cpd's for classes that have to follow this class.
   slot cpd-after :: <list>, init-value: #();
   //
-  // Count of times this cpd appeards in some other cpd's after list.
+  // Count of times this cpd appears in some other cpd's after list.
   slot cpd-count :: <integer>, init-value: 0;
 end class;
 
@@ -956,7 +956,7 @@ end class <bucket>;
 define method inherit-slots () => ();
   //
   // The first thing we do is sort *All-Classes* to guarantee that superclasses
-  // preceed their subclasses.
+  // precede their subclasses.
   *All-Classes*
     := sort!(*All-Classes*,
 	     test: method (class1 :: <cclass>, class2 :: <cclass>)
@@ -1789,7 +1789,7 @@ end;
 
 // find-slot-offset -- exported.
 //
-// Return the static position that slot occures in general instances of
+// Return the static position that slot occurs in general instances of
 // instance-type, or #f if no single such position exists.
 // 
 define generic find-slot-offset

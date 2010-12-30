@@ -163,7 +163,7 @@ end class <namespace>;
 
 // namespace-kind -- internal.
 //
-// Returns a string identifing the kind of namespace this is.  Used
+// Returns a string identifying the kind of namespace this is.  Used
 // when generating error messages.
 // 
 define generic namespace-kind
@@ -204,7 +204,7 @@ end class <entry>;
 // 
 define abstract class <namespace-constituent> (<object>)
   //
-  // Linked list of all the entries refering to this constituent.
+  // Linked list of all the entries referring to this constituent.
   slot constituent-entries :: false-or(<entry>) = #f;
   //
   // #t if originally in an export or create clause, #f otherwise.
@@ -990,7 +990,7 @@ define method note-variable-definition (defn :: <definition>)
     let mod = name.name-module;
     let var = find-variable(defn.defn-name, create: #t);
     //
-    // Make sure this module either is or is not the varibles home,
+    // Make sure this module either is or is not the variable's home,
     // depending on whether the variable was in a create define module
     // clause or not.
     //
@@ -1141,7 +1141,7 @@ end method find-data-unit;
 
 
 
-// Initilization stuff.
+// Initialization stuff.
 
 // $Dylan-Library and $Dylan-Module -- exported.
 //

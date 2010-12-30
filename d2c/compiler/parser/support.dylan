@@ -54,7 +54,7 @@ define constant stretchy-vector =
 
 // make-body -- internal.
 //
-// Return a expression-parse for the body containting the supplied parts.
+// Return a expression-parse for the body containing the supplied parts.
 // If there is only one part at it is already an expression-parse, just
 // return it.  Otherwise, make a body-parse.
 // 
@@ -133,8 +133,8 @@ end method first-word-in;
 //
 // Both the abstract class for binop-series of arbitrary length and the
 // concrete (direct) class for binop-series that are just one long.  Kinda
-// sleezy, but I don't feel like defining a <binop-series-leaf> just to
-// reduce the sleeze.
+// sleazy, but I don't feel like defining a <binop-series-leaf> just to
+// reduce the sleaze.
 // 
 define class <binop-series> (<object>)
   //
@@ -370,7 +370,7 @@ define class <case-body-parse-state> (<object>)
   slot partial-body-srcloc :: false-or(<source-location>) = #f,
     init-keyword: constituents-srcloc:;
   //
-  // The semicolon that terinated the last constituent.  Might also terminate
+  // The semicolon that terminated the last constituent.  Might also terminate
   // the whole branch, but we don't know that until we figure out if the next
   // thing is anothing constituent or a new case label.
   slot semicolon :: false-or(<token-fragment>) = #f;
@@ -675,7 +675,7 @@ end method grow;
 // parse -- internal.
 //
 // The actual parser loop.  Drive the state machine and maintain the stacks
-// until we hit an accept action or until be hit a bogus token.
+// until we hit an accept action or until we hit a bogus token.
 // 
 define method parse
     (tokenizer :: <tokenizer>, start-state :: <integer>, debug? :: <boolean>)

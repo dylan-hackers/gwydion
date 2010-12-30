@@ -84,7 +84,7 @@ copyright: see below
 //  <pattern>
 //	<empty-pattern>
 //	<binary-pattern>
-//	    <semicolon-patter>
+//	    <semicolon-pattern>
 //	    <comma-pattern>
 //	    <sequential-pattern>
 //	<simple-pattern>
@@ -643,7 +643,7 @@ end method print-message;
 
 // <body-parse> -- exported.
 //
-// A sequenctial body of constituents.  Used wherever we need a body.
+// A sequential body of constituents.  Used wherever we need a body.
 // 
 define class <body-parse> (<expression-parse>)
   //
@@ -1064,7 +1064,7 @@ end method print-object;
 
 // <semicolon-pattern> -- exported.
 //
-// Used to represent two patterns seperated by a ;.
+// Used to represent two patterns separated by a ;.
 //
 define class <semicolon-pattern> (<binary-pattern>)
 end class <semicolon-pattern>;
@@ -1073,7 +1073,7 @@ define sealed domain make (singleton(<semicolon-pattern>));
 
 // <comma-pattern> -- exported.
 //
-// Used to represent two patterns seperated by a ,.
+// Used to represent two patterns separated by a ,.
 //
 define class <comma-pattern> (<binary-pattern>)
 end class <comma-pattern>;
@@ -1259,14 +1259,14 @@ define sealed domain make (singleton(<property-list-pattern>));
 define class <pattern-keyword> (<pattern-variable>)
   //
   // Pattern keywords get matched against the entire property value.  So they
-  // are all effectivly at-end.
+  // are all effectively at-end.
   inherited slot patvar-at-end?, init-value: #t;
   //
   // The default, or #f if none.
   constant slot patkey-default :: false-or(<template>),
     required-init-keyword: default:;
   //
-  // #t if the word should be bound to a sequence of all the occurences of the
+  // #t if the word should be bound to a sequence of all the occurrences of the
   // keyword instead of just the first.
   constant slot patkey-all? :: <boolean>,
     init-value: #f, init-keyword: all:;
@@ -1429,7 +1429,7 @@ define sealed domain make (singleton(<unhygienic-pattern-variable-reference>));
 //
 define class <property> (<object>)
   //
-  // The comma token that preceeds this property, of #f if it is the first
+  // The comma token that precedes this property, of #f if it is the first
   // one.
   constant slot prop-comma :: false-or(<token>) = #f,
     init-keyword: comma:;

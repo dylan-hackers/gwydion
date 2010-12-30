@@ -197,7 +197,7 @@ define class <bracketed-fragment> (<elementary-fragment>)
   constant slot fragment-contents :: <fragment>,
     required-init-keyword: contents:;
   //
-  // The token that makes up the right backet.
+  // The token that makes up the right bracket.
   constant slot fragment-right-token :: <token>,
     required-init-keyword: right-token:;
   //
@@ -305,7 +305,7 @@ end method copy-fragment;
 // copy-fragment{<bracketed-fragment>}
 //
 // Copy the contents fragment, but just use the same tokens because they
-// can't be destructivly modified.
+// can't be destructively modified.
 //
 define method copy-fragment
     (frag :: <bracketed-fragment>, #key preserve-source-locations :: <boolean>)
@@ -435,11 +435,11 @@ define class <bracketed-fragment-stack> (<object>)
   constant slot stack-fragment :: <bracketed-fragment>,
     required-init-keyword: fragment:;
   //
-  // The tokenizer-end that was in effect when we desceded into it.
+  // The tokenizer-end that was in effect when we descended into it.
   constant slot stack-end :: false-or(<elementary-fragment>),
     required-init-keyword: end:;
   //
-  // The saved backeted fragments above this one.
+  // The saved bracketed fragments above this one.
   constant slot stack-prev :: false-or(<bracketed-fragment-stack>),
     required-init-keyword: prev:;
 end class <bracketed-fragment-stack>;
@@ -469,7 +469,7 @@ define class <fragment-tokenizer> (<tokenizer>)
   // Where to stop in the .fragment-next chain.
   slot tokenizer-end :: false-or(<elementary-fragment>) = #f;
   //
-  // Stack of <bracketed-fragment>s we've decended into.
+  // Stack of <bracketed-fragment>s we've descended into.
   slot tokenizer-stack :: false-or(<bracketed-fragment-stack>) = #f;
   //
   // The previous elementary fragment we looked at, if we know what it was.

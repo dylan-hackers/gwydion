@@ -40,7 +40,7 @@ define class <transformer> (<object>)
     :: type-union(<list>, one-of(#f, #"gf")),
     required-init-keyword: specializers:;
   //
-  // The ctypes for the specialiers, #"gf" if applicable only to the generic
+  // The ctypes for the specializers, #"gf" if applicable only to the generic
   // function, #f if unrestricted, or #"not-computed-yet"
   // if we haven't computed it yet from the specifiers.
   slot %transformer-specializers

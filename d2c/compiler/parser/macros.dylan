@@ -279,7 +279,7 @@ end method fix-define-rules;
 // trim-modifiers-pattern -- internal.
 //
 // Grovel though pattern trying to find name.  Return the modifiers pattern
-// (the stuff that preceeds name), the token that matched name, and the
+// (the stuff that precedes name), the token that matched name, and the
 // remaining stuff from the pattern.
 // 
 define generic trim-modifiers-pattern
@@ -395,7 +395,7 @@ define method trim-modifiers-pattern
 	   remaining-pattern);
   else
     //
-    // If the left is neither a name nor a pattern-varible, then there is
+    // If the left is neither a name nor a pattern-variable, then there is
     // something wrong with the macro definition.
     compiler-fatal-error("Can't find the macro name (%s) in the rule.", name);
   end if;
@@ -438,7 +438,7 @@ end method trim-modifiers-pattern;
 //     * Define an intermediate-variable to be a pattern variable that
 //       either immediately follows a body-variable in a left-hand side,
 //       or appears at the beginning of a left-hand side in an auxiliary
-//       rule-set named by an itermediate-variable.
+//       rule-set named by an intermediate-variable.
 //
 //     * An intermediate word is a name that either immediately follows a
 //       body-variable in a left-hand side, or occurs at the beginning of a
@@ -634,7 +634,7 @@ end method find-intermediate-words-in;
 //
 // Descend into the two halves.  This method assumes that there is a separator
 // between the two halves so that it doesn't matter what the first half ends
-// with.  The exception (<sequential-pattern>) is delt with below.
+// with.  The exception (<sequential-pattern>) is dealt with below.
 // 
 define method find-intermediate-words-in
     (pattern :: <binary-pattern>, this-rule-set :: false-or(<symbol>),
@@ -1398,8 +1398,8 @@ end method fragment-from-variable;
 
 // find-intermediate-word -- internal.
 //
-// Scan through the fragment looking for the first occurance of one of the
-// intermediate words.  Return the <token-fragment> that is that occurance.
+// Scan through the fragment looking for the first occurrence of one of the
+// intermediate words.  Return the <token-fragment> that is that occurrence.
 // Or #f if there are no intermediate words in the fragment.
 // 
 define generic find-intermediate-word
@@ -1936,7 +1936,7 @@ end method match-rule;
 //
 // The actual pattern matcher.
 //
-// Match recursively decends into the pattern and the fragment building up
+// Match recursively descends into the pattern and the fragment building up
 // the set of pattern variable bindings as it goes.  The backup-and-retry
 // semantics of wildcards are implemented by passing a ``fail'' function to
 // match.  When a match fails, the fail function is called and it can
@@ -2413,7 +2413,7 @@ define method extract-constrained-fragment
   let constraint = patvar.patvar-constraint;
   select (constraint)
     //
-    // Expression constrains are pretty much handled by the parser.
+    // Expression constraints are pretty much handled by the parser.
     #"expression" =>
       let (expr, expr-fragment, remaining)
 	= trim-until-parsable(fragment, #f, parse-expression);
@@ -2609,7 +2609,7 @@ define method match
 	    return(fail());
 	  end if;
 	  //
-	  // We copy the fragment because it would be impolite to destructivly
+	  // We copy the fragment because it would be impolite to destructively
 	  // modify the fragment found in the property list.
 	  append!(copy-fragment(val, preserve-source-locations: #t));
 	end for;

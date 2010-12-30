@@ -88,7 +88,7 @@ define sealed domain make (singleton(<ctype>));
 // two arg types, the result type and the result precise flag.  All
 // elements are initialized to #F, which ensures that empty entries
 // will miss (since the arguments are always types.)  This memoization
-// is a probablistic cache, not a complete record of all results ever
+// is a probabilistic cache, not a complete record of all results ever
 // computed.
 //
 define class <memo-entry> (<object>)
@@ -188,7 +188,7 @@ end function memo2-enter;
 /// Equality:
 //
 // Since ctypes are hash-consed, equality/inequality is pretty
-// degenerate.  The only problem area is with unknown types (whice we
+// degenerate.  The only problem area is with unknown types (which we
 // could not or elected not to evaluate at compile time.)  Unknown
 // types may be spuriously ~==, so to ensure a precise result we must
 // test for unknown types.
@@ -367,7 +367,7 @@ end method;
 
 // $csubtype-memo -- internal.
 //
-// Memo for use in rememering results of csubtype?.
+// Memo for use in remembering results of csubtype?.
 // 
 define constant $csubtype-memo :: <memo-table> = make-memo2-table();
 
@@ -1152,7 +1152,7 @@ end method;
 
 
 // Return a new limited integer type with Int joined to any of the
-// types in Others that it intesects.  We don't bother removing the
+// types in Others that it intersects.  We don't bother removing the
 // overlapped type, since it will be removed by the subtype
 // elimination pass later on.
 //
@@ -1419,7 +1419,7 @@ end method;
 define class <singleton-ctype> (<limited-ctype>, <ct-value>)
 
   // The base-class is the direct class of this object, which can be
-  // used interchangably with the object when testing this object for
+  // used interchangeably with the object when testing this object for
   // class membership.
 
   // The value we represent.

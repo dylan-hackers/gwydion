@@ -47,7 +47,7 @@ define open primary abstract class <definition>
   slot defn-name :: <name>, required-init-keyword: name:;
   //
   // The library making the definition.  Might be different than the library
-  // burried inside the defn-name, because the defn-name might refer to a
+  // buried inside the defn-name, because the defn-name might refer to a
   // variable pulled in from some other library.
   slot defn-library :: <library>, required-init-keyword: library:;
   //
