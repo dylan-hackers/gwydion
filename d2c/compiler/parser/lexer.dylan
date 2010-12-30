@@ -135,7 +135,7 @@ end method make-left-bracket-token;
 
 
 
-// make-constrainted-name -- internal.
+// make-constrained-name -- internal.
 //
 // Make a constrained name.
 // 
