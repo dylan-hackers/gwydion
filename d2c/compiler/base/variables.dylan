@@ -169,6 +169,11 @@ end class <namespace>;
 define generic namespace-kind
     (namespace :: <namespace>) => res :: <byte-string>;
 
+// full-namespace-name -- internal.
+//
+// Returns a string with the 
+define generic full-namespace-name
+    (namespace :: <namespace>) => name :: <byte-string>;
 
 define class <entry> (<object>)
   //
@@ -327,6 +332,12 @@ define method note-namespace-definition
 	  import-all();
 	end if;
       else
+        unless (use.use-excludes.empty?)
+          compiler-error-location
+            (use.use-name, "'%s' specifies both explicit imports and excludes. "
+             "Excludes can only be specified when no explicit imports are done.",
+             use.use-name.token-symbol);
+        end unless;
 	//
 	// Import everything listed.
 	for (token in use.use-imports)
@@ -334,6 +345,19 @@ define method note-namespace-definition
 		    token.source-location, use);
 	end for;
       end if;
+
+      for (token in use.use-excludes)
+        let entry = element(used-namespace.entries, token.token-symbol, default: #f);
+        if (entry & ~entry.entry-exported?)
+          compiler-error-location
+            (token.source-location, "Can't exclude '%s' from %s '%s' because it isn't exported.",
+             token.token-symbol, used-namespace.namespace-kind, used-namespace.full-namespace-name);
+        elseif (~entry)
+          compiler-error-location
+            (token.source-location, "Can't exclude '%s' from %s '%s' because it doesn't exist.",
+             token.token-symbol, used-namespace.namespace-kind, used-namespace.full-namespace-name);
+        end if;
+      end for;
     end block;
   end for;
 end method note-namespace-definition;
@@ -382,8 +406,8 @@ define method do-import
 	     end method;
       else
 	compiler-error-location
-	  (srcloc, "Can't import %s from %s %s because it isn't exported.",
-	   orig-name, from.namespace-kind, from.namespace-name);
+	  (srcloc, "Can't import '%s' from %s '%s' because it isn't exported.",
+	   orig-name, from.namespace-kind, from.full-namespace-name);
       end if;
       return();
     end unless;
@@ -399,18 +423,18 @@ define method do-import
 	if (new-name == orig-name)
 	  compiler-error-location
 	    (srcloc,
-	     "Can't import %s from %s %s into %s %s because it would "
-	       "clash with %s %s.",
-	     new-name, from.namespace-kind, from.namespace-name,
-	     into.namespace-kind, into.namespace-name,
+	     "Can't import '%s' from %s '%s' into %s '%s' because it would "
+	       "clash with '%s' %s.",
+	     new-name, from.namespace-kind, from.full-namespace-name,
+	     into.namespace-kind, into.full-namespace-name,
 	     new-name, old.entry-origin);
 	else
 	  compiler-error-location
 	    (srcloc,
-	     "Can't import %s as %s from %s %s into %s %s because it would "
-	       "clash with %s %s.",
-	     orig-name, new-name, from.namespace-kind, from.namespace-name,
-	     into.namespace-kind, into.namespace-name,
+	     "Can't import '%s' as '%s' from %s '%s' into %s '%s' because it would "
+	       "clash with '%s' %s.",
+	     orig-name, new-name, from.namespace-kind, from.full-namespace-name,
+	     into.namespace-kind, into.full-namespace-name,
 	     new-name, old.entry-origin);
 	end if;
       end if;
@@ -438,6 +462,11 @@ define method compute-new-name
     //
     for (ren in use.use-renamings)
       if (ren.renaming-orig-name.token-symbol == name)
+        local method name-matches?(name, elem) elem.token-symbol == name end method;
+        if (member?(name, use.use-excludes, test: name-matches?))
+          compiler-error-location(ren.renaming-orig-name.source-location,
+            "Renamed name '%s' also explicitly excluded.", name);
+        end if;
 	let new-name = ren.renaming-new-name;
 	return(new-name.token-symbol, new-name.source-location);
       end if;
@@ -447,7 +476,7 @@ define method compute-new-name
     //
     for (exclude in use.use-excludes)
       if (exclude.token-symbol == name)
-	return(#f, #f);
+        return(#f, #f);
       end if;
     end for;
     //
@@ -530,6 +559,9 @@ define method namespace-kind (lib :: <library>) => res :: <byte-string>;
   "library";
 end method namespace-kind;
 
+define method full-namespace-name (lib :: <library>) => res :: <byte-string>;
+  lib.namespace-name;
+end method full-namespace-name;
 
 
 // $Libraries -- exported.
@@ -693,6 +725,11 @@ end method print-message;
 define method namespace-kind (lib :: <module>) => res :: <byte-string>;
   "module";
 end method namespace-kind;
+
+define method full-namespace-name (mod :: <module>) => name :: <byte-string>;
+  concatenate(as(<byte-string>, mod.module-home.library-name), ":",
+              as(<byte-string>, mod.module-name))
+end method full-namespace-name;
 
 // module-name -- exported.
 //
