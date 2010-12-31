@@ -607,11 +607,7 @@ AC_TRY_COMPILE([#include <time.h>], [struct tm t; long g = t.tm_gmtoff;],
    AC_TRY_LINK([#include <time.h>], [int a = daylight; long b = timezone;],
      [AC_MSG_RESULT(yes)
       AC_DEFINE(HAVE_DAYLIGHT, [1], [Define to 1 if using daylight.])],
-     [AC_MSG_RESULT(no)
-      AC_MSG_CHECKING([whether _daylight and _timezone are supported])
-      AC_TRY_LINK([#include <time.h>], [int a = _daylight; long b = _timezone;],
-        [AC_MSG_RESULT(yes)
-         AC_DEFINE(HAVE_CYGWIN_DAYLIGHT, [1], [Define to 1 if using Cygwin daylight.])])])])
+     [AC_MSG_RESULT(no)])])
 
 #--------------------------------------------------------------------
 # Checks for the io and system libraries
