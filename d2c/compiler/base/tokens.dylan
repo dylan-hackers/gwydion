@@ -555,7 +555,7 @@ end method syntax-for-name;
 
 // problem-with-category-merge -- exported.
 //
-// Return the category that would clashe with new category if we were to
+// Return the category that would clash with new category if we were to
 // try to merge them, or #f if the merge is okay.
 // 
 define method problem-with-category-merge
