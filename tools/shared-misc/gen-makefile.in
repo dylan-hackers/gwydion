@@ -1028,7 +1028,7 @@ sub emit_melange_rule {
     local ($basefile, @headers) = @_;
     do maybe_emit_d2c_defines();
 
-    print "$basefile.dylan: \$(SRCDIR)/$basefile.intr";
+    print "\$(SRCDIR)/$basefile.dylan: \$(SRCDIR)/$basefile.intr";
     foreach $header (@headers) {
        print " \$(SRCDIR)/$header";
     }
@@ -1047,9 +1047,9 @@ sub emit_melange_rule {
     if($EXTRA_INCLUDE_DIR ne "") {
       print "-I$EXTRA_INCLUDE_DIR ";
     }
-    print "\$(SRCDIR)/$basefile.intr $basefile.dylan, && mv $basefile.dylan, $basefile.dylan \n\n";
-    push(@compile_dependencies, "$basefile.dylan");
-    push(@files_to_clean, "$basefile.dylan");
+    print "\$(SRCDIR)/$basefile.intr $basefile.dylan, && mv $basefile.dylan, \$(SRCDIR)/$basefile.dylan \n\n";
+    push(@compile_dependencies, "\$(SRCDIR)/$basefile.dylan");
+    push(@files_to_clean, "\$(SRCDIR)/$basefile.dylan");
 }
 
 # emit_parsergen_rule($base_file_name) -- exported
