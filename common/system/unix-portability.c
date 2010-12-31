@@ -26,7 +26,7 @@ system_localtime(time_t clock, struct tm *result, long *gmtoff,
   *gmtoff = result->tm_gmtoff;
 #elif defined(HAVE_DAYLIGHT)
   *gmtoff = -timezone;
-#elif defined(HAVE_CYGNUS_DAYLIGHT)
+#elif defined(HAVE_CYGWIN_DAYLIGHT)
   *gmtoff = -_timezone;
 #else
 #error "No implementation provided for obtaining timezone offset"
@@ -36,7 +36,7 @@ system_localtime(time_t clock, struct tm *result, long *gmtoff,
   *zone = result->tm_zone;
 #elif defined(HAVE_DAYLIGHT)
   *zone = tzname[daylight];
-#elif defined(HAVE_CYGNUS_DAYLIGHT)
+#elif defined(HAVE_CYGWIN_DAYLIGHT)
   *zone = tzname[_daylight];
 #else
 #error "No implementation provided for obtaining timzeone name"

@@ -436,15 +436,16 @@ link-executable-command:            $(LIBTOOL) --tag=CC --mode=link gcc -static 
 
 // Microsoft Win32 with Cygwin
 //
-// To be compatible with 2.4, 2.5 (that needs 2.4 to work for it to compile)
-// needs to use "cygnus" rather than "cygwin" in a name. (Alex Potanin)
-//
-platform-name:                      x86-cygnus-gcc
-default-features:                   compiled-for-cygnus
-                                    newlines-are-CRLF
+platform-name:                      x86-cygwin-gcc
+default-features:                   compiled-for-cygwin newlines-are-CRLF
 inherit-from:                       x86 linux gcc
 default-c-compiler-flags:           -I. -I%s -O2
 link-shared-library-command:        $(LIBTOOL) --tag=CC --mode=link gcc -o %s %s -rpath %s
+
+
+// Deprecated
+platform-name:                      x86-cygnus-gcc
+inherit-from:                       x86-cygwin-gcc
 
 
 // SHOULD be working

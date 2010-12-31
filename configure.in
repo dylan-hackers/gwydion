@@ -78,7 +78,7 @@ AC_PROG_CC          # Specify when cross-compiling.
 
 AC_DEFUN([GD_D2C_SYSTEM],[
 case $1 in
-    i*86-*-cygwin*)        $2=x86-cygnus-gcc ;;
+    i*86-*-cygwin*)        $2=x86-cygwin-gcc ;;
     i*86-*-freebsd*)       $2=x86-freebsd-gcc ;;
     i*86-*-linux*)         $2=x86-linux-gcc ;;
     x86_64-*-linux-gnu*)   $2=x86_64-linux-gcc ;;
@@ -148,16 +148,13 @@ AC_SUBST(d2c_target)
 #----------------------------------------------------------
 AC_MSG_CHECKING(executable endings)
 exe_ext=""
-cygnus_line_hack=""
 case $d2c_build in
     *cygwin*|x86-mingw*)
         exe_ext=".exe"
-        cygnus_line_hack="\$_ =~ s/\r//;"
     ;;
 esac
 AC_MSG_RESULT($exe_ext)
 AC_SUBST(exe_ext)
-AC_SUBST(cygnus_line_hack)
 
 AC_SUBST(host_cpu)
 
@@ -614,7 +611,7 @@ AC_TRY_COMPILE([#include <time.h>], [struct tm t; long g = t.tm_gmtoff;],
       AC_MSG_CHECKING([whether _daylight and _timezone are supported])
       AC_TRY_LINK([#include <time.h>], [int a = _daylight; long b = _timezone;],
         [AC_MSG_RESULT(yes)
-         AC_DEFINE(HAVE_CYGNUS_DAYLIGHT, [1], [Define to 1 if using Cygnus daylight.])])])])
+         AC_DEFINE(HAVE_CYGWIN_DAYLIGHT, [1], [Define to 1 if using Cygwin daylight.])])])])
 
 #--------------------------------------------------------------------
 # Checks for the io and system libraries

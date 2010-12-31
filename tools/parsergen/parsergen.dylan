@@ -927,8 +927,8 @@ define function dump-constant (thing :: <object>, ofile :: <stream>) => ();
     type-union(<symbol>, <integer>, <string>) =>
       print(thing, ofile);
   end select;
-#if (compiled-for-cygnus)
-  force-output(ofile); // cygnus dies if the buffer gets too big
+#if (compiled-for-cygwin)
+  force-output(ofile); // cygwin dies if the buffer gets too big
 #endif
 end function dump-constant;
 
@@ -991,7 +991,7 @@ define function emit-production
   format(ofile, "         end);\n");
   format(ofile, "end method production-%D;\n\n", 
 	 production.production-number);
-#if (compiled-for-cygnus)
+#if (compiled-for-cygwin)
   force-output(ofile);
 #endif
 end function emit-production;
@@ -1030,7 +1030,7 @@ define function emit-parser
   end;
   format(ofile, "define constant $action-table\n"
 	   "  = #[");
-#if (compiled-for-cygnus)
+#if (compiled-for-cygwin)
   force-output(ofile);
 #endif
 
@@ -1102,7 +1102,7 @@ define function emit-parser
        end method, 
        grammar.grammar-entry-points, 
        grammar.grammar-start-states);
-#if (compiled-for-cygnus)
+#if (compiled-for-cygwin)
   force-output(ofile);
 #endif
 end function emit-parser;
@@ -1179,7 +1179,7 @@ define function emit-log-file (grammar :: <grammar>, file :: <stream>) => ();
       new-line(file);
     end;
   end for;
-#if (compiled-for-cygnus)
+#if (compiled-for-cygwin)
   force-output(file);
 #endif
 end function emit-log-file;
@@ -1197,7 +1197,7 @@ define function grovel-header (ifile :: <stream>, ofile :: <stream>) => ();
       write-line(ofile, line);
     end while;
   end block;
-#if (compiled-for-cygnus)
+#if (compiled-for-cygwin)
   force-output(ofile);
 #endif
 end function grovel-header;
@@ -1357,7 +1357,7 @@ define function grovel-trailer (ifile :: <stream>, ofile :: <stream>) => ();
       write-line(ofile, line);
     end while;
   end block;
-#if (compiled-for-cygnus)
+#if (compiled-for-cygwin)
   force-output(ofile);
 #endif
 end function grovel-trailer;

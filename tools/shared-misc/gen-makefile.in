@@ -1038,7 +1038,7 @@ sub emit_melange_rule {
 	       $MELANGE_DIR, "");
     }
     print "\t\$(MELANGE) --d2c \$(MELANGEFLAGS)";
-    if ($features{'compiled_for_cygnus'}) {
+    if ($features{'compiled_for_cygwin'}) {
 # Maybe a better way:
 # -D__uint16_t=uint16_t -D__int32_t=int32_t -D__uint32_t=uint32_t
       print " -D__uint16_t=\"unsigned short\" -D__uint32_t=\"unsigned int\" -D__int32_t=int";

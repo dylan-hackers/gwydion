@@ -15,7 +15,7 @@ credits file:
 
 N: Douglas M. Auclair
 E: dauclair@hotmail.com
-D: Cygnus port, Solaris maintainer (updated to include Time library)
+D: Cygwin port, Solaris maintainer (updated to include Time library)
 D: Made file-system library Common-Dylan compliant
 D: Added introspection of instance slots
 D: Added Dylan-style virtual structs that shadow C-style structs from Melange
@@ -38,7 +38,7 @@ D: 64-bit ports of Mindy and d2c (in progress).
 
 N: Brent Fulgham
 E: bfulgham@debian.org
-D: Debian maintainer, various Linux and cygnus porting work.  Ongoing
+D: Debian maintainer, various Linux and cygwin porting work.  Ongoing
 D: bug fixes, unfortunately offset by bug creation tendencies.
 
 N: Gabor Greif

@@ -7,7 +7,7 @@ Files: c-exports
        multistring
        c-lexer
        c-lexer-cpp
-       cygnus-portability
+       cygwin-portability
        c-parse
        alignment
        c-decl-state

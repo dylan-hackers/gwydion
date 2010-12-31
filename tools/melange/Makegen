@@ -16,8 +16,8 @@ if ($features{'compiled_for_win32'}) {
     $c_decl_lid = "win32-vc-decl";
 } elsif ($features{'compiled_for_solaris'}) {
     $c_decl_lid = "solaris-c-decl";
-} elsif ($features{'compiled_for_cygnus'}) {
-    $c_decl_lid = "cygnus-c-decl";
+} elsif ($features{'compiled_for_cygwin'}) {
+    $c_decl_lid = "cygwin-c-decl";
 } elsif ($features{'compiled_for_linux'}
          || $features{'compiled_for_beos'}) {
     $c_decl_lid = "linux-c-decl";
