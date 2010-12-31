@@ -74,7 +74,7 @@ end method set-library;
 //
 define method translate-abstract-filename
     (directory :: <directory-locator>, abstract-name :: <byte-string>)
- => (physical-name :: <byte-string>)
+ => (physical-name :: false-or(<byte-string>))
           
   // First, we'll look for the file with a .dylan extension, then .dyl and
   // then the abstract-name itself.
@@ -90,7 +90,7 @@ define method translate-abstract-filename
   end method check-for-extension;
   check-for-extension(".dylan") |
     check-for-extension(".dyl") | 
-    abstract-name;
+    check-for-extension("");
 end method translate-abstract-filename;
 
 // translate-abstract-filename
@@ -102,9 +102,9 @@ define method translate-abstract-filename
     (state :: <lid-mode-state>, abstract-name :: <byte-string>)
  => (physical-name :: <byte-string>)
   let directory = state.unit-lid-locator.locator-directory;
-  assert(directory, "Lid file %= has no directory?",
-         as(<string>, state.unit-lid-locator));
-  translate-abstract-filename(directory, abstract-name);
+  (directory & translate-abstract-filename(directory, abstract-name)) |
+    translate-abstract-filename(working-directory(), abstract-name) |
+    abstract-name;
 end method translate-abstract-filename;
 
 // Considers anything with an ASCII value less than 32 (' ') to be
