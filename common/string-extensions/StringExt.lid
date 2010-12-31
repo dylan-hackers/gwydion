@@ -1,4 +1,4 @@
-library: String-extensions
+library: string-extensions
 unique-id-base: 654
 Files: library
        character-type

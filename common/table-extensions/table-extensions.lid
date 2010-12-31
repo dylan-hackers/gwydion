@@ -1,3 +1,3 @@
-library: Table-Extensions
+library: table-extensions
 Files: table-extensions-library
        table-extensions

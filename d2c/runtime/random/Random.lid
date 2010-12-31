@@ -1,3 +1,3 @@
-library: Random
+library: random
 Files: exports
        random

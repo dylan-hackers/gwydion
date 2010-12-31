@@ -29,7 +29,7 @@ copyright: see below
 //======================================================================
 
 define library compiler-cback
-  use Dylan;
+  use dylan;
   use stream-extensions;
   use compiler-base;
   use compiler-front;
@@ -83,7 +83,7 @@ define module cback
   use variables;
   use source;
   use source-utilities; // For <macro-source-location>, which isn't yet handled
-  use Extensions, import: {<stretchy-object-vector>};
+  use extensions, import: {<stretchy-object-vector>};
   use abstract-optimizer;
   use xep-tools, import: {build-xep-component};
 

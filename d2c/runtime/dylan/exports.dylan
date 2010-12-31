@@ -28,14 +28,14 @@ module: dylan-viscera
 //
 //======================================================================
 
-define library Dylan
+define library dylan
   export
-    Dylan, Extensions, Cheap-IO, System, Runtime-Threads, Machine-words,
-    Introspection, Magic, %Hash-Tables;
+    dylan, extensions, cheap-io, system, runtime-threads, machine-words,
+    introspection, magic, %hash-tables;
 end;
 
-define module Dylan
-  use Dylan-Viscera,
+define module dylan
+  use dylan-viscera,
     import: {
 	     // Objects
 	     <object>,
@@ -146,8 +146,8 @@ define module Dylan
     export: all;
 end;
 
-define module Extensions
-  use Dylan-Viscera,
+define module extensions
+  use dylan-viscera,
     import: {
              // Macros
              copy-down-method-definer,
@@ -214,8 +214,8 @@ define module Extensions
     export: all;
 end;
 
-define module Cheap-IO
-  use Dylan-Viscera,
+define module cheap-io
+  use dylan-viscera,
     import: {
 	     // Cheap-IO stuff.
 	     print-message, print, write-integer, puts
@@ -224,8 +224,8 @@ define module Cheap-IO
     export: all;
 end;
 
-define module System
-  use Dylan-Viscera,
+define module system
+  use dylan-viscera,
     import: {
              // Foreign interface stuff.
 	     \call-out, \c-include, \c-system-include,
@@ -251,8 +251,8 @@ define module System
     export: all;
 end;
 
-define module Runtime-Threads
-  use Dylan-Viscera,
+define module runtime-threads
+  use dylan-viscera,
     import: {<thread>, thread-name, current-thread, join-thread, thread-yield,
              $low-priority, $background-priority, $normal-priority, $interactive-priority, $high-priority,
              <synchronization>, wait-for, release,
@@ -263,8 +263,8 @@ define module Runtime-Threads
     export: all;
 end module;
 
-define module Machine-Words
-  use Dylan-Viscera,
+define module machine-words
+  use dylan-viscera,
     import: {<machine-word>, $machine-word-size, $machine-word-zero,
              $maximum-signed-machine-word, $minimum-signed-machine-word,
              $maximum-unsigned-machine-word, $minimum-unsigned-machine-word,
@@ -284,8 +284,8 @@ define module Machine-Words
     export: all;
 end;
 
-define module Introspection
-  use Dylan-Viscera,
+define module introspection
+  use dylan-viscera,
     import: {class-name, function-name,
 	     singleton-object,
 	     <limited-integer>, limited-integer-base-class,
@@ -299,18 +299,18 @@ define module Introspection
     export: all;
 end;
 
-define module %Hash-Tables
-  use Dylan-Viscera,
+define module %hash-tables
+  use dylan-viscera,
     import: {remove-all-keys!, uppercase?,
 	     <hash-state>, collection-hash,
 	     <equal-table>, equal-hash,
 	     <value-table>, value-hash,
 	     string-hash, sequence-hash},
     export: all;
-end module %Hash-Tables;
+end module %hash-tables;
 
 define module magic
-  use Dylan-Viscera,
+  use dylan-viscera,
     import: {%check-type,
              %element,
 	     %element-setter,

@@ -29,20 +29,20 @@ synopsis: Definition of the Transcendental library.
 //
 //======================================================================
 
-define library Transcendental
-  use Dylan;
-  export Transcendental;
-end library Transcendental;
+define library transcendental
+  use dylan;
+  export transcendental;
+end library transcendental;
 
-define module Transcendental
-  use Dylan,
+define module transcendental
+  use dylan,
     export: {\^}; 
-  use Extensions;
-  use System;
+  use extensions;
+  use system;
 
   export
     $double-pi, $single-pi, $double-e, $single-e,
     sin, cos, tan, asin, acos, atan, atan2, sinh, cosh, tanh,
     log, logn, exp, sqrt, isqrt, asinh, acosh, atanh;
-end module Transcendental;
+end module transcendental;
 

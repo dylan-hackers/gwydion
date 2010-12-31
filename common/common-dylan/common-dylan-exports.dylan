@@ -37,7 +37,7 @@ define module functional-extensions
   use dylan;
   use extensions,
     export: { element-range-error, \copy-down-method-definer };
-  use Magic, import: {%element, %element-setter};
+  use magic, import: {%element, %element-setter};
   use common-extensions, import: { find-element };
   export 
     find-value;
@@ -136,7 +136,7 @@ define module common-extensions
              <stretchy-object-vector>,
              <byte-character>,
              <byte-vector>};
-  use %Hash-Tables,
+  use %hash-tables,
     export: {remove-all-keys!};
   use table-extensions,
     export: {<string-table>};

@@ -29,14 +29,14 @@ copyright: see below
 //======================================================================
 
 define library compiler-main
-  use Dylan;
-  use Common-Dylan;
-  use IO;
-  use Stream-extensions,
+  use dylan;
+  use common-dylan;
+  use io;
+  use stream-extensions,
      import: {indenting-streams};
-  use System;
-  use String-extensions;
-  use Random;
+  use system;
+  use string-extensions;
+  use random;
   use debugger;
   use command-processor;
   use command-line-parser;
@@ -55,7 +55,7 @@ define module progress-indicator
   use streams;
   use format;
   use utils;
-  use System, 
+  use system, 
      import: {get-time-of-day};
   
   export <progress-indicator>, increment-progress, report-progress,
@@ -67,8 +67,8 @@ end module progress-indicator;
 define module main
   use common;
   use byte-vector;
-  use Extensions, exclude: { element-type, value };
-  use System, 
+  use extensions, exclude: { element-type, value };
+  use system, 
      import: {system, getenv, <raw-pointer>, import-string, 
               export-string, no-core-dumps,
               c-include, c-expr, c-decl, pointer-deref, pointer-deref-setter, call-out};

@@ -1,4 +1,4 @@
-library: Dylan
+library: dylan
 unique-id-base: 0
 Files: bootstrap
        macros

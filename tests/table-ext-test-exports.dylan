@@ -28,14 +28,14 @@ module: Dylan-User
 //======================================================================
 
 define library table-ext-test
-  use Dylan;
-  use Common-Dylan;
-  use Table-Extensions;
+  use dylan;
+  use common-dylan;
+  use table-extensions;
 end library table-ext-test;
 
 define module table-ext-test
-  use Dylan;
-  use Extensions;
-  use Table-extensions;
-  use Simple-io;
+  use dylan;
+  use extensions;
+  use table-extensions;
+  use simple-io;
 end module table-ext-test;

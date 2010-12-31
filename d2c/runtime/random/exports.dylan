@@ -27,13 +27,13 @@ module: Dylan-User
 //
 //======================================================================
 
-define library Random
+define library random
   use dylan;
   use transcendental;
   export random;
-end library Random;
+end library random;
 
-define module Random
+define module random
   use dylan;
   use extensions;
   use system;
@@ -43,5 +43,5 @@ define module Random
     *random-state*, <random-state>, random,
     random-float, random-gaussian, random-exponential,
     random-bits, $random-bits-count;
-end module Random;
+end module random;
 

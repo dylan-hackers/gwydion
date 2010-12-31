@@ -33,7 +33,7 @@ define library dylan-test
 end library dylan-test;
 
 define module dylan-test
-  use Dylan;
-  use Extensions;
-  use Simple-io;
+  use dylan;
+  use extensions;
+  use simple-io;
 end module dylan-test;

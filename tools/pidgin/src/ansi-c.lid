@@ -1,4 +1,4 @@
-Library:        ANSI-C
+Library:        ansi-c
 Unique-ID-Base: 10000
 Files: ansi-c-exports
        c-types

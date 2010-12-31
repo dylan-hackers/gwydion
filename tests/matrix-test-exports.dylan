@@ -28,14 +28,14 @@ module: Dylan-User
 //======================================================================
 
 define library matrix-test
-  use Dylan;
-  use Common-Dylan;
-  use Matrix;
+  use dylan;
+  use common-dylan;
+  use matrix;
 end library matrix-test;
 
 define module matrix-test
-  use Dylan;
-  use Extensions;
-  use Matrix;
-  use Simple-io;
+  use dylan;
+  use extensions;
+  use matrix;
+  use simple-io;
 end module matrix-test;

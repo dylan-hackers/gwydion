@@ -10,10 +10,10 @@ define library c-ffi
 end library;
 
 define module c-ffi
-  use Dylan;
-  use Extensions, import: { subclass };
-  use Machine-words;
-  use System, export: { size-of, alignment-of, referenced-type };
+  use dylan;
+  use extensions, import: { subclass };
+  use machine-words;
+  use system, export: { size-of, alignment-of, referenced-type };
   export
     // Basic designator types & operations
     <C-value>, <C-void>;

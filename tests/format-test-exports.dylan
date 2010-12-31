@@ -28,14 +28,14 @@ module: Dylan-User
 //======================================================================
 
 define library format-test
-  use Dylan;
-  use Common-Dylan;
-  use IO;
+  use dylan;
+  use common-dylan;
+  use io;
 end library format-test;
 
 define module format-test
-  use Dylan;
-  use Extensions;
-  use Format;
-  use Simple-io;
+  use dylan;
+  use extensions;
+  use format;
+  use simple-io;
 end module format-test;

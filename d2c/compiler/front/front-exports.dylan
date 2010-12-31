@@ -29,7 +29,7 @@ copyright: see below
 //======================================================================
 
 define library compiler-front
-  use Dylan;
+  use dylan;
   use compiler-base;
 
   export fer-od;

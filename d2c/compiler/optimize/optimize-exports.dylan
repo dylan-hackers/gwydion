@@ -30,7 +30,7 @@ copyright: see below
 //======================================================================
 
 define library compiler-optimize
-  use Dylan;
+  use dylan;
   use compiler-base;
   use compiler-front;
   use compiler-fer-transform;

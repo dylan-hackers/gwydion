@@ -1,4 +1,4 @@
-library: Stream-extensions
+library: stream-extensions
 unique-id-base: 1030
 Files: library
        stream-extensions

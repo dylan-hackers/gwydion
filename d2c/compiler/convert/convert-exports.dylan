@@ -30,7 +30,7 @@ copyright: see below
 //======================================================================
 
 define library compiler-convert
-  use Dylan;
+  use dylan;
   use compiler-base;
   use compiler-front;
   use compiler-parser;

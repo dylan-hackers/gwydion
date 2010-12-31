@@ -1,4 +1,4 @@
-module: Random
+module: random
 author: Nick Kramer (nkramer@cs.cmu.edu)
 
 //======================================================================

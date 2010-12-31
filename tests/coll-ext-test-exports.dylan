@@ -28,16 +28,16 @@ module: Dylan-user
 //======================================================================
 
 define library coll-ext-test
-  use Dylan;
-  use Common-Dylan;
-  use Collection-Extensions;
+  use dylan;
+  use common-dylan;
+  use collection-extensions;
 end library coll-ext-test;
 
 define module coll-ext-test
-  use Dylan;
-  use Extensions;
-  use Self-Organizing-list;
-  use Subseq;
-  use Vector-Search;
-  use Simple-io;
+  use dylan;
+  use extensions;
+  use self-organizing-list;
+  use subseq;
+  use vector-search;
+  use simple-io;
 end module coll-ext-test;

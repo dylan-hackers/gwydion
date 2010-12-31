@@ -29,15 +29,15 @@ copyright: see below
 //======================================================================
 
 define library compiler-base
-  use Dylan;
-  use Common-Dylan;
-  use Collection-Extensions,
+  use dylan;
+  use common-dylan;
+  use collection-extensions,
     import: {self-organizing-list}, export: all;
-  use Random;
-  use IO, export: all;
-  use System;
-  use String-extensions;
-  use Table-extensions, export: all;
+  use random;
+  use io, export: all;
+  use system;
+  use string-extensions;
+  use table-extensions, export: all;
 
   export c-representation;
   export classes;
@@ -65,10 +65,10 @@ define library compiler-base
 end;
 
 define module common
-  use Dylan,
+  use dylan,
     exclude: {direct-superclasses, direct-subclasses},
     export: all;
-  use Extensions,
+  use extensions,
     import: {<general-integer>, <extended-integer>,
 	     $maximum-integer, ratio, integer-length,
 	     false-or, one-of, <false>, <true>, ignore,
@@ -80,15 +80,15 @@ define module common
              <debugger>, *debugger*, invoke-debugger
      },
     export: all;
-  use Table-Extensions,
+  use table-extensions,
     import: {<equal-table>, <string-table>, equal-hash},
     export: all;
-  use Streams, export: all;
-  use File-System, export: all;
-  use Locators, export: all;
-  use Print, export: all;
-  use PPrint, export: all;
-  use Format, export: all;
+  use streams, export: all;
+  use file-system, export: all;
+  use locators, export: all;
+  use print, export: all;
+  use pprint, export: all;
+  use format, export: all;
   create
     *error-output*;
   create
@@ -99,9 +99,9 @@ define module utils
   use common;
   use common-dylan, exclude: {format-to-string};
   use standard-io;
-  use Introspection, import: {object-address, class-name};
+  use introspection, import: {object-address, class-name};
   use byte-vector;
-  use System, import: {\call-out};
+  use system, import: {\call-out};
 
   // Stuff defined in utils
   export
@@ -123,7 +123,7 @@ define module od-format
   use introspection, import: {function-name};
   use utils;
   use self-organizing-list;
-  use Extensions, import: {<stretchy-object-vector>, <simple-object-table>};
+  use extensions, import: {<stretchy-object-vector>, <simple-object-table>};
   export
     $odf-header-flag,
     $odf-etype-mask,
@@ -248,7 +248,7 @@ end;
 define module source
   use common;
   use byte-vector;
-  use System, import: {buffer-address};
+  use system, import: {buffer-address};
   use utils;
   use od-format;
   use compile-time-values;
@@ -574,8 +574,8 @@ end;
 
 define module ctype
   use common;
-  use Introspection, import: {class-name};
-  use Random, import: {random-bits};
+  use introspection, import: {class-name};
+  use random, import: {random-bits};
 
   use utils;
   use od-format;

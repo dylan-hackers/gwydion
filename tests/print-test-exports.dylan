@@ -28,14 +28,14 @@ module: Dylan-User
 //======================================================================
 
 define library print-test
-  use Dylan;
-  use Common-Dylan;
-  use IO;
+  use dylan;
+  use common-dylan;
+  use io;
 end library print-test;
 
 define module print-test
-  use Dylan;
-  use Extensions;
-  use Print;
-  use Simple-io;
+  use dylan;
+  use extensions;
+  use print;
+  use simple-io;
 end module print-test;

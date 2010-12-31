@@ -10,12 +10,12 @@ define library network
   use dylan;
   use common-dylan;
   use melange-support;
-  use IO;
+  use io;
   export unix-sockets,
          sockets;
 end;
 
-define module C-FFI
+define module c-ffi
   use common-dylan;
   use machine-words;
   use melange-support;
@@ -39,7 +39,7 @@ end module;
 define module unix-sockets
   use common-dylan,
     exclude: { close };
-  use C-FFI;
+  use c-ffi;
   use machine-words;
   use melange-support;
 
@@ -203,7 +203,7 @@ define module sockets-internals
   use melange-support;
   use system, import: { vector-elements-address };
   use machine-words;
-  use C-FFI;
+  use c-ffi;
   use threads;
   use streams-internals;
   use format;

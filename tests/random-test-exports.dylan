@@ -28,14 +28,14 @@ module: Dylan-User
 //======================================================================
 
 define library random-test
-  use Dylan;
-  use Common-Dylan;
-  use Random;
+  use dylan;
+  use common-dylan;
+  use random;
 end library random-test;
 
 define module random-test
-  use Dylan;
-  use Extensions;
-  use Random;
-  use Simple-io;
+  use dylan;
+  use extensions;
+  use random;
+  use simple-io;
 end module random-test;

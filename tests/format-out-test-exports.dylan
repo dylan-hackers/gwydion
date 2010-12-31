@@ -28,15 +28,15 @@ module: Dylan-user
 //======================================================================
 
 define library format-out-test
-  use Dylan;
-  use IO;
+  use dylan;
+  use io;
 end library format-out-test;
 
 define module format-out-test
-  use Dylan;
-  use Extensions;
-  use Format-out;
-  use Streams;
-  use Standard-io;
-  use Format;
+  use dylan;
+  use extensions;
+  use format-out;
+  use streams;
+  use standard-io;
+  use format;
 end module format-out-test;

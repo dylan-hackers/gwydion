@@ -29,14 +29,14 @@ synopsis: Definition of the Table-Extensions library.
 //
 //======================================================================
 
-define library Table-Extensions
-  use Dylan;
-  export Table-Extensions;
-end library Table-Extensions;
+define library table-extensions
+  use dylan;
+  export table-extensions;
+end library table-extensions;
 
-define module Table-Extensions
-  use Dylan;
-  use %Hash-Tables,
+define module table-extensions
+  use dylan;
+  use %hash-tables,
     export: {remove-all-keys!, <hash-state>, collection-hash,
 	     sequence-hash, string-hash,
 	     <equal-table>, equal-hash, <value-table>, value-hash};

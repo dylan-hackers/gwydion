@@ -36,18 +36,18 @@ copyright:  See below.
 
 // Matrix (Library) -- public
 // 
-define library Matrix
-  use Dylan;
-  export Matrix;
-end library Matrix;
+define library matrix
+  use dylan;
+  export matrix;
+end library matrix;
 
 
 // Matrix (Module) -- public
 //
-define module Matrix
-  use Dylan;
+define module matrix
+  use dylan;
   // needed for <ratio>s and operations on them
-  use Extensions;
+  use extensions;
   export
     <matrix>,
     matrix,
@@ -57,4 +57,4 @@ define module Matrix
     inverse,
     det,
     transpose;
-end module Matrix;
+end module matrix;

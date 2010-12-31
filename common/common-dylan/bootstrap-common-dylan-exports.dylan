@@ -51,7 +51,7 @@ define module common-extensions
 	     key-exists?,
 	     register-application-exit-function,
              <byte-character>};
-  use %Hash-Tables,
+  use %hash-tables,
     export: {remove-all-keys!};
   use table-extensions,
     export: {<string-table>};

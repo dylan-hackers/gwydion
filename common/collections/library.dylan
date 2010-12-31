@@ -8,8 +8,8 @@ Dual-license: GNU Lesser General Public License
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library collections
-  use Dylan;
-  use Common-Dylan;
+  use dylan;
+  use common-dylan;
   use table-extensions,
     import: { table-extensions },
     export: all;
@@ -22,7 +22,7 @@ define library collections
 end;
 
 define module bit-vector
-  use Extensions,
+  use extensions,
     import: { <bit> },
     export: all;
   create <bit-vector>,
@@ -66,7 +66,7 @@ define module plists
 end module plists;
 
 define module set
-  use Extensions,
+  use extensions,
     import: { <set>, <object-set> },
     export: all;
 end module set;
@@ -88,9 +88,9 @@ end module table-extensions;
 */
 
 define module collections-internals
-  use Common-Dylan;
-  use Extensions;
-  use Functional-Extensions;
+  use common-dylan;
+  use extensions;
+  use functional-extensions;
   use machine-words;
   use bit-set;
   use bit-vector;
