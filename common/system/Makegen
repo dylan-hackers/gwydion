@@ -31,7 +31,7 @@ if (0 && $enable_bootstrap) {
 		       'compile', 'no-mindy', 'install');
 }
 
-open(CONSTANTS,">$srcdir/architecture.dylan")
+open(CONSTANTS,">$buildroot/$subdir/architecture.dylan")
     || die "cannot create architecture.dylan";
 print CONSTANTS <<"EOF";
 module:      system-internals
