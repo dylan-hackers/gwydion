@@ -1060,12 +1060,12 @@ sub emit_parsergen_rule {
     local ($basefile) = @_;
     do maybe_emit_d2c_defines();
 
-    print "$basefile.dylan: \$(SRCDIR)/$basefile.input $PARSERGEN_target\n\t";
+    print "\$(SRCDIR)/$basefile.dylan: \$(SRCDIR)/$basefile.input $PARSERGEN_target\n\t";
     printf($host_platform{'recursive_make_command'}, $PARSERGEN_DIR, "");
     print "\n\t\$(PARSERGEN) ";
-    print "\$(SRCDIR)/$basefile.input $basefile.dylan\n\n";
-    push(@compile_dependencies, "$basefile.dylan");
-    push(@files_to_clean, "$basefile.dylan");
+    print "\$(SRCDIR)/$basefile.input \$(SRCDIR)/$basefile.dylan\n\n";
+    push(@compile_dependencies, "\$(SRCDIR)/$basefile.dylan");
+    push(@files_to_clean, "\$(SRCDIR)/$basefile.dylan");
 }
 
 # emit_dtrace_rule($base_file_name) -- exported
