@@ -38,8 +38,7 @@ define module melange-support
   use system, export: {call-out, c-include, c-system-include, c-decl, c-local-decl,
                        c-expr, c-struct-field, c-struct-field-setter,
                        callback-method, callback-entry};
-
-  use magic, exclude: { \without-bounds-checks };
+  use magic;
   use machine-words;
 
   export

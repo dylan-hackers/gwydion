@@ -13,8 +13,8 @@ end library debugger;
 
 define module debugger
   use dylan;
-  use extensions, exclude: { \without-bounds-checks};
-  use common-dylan, exclude: { \without-bounds-checks};
+  use extensions;
+  use common-dylan;
   use format-out;
   use standard-io;
   use streams;
