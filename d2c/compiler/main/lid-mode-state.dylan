@@ -258,18 +258,17 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
             else
               file
             end;
-        let prefixed-filename
-          = find-file(object-file,
-                      vector(working-directory(),
-                             state.unit-lid-locator.locator-directory));
+        let prefixed-filename = find-file(object-file,
+                                          file-search-directories(state));
+        if (prefixed-filename == #f)
+          compiler-fatal-error("Can't find object file %s.", object-file);
+        end if;
         log-dependency(prefixed-filename);
       end unless;
     elseif (extension = "c")
       unless (state.unit-no-makefile)
-        let prefixed-filename
-          = find-file(file,
-                      vector(working-directory(),
-                             state.unit-lid-locator.locator-directory));
+        let prefixed-filename = find-file(file,
+                                          file-search-directories(state));
         if (prefixed-filename == #f)
           compiler-fatal-error("Can't find source file %s.", file);
         end if;
@@ -281,10 +280,8 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
         // ### prefixed-filename is now an absolute filename.  Previously we
         // used $this-dir, but that meant .du files contained library-relative
         // filenames, which didn't work when loaded elsewhere (i.e. always)
-        let prefixed-filename
-          = find-file(file,
-                      vector(working-directory(),
-                             state.unit-lid-locator.locator-directory));
+        let prefixed-filename = find-file(file,
+                                          file-search-directories(state));
         if (prefixed-filename == #f)
           compiler-fatal-error("Can't find source file %s.", file);
         end if;
@@ -885,4 +882,13 @@ define method compile-library (state :: <lid-mode-state>)
 
   worked?;
 end method compile-library;
+
+define function file-search-directories(state :: <lid-mode-state>)
+  => (dir-sequence :: <sequence>);
+  if (state.unit-lid-locator.locator-directory)
+    vector(working-directory(), state.unit-lid-locator.locator-directory);
+  else
+    vector(working-directory());
+  end if;
+end function file-search-directories;
 
