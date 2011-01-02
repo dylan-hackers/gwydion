@@ -113,6 +113,8 @@ define method parse-lid (state :: <lid-mode-state>) => ();
 
   let ofiles = split-at-whitespace(element(header, #"c-object-files",
                                            default: ""));
+  let cfiles = split-at-whitespace(element(header, #"c-files",
+                                           default: ""));
 
   local
     method repeat (posn :: <integer>)
@@ -154,7 +156,7 @@ define method parse-lid (state :: <lid-mode-state>) => ();
 
   state.unit-header := header;
   state.unit-files := map(curry(as, <file-locator>),
-                          concatenate(files, ofiles));
+                          concatenate(files, ofiles, cfiles));
   state.unit-executable := element(header, #"executable", default: #f);
   state.unit-embedded? := element(header, #"embedded?", default: #f) & #t;
 end method parse-lid;
@@ -260,6 +262,17 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
           = find-file(object-file,
                       vector(working-directory(),
                              state.unit-lid-locator.locator-directory));
+        log-dependency(prefixed-filename);
+      end unless;
+    elseif (extension = "c")
+      unless (state.unit-no-makefile)
+        let prefixed-filename
+          = find-file(file,
+                      vector(working-directory(),
+                             state.unit-lid-locator.locator-directory));
+        if (prefixed-filename == #f)
+          compiler-fatal-error("Can't find source file %s.", file);
+        end if;
         log-dependency(prefixed-filename);
       end unless;
     else  // assumed a Dylan file, with or without a ".dylan" extension
@@ -372,6 +385,17 @@ define method compile-all-files (state :: <lid-mode-state>) => ();
           format(*debug-output*, "Adding %s\n", file);
           format(state.unit-objects-stream, " %s", file);
         end;
+      end unless;
+    elseif (extension = "c")
+      unless (state.unit-no-makefile)
+        let o-name
+          = concatenate(file.locator-base, 
+                        if (state.unit-shared?)
+                          state.unit-target.shared-object-filename-suffix
+                        else
+                          state.unit-target.object-filename-suffix
+                        end if);
+        output-c-file-rule(state, as(<string>, file), o-name, save-c-file: #t);
       end unless;
     end if;
   end for;
