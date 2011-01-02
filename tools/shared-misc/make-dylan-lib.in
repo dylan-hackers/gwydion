@@ -59,10 +59,10 @@ clean:
 \t-rm -f *.o *.s *.a *.c *.mak *~ $libname.lib.du
 \t-rm -rf .libs
 
-install: $libname.lib.du 
+install: $libname.lib.du
 \tlibtool @INSTALL@ lib$libname.a $libname.lib.du `d2c --dylan-user-location`
 EOD
-		 
+
 sub write_file {
     local ($filename, $contents) = @_;
     open(OUTPUT, ">$filename") or die "Can't create $filename: $!";

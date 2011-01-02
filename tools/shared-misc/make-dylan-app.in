@@ -5,13 +5,13 @@ $deps = 0;
 $appname = shift || &usage;
 while(1) {
     if($appname eq '-d' || $appname eq '--duim') {
-	$duim = 1;
-	$appname = shift || &usage;
+        $duim = 1;
+        $appname = shift || &usage;
     } elsif($appname eq '-M' || $appname eq '--log-deps') {
-	$deps = 1;
-	$appname = shift || &usage;
+        $deps = 1;
+        $appname = shift || &usage;
     } else {
-	last;
+        last;
     }
 }
 shift && &usage;
@@ -30,7 +30,7 @@ define frame <$appname-frame> (<simple-frame>)
   pane exit-menu-button (frame)
     make(<menu-button>,
            label: "Exit",
-	   activate-callback: method(button) exit-application(0) end);
+           activate-callback: method(button) exit-application(0) end);
   pane help-menu (frame)
     make(<menu>, label: "Help", children: vector(frame.about-menu-button));
   pane about-menu-button (frame)
@@ -42,7 +42,7 @@ define frame <$appname-frame> (<simple-frame>)
   status-bar (frame) frame.$appname-status-bar;
   pane $appname-status-bar (frame)
     make(<status-bar>, label: "Hello, world!");
-  
+
   layout (frame) frame.$appname-layout;
   pane $appname-layout (frame)
     vertically ()
@@ -125,7 +125,7 @@ EOD
 if ($deps) {
     &write_file("$appname.dep", "");
 }
-		 
+
 sub write_file {
     local ($filename, $contents) = @_;
     open(OUTPUT, ">$filename") or die "Can't create $filename: $!";
@@ -137,8 +137,8 @@ sub usage {
     print STDERR <<EOD;
 Usage:
   make-dylan-app appname
-  make-dylan-app -d appname	(include DUIM support)
-  make-dylan-app -M appname	(keep track of dependencies)
+  make-dylan-app -d appname        (include DUIM support)
+  make-dylan-app -M appname        (keep track of dependencies)
 EOD
     exit 1;
 }

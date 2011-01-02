@@ -426,7 +426,7 @@ sub assert_path_is_absolute {
         # merit further explanation.
         $ok = 0;
         $explanation = "";
-    }   
+    }
 
  $ok = 1;
     if (! $ok) {
@@ -459,23 +459,23 @@ sub emit_rule {
 #
 sub compile_subdir {
     local($subdir) = &convert_path_separator(@_);
-    push(@compile_commands, 
-         sprintf($host_platform{'recursive_make_command'}, 
+    push(@compile_commands,
+         sprintf($host_platform{'recursive_make_command'},
                  $subdir, ""));
-    push(@install_commands, 
-         sprintf($host_platform{'recursive_make_command'}, 
+    push(@install_commands,
+         sprintf($host_platform{'recursive_make_command'},
                  $subdir, "install"));
-    unshift(@uninstall_commands, 
-         sprintf($host_platform{'recursive_make_command'}, 
+    unshift(@uninstall_commands,
+         sprintf($host_platform{'recursive_make_command'},
                  $subdir, "uninstall"));
-    push(@clean_commands, 
-         sprintf($host_platform{'recursive_make_command'}, 
+    push(@clean_commands,
+         sprintf($host_platform{'recursive_make_command'},
                  $subdir, "clean"));
     push(@cc_files_commands,
-         sprintf($host_platform{'recursive_make_command'}, 
+         sprintf($host_platform{'recursive_make_command'},
                  $subdir, "cc_files"));
     push(@dbc_only_commands,
-         sprintf($host_platform{'recursive_make_command'}, 
+         sprintf($host_platform{'recursive_make_command'},
                  $subdir, "dbc_only"));
 }
 
@@ -502,9 +502,9 @@ sub maybe_emit_d2c_defines {
             $D2CFLAGS .= " -Duse-dtrace-probes";
         }
 
-	if ($use_previous_melange) {
-	    $MELANGE = $PREVIOUS_MELANGE;
-	}
+        if ($use_previous_melange) {
+            $MELANGE = $PREVIOUS_MELANGE;
+        }
 
         print <<EOF;
 D2C = $D2C
@@ -519,10 +519,10 @@ DTRACE = $DTRACE
 
 EOF
         if ($host_platform{'environment_variables_can_be_exported?'}) {
-	    local($EXPORT = "export");
-	    #if ($target_name eq 'x86-win32-vc') {
-	    #	$EXPORT="set";
-	    #}
+            local($EXPORT = "export");
+            #if ($target_name eq 'x86-win32-vc') {
+            #        $EXPORT="set";
+            #}
             print "$EXPORT CCFLAGS = \$(CFLAGS) \$(CPPFLAGS) \$(COPTS)\n\n";
             if ($LIBTOOL) {
                 print "$EXPORT LIBTOOL = $LIBTOOL\n\n";
@@ -531,7 +531,7 @@ EOF
                 print "$EXPORT GC_LIBS = $GC_LIBS\n\n";
             }
             if ($DYLANPATH) {
-		    print "$EXPORT DYLANPATH =\n\n";
+                    print "$EXPORT DYLANPATH =\n\n";
             };
             if ($DYLANDIR) {
                 print "$EXPORT DYLANDIR = $DYLANDIR\n\n";
@@ -679,7 +679,7 @@ sub read_platforms_dot_descr {
                         if (!defined $platform{$key}) {
                             $platform{$key} = $parent_plat{$key};
                         } elsif ($key eq 'default_features') {
-                            $platform{$key} = 
+                            $platform{$key} =
                                 $platform{$key} . " " . $parent_plat{$key};
                         }
                     }
@@ -687,7 +687,7 @@ sub read_platforms_dot_descr {
             }
 
             # Copy the %platforms array into the appropriate global
-            local($eval_string) = '%' . 'platform_' . $platform_name 
+            local($eval_string) = '%' . 'platform_' . $platform_name
                 . ' = %' . 'platform';
             eval($eval_string);
             $all_platforms{$platform_name} = 1;
@@ -740,7 +740,7 @@ sub compile_subdirs {
 #    'compile'
 #         Compile this with d2c and add it to the list of libraries compiled by
 #         the 'compile' makefile target.
-#    'install' 
+#    'install'
 #         Adds this library/executable to the list of files installed
 #         by the 'install' makefile target.
 #    'no-d2c'
@@ -759,7 +759,7 @@ sub emit_library_rule {
     do maybe_emit_d2c_defines();
 
     local(%lidfile) = &parse_lid_file($lidfilename);
-    local($library) = $lidfile{'library'} 
+    local($library) = $lidfile{'library'}
                           || die("No library: header in $lidfilename.lid.\n");
     $library =~ tr/A-Z/a-z/;
     local($unit_prefix);
@@ -779,76 +779,76 @@ sub emit_library_rule {
 
     local($file);
     for $file (split(' ', $lidfile{'files'})) {
-	$file =~ s/\.dylan$//;  # chop off ".dylan"
-	if ($&) {				# This was a "something.dylan"
-	    push(@files_to_clean, "$file.c", "$file$dot_obj", "$file.el");
-	} else {
-	    # This is a *.o or something that is handled by the
-	    # emit_c_file_rule ...
-	    next;
-	}
-	if ($shared && $static) {
-	    push(@files_to_clean, "$file$dot_static");
-	}
+        $file =~ s/\.dylan$//;  # chop off ".dylan"
+        if ($&) {                                # This was a "something.dylan"
+            push(@files_to_clean, "$file.c", "$file$dot_obj", "$file.el");
+        } else {
+            # This is a *.o or something that is handled by the
+            # emit_c_file_rule ...
+            next;
+        }
+        if ($shared && $static) {
+            push(@files_to_clean, "$file$dot_static");
+        }
     }
 
     push(@files_to_clean,
-	 "$unit_prefix-init.c", "$unit_prefix-init$dot_obj");
+         "$unit_prefix-init.c", "$unit_prefix-init$dot_obj");
     push(@files_to_clean,
-	 "$unit_prefix-heap.c", "$unit_prefix-heap$dot_obj");
+         "$unit_prefix-heap.c", "$unit_prefix-heap$dot_obj");
     push(@files_to_clean,
-	 "$unit_prefix-guts.c", "$unit_prefix-guts$dot_obj");
+         "$unit_prefix-guts.c", "$unit_prefix-guts$dot_obj");
 
 
     if($shared && $static) {
-	push(@files_to_clean, "$unit_prefix-init$dot_static");
-	push(@files_to_clean, "$unit_prefix-heap$dot_static");
-	push(@files_to_clean, "$unit_prefix-guts$dot_static"); 
+        push(@files_to_clean, "$unit_prefix-init$dot_static");
+        push(@files_to_clean, "$unit_prefix-heap$dot_static");
+        push(@files_to_clean, "$unit_prefix-guts$dot_static");
     }
 
     if ($executable) {
-	push(@files_to_clean, $executable_filename, "$unit_prefix-global-heap.c", "$unit_prefix-global-inits.c");
-	if($shared && $static) {
-	    push(@files_to_clean, "$unit_prefix-global-heap$dot_static", "$unit_prefix-global-inits$dot_static");
-	}
-	push(@files_to_clean, "$unit_prefix-global-heap$dot_obj", "$unit_prefix-global-inits$dot_obj");
+        push(@files_to_clean, $executable_filename, "$unit_prefix-global-heap.c", "$unit_prefix-global-inits.c");
+        if($shared && $static) {
+            push(@files_to_clean, "$unit_prefix-global-heap$dot_static", "$unit_prefix-global-inits$dot_static");
+        }
+        push(@files_to_clean, "$unit_prefix-global-heap$dot_obj", "$unit_prefix-global-inits$dot_obj");
 
-	if (grep(/^compile$/, @keywords)) {
-	    push(@compile_dependencies, $executable_filename);
-	    grep(/^install$/, @keywords)
-		&& do install_executable($bindir, $executable_filename);
-	}
+        if (grep(/^compile$/, @keywords)) {
+            push(@compile_dependencies, $executable_filename);
+            grep(/^install$/, @keywords)
+                && do install_executable($bindir, $executable_filename);
+        }
 
-	$d2c_target = $executable_filename;
+        $d2c_target = $executable_filename;
     }
     else {
-	local($foo_lib_du, $libfoo_a);
+        local($foo_lib_du, $libfoo_a);
 
-	$foo_lib_du = "$library.lib.du";
-	$libfoo_a = "$lib_prefix$unit_prefix-dylan$dot_lib";
+        $foo_lib_du = "$library.lib.du";
+        $libfoo_a = "$lib_prefix$unit_prefix-dylan$dot_lib";
 
-	push(@files_to_clean, $foo_lib_du, $libfoo_a);
+        push(@files_to_clean, $foo_lib_du, $libfoo_a);
 
-	if($shared && $static) {
-	    local($lib_static)
-		= $target_platform{'library_filename_suffix'};
-	    push(@files_to_clean, "$lib_prefix$unit_prefix-dylan$lib_static");
-	}
+        if($shared && $static) {
+            local($lib_static)
+                = $target_platform{'library_filename_suffix'};
+            push(@files_to_clean, "$lib_prefix$unit_prefix-dylan$lib_static");
+        }
 
-	if (grep(/^compile$/, @keywords)) {
-	    push(@compile_dependencies, $foo_lib_du);
-	    if (grep(/^install$/, @keywords)) {
-		do install($libdir, $foo_lib_du);
-		do install_library($libdir, $libfoo_a, $shared_library);
-	    }
-	}
+        if (grep(/^compile$/, @keywords)) {
+            push(@compile_dependencies, $foo_lib_du);
+            if (grep(/^install$/, @keywords)) {
+                do install($libdir, $foo_lib_du);
+                do install_library($libdir, $libfoo_a, $shared_library);
+            }
+        }
 
-	$d2c_target = $foo_lib_du;
+        $d2c_target = $foo_lib_du;
     }
 
     if($extraflags ne '') {
-	print STDERR "gen-makefile: Makegen file contains extraflags: ";
-	print STDERR "'$extraflags'\n";
+        print STDERR "gen-makefile: Makegen file contains extraflags: ";
+        print STDERR "'$extraflags'\n";
     }
 
     if (! grep(/^no-d2c$/, @keywords)) {
@@ -1034,8 +1034,8 @@ sub emit_melange_rule {
     }
     print "\n";
     unless ($use_previous_melange) {
-	printf("\t$host_platform{'recursive_make_command'}\n",
-	       $MELANGE_DIR, "");
+        printf("\t$host_platform{'recursive_make_command'}\n",
+               $MELANGE_DIR, "");
     }
     print "\t\$(MELANGE) --d2c \$(MELANGEFLAGS)";
     if ($features{'compiled_for_cygwin'}) {
@@ -1099,12 +1099,12 @@ sub install_one_file {
 
     # GNU DESTDIR, not the $destdir variable.
     unless ($host_platform{'default_features'} =~ /compiled-for-win32/i) {
-		$to_file = "\${DESTDIR}$to_file";
-	}
+                $to_file = "\${DESTDIR}$to_file";
+        }
 
     print "\n$to_file: $from_file\n";
-    if ( ($host_platform{'default_features'} =~ /compiled-for-win32/i) 
-		|| ($host_platform{'default_features'} =~ /compiled-for-mingw32/i))
+    if ( ($host_platform{'default_features'} =~ /compiled-for-win32/i)
+                || ($host_platform{'default_features'} =~ /compiled-for-mingw32/i))
     {
         # Host is a win32 platform
         local ($rule) = "\tcopy $from_file $to_file\n\n";
@@ -1179,7 +1179,7 @@ sub install_from_src {
 
 # install_executable_from_src($dest_dir, @files) -- exported
 #
-# Like install_from_src, except makes sure the file has executable 
+# Like install_from_src, except makes sure the file has executable
 # permissions for everyone (this is not relevant on win32, only unix).
 #
 sub install_executable_from_src {
@@ -1208,7 +1208,7 @@ sub install_library {
     $dest_dir || return;
 
     unless ($host_platform{'default_features'} =~ /compiled-for-win32/i) {
-		$gnu_dest_dir = "\${DESTDIR}$gnu_dest_dir";
+                $gnu_dest_dir = "\${DESTDIR}$gnu_dest_dir";
     }
 
     print "\n$gnu_dest_dir/$library: $library\n";
@@ -1281,14 +1281,14 @@ sub emit_mindycomp_library_rule {
     local $flags = "-l$libname";
     local $feature;
     foreach $feature (split /\s+/, $target_platform{'default_features'}) {
-	$flags = "$flags -D$feature";
+        $flags = "$flags -D$feature";
     }
     foreach $feature (split /\s+/, $lidfile{'features'}) {
-	if($feature =~ /~(.*)/) {
-	    $flags = "$flags -U$1";
-	} else {
-	    $flags = "$flags -D$feature";
-	}
+        if($feature =~ /~(.*)/) {
+            $flags = "$flags -U$1";
+        } else {
+            $flags = "$flags -D$feature";
+        }
     }
 
     local($source);

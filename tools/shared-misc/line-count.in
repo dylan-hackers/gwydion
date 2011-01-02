@@ -6,22 +6,22 @@ $blanks = 0;
 $code = 0;
 for $file (@ARGV) {
     if ($file =~ /.dylan$/) {
-	$type = "dylan";
+        $type = "dylan";
     } else {
-	$type = "perl";
+        $type = "perl";
     }
     open(FILE, $file);
     while (<FILE>) {
-	$lines++;
-	if (/^\s*$/) {
-	    $blanks++;
-	} elsif ($type eq "dylan" && m|^\s*//|) {
-	    $comments++;
-	} elsif ($type eq "perl" && m|^\s*\#|) {
-	    $comments++;
-	} else {
-	    $code++;
-	}
+        $lines++;
+        if (/^\s*$/) {
+            $blanks++;
+        } elsif ($type eq "dylan" && m|^\s*//|) {
+            $comments++;
+        } elsif ($type eq "perl" && m|^\s*\#|) {
+            $comments++;
+        } else {
+            $code++;
+        }
     }
 }
 

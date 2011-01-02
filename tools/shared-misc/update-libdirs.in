@@ -16,19 +16,19 @@ use File::Spec;
 
 my $lidfile_line = 1;
 
-my @makegen_dirs;		# directories containing a Makegen
-my %library_dir;		# directory where each library is located
-my %used_from_library;		# libraries used by library
-my %used_from_dir;		# libraries used by directory
+my @makegen_dirs;                # directories containing a Makegen
+my %library_dir;                # directory where each library is located
+my %used_from_library;                # libraries used by library
+my %used_from_dir;                # libraries used by directory
 
 my %runtime_libraries = ('dylan' => 1, 'melange-support' => 1,
-			 'transcendental' => 1);
+                         'transcendental' => 1);
 
 if($#ARGV < 0) {
     &scan_directory(File::Spec->curdir());
 } else {
     foreach my $dir (@ARGV) {
-	&scan_directory($dir);
+        &scan_directory($dir);
     }
 }
 
@@ -50,33 +50,33 @@ sub scan_directory {
     my @subdirs;
     my @lidfiles;
     my $has_makegen = 0;
-    
+
     # print STDERR "Scanning: $dir\n";
     opendir(DIR, $dir) || die "failed to open $dir: $!";
     while(my $entry = readdir(DIR)) {
-	next if($entry eq '.' || $entry eq '..'
-		|| $entry eq 'CVS' || $entry eq '.svn');
-	if($entry =~ /.*\.lid$/) {
-	    push @lidfiles, File::Spec->catfile($dir, $entry);
-	} elsif($entry eq 'Makegen') {
-	    $has_makegen = 1;
-	    push @makegen_dirs, $dir;
-	} else {
-	    my $subdir = File::Spec->catdir($dir, $entry);
-	    if(-d $subdir && !-l $subdir) {
-		push @subdirs, $subdir;
-	    }
-	}
+        next if($entry eq '.' || $entry eq '..'
+                || $entry eq 'CVS' || $entry eq '.svn');
+        if($entry =~ /.*\.lid$/) {
+            push @lidfiles, File::Spec->catfile($dir, $entry);
+        } elsif($entry eq 'Makegen') {
+            $has_makegen = 1;
+            push @makegen_dirs, $dir;
+        } else {
+            my $subdir = File::Spec->catdir($dir, $entry);
+            if(-d $subdir && !-l $subdir) {
+                push @subdirs, $subdir;
+            }
+        }
     }
     closedir(DIR);
 
     if($has_makegen) {
-	foreach my $lidfile (@lidfiles) {
-	    &scan_lidfile($lidfile, $dir);
-	}
+        foreach my $lidfile (@lidfiles) {
+            &scan_lidfile($lidfile, $dir);
+        }
     }
     foreach my $subdir (@subdirs) {
-	&scan_directory($subdir);
+        &scan_directory($subdir);
     }
 }
 
@@ -96,33 +96,33 @@ sub scan_lidfile {
     my $library = $header{'library'};
 
     if(!defined $library) {
-	print STDERR "$lidfile: no `library:' keyword\n";
-	return;
+        print STDERR "$lidfile: no `library:' keyword\n";
+        return;
     }
     $library =~ y/A-Z/a-z/;
     unless(defined $header{'executable'}) {
-	if(defined $library_dir{$library}) {
-	    if($library_dir{$library} ne $dir) {
-		print STDERR "$lidfile: Library $library is also defined ";
-		print STDERR "in $library_dir{$library}\n";
-	    }
-	} else {
-	    $library_dir{$library} = $dir;
-	}
+        if(defined $library_dir{$library}) {
+            if($library_dir{$library} ne $dir) {
+                print STDERR "$lidfile: Library $library is also defined ";
+                print STDERR "in $library_dir{$library}\n";
+            }
+        } else {
+            $library_dir{$library} = $dir;
+        }
     }
 
     if($library eq 'dylan' || !defined $header{'files'}) {
-	return;
+        return;
     }
 
     foreach my $source (split /\s+/, $header{'files'}) {
-	if($source !~ /.*\.dylan$/i) {
-	    $source .= ".dylan";
-	}
-	$source = File::Spec->catfile($dir, $source);
-	if(!&scan_dylan_user($source, $dir, $library)) {
-	    return;
-	}
+        if($source !~ /.*\.dylan$/i) {
+            $source .= ".dylan";
+        }
+        $source = File::Spec->catfile($dir, $source);
+        if(!&scan_dylan_user($source, $dir, $library)) {
+            return;
+        }
     }
 }
 
@@ -141,60 +141,59 @@ sub scan_dylan_user {
     my %header = &parse_dylan_header(\*SOURCE, $source);
     my $module = $header{'module'};
     if(!defined $module || $module !~ /dylan-user/i) {
-	close(SOURCE);
-	return 0;
+        close(SOURCE);
+        return 0;
     }
     # print STDERR "Scanning Dylan-user: $source\n";
     $_ = '';
 
     while(my $token = &dylan_token(\*SOURCE)) {
-	if($token !~ /^define$/i) {
-	    print STDERR "$source: didn't expect '$token' here\n";
-	    close(SOURCE);
-	    return 0;
-	}
-	$token = &dylan_token(\*SOURCE);
-	if($token =~ /^module$/i) {
-	    while(($token = &dylan_token(\*SOURCE)) && $token !~ /^end$/i) {
-	    }
-	    while(($token = &dylan_token(\*SOURCE)) && $token ne ';') {
-	    }
-	    next;
-	} elsif($token !~ /^library$/i) {
-	    print STDERR "$source: didn't expect 'define $token' here\n";
-	    close(SOURCE);
-	    return 0;
-	}
-	my $deflibrary = &dylan_token(\*SOURCE);
-	$deflibrary =~ y/A-Z/a-z/;
-	if($deflibrary ne $library) {
-	    print STDERR $source, ": did not expect ";
-	    print STDERR "define library $deflibrary ";
-	    print STDERR "in library $library\n";
-	    close(SOURCE);
-	    return 0;
-	}
+        if($token !~ /^define$/i) {
+            print STDERR "$source: didn't expect '$token' here\n";
+            close(SOURCE);
+            return 0;
+        }
+        $token = &dylan_token(\*SOURCE);
+        if($token =~ /^module$/i) {
+            while(($token = &dylan_token(\*SOURCE)) && $token !~ /^end$/i) {
+            }
+            while(($token = &dylan_token(\*SOURCE)) && $token ne ';') {
+            }
+            next;
+        } elsif($token !~ /^library$/i) {
+            print STDERR "$source: didn't expect 'define $token' here\n";
+            close(SOURCE);
+            return 0;
+        }
+        my $deflibrary = &dylan_token(\*SOURCE);
+        $deflibrary =~ y/A-Z/a-z/;
+        if($deflibrary ne $library) {
+            print STDERR $source, ": did not expect ";
+            print STDERR "define library $deflibrary ";
+            print STDERR "in library $library\n";
+            close(SOURCE);
+            return 0;
+        }
 
-	CLAUSE:
-	while(($token = &dylan_token(\*SOURCE)) && $token !~ /^end$/i) {
-	    if($token =~ /^use$/i) {
-		my $used = &dylan_token(\*SOURCE);
-		$used =~ y/A-Z/a-z/; 
-		&use_library($used, $dir, $library);
-	    } elsif($token !~ /^export$/i) {
-		print STDERR "$source: didn't expect '$token' here\n";
-		close(SOURCE);
-		return 0;
-	    }
-	    while(($token = &dylan_token(\*SOURCE)) && $token ne ';') {
-		if($token =~ /^end$/) {
-		    last CLAUSE;
-		}
-	    }
-	}
-	close(SOURCE);
-	return 0;
-	
+        CLAUSE:
+        while(($token = &dylan_token(\*SOURCE)) && $token !~ /^end$/i) {
+            if($token =~ /^use$/i) {
+                my $used = &dylan_token(\*SOURCE);
+                $used =~ y/A-Z/a-z/;
+                &use_library($used, $dir, $library);
+            } elsif($token !~ /^export$/i) {
+                print STDERR "$source: didn't expect '$token' here\n";
+                close(SOURCE);
+                return 0;
+            }
+            while(($token = &dylan_token(\*SOURCE)) && $token ne ';') {
+                if($token =~ /^end$/) {
+                    last CLAUSE;
+                }
+            }
+        }
+        close(SOURCE);
+        return 0;
     }
 
     close(SOURCE);
@@ -209,55 +208,55 @@ sub scan_dylan_user {
 sub dylan_token {
     my ($fh) = @_;
     while(1) {
-	s|^\s+||;
-	if($_ eq '') {
-	    defined($_ = <$fh>) || return undef;
-	    chop;
-	    next;
-	} elsif(s|^//.*||) {
-	    next;
-	} elsif(s|^/\*||) {
-	    my $level = 1;
-	    while($level > 0) {
-		if($_ eq '') {
-		    defined($_ = <$fh>) || return undef;
-		    chop;
-		    next;
-		}
-		s%^([^/*]|/[^*]|\*[^/])*%%;
-		s%^[/*]$%%;
-		if(s%\*/%%) {
-		    --$level;
-		} elsif(s%/\*%%) {
-		    ++$level;
-		}
-	    }
-	    next;
-	} elsif(s|^([,;{}])||) {
-	    return $1;
-	} elsif(s|^(=>)||) {
-	    return $1;
-	} elsif(s|^\\?(([!&*<>;\|^\$%\@_][-0-9~&*<>\|^\$%\@_+~?/=]*)?[a-zA-Z][-a-zA-Z0-9~&!*<>\|^\$%\@_+~?/=]*:?)||) {
-	    return $1;
-	} elsif(s|^\\?([0-9][-0-9~&*<>\|^\$%\@_+~?/=]*([a-zA-Z][-0-9~&*<>\|^\$%\@_+~?/=]+)*[a-zA-Z][a-zA-Z][-a-zA-Z0-9~&!*<>\|^\$%\@_+~?/=]*:?)||) {
-	    return $1;
-	} elsif(s/^\#if\s*\(mindy\)//) {
-	    while(!s/^\s*\#endif//) {
-		defined($_ = <$fh>) || return undef;
-		chop;
-	    }
-	    next;
-	} elsif(s/^\#if\s*\(~mindy\)// || s/^\#endif//) {
-	    next;
-	} else {
-	    die "Unrecognized token '$_'";
-	}
+        s|^\s+||;
+        if($_ eq '') {
+            defined($_ = <$fh>) || return undef;
+            chop;
+            next;
+        } elsif(s|^//.*||) {
+            next;
+        } elsif(s|^/\*||) {
+            my $level = 1;
+            while($level > 0) {
+                if($_ eq '') {
+                    defined($_ = <$fh>) || return undef;
+                    chop;
+                    next;
+                }
+                s%^([^/*]|/[^*]|\*[^/])*%%;
+                s%^[/*]$%%;
+                if(s%\*/%%) {
+                    --$level;
+                } elsif(s%/\*%%) {
+                    ++$level;
+                }
+            }
+            next;
+        } elsif(s|^([,;{}])||) {
+            return $1;
+        } elsif(s|^(=>)||) {
+            return $1;
+        } elsif(s|^\\?(([!&*<>;\|^\$%\@_][-0-9~&*<>\|^\$%\@_+~?/=]*)?[a-zA-Z][-a-zA-Z0-9~&!*<>\|^\$%\@_+~?/=]*:?)||) {
+            return $1;
+        } elsif(s|^\\?([0-9][-0-9~&*<>\|^\$%\@_+~?/=]*([a-zA-Z][-0-9~&*<>\|^\$%\@_+~?/=]+)*[a-zA-Z][a-zA-Z][-a-zA-Z0-9~&!*<>\|^\$%\@_+~?/=]*:?)||) {
+            return $1;
+        } elsif(s/^\#if\s*\(mindy\)//) {
+            while(!s/^\s*\#endif//) {
+                defined($_ = <$fh>) || return undef;
+                chop;
+            }
+            next;
+        } elsif(s/^\#if\s*\(~mindy\)// || s/^\#endif//) {
+            next;
+        } else {
+            die "Unrecognized token '$_'";
+        }
     }
 }
 
 # use_library($used, $dir, $library)
 #
-# Record the fact that library $used is imported by $library, which is 
+# Record the fact that library $used is imported by $library, which is
 # found in $dir.
 #
 sub use_library {
@@ -266,15 +265,15 @@ sub use_library {
     return if(defined $runtime_libraries{$used});
 
     if(defined $used_from_dir{$dir}) {
-	$used_from_dir{$dir} .= " $used";
+        $used_from_dir{$dir} .= " $used";
     } else {
-	$used_from_dir{$dir} = $used;
+        $used_from_dir{$dir} = $used;
     }
-    
+
     if(defined $used_from_library{$library}) {
-	$used_from_library{$library} .= " $used";
+        $used_from_library{$library} .= " $used";
     } else {
-	$used_from_library{$library} = $used;
+        $used_from_library{$library} = $used;
     }
 }
 
@@ -299,13 +298,13 @@ sub update_directory_makegen {
     my $makegen_tmp = File::Spec->catfile($makegendir, 'Makegen-tmp');
 
     foreach my $lib (&library_closure(split / /,$used_from_dir{$makegendir})) {
-	my $dir = $library_dir{$lib};
-	if(!defined $dir) {
-	    print STDERR "$makegen: Warning: Cannot locate library $lib\n";
-	} elsif(!defined $libdirs{$dir}) {
-	    push @libdirs, $dir;
-	    $libdirs{$dir} = 1;
-	}
+        my $dir = $library_dir{$lib};
+        if(!defined $dir) {
+            print STDERR "$makegen: Warning: Cannot locate library $lib\n";
+        } elsif(!defined $libdirs{$dir}) {
+            push @libdirs, $dir;
+            $libdirs{$dir} = 1;
+        }
     }
 
     open(MAKEGEN, "<$makegen") || die "Can't open $makegen: $!";
@@ -313,34 +312,34 @@ sub update_directory_makegen {
 
     my $d2cflags_found = 0;
     while(<MAKEGEN>) {
-	if(/^\$D2CFLAGS\b/) {
-	    $d2cflags_found = 1;
-	    while(!/;/) {
-		$_ = <MAKEGEN>;
-	    }
-	    print MAKEGEN_TMP "\$D2CFLAGS         # added by update-libdirs\n";
-	    print MAKEGEN_TMP "    = \$d2c_runtime";
-	    foreach my $dir (sort @libdirs) {
-		$dir = File::Spec->abs2rel($dir, $makegendir);
-		if($dir eq '') { $dir = '.'; }
-		print MAKEGEN_TMP "\n    . ' -L$dir'";
-	    }
-	    print MAKEGEN_TMP ";\n";
+        if(/^\$D2CFLAGS\b/) {
+            $d2cflags_found = 1;
+            while(!/;/) {
+                $_ = <MAKEGEN>;
+            }
+            print MAKEGEN_TMP "\$D2CFLAGS         # added by update-libdirs\n";
+            print MAKEGEN_TMP "    = \$d2c_runtime";
+            foreach my $dir (sort @libdirs) {
+                $dir = File::Spec->abs2rel($dir, $makegendir);
+                if($dir eq '') { $dir = '.'; }
+                print MAKEGEN_TMP "\n    . ' -L$dir'";
+            }
+            print MAKEGEN_TMP ";\n";
 
-	} else {
-	    print MAKEGEN_TMP $_;
-	}
+        } else {
+            print MAKEGEN_TMP $_;
+        }
     }
 
     close(MAKEGEN);
     close(MAKEGEN_TMP);
 
     if($d2cflags_found) {
-	rename $makegen_tmp, $makegen || die "unable to replace $makegen";
+        rename $makegen_tmp, $makegen || die "unable to replace $makegen";
     } else {
-	print STDERR "$makegen: Did not locate an assignment to \$D2CFLAGS";
-	print STDERR " (libraries used: $used_from_dir{$makegendir})\n";
-	unlink $makegen_tmp;
+        print STDERR "$makegen: Did not locate an assignment to \$D2CFLAGS";
+        print STDERR " (libraries used: $used_from_dir{$makegendir})\n";
+        unlink $makegen_tmp;
     }
 }
 
@@ -354,17 +353,17 @@ sub library_closure {
     my @libs;
 
     foreach my $lib (@_) {
-	if(defined $used_from_library{$lib}) {
-	    push @libs, &library_closure(split / /, $used_from_library{$lib});
-	}
-	push @libs, $lib;
+        if(defined $used_from_library{$lib}) {
+            push @libs, &library_closure(split / /, $used_from_library{$lib});
+        }
+        push @libs, $lib;
     }
 
     return @libs;
 }
 
 ########################################################################
-    
+
 # parse_lid_file($filename)
 #
 # Reads in the LID file, and returns an associative array where the
@@ -387,19 +386,19 @@ sub parse_lid_file {
     while (<LIDFILE>) {
         $lidfile_line = $lidfile_line + 1;
 
-	s/\r//g;		# Get rid of bogus carriage returns
-	chop;			# kill newline
-	$contents{'files'} .= " $_";
+        s/\r//g;                # Get rid of bogus carriage returns
+        chop;                        # kill newline
+        $contents{'files'} .= " $_";
     }
     close(LIDFILE);
 
     if(defined $contents{'files'}) {
-	# replace multiple spaces with single spaces
-	$contents{'files'} =~ s/\s+/ /g;
-	
-	# strip leading whitespace, which tends to screw up other parts of
-	# gen-makefile
-	$contents{'files'} =~ s/^\s+//;
+        # replace multiple spaces with single spaces
+        $contents{'files'} =~ s/\s+/ /g;
+
+        # strip leading whitespace, which tends to screw up other parts of
+        # gen-makefile
+        $contents{'files'} =~ s/^\s+//;
     }
 
     return %contents;
@@ -421,13 +420,13 @@ sub parse_dylan_header {
     my ($fh, $file) = @_;
 
     my %contents;
-    my $last_keyword;		# for multi-line values
+    my $last_keyword;                # for multi-line values
 
     while (<$fh>) {
         $lidfile_line = $lidfile_line + 1;
         # remember, in Perl "." is any character other than newline.
-	s/\r//g;		# Get rid of bogus carriage returns
-	
+        s/\r//g;                # Get rid of bogus carriage returns
+
         if (/^\s*$/) {  # if blank line, break out of loop
             return %contents;
         } elsif (m|^//.*$|) {
@@ -437,10 +436,10 @@ sub parse_dylan_header {
             $contents{$last_keyword} .= ' ' . $1;
         } else {
             if(!/^([-A-Za-z0-9_!&*<>|^\$\%\@\?]+):\s*(.*)\s*$/) {
-		print STDERR "$file:$lidfile_line: Warning: ",
-		             "bad keyword line\n";
-		next;
-	    }
+                print STDERR "$file:$lidfile_line: Warning: ",
+                             "bad keyword line\n";
+                next;
+            }
             my $keyword = $1;
             my $value = $2;
             if ($value eq '#f' | $value eq '#F') {
