@@ -470,3 +470,35 @@ add-od-loader(*compiler-dispatcher*, #"known-source-location",
     end method
 );
 
+define class <file-source-location> (<source-location>)
+  constant slot file :: <file-locator>,
+    required-init-keyword: file:;
+end;
+
+define sealed domain make (singleton(<file-source-location>));
+define sealed domain initialize (<file-source-location>);
+
+define sealed method describe-source-location
+    (srcloc :: <file-source-location>, stream :: <stream>)
+    => ();
+  write(stream, as(<string>, srcloc.file));
+  write(stream, ":  ");
+end method describe-source-location;
+
+define method dump-od (obj :: <file-source-location>, buf :: <dump-state>)
+ => ();
+  let start-pos = buf.current-pos;
+  dump-definition-header(#"file-source-location", buf, subobjects: #t,
+  			 raw-data: $odf-word-raw-data-format);
+  dump-od(obj.file, buf);
+  dump-end-entry(start-pos, buf);
+end method;
+
+add-od-loader(*compiler-dispatcher*, #"file-source-location",
+  method (state :: <load-state>) => res :: <file-source-location>;
+    let file = load-object-dispatch(state);
+    assert-end-object(state);
+    make(<file-source-location>, file: file);
+  end method
+);
+

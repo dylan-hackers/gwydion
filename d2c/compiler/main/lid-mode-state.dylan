@@ -76,6 +76,11 @@ define class <lid-mode-state> (<main-unit-state>)
   slot unit-executable :: false-or(<byte-string>);
 end class <lid-mode-state>;
 
+define method source-location(state :: <lid-mode-state>)
+ => (source-location :: <source-location>)
+  make(<file-source-location>, file: state.unit-lid-locator);
+end method source-location;
+
 // Internal.  escape-pounds returns the string with any '#' characters
 // converted to an escaped '\#' character combination for use in Makefiles.
 define function escape-pounds (orig :: <string>) => result :: <string>;
@@ -237,9 +242,11 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
       "DOUBLE" => *float-precision* := #"double";
       "EXTENDED" => *float-precision* := #"extended";
       otherwise =>
-        compiler-error("float-precision: header option is %s, not "
-                         "\"auto\", \"single\", \"double\" or \"extended\".",
-                       float-precision);
+        compiler-error-location(source-location(state),
+                                "float-precision: header option is %s, not "
+                                "\"auto\", \"single\", \"double\" or "
+                                "\"extended\".",
+                                float-precision);
     end select;
   end if;
 
@@ -261,7 +268,8 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
         let prefixed-filename = find-file(object-file,
                                           file-search-directories(state));
         if (prefixed-filename == #f)
-          compiler-fatal-error("Can't find object file %s.", object-file);
+          compiler-fatal-error-location(source-location(state),
+                                        "Can't find object file %s.", object-file);
         end if;
         log-dependency(prefixed-filename);
       end unless;
@@ -270,7 +278,8 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
         let prefixed-filename = find-file(file,
                                           file-search-directories(state));
         if (prefixed-filename == #f)
-          compiler-fatal-error("Can't find source file %s.", file);
+          compiler-fatal-error-location(source-location(state),
+                                        "Can't find source file %s.", file);
         end if;
         log-dependency(prefixed-filename);
       end unless;
@@ -283,7 +292,8 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
         let prefixed-filename = find-file(file,
                                           file-search-directories(state));
         if (prefixed-filename == #f)
-          compiler-fatal-error("Can't find source file %s.", file);
+          compiler-fatal-error-location(source-location(state),
+                                        "Can't find source file %s.", file);
         end if;
         log-dependency(prefixed-filename);
         let (tokenizer, mod) = file-tokenizer(state.unit-lib, 
@@ -445,8 +455,9 @@ define method build-library-inits (state :: <lid-mode-state>) => ();
     state.unit-executable := executable;
     let entry-point = element(state.unit-header, #"entry-point", default: #f);
     if (entry-point & ~executable)
-      compiler-fatal-error("Can only specify an entry-point when producing an "
-                             "executable.");
+      compiler-fatal-error-location(source-location(state),
+                                    "Can only specify an entry-point when "
+                                    "producing an executable.");
     end if;
 
   do-with-c-file(state, concatenate(state.unit-mprefix, "-init"),

@@ -269,6 +269,8 @@ define module source
     start-posn, start-line, start-column,
     end-posn, end-line, end-column,
 
+    <file-source-location>,
+
     extract-string;
 end;
 

@@ -518,6 +518,7 @@ begin
   register-object-id(#"source-file", #x0092);
   register-object-id(#"source-buffer", #x009F);
   register-object-id(#"known-source-location", #x0093);
+  register-object-id(#"file-source-location", #x0150);
 
   register-object-id(#"linear-region", #x0094);
   register-object-id(#"if-region", #x0095);
@@ -667,6 +668,7 @@ begin
   // see above: register-object-id(#"delayed-optimization-call-operation",
   //                               #x014E);  
   // see above: register-object-id(#"keyword-info", #x014F);
+  // see above: register-object-id(#"file-source-location", #x0150);
 
 end;
 
