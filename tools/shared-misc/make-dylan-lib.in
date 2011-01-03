@@ -56,7 +56,7 @@ $libname.lib.du: $libname.lid $libname.dylan $libname-exports.dylan
 \td2c $libname.lid
 
 clean:
-\t-rm -f *.o *.s *.a $libname-*.c *.mak *~ $libname.lib.du
+\t-rm -f *.el *.o *.s *.a $libname-*.c *.mak *~ $libname.dep $libname.lib.du
 \t-rm -rf .libs
 
 install: $libname.lib.du
