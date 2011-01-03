@@ -512,10 +512,13 @@ if test "x${WITH_GC}" = xboehm; then
     save_LIBS="$LIBS"
     CPPFLAGS="$GC_CFLAGS $CPPFLAGS"
     LIBS="$GC_LIBS $LIBS"
-    AC_CHECK_HEADERS(gc.h gc/gc.h,,AC_MSG_ERROR([
+    AC_CHECK_HEADERS(gc.h gc/gc.h)
+    if test "x$ac_cv_header_gc_gc_h" != "xyes" -a "x$ac_cv_header_gc_h" != "xyes"; then
+        AC_MSG_ERROR([
 Cannot locate the Boehm-Weiser conservative garbage collector. Please
 download the library from http://www.hpl.hp.com/personal/Hans_Boehm/gc/
-or from your operating system distribution.]))
+or from your operating system distribution.])
+    fi
     AC_CHECK_LIB(gc, GC_malloc_ignore_off_page, ,AC_MSG_ERROR([
     Cannot link with the Boehm-Weiser conservative garbage collector library.
     Please download the library from http://www.hpl.hp.com/personal/Hans_Boehm/gc/
