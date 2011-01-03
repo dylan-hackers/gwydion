@@ -86,6 +86,8 @@ pointer-size:                       8
 integer-size:                       4
 short-size:                         2
 long-size:                          8
+long-long-size:                     8
+long-long-alignment:                8
 
 // IEEE 754 floating point
 platform-name:                      ieee-754
@@ -505,7 +507,6 @@ default-c-compiler-flags:           -Wall -Wno-unused-variable -I. -I%s -g -O2 -
 default-c-compiler-debug-flags:     -Wall -Wno-unused-variable -I. -I%s -g -fno-inline-functions -arch x86_64
 default-c-compiler-profile-flags:   -Wall -Wno-unused-variable -I. -I%s -pg -g -O -fno-inline-functions -arch x86_64
 link-executable-flags:              $(GC_LIBS) -multiply_defined suppress -arch x86_64
-long-long-alignment:                4
 long-double-size:                   16
 long-double-alignment:              16
 
@@ -515,7 +516,6 @@ default-c-compiler-flags:           -Wall -Wno-unused-variable -I. -I%s -g -O2 -
 default-c-compiler-debug-flags:     -Wall -Wno-unused-variable -I. -I%s -g -fno-inline-functions -arch x86_64
 default-c-compiler-profile-flags:   -Wall -Wno-unused-variable -I. -I%s -pg -g -O -fno-inline-functions -arch x86_64
 link-executable-flags:              $(GC_LIBS) -multiply_defined suppress -arch x86_64
-long-long-alignment:                4
 long-double-size:                   16
 long-double-alignment:              16
 
