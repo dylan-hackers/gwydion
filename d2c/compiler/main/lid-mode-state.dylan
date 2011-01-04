@@ -215,7 +215,9 @@ define method parse-and-finalize-library (state :: <lid-mode-state>) => ();
   state.unit-lib := lib;
   state.unit-mprefix := as-lowercase(lib-name);
   if(element(state.unit-header, #"unit-prefix", default: #f))
-    format(*debug-output*, "Warning: unit-prefix header is deprecated, ignoring it.\n");
+    compiler-warning-location(source-location(state),
+                              "unit-prefix header is deprecated, "
+                              "ignoring it.");
   end if;
 
   state.unit-shared?
