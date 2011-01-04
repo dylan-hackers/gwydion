@@ -12,7 +12,7 @@ $CPPFLAGS .= " -I$srcdir";
 # We have a pre-built version checked in ... don't re-generate.
 # I don't know why this is, but leaving it for now.
 # $use_previous_melange = 1;
-&emit_melange_rule("c-support", "support.h");
+# &emit_melange_rule("c-support", "support.h");
 
 do emit_library_rule ('common-dylan', '$(BUILDROOT)/force.timestamp', '',
 		      'compile', 'install');
