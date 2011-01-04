@@ -1,6 +1,7 @@
 #ifndef __MWERKS__
 #include "config.h"
 #endif
+#include "runtime.h"
 #include "support.h"
 
 #include <time.h>
