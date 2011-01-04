@@ -30,19 +30,6 @@ sub install_perl_scripts {
     }
 }
 
-# Assumes the rcs binaries are in $(DESTDIR)/rcs-bin
-sub install_rcs_wrappers {
-    local (@names) = @_;
-    local ($name);
-    foreach $name (@names) {
-	local ($dst) = "$destdir/bin";
-	print "$dst/$name.exe : rcs-wrapper.exe\n";
-	$dst =~ tr|/|\\|;  # translate / to \ for batch files
-	print "\tcopy rcs-wrapper.exe $dst\\$name.exe\n";
-	push(@install_dependencies, "$dst/$name.exe");
-    }
-}
-
 sub install_backslash_wrapper {
     local ($newname, $wrapped) = @_;
     local ($dst) = "$destdir/bin";
@@ -54,30 +41,9 @@ sub install_backslash_wrapper {
     push(@install_dependencies, "$destdir/bin/$newname.bat");
 }
 
-# rcs-wrapper.  We can't use emit_c_file_rule because they don't build
-# executables.  We don't want to install it, though.  Because we
-# create a copy for each command we're wrapping, we want to use
-# install_rcs_wrappers instead of install().
-print <<EOF;
-rcs-wrapper.exe : \$(SRCDIR)/rcs-wrapper.c
-	cl -nologo -Ox \$(SRCDIR)/rcs-wrapper.c -o rcs-wrapper.exe
-EOF
-push(@compile_dependencies, 'rcs-wrapper.exe');
-
-if ($install_rcs_wrappers_n_stuff) {
-# Wrapped RCS stuff
-do install_rcs_wrappers('ci', 'co', 'rcs', 'rcsdiff', 'rlog');
-
 # Custom utils with wrappers
-do install_perl_scripts('configure',
-			'find-dylan-files', 'mass-ci', 'mass-diff', 
-			'mk-rcs-links', 'tree-diff', 'unix-find', 'which');
-
-# rcsupdate needs the path to co.exe
-do install_from_src("$destdir/bin", 'rcsupdate.perl');
-do install_one_arg_wrapper('perl', 'rcsupdate', '.perl', 
-			   "$GwydionDir\\rcs-bin\\co.exe");
-}
+do install_perl_scripts('configure', 'find-dylan-files',
+			'tree-diff', 'unix-find', 'which');
 
 # These files are in shared-misc, which doesn't do wrappers
 do install_no_arg_wrapper('perl', 'gen-makefile', '.perl');
@@ -89,10 +55,8 @@ do install_no_arg_wrapper('perl', 'line-count', '.perl');
 # Custom utils that are straight batch files
 do install_from_src("$destdir/bin", 'build-tags.bat');
 do install_from_src("$destdir/bin", 'dytc.bat');
-do install_from_src("$destdir/bin", 'mk-backup.bat');
 
 # Custom perl scripts without wrappers
-do install_from_src("$destdir/bin", 'find-unrcsed-files.perl');
 do install_from_src("$destdir/bin", 'module-tool.perl');
 do install_from_src("$destdir/bin", 'shadows.perl');
 
