@@ -1,5 +1,6 @@
 library: common-dylan
 unique-id-base: 5200
+C-Files: support.c
 Files: common-dylan-exports
        c-support
        extensions

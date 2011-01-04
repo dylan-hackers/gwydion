@@ -55,7 +55,9 @@ define module c-support
   export
     application-argc,
     application-argv,
-    cpu-time;
+    cpu-time,
+    profiling-seconds-value,
+    profiling-microseconds-value;
 end module c-support;
 
 define module finalization
