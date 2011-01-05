@@ -537,7 +537,8 @@ end method compute-seal-methods;
 // arguments.
 // 
 define method sort-methods
-    (methods :: <list>, arg-classes :: false-or(<simple-object-vector>))
+    (methods :: <list>, arg-classes :: false-or(<simple-object-vector>),
+     #key srcloc: srcloc :: false-or(<source-location>))
     => (ordered :: false-or(<list>), ambiguous :: false-or(<list>));
 
   block (return)
@@ -611,7 +612,7 @@ define method sort-methods
 	      done-with-method();
 	    #"unknown" =>
 	      compiler-warning-location
-	        (meth,
+	        (srcloc | meth,
 		 "Can't statically determine the ordering of %s "
 		 "and %s and both are applicable.",
 		 meth.defn-name, other.defn-name);
@@ -639,7 +640,7 @@ define method sort-methods
 		ambiguous-with := pair(remaining.head, ambiguous-with);
 	      #"unknown" =>
 		compiler-warning-location
-		  (meth,
+		  (srcloc | meth,
 		   "Can't statically determine the ordering of "
 		   "%s and %s and both are applicable.",
 		   meth.defn-name, remaining.head.defn-name);

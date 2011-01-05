@@ -730,7 +730,8 @@ about the argument types, so none will be restricted?
     end unless;
 
     // Sort the applicable methods.
-    let (ordered, ambiguous) = sort-methods(applicable, #f);
+    let (ordered, ambiguous) = sort-methods(applicable, #f,
+	                                    srcloc: call.dependents.dependent.source-location);
     if (ordered)
       if (ordered == #())
 	ambiguous-method-warning(call, defn, ambiguous, positional-arg-types);

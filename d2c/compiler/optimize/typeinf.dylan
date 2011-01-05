@@ -439,7 +439,8 @@ define method infer-unknown-call-type-defn
     end unless;
 
     // Sort the applicable methods.
-    let (ordered, ambiguous) = sort-methods(applicable, #f);
+    let (ordered, ambiguous) = sort-methods(applicable, #f,
+	                                   srcloc: call.dependents.dependent.source-location);
 
     if (ordered == #f)
       // We can't tell jack about how to order the methods.
