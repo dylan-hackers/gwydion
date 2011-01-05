@@ -33,7 +33,8 @@ define method file-tokenizer
     => (tokenizer :: <tokenizer>, module :: <module>);
   let source = make(<source-file>, locator: name);
   let (header, start-line, start-posn) = parse-header(source);
-  let module = find-module(lib, as(<symbol>, header[#"module"]));
+  let module = find-module(lib, as(<symbol>, header[#"module"]),
+                           srcloc: make(<file-source-location>, file: name));
   values(make(<lexer>,
               module: module,
 	      source: source,
