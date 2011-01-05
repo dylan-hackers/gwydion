@@ -485,7 +485,7 @@ define method ct-applicable-methods
     end for;
     values(definitely-applicable, maybe-applicable);
   else
-    // The argument types arn't covered by a seal.
+    // The argument types aren't covered by a seal.
     values(#f, #f);
   end if;
 end method;
@@ -529,7 +529,7 @@ define method compute-seal-methods
 end method compute-seal-methods;
 
 
-// method sorting and comparision utilities.
+// method sorting and comparison utilities.
 
 // sort-methods
 //
@@ -648,8 +648,8 @@ define method sort-methods
 	  end;
 	  //
 	  // Ambiguous-with is only #() if we are more specific than anything
-	  // currently in the ambigous set.  So tack us onto the end of the
-	  // ordered set.  Otherwise, set the ambigous set to us and everything
+	  // currently in the ambiguous set.  So tack us onto the end of the
+	  // ordered set.  Otherwise, set the ambiguous set to us and everything
 	  // we are ambiguous with.
 	  if (ambiguous-with == #())
 	    if (prev)
@@ -729,7 +729,7 @@ define method compare-methods
 		  & instance?(spec2, <subclass-ctype>))
 	  // If both specializers are subclass-ctypes, then the ordering
 	  // depends on their relative positions in the cpl of the actual
-	  // argument, so knowning the argument class isn't good enough.  So
+	  // argument, so knowing the argument class isn't good enough.  So
 	  // we just have to give the answer up as unknown.
 	  unknown? := #t;
 	elseif (instance?(spec1, <unknown-ctype>)
