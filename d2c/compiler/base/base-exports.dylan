@@ -373,6 +373,7 @@ define module header
 
   use utils;
   use source;
+  use errors;
 
   export
     <header>, parse-header, find-newline,

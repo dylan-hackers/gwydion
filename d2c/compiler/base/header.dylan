@@ -416,7 +416,9 @@ define method parse-header (source :: <source-file>,
 	    prev := new;
 	    repeat(value-end, value-end-line);
 	  else
-	    error("Bogus header keyword on line %d", line);
+	    compiler-fatal-error-location
+	      (make(<file-source-location>, file: source.source-locator),
+	       "Bogus header keyword on line %d", line);
 	  end;
 	elseif (char == '/' & (posn + 1 < contents.size) 
 		  & as(<character>, contents[posn + 1]) == '/')
@@ -428,7 +430,9 @@ define method parse-header (source :: <source-file>,
 	  values(make(<header>, entries: entries), line + 1, 
 		 1 + find-newline(contents, posn));
 	else
-	  error("Bogus header keyword on line %d", line);
+	  compiler-fatal-error-location
+	    (make(<file-source-location>, file: source.source-locator),
+	     "Bogus header keyword on line %d", line);
 	end;
       else
 	values(make(<header>, entries: entries), line, posn);
