@@ -9,6 +9,8 @@ $D2CFLAGS         # added by update-libdirs
 
 $CPPFLAGS .= " -I$srcdir";
 
+&emit_c_file_rule('support');
+
 # We have a pre-built version checked in ... don't re-generate.
 # I don't know why this is, but leaving it for now.
 # $use_previous_melange = 1;
