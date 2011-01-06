@@ -47,6 +47,7 @@ end module stream-extensions;
 
 define module indenting-streams
   use common-dylan;
+  use functional-extensions, import: { copy-down-method-definer };
   use streams;
   export
     <indenting-stream>, indent;

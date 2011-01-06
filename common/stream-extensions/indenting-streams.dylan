@@ -168,6 +168,11 @@ define method write
   end iterate;
 end method write;
 
+define sealed copy-down-method write
+    (stream :: <indenting-stream>, elements :: <byte-string>,
+     #key start: _start :: <integer> = 0,
+          end: _end :: <integer> = elements.size) => ();
+
 define method new-line (stream :: <indenting-stream>) => ()
   stream.is-space-column := 0;
   new-line(stream.inner-stream)
