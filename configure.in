@@ -540,6 +540,12 @@ AC_SUBST(GC_CFLAGS)
 AC_SUBST(GC_LIBS)
 
 #--------------------------------------------------------------------
+# Look for versions of setjmp/longjmp that let us control
+# signal mask behavior.
+#--------------------------------------------------------------------
+AC_CHECK_FUNCS(sigsetjmp siglongjmp)
+
+#--------------------------------------------------------------------
 # Look for mmap/mprotect support
 #--------------------------------------------------------------------
 AC_CHECK_HEADERS(unistd.h sys/mman.h)

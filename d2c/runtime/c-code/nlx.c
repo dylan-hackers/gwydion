@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include "config.h"
 #include "runtime.h"
 #include <setjmp.h>
 
@@ -16,14 +17,24 @@
  * through the longjmp).
  */
 
+#if defined(HAVE_SIGSETJMP) && defined(HAVE_SIGLONGJMP)
+#define JMP_BUF sigjmp_buf
+#define SETJMP(env) sigsetjmp(env, 0)
+#define LONGJMP(env, val) siglongjmp(env, val)
+#else
+#define JMP_BUF jmp_buf
+#define SETJMP(env) setjmp(env)
+#define LONGJMP(env, val) longjmp(env, val)
+#endif
+
 descriptor_t *catch(descriptor_t *(*fn)(descriptor_t *sp, void *state,
                                         heapptr_t body_func),
                     descriptor_t *sp, heapptr_t body_func)
 {
-    jmp_buf state;
+    JMP_BUF state;
     int rc;
 
-    if ((rc = _setjmp(state))) { /* This _is_ an assignment */
+    if ((rc = SETJMP(state))) { /* This _is_ an assignment */
       /* longjmp was called, return stack_top */
       /* See comment above for explanation of the -1 bias. */
       return (descriptor_t *)(sp + rc - 1);
@@ -36,5 +47,5 @@ descriptor_t *catch(descriptor_t *(*fn)(descriptor_t *sp, void *state,
 void throw(void *state, descriptor_t *sp, descriptor_t *stack_top)
 {
     /* See comment above for explanation of the +1 bias. */
-    _longjmp(state, (int)(stack_top - sp + 1));
+    LONGJMP(state, (int)(stack_top - sp + 1));
 }
