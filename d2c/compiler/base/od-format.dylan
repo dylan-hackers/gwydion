@@ -462,7 +462,7 @@ begin
 
   // Types:
   //
-  // All simple objects w/ subobjects, except for byte-charater, which
+  // All simple objects w/ subobjects, except for byte-character, which
   // has no subobjects.
   //
   register-object-id(#"union-type", #x0060);
