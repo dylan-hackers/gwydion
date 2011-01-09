@@ -41,6 +41,11 @@ heapptr_t allocate(unsigned int bytes)
   return (heapptr_t)GC_malloc(bytes);
 }
 
+heapptr_t allocate_ptrfree(unsigned int bytes)
+{
+  return (heapptr_t)GC_malloc_atomic(bytes);
+}
+
 void destroy(void* ptr)
 {
   GC_free(ptr);

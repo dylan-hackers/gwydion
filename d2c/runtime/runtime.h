@@ -46,6 +46,7 @@ typedef descriptor_t *(*entry_t)();
 
 /* Memory allocation, GC stuff */
 extern heapptr_t allocate(unsigned int bytes);
+extern heapptr_t allocate_ptrfree(unsigned int bytes);
 extern descriptor_t *allocate_stack(void);
 extern void destroy(void* ptr);
 extern long dylan_gc_get_total_bytes(void);

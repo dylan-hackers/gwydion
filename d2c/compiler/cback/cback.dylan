@@ -1621,7 +1621,7 @@ define method emit-tlf-gunk (backend == c:, tlf :: <magic-internal-primitives-pl
     let (expr, rep) = c-expr-and-rep(cclass, *heap-rep*, file);
 
     format(bstream, "heapptr_t make_double_integer(%s value)\n{\n", c-type);
-    format(gstream, "heapptr_t res = allocate(%d);\n",
+    format(gstream, "heapptr_t res = allocate_ptrfree(%d);\n",
            cclass.instance-slots-layout.layout-length);
 
     let (c-code, temp?) = conversion-expr(*heap-rep*, expr, rep, file);
@@ -1644,7 +1644,7 @@ define method emit-tlf-gunk (backend == c:, tlf :: <magic-internal-primitives-pl
     let cclass = specifier-type(#"<double-float>");
     let (expr, rep) = c-expr-and-rep(cclass, *heap-rep*, file);
     format(bstream, "heapptr_t make_double_float(double value)\n{\n");
-    format(gstream, "heapptr_t res = allocate(%d);\n",
+    format(gstream, "heapptr_t res = allocate_ptrfree(%d);\n",
 	   cclass.instance-slots-layout.layout-length);
 
     let (c-code, temp?) = conversion-expr(*heap-rep*, expr, rep, file);
@@ -1668,7 +1668,7 @@ define method emit-tlf-gunk (backend == c:, tlf :: <magic-internal-primitives-pl
     let cclass = specifier-type(#"<extended-float>");
     let (expr, rep) = c-expr-and-rep(cclass, *heap-rep*, file);
     format(bstream, "heapptr_t make_extended_float(long double value)\n{\n");
-    format(gstream, "heapptr_t res = allocate(%d);\n",
+    format(gstream, "heapptr_t res = allocate_ptrfree(%d);\n",
 	   cclass.instance-slots-layout.layout-length);
 
     let (c-code, temp?) = conversion-expr(*heap-rep*, expr, rep, file);
