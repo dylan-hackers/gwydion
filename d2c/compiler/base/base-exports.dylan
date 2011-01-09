@@ -54,6 +54,7 @@ define library compiler-base
   export od-format;
   export policy;
   export representation;
+  export search;
   export signature-interface;
   export source;
   export tokens;
@@ -114,6 +115,17 @@ define module utils
     key-of, list?, pair?,
     symcat, stringify,
     log-target, log-dependency, spew-dependency-log;
+end;
+
+define module search
+  use common;
+  use names;
+  use utils;
+
+  export
+    <search-results>, add-search-result,
+    closest-search-result, ordered-search-results,
+    similar-name-search;
 end;
 
 define module od-format
@@ -539,6 +551,7 @@ define module variables
   use names;
   use definitions;
   use od-format;
+  use search;
 
   use forwards, import: {<library>, <module>}, export: all;
   export
@@ -557,6 +570,7 @@ define module variables
     variable-tlf, variable-tlf-setter,
     note-variable-definition, note-variable-referencing-macro,
     <use>, <all-marker>, <renaming>, renaming-orig-name, renaming-new-name,
+    search-variables,
 
     module-home, variable-home,
     name-inherited-or-exported?,

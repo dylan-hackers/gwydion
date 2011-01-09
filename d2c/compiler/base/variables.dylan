@@ -925,6 +925,19 @@ define method find-variable (name :: <basic-name>,
   end if;
 end method find-variable;
 
+// search-variables -- exported
+//
+define method search-variables (name :: <basic-name>,
+                                search-function :: <function>)
+    => results :: <search-results>;
+  let results = make(<search-results>, search-text: name);
+  let mod = name.name-module;
+  for (entry in mod.entries)
+    add-search-result(results, entry.entry-name, search-function);
+  end for;
+  results;
+end method search-variables;
+
 
 // name-inherited-or-exported?  --  exported
 //

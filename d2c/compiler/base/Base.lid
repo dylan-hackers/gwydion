@@ -3,6 +3,7 @@ unique-id-base: 10000
 shared-library: yes
 Files: base-exports
        utils
+       search
        od-format
        32bit-od-format
        dylan-dump

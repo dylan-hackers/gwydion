@@ -59,6 +59,7 @@ define module lexenv
   use variables, import: {variable-tlf};
   use errors; // DEBUG
   use variables; // DEBUG
+  use search;
 
   export
     <lexenv>, lexenv-policy, <top-level-lexenv>,
@@ -66,7 +67,8 @@ define module lexenv
     lexenv-method-name,
     <top-level-binding>,
     <binding>, binding-name, binding-var, binding-type-var,
-    add-binding, find-binding, local-binding?, lexenv-for-tlf;
+    add-binding, find-binding, local-binding?, lexenv-for-tlf,
+    search-lexical-environment;
 end;
 
 
@@ -120,6 +122,7 @@ define module fer-convert
   use common;
 
   use utils;
+  use search;
   use source, exclude: {source};
   use errors;
   use tokens;

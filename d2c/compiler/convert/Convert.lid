@@ -3,6 +3,7 @@ unique-id-base: 11000
 shared-library: yes
 Files: convert-exports
        lexenv
+       similar-names
        cteval
        expand
        fer-convert

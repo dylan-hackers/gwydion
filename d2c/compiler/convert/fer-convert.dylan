@@ -107,6 +107,21 @@ define method deliver-result
   temp;
 end;
 
+// Augmented error messages
+
+define function undefined-variable-error
+    (loc :: type-union(<source-location-mixin>, <source-location>),
+     lexenv :: <lexenv>,
+     name :: <basic-name>)
+ => ();
+  let similar-names = search-lexical-environment(lexenv, name, similar-name-search);
+  let similar-name = closest-search-result(similar-names);
+  if (similar-name)
+    compiler-error-location(loc, "Undefined variable: %s. Did you mean '%s'?", name, similar-name);
+  else
+    compiler-error-location(loc, "Undefined variable: %s", name);
+  end if;
+end function;
 
 
 // fer-convert
@@ -160,7 +175,7 @@ define method fer-convert
   let type-temps = make(<vector>, size: nfixed);
   let temps = make(<list>, size: nfixed);
 
-  // Make temps for all the values and evaluate any types that arn't constant.
+  // Make temps for all the values and evaluate any types that aren't constant.
   for (param in params, index from 0, temp-ptr = temps then temp-ptr.tail)
     let type
       = if (param.param-type)
@@ -340,8 +355,7 @@ define method fer-convert
 		     build-defn-ref(builder, lexenv.lexenv-policy,
 				    source, defn);
 		   else
-		     compiler-error-location
-		       (source, "Undefined variable: %s", name);
+		     undefined-variable-error(source, lexenv, name);
 		     make-error-operation
 		       (builder, lexenv.lexenv-policy, source,
 			"Undefined variable: %s",
@@ -406,7 +420,7 @@ define method fer-convert
 		     want, datum, checked);
     end if;
   else
-    compiler-error-location(id, "Undefined variable: %s", name);
+    undefined-variable-error(id, lexenv, name);
     deliver-result
       (builder, policy, source, want, datum,
        make-error-operation
