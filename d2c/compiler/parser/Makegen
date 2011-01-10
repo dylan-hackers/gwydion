@@ -13,5 +13,5 @@ $D2CFLAGS         # added by update-libdirs
 
 &emit_parsergen_rule('parser');
 do emit_library_rule('Parser', '$(BUILDROOT)/force.timestamp', '', 
-		     'compile', 'install');
+                     'compile', 'install');
 

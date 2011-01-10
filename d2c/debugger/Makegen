@@ -11,4 +11,4 @@ $D2CFLAGS         # added by update-libdirs
 
 &emit_melange_rule('dlfcn');
 &emit_library_rule('debugger', '$(BUILDROOT)/force.timestamp', 
-		   '', 'compile', 'install');
+                   '', 'compile', 'install');

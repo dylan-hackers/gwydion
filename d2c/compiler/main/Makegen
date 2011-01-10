@@ -56,7 +56,7 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../runtime/threads';
 
 do emit_library_rule('Main-DU', '$(BUILDROOT)/force.timestamp', '', 
-		     'compile', 'install');
+                     'compile', 'install');
 do emit_library_rule('Main', '$(BUILDROOT)/force.timestamp', '', 
-		     'compile', 'install');
+                     'compile', 'install');
 

@@ -13,4 +13,4 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../../../qa/testworks';
 
 &emit_library_rule('compiler-parser-test', 
-		   '$(BUILDROOT)/force.timestamp', '', 'compile');
+                   '$(BUILDROOT)/force.timestamp', '', 'compile');

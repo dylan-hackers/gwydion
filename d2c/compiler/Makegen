@@ -1,6 +1,6 @@
 push(@compile_commands, 
      sprintf($host_platform{'recursive_make_command'},
-	     "../../tools/parsergen", ""));
+             "../../tools/parsergen", ""));
 
 &compile_subdirs(
     'base',

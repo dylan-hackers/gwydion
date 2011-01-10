@@ -11,4 +11,4 @@ $D2CFLAGS         # added by update-libdirs
     . ' -L../../runtime/threads';
 
 do emit_library_rule('Base', '$(BUILDROOT)/force.timestamp', '', 
-		     'compile', 'install');
+                     'compile', 'install');

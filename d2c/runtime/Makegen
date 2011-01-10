@@ -1,25 +1,25 @@
 if (!$enable_bootstrap) {
     do install_from_src($includedir, "runtime.h");
     if ($host_name eq $target_name) {
-	do compile_subdirs('c-code');
+        do compile_subdirs('c-code');
     };
 
     do compile_subdirs('dylan',
                        'threads',
-		       'melange',
-#		       'c-ffi',
-		       'transcendental');
+                       'melange',
+#                       'c-ffi',
+                       'transcendental');
 }
 
 do compile_subdirs('random',
-		   'threads',
-		   '../../common/table-extensions',
-		   '../../common/common-dylan',
-		   '../../common/collection-extensions',
-		   '../../common/string-extensions',
-		   '../../common/regular-expressions',
-		   '../../common/io',
-		   '../../common/system',
-		   '../../common/command-line-parser',
-		   '../../common/stream-extensions',
-		   '../../common/command-processor');
+                   'threads',
+                   '../../common/table-extensions',
+                   '../../common/common-dylan',
+                   '../../common/collection-extensions',
+                   '../../common/string-extensions',
+                   '../../common/regular-expressions',
+                   '../../common/io',
+                   '../../common/system',
+                   '../../common/command-line-parser',
+                   '../../common/stream-extensions',
+                   '../../common/command-processor');

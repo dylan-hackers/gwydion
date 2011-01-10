@@ -31,5 +31,5 @@ if ($features{'compiled_for_win32'}) {
    
 if ($dig_lid_file) {
     &emit_library_rule($dig_lid_file, '$(BUILDROOT)/force.timestamp', '', 
-		       'compile', 'install');
+                       'compile', 'install');
 }
