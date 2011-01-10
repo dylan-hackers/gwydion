@@ -3,7 +3,6 @@ Synopsis:     Portable operating system APIs
 Author:       Gail Zacharias
 Major-Version: 2
 Minor-Version: 1
-Other-Files:   Open-Source-License.txt
 Files: library
        unix-ffi
        architecture
@@ -32,7 +31,6 @@ C-Object-Files:	unix-portability.o
 Unique-ID-Base: 2100
 Copyright:    Original Code is Copyright (c) 1995-2004 Functional Objects, Inc.
               All rights reserved.
-License:      Functional Objects Library Public License Version 1.0
-Dual-license: GNU Lesser General Public License
+License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 

@@ -3,7 +3,7 @@ Author:       Peter S. Housel
 Synopsis:     C-FFI emulation
 Copyright:    Original Code is Copyright 2003-2004 Gwydion Dylan Maintainers
               All rights reserved.
-License:      Functional Objects Library Public License Version 1.0
+License:      See License.txt in this distribution for details.
 Dual-License: GNU Lesser General Public License
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 

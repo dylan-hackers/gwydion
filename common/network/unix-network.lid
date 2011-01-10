@@ -3,7 +3,7 @@ Author:       Andy Armstrong
 Synopsis:     Linux (x86) version of the Functional Objects Network library
 Copyright:    Original Code is Copyright (c) 1998-2002 Functional Objects, Inc.
               All rights reserved.
-License:      Functional Objects Library Public License Version 1.0
+License:      See License.txt in this distribution for details.
 Dual-License: GNU Lesser General Public License
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 Target-Type:  dll
@@ -22,7 +22,6 @@ Files:  unix-network-library
 	sockets/unix-TCP-socket-accessor
 	sockets/UDP-sockets
 	sockets/unix-UDP-sockets
-Other-Files:  Open-Source-License.txt
 XFiles: unix-sockets/x86-linux-sockets-data
         unix-sockets/x86-linux-address-data
         unix-sockets/sockets-interfaces
