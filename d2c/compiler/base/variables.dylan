@@ -727,7 +727,7 @@ define method namespace-kind (lib :: <module>) => res :: <byte-string>;
 end method namespace-kind;
 
 define method full-namespace-name (mod :: <module>) => name :: <byte-string>;
-  concatenate(as(<byte-string>, mod.module-home.library-name), ":",
+  concatenate(as(<byte-string>, mod.library-name), ":",
               as(<byte-string>, mod.module-name))
 end method full-namespace-name;
 
@@ -736,6 +736,10 @@ end method full-namespace-name;
 define method module-name (mod :: <module>) => name :: <symbol>;
   mod.namespace-name;
 end method module-name;
+
+define method library-name (mod :: <module>) => name :: <symbol>;
+  mod.module-home.library-name;
+end method library-name;
 
 
 // find-module -- exported.
@@ -938,6 +942,21 @@ define method search-variables (name :: <basic-name>,
   results;
 end method search-variables;
 
+// find-defining-module -- exported
+//
+define method find-defining-modules (name :: <symbol>)
+    => mod :: <stretchy-vector>;
+  let modules = make(<stretchy-vector>);
+  for (lib in $Libraries)
+    for (exported-name in lib.exported-names)
+      let mod :: <module> = lib.entries[exported-name].entry-constituent;
+      if (member?(name, mod.exported-names))
+        modules := add!(modules, mod);
+      end if;
+    end for;
+  end for;
+  modules;
+end method find-defining-modules;
 
 // name-inherited-or-exported?  --  exported
 //

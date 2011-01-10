@@ -552,6 +552,7 @@ define module variables
   use definitions;
   use od-format;
   use search;
+  use format-out;
 
   use forwards, import: {<library>, <module>}, export: all;
   export
@@ -570,7 +571,7 @@ define module variables
     variable-tlf, variable-tlf-setter,
     note-variable-definition, note-variable-referencing-macro,
     <use>, <all-marker>, <renaming>, renaming-orig-name, renaming-new-name,
-    search-variables,
+    search-variables, find-defining-modules,
 
     module-home, variable-home,
     name-inherited-or-exported?,

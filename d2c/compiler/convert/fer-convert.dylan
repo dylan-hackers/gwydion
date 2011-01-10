@@ -114,12 +114,23 @@ define function undefined-variable-error
      lexenv :: <lexenv>,
      name :: <basic-name>)
  => ();
-  let similar-names = search-lexical-environment(lexenv, name, similar-name-search);
-  let similar-name = closest-search-result(similar-names);
-  if (similar-name)
-    compiler-error-location(loc, "Undefined variable: %s. Did you mean '%s'?", name, similar-name);
+  let defining-modules = find-defining-modules(name.name-symbol);
+  if (~defining-modules.empty?)
+    local method format-module(mod :: <module>) => line :: <byte-string>;
+      format-to-string("    * Module '%s' from library '%s'.\n",
+                       mod.module-name, mod.library-name);
+    end method;
+    let msg = concatenate("Undefined variable: '%s'. It can be imported from:\n",
+                          apply(concatenate, map(format-module, defining-modules)));
+    compiler-error-location(loc, msg, name);
   else
-    compiler-error-location(loc, "Undefined variable: %s", name);
+    let similar-names = search-lexical-environment(lexenv, name, similar-name-search);
+    let similar-name = closest-search-result(similar-names);
+    if (similar-name)
+      compiler-error-location(loc, "Undefined variable: '%s'. Did you mean '%s'?", name, similar-name);
+    else
+      compiler-error-location(loc, "Undefined variable: '%s'.", name);
+    end if;
   end if;
 end function;
 
