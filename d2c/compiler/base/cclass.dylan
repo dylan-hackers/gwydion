@@ -1730,9 +1730,19 @@ end method layout-slots-for;
 
 define method update-ptrfree(slot :: <instance-slot-info>, class :: <cclass>)
  => ();
-  let rep = slot.slot-representation;
-  let rep-name = rep.representation-name;
-  if (rep-name == #"general" | rep-name == #"heap")
+  let ctype = slot.slot-type;
+  let rep-name = slot.slot-representation.representation-name;
+
+  // pointers are bad, unless they point to a class (e.g but not only ISA)
+  // or to a limited collection description. Both are assumed to be
+  // protected from GC by other means (e.g. static allocation)
+  if (rep-name == #"general" |
+        (rep-name == #"heap" &
+           ~(instance?(ctype, <cclass>) &
+               begin
+                 let symb = ctype.cclass-name.name-symbol;
+                 symb == #"<class>" | symb == #"<limited-collection>"
+               end)))
     class.ptr-free? := #f;
   end;
 end;
@@ -1749,9 +1759,7 @@ define method inherit-layout
      super :: <cclass>)
     => ();
   let inherited-position = get-direct-position(slot.slot-positions, super);
-  unless (inherited-position = 0) // HACK WARNING ignore the ISA pointer
-    update-ptrfree(slot, class);
-  end;
+  update-ptrfree(slot, class);
   add-position(slot.slot-positions, class,
 	       inherited-position);
 end method inherit-layout;
