@@ -244,10 +244,8 @@ define module system
 	     system, import-string, export-string, getenv, 
 	     no-core-dumps, get-time-of-day,
 
-	     // Buffers.
-	     <buffer>, <buffer-index>, $maximum-buffer-size,
-	     buffer-next, buffer-next-setter, buffer-end, buffer-end-setter,
-	     copy-bytes, buffer-address},
+	     // Copy-bytes.
+	     copy-bytes},
     export: all;
 end;
 

@@ -260,7 +260,6 @@ end;
 define module source
   use common;
   use byte-vector;
-  use system, import: {buffer-address};
   use utils;
   use od-format;
   use compile-time-values;

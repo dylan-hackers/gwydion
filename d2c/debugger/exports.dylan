@@ -20,9 +20,7 @@ define module debugger
   use streams;
   use magic;
   use introspection;
-  use system, exclude: { <buffer>, <buffer-index>,
-                        buffer-next, buffer-next-setter,
-                        buffer-end, buffer-end-setter};
+  use system, import: { <raw-pointer>, pointer-deref };
   use melange-support;
   use command-processor;
   use string-hacking;

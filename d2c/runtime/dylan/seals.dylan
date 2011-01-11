@@ -47,7 +47,7 @@ define sealed domain as-uppercase! (<builtin-string>);
 define sealed domain as (singleton(<symbol>), <builtin-string>);
 
 define constant <builtin-vector>
-  = type-union(<simple-vector>, <stretchy-object-vector>, <byte-vector>, <buffer>, 
+  = type-union(<simple-vector>, <stretchy-object-vector>, <byte-vector>,
                <builtin-string>, <entry-vector>);
 
 define constant <builtin-array>

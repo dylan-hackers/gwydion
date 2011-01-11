@@ -49,11 +49,7 @@ end function import-string;
 
 define function export-string (string :: <byte-string>)
  => ptr :: <raw-pointer>;
-  let len = string.size;
-  let buffer = make(<buffer>, size: len + 1);
-  copy-bytes(buffer, 0, string, 0, len);
-  buffer[len] := 0;
-  buffer-address(buffer);
+  %%primitive(vector-elements, string);
 end function export-string;
 
 define function getenv (name :: <byte-string>)
