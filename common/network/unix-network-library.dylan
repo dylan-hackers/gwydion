@@ -54,7 +54,7 @@ define module unix-sockets
     $SOCK-STREAM, $SOCK-DGRAM, $SOCK-SEQPACKET;
   export
     $SHUT-RD, $SHUT-WR, $SHUT-RDWR;
-  export 
+  export
     $SOL-SOCKET;
   export
     $SO-ACCEPTCONN, $SO-BROADCAST, $SO-DEBUG, $SO-DONTROUTE, $SO-ERROR,
@@ -92,7 +92,7 @@ define module unix-sockets
 
   // --
   export
-    unix-recv-buffer, unix-send-buffer, 
+    unix-recv-buffer, unix-send-buffer,
     unix-recv-buffer-from, unix-send-buffer-to;
 
   // --
@@ -172,7 +172,7 @@ define module sockets
     \with-socket-thread,
     invoke-with-socket-thread,
     register-socket-thread,
-    unregister-socket-thread;				      
+    unregister-socket-thread;
   create
     <internet-address>,
       <ipv4-address>,
@@ -211,26 +211,26 @@ define module sockets-internals
   use byte-vector;
   use unix-sockets,
     rename: {socket => unix-socket,
-             connect => unix-connect, 
-	     bind => unix-bind,
+             connect => unix-connect,
+             bind => unix-bind,
              listen => unix-listen,
-	     accept => unix-accept,
-	     htonl => unix-htonl, ntohl => unix-ntohl,
-	     htons => unix-htons, ntohs => unix-ntohs,
-	     gethostbyname => unix-gethostbyname, 
-	     getservbyname => unix-getservbyname, 
-	     gethostbyaddr => unix-gethostbyaddr,
-	     getsockname => unix-getsockname,
-	     getpeername => unix-getpeername,
-	     gethostname => unix-gethostname, 
-	     <c-socket> => <unix-socket-descriptor>,
-	     close => unix-closesocket},
+             accept => unix-accept,
+             htonl => unix-htonl, ntohl => unix-ntohl,
+             htons => unix-htons, ntohs => unix-ntohs,
+             gethostbyname => unix-gethostbyname,
+             getservbyname => unix-getservbyname,
+             gethostbyaddr => unix-gethostbyaddr,
+             getsockname => unix-getsockname,
+             getpeername => unix-getpeername,
+             gethostname => unix-gethostname,
+             <c-socket> => <unix-socket-descriptor>,
+             close => unix-closesocket},
     exclude: {<socket>, // use <accessor-socket-descriptor>
-	      send,  //  use unix-send-buffer instead
-	      recv};  //  use unix-recv-buffer instead
+              send,  //  use unix-send-buffer instead
+              recv};  //  use unix-recv-buffer instead
 
   use sockets, export: all;
-  export 
+  export
     <general-TCP-socket>, <byte-char-TCP-socket>, <byte-TCP-socket>;
 
   export
