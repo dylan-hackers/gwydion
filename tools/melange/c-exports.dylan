@@ -140,9 +140,9 @@ define module c-lexer
     <identifier-token>, <integer-token>, <character-token>, <struct-token>,
     <short-token>, <long-token>, <int-token>, <char-token>, <signed-token>,
     <unsigned-token>, <float-token>, <double-token>, <void-token>, <bool-token>,
-    <union-token>, <enum-token>, <minus-token>, <tilde-token>, <bang-token>,
-    <alien-name-token>, <macro-parse-token>, <cpp-parse-token>, string-value,
-    value, unget-token, add-typedef, get-token, include-path,
+    <union-token>, <enum-token>, <plus-token>, <minus-token>, <tilde-token>,
+    <bang-token>, <alien-name-token>, <macro-parse-token>, <cpp-parse-token>,
+    string-value, value, unget-token, add-typedef, get-token, include-path,
     check-cpp-expansion, file-in-include-path
 end module c-lexer;
 

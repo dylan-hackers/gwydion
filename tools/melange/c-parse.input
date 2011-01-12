@@ -479,6 +479,7 @@ unary-expr (postfix-expr)
 
 unary-expr (unary-operator cast-expr)
   select (%1 by instance?)
+    <plus-token> => int-value(%2, @0);
     <minus-token> => -int-value(%2, @0);
     <tilde-token> => lognot(int-value(%2, @0));
     <bang-token> => if (int-value(%2, @0) == 0) 1 else 0 end if;
@@ -501,9 +502,9 @@ Unary-Expr (<SIZEOF-Token> <Lparen-Token> Type-Name <Rparen-Token>)
 ;  error("unary-operator not yet handled.");
 ;%
 
-;unary-operator (<plus-token>)
-;  error("unary-operator not yet handled.");
-;%
+unary-operator (<plus-token>)
+  %1;
+%
 
 unary-operator (<minus-token>)
   %1;
