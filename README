@@ -1,0 +1,24 @@
+Gwydion Dylan
+=============
+
+Gwydion Dylan provides a command-line Dylan compiler called d2c.  It
+was originally written by the Gwydion Group at CMU as part of a
+research project studying advanced hypercode development
+environments. It is now maintained by a group of volunteers.
+
+To install Gwydion Dylan, take a look at the INSTALL file. For a brief
+overview, see the man pages dylan(7), gwydion(7), d2c(1), mindy(1),
+melange(1) and make-dylan-app(1).
+
+The following online resources are available:
+
+  Maintainers' website:    http://www.gwydiondylan.org/
+  Mail to the maintainers: gd-hackers@gwydiondylan.org
+  Newsgroup:               news:comp.lang.dylan
+  IRC:                     #dylan on freenode
+
+If you use Gwydion to any extent, you'll want subscribe to gd-hackers so
+you can ask questions and report the inevitable bugs. Send a message to
+gd-hackers-request@gwydiondylan.org with the word "subscribe" in the subject 
+to subscribe. If you want to contribute code or documentation, we 
+enthusiastically encourage you to do so.
