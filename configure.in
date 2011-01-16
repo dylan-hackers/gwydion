@@ -667,28 +667,6 @@ AC_CHECK_DECLS([cfmakeraw],,,[#include <termios.h>])
 #====================================================================
 
 #--------------------------------------------------------------------
-#  Determine whether the host architecture is little-endian, for use
-#  by the operating-system library. We define our own instead of
-#  using the builting AC_C_BIGENDIAN to make things a bit cleaner
-#  and to avoid an annoying warning from autoconf from the implicit
-#  call to AC_TRY_RUN that the builtin macro uses.
-#
-#  CAVEAT HACKER: this will need to be revisited if we ever allow
-#                 cross compilation.
-#--------------------------------------------------------------------
-
-AC_MSG_CHECKING(whether byte ordering is little-endian)
-AC_TRY_RUN([
-int main()
-{
-    unsigned short foo = 0xFEFF;
-    exit(((unsigned char *)&foo)[0] != 0xFE);
-}
-], little_endian=["#f"], little_endian=["#t"], little_endian=["#f"])
-AC_MSG_RESULT("$little_endian")
-AC_SUBST(little_endian)
-
-#--------------------------------------------------------------------
 # Build and run config.status.
 #--------------------------------------------------------------------
 

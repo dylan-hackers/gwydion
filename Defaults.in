@@ -87,5 +87,4 @@ $GC_CFLAGS = '@GC_CFLAGS@';
 $GC_LIBS = '@GC_LIBS@';
 
 # Handle constants from common/system.
-$architecture_little_endian = "@little_endian@";
 $machine_name = "@host_cpu@";

@@ -31,6 +31,11 @@ if (0 && $enable_bootstrap) {
 		       'compile', 'no-mindy', 'install');
 }
 
+$architecture_little_endian = '#f';
+if ($target_platform{'big-endian?'} == '#f') {
+    $architecture_little_endian = '#t';
+}
+
 open(CONSTANTS,">$buildroot/$subdir/architecture.dylan")
     || die "cannot create architecture.dylan";
 print CONSTANTS <<"EOF";
