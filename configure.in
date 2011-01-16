@@ -233,6 +233,12 @@ if test "$D2C" != no; then
     _DCI_D2C_RUNTIME_SUBDIR=
     if $D2C --compiler-info > "$srcdir/compiler-info" 2> /dev/null; then
         . "$srcdir/compiler-info"
+    else
+        cat "$srcdir/compiler-info"
+        rm -f "$srcdir/compiler-info"
+        AC_MSG_ERROR([Your d2c appears to be broken. A working d2c binary is
+required to build $PACKAGE-$VERSION. Try running d2c --compiler-info to see what
+error was encountered.])
     fi
     rm -f "$srcdir/compiler-info"
 
