@@ -158,12 +158,6 @@ AC_SUBST(exe_ext)
 
 AC_SUBST(host_cpu)
 
-DYLAN_HOST_OS="`uname -s`"
-AC_SUBST(DYLAN_HOST_OS)
-
-DYLAN_OS_VERSION="`uname -r`"
-AC_SUBST(DYLAN_OS_VERSION)
-
 AC_MSG_CHECKING(to see if we're cross-compiling)
 d2c_cross_compiling=no
 if test "$d2c_target" != "$d2c_host"; then
