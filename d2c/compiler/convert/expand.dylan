@@ -192,11 +192,6 @@ define method make-temp (name :: <symbol>) => res :: <identifier-token>;
        uniquifier: make(<uniquifier>));
 end;
 
-define method make-dylan-id (name :: <symbol>) => res :: <identifier-token>;
-  make(<identifier-token>, kind: $raw-ordinary-word-token, symbol: name,
-       module: $Dylan-Module, uniquifier: make(<uniquifier>));
-end;
-  
 define method bind-temp (name :: <symbol>, expr :: <expression-parse>)
     => (temp :: <identifier-token>, bind-form :: <let-parse>);
   let temp = make-temp(name);
