@@ -1102,25 +1102,24 @@ sub install_one_file {
                 $to_file = "\${DESTDIR}$to_file";
         }
 
-    print "\n$to_file: $from_file\n";
     if ( ($host_platform{'default_features'} =~ /compiled-for-win32/i)
                 || ($host_platform{'default_features'} =~ /compiled-for-mingw32/i))
     {
         # Host is a win32 platform
-        local ($rule) = "\tcopy $from_file $to_file\n\n";
+        local ($rule) = "copy $from_file $to_file";
         $rule =~ tr|/|\\|;  # translate / to \ for MS-Windows
-        print $rule;
+        push(@install_commands, $rule);
     } elsif ($host_platform{'default_features'} =~ /compiled-for-unix/i) {
         if ($executable_permissions) {
-            print "\t$install_program $from_file $to_file\n\n";
+            push(@install_commands, "$install_program $from_file $to_file");
         } else {
-            print "\t$install_data $from_file $to_file\n\n";
+            push(@install_commands, "$install_data $from_file $to_file");
         };
     } else {
         die("The host is neither Unix nor win32, so I don't know how\n"
             . "to install your files.");
     }
-    push(@install_dependencies, $to_file);
+    push(@install_dependencies, $from_file);
     push(@uninstall_commands, "rm -f $to_file");
 }
 
@@ -1208,12 +1207,11 @@ sub install_library {
     $dest_dir || return;
 
     unless ($host_platform{'default_features'} =~ /compiled-for-win32/i) {
-                $gnu_dest_dir = "\${DESTDIR}$gnu_dest_dir";
+        $gnu_dest_dir = "\${DESTDIR}$gnu_dest_dir";
     }
 
-    print "\n$gnu_dest_dir/$library: $library\n";
-    print "\t$install_library $library $gnu_dest_dir/$library\n\n";
-    push(@install_dependencies, "$gnu_dest_dir/$library");
+    push(@install_commands, "$install_library $library $gnu_dest_dir/$library");
+    push(@install_dependencies, "$library");
 }
 
 # makegen_include($include_file) -- exported
