@@ -590,30 +590,12 @@ AC_SUBST(enable_debug)
 
 case `basename $CC` in
 gcc* | *-gcc*)
-    if test $enable_debug = yes; then
-        CCOPTS="-g -O -fno-inline -Wall -pedantic"
-    elif test $enable_debug = minimum; then
-        CCOPTS="-g -O2 -Wall"
-    else
-        CCOPTS="-O4"
-    fi
     EXTRA_INCLUDE_DIR="`$CC --print-file-name=include`"
     if test "X$EXTRA_INCLUDE_DIR" = Xinclude; then
         EXTRA_INCLUDE_DIR=
     fi
     ;;
-cl|cl.exe)
-    if test $enable_debug = yes; then
-        CCOPTS="-nologo /W3 /ZI/Ge"
-    else
-        CCOPTS="-nologo"
-    fi
-    ;;
-*)
-    CCOPTS="-g -O"
-    ;;
 esac
-AC_SUBST(CCOPTS)
 AC_SUBST(EXTRA_INCLUDE_DIR)
 
 #--------------------------------------------------------------------
