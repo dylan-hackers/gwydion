@@ -1,0 +1,502 @@
+#!@PERL@
+
+use Cwd;
+use File::Basename;
+use File::Copy;
+use File::GLob ':globally';
+use File::Path;
+
+@bootstrap_projects = (
+    'd2c/runtime/c-code',
+    'd2c/runtime/dylan',
+    'd2c/runtime/random',
+    'd2c/runtime/threads',
+    'd2c/runtime/melange',
+    'd2c/runtime/transcendental',
+    'common/table-extensions',
+    'common/common-dylan',
+    'common/collection-extensions',
+    'common/string-extensions',
+    'common/regular-expressions',
+    'common/io',
+    'common/system',
+    'common/command-line-parser',
+    'common/stream-extensions',
+    'common/command-processor',
+    'd2c/debugger',
+    'd2c/compiler/base',
+    'd2c/compiler/front',
+    'd2c/compiler/fer-transform',
+    'd2c/compiler/optimize',
+    'd2c/compiler/parser',
+    'd2c/compiler/convert',
+    'd2c/compiler/cback',
+    'd2c/compiler/main'
+);
+
+# Authors: William Lott, Nick Kramer, Bruce Mitchener
+#
+# Usage: gen-bootstrap [-pplatforms.descr] directory
+#
+# This is a copy of gen-makefile stripped down and modified
+# to let me quickly generate makefiles for bootstrapping from
+# C sources.
+
+$usage_message = "Usage: $0 [-pPlatforms.descr] [directory]\n";
+
+@ARGV <= 2 || die $usage_message;
+if ($ARGV[0] =~ /^-p(.*)/) {
+    $platforms_dot_descr = $1;
+    shift(@ARGV);
+} else {
+    $platforms_dot_descr = ($ENV{'DYLANDIR'} || '@prefix@') .
+        '/share/dylan/platforms.descr';
+}
+if (@ARGV == 0) {
+    push(@ARGV, '.');
+}
+@ARGV == 1 || die $usage_message;
+chdir($ARGV[0]) || die "Can't cd to $ARGV[0]: $!\n";
+
+$lidfile_hit_eof = 0;
+$lidfile_line = 1;
+
+do set_default_defaults();
+do find_Defaults_file();
+do read_Defaults_file();
+do copy_bootstrap_files();
+do generate_bootstrap_makefile();
+exit(0);
+
+
+# Core functionality of gen-bootstrap
+
+# set_default_defaults() -- internal
+#
+# Sets up the default values we use if something isn't specified in
+# the Defaults file.  There is no return value, only a lot of side
+# effects to global variables.
+#
+sub set_default_defaults {
+    # Set the default defaults.
+    $DYLANDIR = 0;
+    $CFLAGS = '';
+    $CPPFLAGS = '';
+    $CDEFFLAGS = '';
+}
+
+# find_Defaults_file() -- internal
+#
+# Finds the Defaults file and sets $defaults, $buildroot, and
+# $orig_buildroot appropriately.
+#
+sub find_Defaults_file {
+    local($cwd) = cwd();  # cwd is more portable than `pwd`;
+    chomp($cwd);          # chomp is safer than chop
+    $buildroot = $cwd;
+    $subdir = '';
+
+    # Change //d/path into d:/path on NT.  Only a problem on drives
+    # other than C:.  (We can't conditionalize this because we don't
+    # yet know which platform we're running on.)
+    $buildroot =~ s|^//(\w)/|\1:/|;
+
+    until (-e ($defaults = $buildroot . '/Defaults')) {
+        ($buildroot =~ /^(.*)\/([^\/]+)$/)
+            || die("Can't find Defaults and hence can't tell where "
+                   . "the root is.\n");
+
+        $subdir = $2 . '/' . $subdir;
+        $buildroot = $1;
+    }
+
+    # Save the buildroot.
+    $orig_buildroot = $buildroot;
+}
+
+# read_Defaults_file() -- internal
+#
+# Reads in the Defaults file which find_Defaults_file found, and sets
+# up a variety of global variables that depend on things in the
+# Defaults file.
+#
+sub read_Defaults_file {
+    # Slurp in the defaults.
+    do $defaults;
+    die("Problem loading $defaults:\n  $@\n") if $@;
+
+    &read_platforms_dot_descr();
+    $target_name || die("Must set variable \$target_name in Defaults file\n");
+    $host_name = $host_name || $target_name;  # $host defaults to $target
+    %target_platform = &get_platform($target_name);
+    %host_platform = &get_platform($host_name);
+
+    # Extract features from target platform
+    for my $feature_name (split(/\s+/, $target_platform{'default_features'})) {
+        $feature_name =~ tr/-A-Z/_a-z/;
+        $features{$feature_name} = 1;
+    }
+
+    $target_platform{'platform_name'} =~ /\-(\w+)\-/;
+    $debug_platform_name = $1;
+    $debug_platform_name =~ tr/a-z/A-Z/;
+    $debug_platform_name = "-DGD_PLATFORM_$debug_platform_name";
+
+    # Create some useful shorthands (internal use only)
+    $makefile = $target_platform{'makefile_name'};
+    $dot_obj = $target_platform{'object_filename_suffix'};
+    $dot_exe = $target_platform{'executable_filename_suffix'};
+
+    # There can be multiple library suffixes, and we only need the
+    # preferred one.
+    ($dot_lib) = split(/\s+/, $target_platform{'library_filename_suffix'});
+    $lib_prefix = $target_platform{'library_filename_prefix'};
+
+    # Check to see if buildroot changed to something else.
+    unless ($buildroot eq $orig_buildroot) {
+        ### On win32, this code doesn't appear to work correctly in
+        ### that it *always* thinks the two are equivalent.  Oh well,
+        ### no harm done...
+        local($root_inode) = (stat($buildroot))[1];
+        local($orig_inode) = (stat($orig_buildroot))[1];
+        unless ($root_inode == $orig_inode) {
+            die("Defaults changed \$buildroot to:\n  $buildroot\n"
+                . "but that is a different directory than:\n"
+                . "  $orig_buildroot\n");
+        }
+        &assert_path_is_absolute($buildroot, "\$buildroot");
+        $defaults = $buildroot . '/Defaults';
+    }
+
+    # Make sure they set srcroot.  And set it to an absolute pathname.
+    $srcroot || die('$srcroot not set in Defaults.\n');
+    &assert_path_is_absolute($srcroot, "\$srcroot");
+
+    # Tack the subdir onto srcroot.  Note: subdir is empty or ends
+    # with a /, hence the chop.
+
+    chop($srcdir = $srcroot.'/'.$subdir);
+
+    # Likewise for builddir
+    chop($builddir = $buildroot.'/'.$subdir);
+
+    if ($destdir) {
+      unless ($libdir) {
+        $libdir = $destdir.'/lib/dylan';
+      }
+      unless ($bindir) {
+        $bindir = $destdir.'/bin';
+      }
+      unless ($includedir) {
+        $includedir = $destdir.'/include';
+      }
+      unless ($sysconfdir) {
+        $sysconfdir = $destdir.'/etc';
+      }
+    }
+
+    $srcroot = &convert_path_separator($srcroot);
+    $srcdir = &convert_path_separator($srcdir);
+    $buildroot = &convert_path_separator($buildroot);
+    $builddir = &convert_path_separator($builddir);
+    $destdir = &convert_path_separator($destdir);
+    $libdir = &convert_path_separator($libdir);
+    $bindir = &convert_path_separator($bindir);
+    $includedir = &convert_path_separator($includedir);
+    $sysconfdir = &convert_path_separator($sysconfdir);
+}
+
+
+# Internal utility functions
+
+# assert_path_is_absolute($path, $variable) -- internal
+#
+# Decides if the path is an absolute path; signals an error if it
+# isn't.  On a win32 system, an absolute path must have a drive
+# letter.  Make sure you've set %host_platform before you call this
+# function.  $variable is used only in error messages.
+#
+sub assert_path_is_absolute {
+    local($path, $variable) = @_;
+    local($win32_absolute) = ($path =~ /^w:\//);
+    local($unix_absolute) = ($path =~ /^\//);
+    local($ok, $explanation);
+
+    # We do a lot of extra work here so we can provide better error
+    # messages.
+    if ($win32_absolute && $host_platform{'uses_drive_letters?'}) {
+        $ok = 1;
+    } elsif ($unix_absolute && !$host_platform{'uses_drive_letters?'}) {
+        $ok = 1;
+    } elsif ($unix_absolute && $host_platform{'uses_drive_letters?'}) {
+        $ok = 0;
+        $explanation = "(You must include a drive letter)";
+    } elsif ($win32_absolute && !$host_platform{'uses_drive_letters?'}) {
+        $ok = 0;
+        $explanation = "(You included a drive letter on a Unix machine?!?)";
+    } else {
+        # path is not absolute by anyone's definition, which doesn't
+        # merit further explanation.
+        $ok = 0;
+        $explanation = "";
+    }
+
+ $ok = 1;
+    if (! $ok) {
+        if ($explanation) {
+            die "$variable is not absolute:\n  $path\n$explanation\n";
+        } else {
+            die "$variable is not absolute:\n  $path\n";
+        }
+    }
+}
+
+# maybe_emit_d2c_defines() -- internal
+#
+# If they haven't already been emitted, emit the Makefile header,
+# which defines various Makefile variables like $(CFLAGS).
+#
+sub maybe_emit_d2c_defines {
+    unless ($d2c_defines) {
+        if ($CC) {
+            print("CC = $CC\n");
+        }
+        if ($enable_debug) {
+            $CFLAGS .= " $target_platform{'default_c_compiler_debug_flags'}";
+        } elsif ($enable_profiling) {
+            $CFLAGS .= " $target_platform{'default_c_compiler_profile_flags'}";
+        } else {
+            $CFLAGS .= " $target_platform{'default_c_compiler_flags'}";
+        }
+        $CFLAGS =~ s/-I%s//;
+        $CFLAGS .= " -Id2c/runtime";
+        $CDEFFLAGS .= " $target_platform{'default_c_platform_defines'}";
+
+        local($delete_file_command) = $target_platform{'delete_file_command'};
+        local($ranlib_command) = $target_platform{'randomize_library_command'};
+        local($ar_command) = $target_platform{'link_library_command'};
+        $ranlib_command =~ s/%s//g;
+        $ar_command =~ s/%s//g;
+
+        # We don't include a previous value of CPPFLAGS because we don't
+        # want it picking up the value from Defaults.
+        print <<EOF;
+CFLAGS = $CFLAGS $CDEFFLAGS $GC_CFLAGS
+CPPFLAGS = $debug_platform_name $CDEFFLAGS
+GC_LIBS = $GC_LIBS
+
+RM = $delete_file_command
+RANLIB = $ranlib_command
+AR = $ar_command
+
+EOF
+        $d2c_defines = 1;
+    }
+}
+
+# parse_dylan_header() -- internal
+#
+# Reads the Dylan header (keyword: value, ...) from the file LIDFILE,
+# which is already open.  (The file doesn't have to be a lid file, it
+# could be something else like a platforms.descr) Returns an
+# associative array where the keys are header keywords (mashed to
+# lower case), and the values are the header values.
+#
+# In contrast to the Dylan version, keywords can not appear more than
+# once.  If they do, the last value will be used.  Multi-line values
+# are supported, though.
+#
+# We also set the global $lidfile_hit_eof, so you can know why the
+# header ended.  This is useful for reading in platform.descr files,
+# where you call parse_dylan_header repeatedly.
+#
+sub parse_dylan_header {
+    local(%contents);
+    local($last_keyword); # for multi-line values
+
+    while (<LIDFILE>) {
+        $lidfile_line = $lidfile_line + 1;
+        # remember, in Perl "." is any character other than newline.
+        # Also, Perl handles all newline hassles by turning win32
+        # style CRLFs into LFs (\n's) before it shows us the string.
+
+        if ( ($target_name =~ /cygwin/) || ($target_name eq 'x86-win32-vc') || ($target_name =~ /x86-mingw32-gcc*/)) {
+            $_ =~ s/\r//g;      # Get rid of bogus carriage returns
+        }
+
+        if (/^\s*$/) {  # if blank line, break out of loop
+            $lidfile_hit_eof = 0;
+            return %contents;
+        } elsif (m|^//.*$|) {
+            # comment line, ignore
+        } elsif (/^\s+(.*)$/) {
+            # Continuation line -- part of a multi-line value
+            $contents{$last_keyword} .= ' ' . $1;
+        } else {
+            /^([-A-Za-z0-9_!&*<>|^\$\%\@\?]+):\s+(.*)\s+$/
+                || die "Bad keyword line in $lid_file, line $lidfile_line\n";
+            local($keyword) = $1;
+            local($value) = $2;
+            if ($value eq '#f' | $value eq '#F') {
+                $value = 0;
+            } elsif ($value eq '#t' | $value eq '#T') {
+                $value = 1;
+            }
+            $keyword =~ tr/-A-Z/_a-z/;
+            $contents{$keyword} = $value;
+            $last_keyword = $keyword;
+        }
+    }
+    $lidfile_hit_eof = 1;
+    return %contents;
+}
+
+# read_platforms_dot_descr() -- internal
+#
+# Read the platforms.descr file (used to be called targets.descr).
+# Each platform description will get it's own associative array named
+# %platform_platformName.  (For example, %platform_x86_win32) See
+# parse_dylan_header for a description of the arrays.
+#
+# In addition to the per-platform arrays, there is a global
+# associative array %all_platforms which is used to list all known
+# platforms.  The key is the name of a platform; the value is 1 if it
+# is a known platform, 0 otherwise.
+#
+sub read_platforms_dot_descr {
+    ### Should have better way of specifying location of .descr
+    open(LIDFILE, $platforms_dot_descr)
+      || die("Can't open $platforms_dot_descr: $!\n");
+    $lidfile_line = 0;
+    while (! $lidfile_hit_eof) {
+        local(%platform) = &parse_dylan_header();
+        local(@keywords) = keys(%platform);
+        if ($#keywords > 0) {
+            # if a real header, not a blank line or comment block
+            local($platform_name) = $platform{'platform_name'};
+            $platform_name =~ tr/-A-Z/_a-z/; # mash to lowercase; - to _
+
+            if ($platform{'inherit_from'}) {
+                local($key);
+                foreach my $parent (split(/\s+/, $platform{'inherit_from'})) {
+                    local(%parent_plat) = &get_platform($parent);
+                    local($key);
+                    foreach my $key (keys(%parent_plat)) {
+                        if (!defined $platform{$key}) {
+                            $platform{$key} = $parent_plat{$key};
+                        } elsif ($key eq 'default_features') {
+                            $platform{$key} =
+                                $platform{$key} . " " . $parent_plat{$key};
+                        }
+                    }
+                }
+            }
+
+            # Copy the %platforms array into the appropriate global
+            local($eval_string) = '%' . 'platform_' . $platform_name
+                . ' = %' . 'platform';
+            eval($eval_string);
+            $all_platforms{$platform_name} = 1;
+        }
+    }
+    close(LIDFILE);
+}
+
+# get_platform($platform_name) -- internal
+#
+# Return the platform (associative array) that corresponds to
+# $platform_name.  This function will lowercase the platform name and
+# translate dashes into underbars for you.
+#
+sub get_platform {
+    local($platform_name) = @_;
+    $platform_name =~ tr/-A-Z/_a-z/;
+    $all_platforms{$platform_name} || die("Unknown platform: $platform_name");
+    local(%platform) = eval('%platform_' . $platform_name);
+    return %platform;
+}
+
+# convert_path_separator($path) -- exported
+#
+# Converts a path which uses / into one that uses the path separator
+# appropriate for the host platform.
+#
+sub convert_path_separator {
+    local($path) = @_;
+    local($separator) = $host_platform{'path_separator'};
+    $separator =~ s|\\\\|\\|g; # translate \\ into \ (Dylan escaping rules)
+    $path =~ s|/|$separator|g;
+    return $path;
+}
+
+sub escape_project {
+    local($prj) = @_;
+    $prj =~ s|/|_|g;
+    $prj =~ s|-|_|g;
+    return $prj;
+}
+
+#
+# copy_bootstrap_files
+#
+sub copy_bootstrap_files {
+    foreach my $project (@bootstrap_projects) {
+        mkpath($project);
+        my $srcpath = $srcroot . '/' . $project;
+        for my $file (<$srcpath/*.{c,h}>) {
+            copy($file, $project . '/' . basename($file)) or die("Failed to copy $file.");
+        }
+    }
+    copy("$srcroot/config.h", "config.h") or die("Failed to copy $srcroot/config.h");
+    copy("$srcroot/d2c/runtime/runtime.h", "d2c/runtime/runtime.h") or die("Failed to copy $srcroot/d2c/runtime/runtime.h");
+}
+
+#
+# generate_bootstrap_makefile
+#
+sub generate_bootstrap_makefile {
+    # Start the makefile.
+    open(MAKEFILE, ">,$makefile") || die("Can't open ,$makefile: $!\n");
+    select(MAKEFILE);
+
+    print "### This makefile is machine generated.  Don't expect any edits to survive.\n";
+    print "### Generated for target $target_name hosted by $host_name\n\n";
+
+    if ($target_platform{'make_supports_phony_targets?'}) {
+        print "\n.PHONY: default compile install uninstall clean\n\n";
+    }
+    print "default: bootstrap_d2c$dot_exe\n\n";
+
+    do maybe_emit_d2c_defines();
+
+    print "%.a:\n";
+    print "\t\$(AR) \$@ \$+\n";
+    print "\t\$(RANLIB) \$@\n";
+    print "\n";
+
+    local(@escaped_bootstrap_projects) = ();
+    local(@bootstrap_archives) = ();
+
+    foreach my $project (@bootstrap_projects) {
+        local($prj) = escape_project($project);
+        push(@escaped_bootstrap_projects, $prj);
+        push(@bootstrap_archives, "$prj$dot_lib");
+        print $prj, "_SRCS=\$(shell ls $project/*.c)\n";
+        print $prj, "_OBJS=\$(", $prj, "_SRCS:.c=$dot_obj)\n";
+        print "$prj$dot_lib: \$(", $prj, "_OBJS)\n";
+        print "\n";
+    }
+
+    print "clean:\n";
+    foreach my $prj (@escaped_bootstrap_projects) {
+        print "\t\$(RM) \$(", $prj, "_OBJS) $prj$dot_lib\n";
+    }
+    print "\n";
+
+    print "bootstrap_d2c$dot_exe: ", join(" ", @bootstrap_archives), "\n";
+    print "\t\$(CC) $target_platform{'link_executable_flags'} -o \$@ \$+\n\n";
+
+    close(MAKEFILE);
+    rename(",$makefile", $makefile);
+}
+
