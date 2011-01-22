@@ -47,7 +47,7 @@ print <<EOF;
 
 bootstrap_clean: clean
 	rm -rf bootstrap_compiler
-	rm -f config.cache
+	rm -rf config.cache autom4te.cache
 	\@echo
 	\@echo "Now run $recheck to prepare for normal builds."
 
@@ -66,7 +66,7 @@ if ($enable_bootstrap) {
     # XXX - this directory name is confusing
     push(@compile_commands, 'mkdir bootstrap_compiler');
     push(@compile_commands, 'cp d2c/compiler/main/d2c' . $dot_exe . ' bootstrap_compiler');
-    push(@compile_commands, 'rm -f config.cache');
+    push(@compile_commands, 'rm -rf config.cache autom4te.cache');
     push(@compile_commands, $recheck);
     push(@compile_commands, '$(MAKE) clean');
     push(@compile_commands, '$(MAKE)');
