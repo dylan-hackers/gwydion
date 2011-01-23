@@ -87,50 +87,55 @@ define /* exported */ generic copy-bytes
 // that the vector-elements works.  Also, the mixed type operations can use
 // memcpy, since the source and destination can't overlap.
 
-define method copy-bytes 
+define sealed inline method copy-bytes 
     (dest :: <byte-vector>, dstart :: <integer>,
      src :: <byte-vector>, sstart :: <integer>, count :: <integer>)
  => ();
+  c-include("string.h");
   call-out("memmove", void:,
 	   ptr: %%primitive(vector-elements, dest) + dstart,
 	   ptr: %%primitive(vector-elements, src) + sstart,
 	   int: count);
 end method;
 
-define method copy-bytes 
+define sealed inline method copy-bytes 
     (dest :: <byte-string>, dstart :: <integer>,
      src :: <byte-vector>, sstart :: <integer>, count :: <integer>)
  => ();
+  c-include("string.h");
   call-out("memcpy", void:,
 	   ptr: %%primitive(vector-elements, dest) + dstart,
 	   ptr: %%primitive(vector-elements, src) + sstart,
 	   int: count);
 end method;
 
-define method copy-bytes 
+define sealed inline method copy-bytes 
     (dest :: <byte-vector>, dstart :: <integer>,
      src :: <byte-string>, sstart :: <integer>, count :: <integer>)
  => ();
+  c-include("string.h");
   call-out("memcpy", void:,
 	   ptr: %%primitive(vector-elements, dest) + dstart,
 	   ptr: %%primitive(vector-elements, src) + sstart,
 	   int: count);
 end method;
 
-define method copy-bytes 
+define sealed inline method copy-bytes 
     (dest :: <byte-string>, dstart :: <integer>,
      src :: <byte-string>, sstart :: <integer>, count :: <integer>)
  => ();
+  c-include("string.h");
   call-out("memmove", void:,
 	   ptr: %%primitive(vector-elements, dest) + dstart,
 	   ptr: %%primitive(vector-elements, src) + sstart,
 	   int: count);
 end method;
 
-define method copy-bytes 
+define sealed inline method copy-bytes 
     (dest :: <unicode-string>, dstart :: <integer>,
      src :: <unicode-string>, sstart :: <integer>, count :: <integer>)
  => ();
+  c-include("string.h");
   call-out("memmove", void:,
 	   ptr: %%primitive(vector-elements, dest) + (2 * dstart),
 	   ptr: %%primitive(vector-elements, src) + (2 * sstart),

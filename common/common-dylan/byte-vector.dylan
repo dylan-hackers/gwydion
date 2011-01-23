@@ -108,6 +108,58 @@ define function copy-bytes-range-error
 end function;
 
 define sealed method copy-bytes
+    (dst :: <byte-vector>, dst-start :: <integer>,
+     src :: <byte-vector>, src-start :: <integer>, n :: <integer>) => ()
+  let src-end :: <integer> = src-start + n;
+  let dst-end :: <integer> = dst-start + n;
+  if (n >= 0 & src-start >= 0 & dst-start >= 0
+        & src-end <= size(src) & dst-end <= size(dst))
+    %copy-bytes(dst, dst-start, src, src-start, n);
+  else
+    copy-bytes-range-error(src, src-start, dst, dst-start, n);
+  end if; 
+end method;
+
+define sealed method copy-bytes
+    (dst :: <byte-string>, dst-start :: <integer>,
+     src :: <byte-vector>, src-start :: <integer>, n :: <integer>) => ()
+  let src-end :: <integer> = src-start + n;
+  let dst-end :: <integer> = dst-start + n;
+  if (n >= 0 & src-start >= 0 & dst-start >= 0
+        & src-end <= size(src) & dst-end <= size(dst))
+    %copy-bytes(dst, dst-start, src, src-start, n);
+  else
+    copy-bytes-range-error(src, src-start, dst, dst-start, n);
+  end if; 
+end method;
+
+define sealed method copy-bytes
+    (dst :: <byte-vector>, dst-start :: <integer>,
+     src :: <byte-string>, src-start :: <integer>, n :: <integer>) => ()
+  let src-end :: <integer> = src-start + n;
+  let dst-end :: <integer> = dst-start + n;
+  if (n >= 0 & src-start >= 0 & dst-start >= 0
+        & src-end <= size(src) & dst-end <= size(dst))
+    %copy-bytes(dst, dst-start, src, src-start, n);
+  else
+    copy-bytes-range-error(src, src-start, dst, dst-start, n);
+  end if; 
+end method;
+
+define sealed method copy-bytes
+    (dst :: <byte-string>, dst-start :: <integer>,
+     src :: <byte-string>, src-start :: <integer>, n :: <integer>) => ()
+  let src-end :: <integer> = src-start + n;
+  let dst-end :: <integer> = dst-start + n;
+  if (n >= 0 & src-start >= 0 & dst-start >= 0
+        & src-end <= size(src) & dst-end <= size(dst))
+    %copy-bytes(dst, dst-start, src, src-start, n);
+  else
+    copy-bytes-range-error(src, src-start, dst, dst-start, n);
+  end if; 
+end method;
+
+define sealed method copy-bytes
     (dst :: <byte-vector>, dst-start :: <integer>, 
      src :: <simple-object-vector>, src-start :: <integer>, n :: <integer>) => ()
   let src-end :: <integer> = src-start + n;
@@ -136,5 +188,3 @@ define sealed method copy-bytes
     copy-bytes-range-error(src, src-start, dst, dst-start, n);
   end if; 
 end method;
-
-// eof
