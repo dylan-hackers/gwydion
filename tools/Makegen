@@ -8,7 +8,6 @@ if ($features{'compiled_for_win32'}) {
 }
 
 do compile_subdirs(
-    'elisp',
     'parsergen',
     'melange',
     'refman',
